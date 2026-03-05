@@ -78,6 +78,19 @@ script_mod! {
         }
 
         Label{
+            text: "With Leading Icon"
+            draw_text.color: (shad_theme.color_muted_foreground)
+            draw_text.text_style.font_size: 10
+        }
+        
+        View{
+            width: 320
+            height: Fit
+
+            ShadInputWithIcon{}
+        }
+
+        Label{
             text: "Preview + Source"
             draw_text.color: (shad_theme.color_muted_foreground)
             draw_text.text_style.font_size: 10
