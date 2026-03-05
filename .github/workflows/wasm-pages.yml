@@ -55,7 +55,7 @@ jobs:
         run: cargo makepad wasm install-toolchain
 
       - name: Build Wasm package
-        run: cargo makepad wasm build -p "${APP_PACKAGE}" --release
+        run: cargo makepad wasm build --strip --brotli --bindgen -p "${APP_PACKAGE}" --release --profile=small
 
       - name: Verify Wasm output
         run: |
