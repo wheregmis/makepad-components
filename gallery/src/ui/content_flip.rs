@@ -12,5 +12,6 @@ script_mod! {
         accordion_page := mod.widgets.GalleryAccordionPage{}
         button_page := mod.widgets.GalleryButtonPage{}
         alert_page := mod.widgets.GalleryAlertPage{}
+        checkbox_page := mod.widgets.GalleryCheckboxPage{}
     }
 }
