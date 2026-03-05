@@ -10,7 +10,9 @@ script_mod! {
         active_page: @accordion_page
 
         accordion_page := mod.widgets.GalleryAccordionPage{}
-        button_page := mod.widgets.GalleryButtonPage{}
         alert_page := mod.widgets.GalleryAlertPage{}
+        avatar_page := mod.widgets.GalleryAvatarPage{}
+        badge_page := mod.widgets.GalleryBadgePage{}
+        button_page := mod.widgets.GalleryButtonPage{}
     }
 }

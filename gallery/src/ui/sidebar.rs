@@ -42,8 +42,10 @@ script_mod! {
             flow: Down
 
             sidebar_accordion := mod.widgets.GallerySidebarItem{text: "Accordion"}
-            sidebar_button := mod.widgets.GallerySidebarItem{text: "Button"}
             sidebar_alert := mod.widgets.GallerySidebarItem{text: "Alert"}
+            sidebar_avatar := mod.widgets.GallerySidebarItem{text: "Avatar"}
+            sidebar_badge := mod.widgets.GallerySidebarItem{text: "Badge"}
+            sidebar_button := mod.widgets.GallerySidebarItem{text: "Button"}
         }
     }
 }
