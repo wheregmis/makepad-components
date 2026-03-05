@@ -35,18 +35,28 @@ impl MatchEvent for App {
                 .set_active_page(cx, live_id!(accordion_page));
         }
 
-        if self.ui.button(cx, ids!(sidebar_button)).clicked(actions) {
-            self.ui
-                .page_flip(cx, ids!(content_flip))
-                .set_active_page(cx, live_id!(button_page));
-        }
-
         if self.ui.button(cx, ids!(sidebar_alert)).clicked(actions) {
             self.ui
                 .page_flip(cx, ids!(content_flip))
                 .set_active_page(cx, live_id!(alert_page));
         }
 
+        if self.ui.button(cx, ids!(sidebar_avatar)).clicked(actions) {
+            self.ui
+                .page_flip(cx, ids!(content_flip))
+                .set_active_page(cx, live_id!(avatar_page));
+        }
+
+        if self.ui.button(cx, ids!(sidebar_badge)).clicked(actions) {
+            self.ui
+                .page_flip(cx, ids!(content_flip))
+                .set_active_page(cx, live_id!(badge_page));
+        }
+
+        if self.ui.button(cx, ids!(sidebar_button)).clicked(actions) {
+            self.ui
+                .page_flip(cx, ids!(content_flip))
+                .set_active_page(cx, live_id!(button_page));
         if self.ui.button(cx, ids!(sidebar_checkbox)).clicked(actions) {
             self.ui
                 .page_flip(cx, ids!(content_flip))
