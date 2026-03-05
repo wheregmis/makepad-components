@@ -24,7 +24,7 @@ script_mod! {
             draw_text.text_style.font_size: 10
         }
 
-        Hr{}
+        GalleryHr{}
 
         View{
             width: Fill
@@ -32,16 +32,31 @@ script_mod! {
             flow: Right
             spacing: 6.0
 
-            ButtonFlatter{text: "XSmall"}
-            ButtonFlatter{text: "Small"}
-            size_medium := Button{text: "Medium"}
-            ButtonFlatter{text: "Large"}
+            ShadButtonGhost{
+                height: 28
+                padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
+                draw_text.text_style.font_size: 9
+                text: "XSmall"
+            }
+            ShadButtonGhost{
+                height: 28
+                padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
+                draw_text.text_style.font_size: 10
+                text: "Small"
+            }
+            size_medium := ShadButton{text: "Medium"}
+            ShadButtonGhost{
+                height: 44
+                padding: Inset{left: 14, right: 14, top: 0, bottom: 0}
+                draw_text.text_style.font_size: 13
+                text: "Large"
+            }
 
             View{width: Fill, height: Fit}
 
-            option_icon := CheckBox{text: "Icon"}
-            option_disabled := CheckBox{text: "Disabled"}
-            option_bordered := CheckBox{text: "Bordered"}
+            option_icon := GalleryCheckBox{text: "Icon"}
+            option_disabled := GalleryCheckBox{text: "Disabled"}
+            option_bordered := GalleryCheckBox{text: "Bordered"}
         }
 
         Label{
@@ -115,8 +130,8 @@ script_mod! {
                             flow: Right
                             spacing: 16
 
-                            Toggle{text: "Switch"}
-                            CheckBox{text: "Or a CheckBox"}
+                            GalleryToggle{text: "Switch"}
+                            GalleryCheckBox{text: "Or a CheckBox"}
                         }
                     }
                 }
