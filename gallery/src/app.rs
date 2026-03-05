@@ -316,6 +316,24 @@ script_mod! {
                                 ShadButtonLink{text: "Link"}
                             }
 
+                            Label{
+                                text: "Makepad Icon Crate"
+                                draw_text.color: #9f9f9f
+                                draw_text.text_style.font_size: 10
+                            }
+
+                            View{
+                                width: Fill
+                                height: Fit
+                                flow: Right
+                                align: Align{y: 0.5}
+                                spacing: 10.0
+
+                                IconCheck{}
+                                IconX{}
+                                IconSearch{}
+                            }
+
                             View{width: Fill, height: Fill}
                         }
                     }
@@ -505,4 +523,3 @@ impl AppMain for App {
         }
     }
 }
-

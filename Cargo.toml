@@ -1,4 +1,4 @@
 # [PROJECT_DIR]/Cargo.toml
 [workspace]
-members = ["gallery", "components"]
+members = ["gallery", "components", "makepad-icon"]
 resolver = "3"
