@@ -119,6 +119,67 @@ script_mod! {
 
 ## Available Components
 
+### Component Checklist
+
+- [x] Accordion
+- [x] Alert
+- [ ] Alert Dialog
+- [x] Aspect Ratio
+- [x] Avatar
+- [x] Badge
+- [x] Breadcrumb
+- [x] Button
+- [x] Button Group
+- [ ] Calendar
+- [ ] Card
+- [ ] Carousel
+- [ ] Chart
+- [x] Checkbox
+- [x] Collapsible
+- [ ] Combobox
+- [ ] Command
+- [ ] Context Menu
+- [ ] Data Table
+- [ ] Date Picker
+- [ ] Dialog
+- [ ] Direction
+- [ ] Drawer
+- [ ] Dropdown Menu
+- [ ] Empty
+- [ ] Field
+- [ ] Hover Card
+- [x] Input
+- [ ] Input Group
+- [ ] Input OTP
+- [ ] Item
+- [ ] Kbd
+- [x] Label
+- [ ] Menubar
+- [ ] Native Select
+- [ ] Navigation Menu
+- [ ] Pagination
+- [ ] Popover
+- [ ] Progress
+- [ ] Radio Group
+- [ ] Resizable
+- [ ] Scroll Area
+- [ ] Select
+- [ ] Separator
+- [ ] Sheet
+- [ ] Sidebar
+- [ ] Skeleton
+- [ ] Slider
+- [ ] Sonner
+- [ ] Spinner
+- [ ] Switch
+- [ ] Table
+- [ ] Tabs
+- [ ] Textarea
+- [ ] Toast
+- [ ] Toggle
+- [ ] Toggle Group
+- [ ] Tooltip
+
 ### Buttons (`components/src/button.rs`)
 
 - `ShadButton`
