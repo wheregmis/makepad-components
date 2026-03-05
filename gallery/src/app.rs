@@ -11,7 +11,7 @@ script_mod! {
         width: Fill
         height: 32
         draw_text.text_style.font_size: 10
-        draw_text.color: #cacaca
+        draw_text.color: (shad_theme.color_muted_foreground)
         draw_bg.color: #0000
         padding: Inset{left: 10, right: 10}
         align: Align{x: 0.0, y: 0.5}
@@ -19,7 +19,7 @@ script_mod! {
     }
 
     let SectionLabel = Label{
-        draw_text.color: #9f9f9f
+        draw_text.color: (shad_theme.color_muted_foreground)
         draw_text.text_style.font_size: 9
     }
 
@@ -34,13 +34,13 @@ script_mod! {
                         width: 280
                         height: Fill
                         flow: Down
-                        draw_bg.color: #111
+                        draw_bg.color: (shad_theme.color_secondary)
                         padding: Inset{top: 14, right: 14, bottom: 14, left: 14}
                         spacing: 10.0
 
                         Label{
                             text: "Makepad Component\nGallery"
-                            draw_text.color: #f2f2f2
+                            draw_text.color: (shad_theme.color_primary)
                             draw_text.text_style.font_size: 13
                         }
 
@@ -65,19 +65,19 @@ script_mod! {
                             width: Fill
                             height: Fill
                             flow: Down
-                            draw_bg.color: #0d0d0d
+                            draw_bg.color: (shad_theme.color_background)
                             padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
                             spacing: 12.0
 
                             Label{
                                 text: "Accordion"
-                                draw_text.color: #f3f3f3
+                                draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 18
                             }
 
                             Label{
                                 text: "Accordion component from makepad-components library"
-                                draw_text.color: #9f9f9f
+                                draw_text.color: (shad_theme.color_muted_foreground)
                                 draw_text.text_style.font_size: 10
                             }
 
@@ -104,14 +104,14 @@ script_mod! {
 
                             Label{
                                 text: "Normal"
-                                draw_text.color: #9f9f9f
+                                draw_text.color: (shad_theme.color_muted_foreground)
                             }
 
                             accordion_wrap := RoundedView{
                                 width: Fill
                                 height: Fit
-                                draw_bg.color: #111
-                                draw_bg.radius: 10.0
+                                draw_bg.color: (shad_theme.color_secondary)
+                                draw_bg.radius: (shad_theme.radius)
                                 padding: Inset{top: 8, right: 8, bottom: 8, left: 8}
 
                                 accordion_panel := Accordion{
@@ -135,7 +135,7 @@ script_mod! {
                                             padding: Inset{left: 12, right: 12, top: 0, bottom: 12}
                                             Label{
                                                 text: "Yes. This accordion is keyboard and mouse friendly by default through FoldHeader/FoldButton behavior."
-                                                draw_text.color: #bdbdbd
+                                                draw_text.color: (shad_theme.color_muted_foreground)
                                                 draw_text.text_style.font_size: 10
                                             }
                                         }
@@ -163,7 +163,7 @@ script_mod! {
 
                                             Label{
                                                 text: "We can put any view here, like a row with toggles."
-                                                draw_text.color: #bdbdbd
+                                                draw_text.color: (shad_theme.color_muted_foreground)
                                                 draw_text.text_style.font_size: 10
                                             }
 
@@ -199,7 +199,7 @@ script_mod! {
                                             padding: Inset{left: 12, right: 12, top: 0, bottom: 12}
                                             Label{
                                                 text: "This is third accordion content. It can be any view, like a text view or a button."
-                                                draw_text.color: #bdbdbd
+                                                draw_text.color: (shad_theme.color_muted_foreground)
                                                 draw_text.text_style.font_size: 10
                                             }
                                         }
@@ -214,19 +214,19 @@ script_mod! {
                             width: Fill
                             height: Fill
                             flow: Down
-                            draw_bg.color: #0d0d0d
+                            draw_bg.color: (shad_theme.color_background)
                             padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
                             spacing: 12.0
 
                             Label{
                                 text: "Button"
-                                draw_text.color: #f3f3f3
+                                draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 18
                             }
 
                             Label{
                                 text: "Shadcn-inspired button components from makepad-components library"
-                                draw_text.color: #9f9f9f
+                                draw_text.color: (shad_theme.color_muted_foreground)
                                 draw_text.text_style.font_size: 10
                             }
 
@@ -234,7 +234,7 @@ script_mod! {
 
                             Label{
                                 text: "Variants"
-                                draw_text.color: #9f9f9f
+                                draw_text.color: (shad_theme.color_muted_foreground)
                                 draw_text.text_style.font_size: 10
                             }
 
@@ -254,7 +254,7 @@ script_mod! {
 
                             Label{
                                 text: "Sizes"
-                                draw_text.color: #9f9f9f
+                                draw_text.color: (shad_theme.color_muted_foreground)
                                 draw_text.text_style.font_size: 10
                             }
 
@@ -272,7 +272,7 @@ script_mod! {
 
                             Label{
                                 text: "Destructive Sizes"
-                                draw_text.color: #9f9f9f
+                                draw_text.color: (shad_theme.color_muted_foreground)
                                 draw_text.text_style.font_size: 10
                             }
 
@@ -300,7 +300,7 @@ script_mod! {
 
                             Label{
                                 text: "Outline Variations"
-                                draw_text.color: #9f9f9f
+                                draw_text.color: (shad_theme.color_muted_foreground)
                                 draw_text.text_style.font_size: 10
                             }
 

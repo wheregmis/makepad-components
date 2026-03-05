@@ -8,16 +8,16 @@ script_mod! {
         height: 36
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
-            color: #18181b
-            color_hover: #27272a
-            color_down: #3f3f46
+            color: (shad_theme.color_primary_foreground)
+            color_hover: (shad_theme.color_secondary)
+            color_down: (shad_theme.color_secondary_hover)
             border_size: 0.0
-            border_radius: 6.0
+            border_radius: (shad_theme.radius)
             border_color: #0000
         }
-        draw_text.color: #fafafa
-        draw_text.color_hover: #fafafa
-        draw_text.color_down: #fafafa
+        draw_text.color: (shad_theme.color_primary)
+        draw_text.color_hover: (shad_theme.color_primary)
+        draw_text.color_down: (shad_theme.color_primary)
         draw_text.text_style.font_size: 11
     }
 
@@ -25,16 +25,16 @@ script_mod! {
         height: 36
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
-            color: #dc2626
-            color_hover: #b91c1c
-            color_down: #991b1b
+            color: (shad_theme.color_destructive)
+            color_hover: (shad_theme.color_destructive_hover)
+            color_down: (shad_theme.color_destructive_down)
             border_size: 0.0
-            border_radius: 6.0
+            border_radius: (shad_theme.radius)
             border_color: #0000
         }
-        draw_text.color: #fafafa
-        draw_text.color_hover: #fafafa
-        draw_text.color_down: #fafafa
+        draw_text.color: (shad_theme.color_destructive_foreground)
+        draw_text.color_hover: (shad_theme.color_destructive_foreground)
+        draw_text.color_down: (shad_theme.color_destructive_foreground)
         draw_text.text_style.font_size: 11
     }
 
@@ -43,17 +43,17 @@ script_mod! {
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: #0000
-            color_hover: #27272a
-            color_down: #3f3f46
+            color_hover: (shad_theme.color_ghost_hover)
+            color_down: (shad_theme.color_ghost_down)
             border_size: 1.0
-            border_radius: 6.0
-            border_color: #3f3f46
-            border_color_hover: #52525b
-            border_color_down: #71717a
+            border_radius: (shad_theme.radius)
+            border_color: (shad_theme.color_outline_border)
+            border_color_hover: (shad_theme.color_outline_border_hover)
+            border_color_down: (shad_theme.color_outline_border_down)
         }
-        draw_text.color: #fafafa
-        draw_text.color_hover: #fafafa
-        draw_text.color_down: #fafafa
+        draw_text.color: (shad_theme.color_primary)
+        draw_text.color_hover: (shad_theme.color_primary)
+        draw_text.color_down: (shad_theme.color_primary)
         draw_text.text_style.font_size: 11
     }
 
@@ -61,16 +61,16 @@ script_mod! {
         height: 36
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
-            color: #27272a
-            color_hover: #3f3f46
-            color_down: #52525b
+            color: (shad_theme.color_secondary)
+            color_hover: (shad_theme.color_secondary_hover)
+            color_down: (shad_theme.color_secondary_down)
             border_size: 0.0
-            border_radius: 6.0
+            border_radius: (shad_theme.radius)
             border_color: #0000
         }
-        draw_text.color: #a1a1aa
-        draw_text.color_hover: #d4d4d8
-        draw_text.color_down: #fafafa
+        draw_text.color: (shad_theme.color_secondary_foreground)
+        draw_text.color_hover: (shad_theme.color_secondary_foreground)
+        draw_text.color_down: (shad_theme.color_secondary_foreground)
         draw_text.text_style.font_size: 11
     }
 
@@ -79,15 +79,15 @@ script_mod! {
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: #0000
-            color_hover: #27272a
-            color_down: #3f3f46
+            color_hover: (shad_theme.color_ghost_hover)
+            color_down: (shad_theme.color_ghost_down)
             border_size: 0.0
-            border_radius: 6.0
+            border_radius: (shad_theme.radius)
             border_color: #0000
         }
-        draw_text.color: #fafafa
-        draw_text.color_hover: #fafafa
-        draw_text.color_down: #fafafa
+        draw_text.color: (shad_theme.color_primary)
+        draw_text.color_hover: (shad_theme.color_primary)
+        draw_text.color_down: (shad_theme.color_primary)
         draw_text.text_style.font_size: 11
     }
 
