@@ -135,7 +135,11 @@ script_mod! {
         }
 
         GalleryCodeSnippet{
-            text: "use makepad_components::*;\n\nShadButton{text: \"Default\"}\nShadButtonDestructive{text: \"Delete\"}\nShadButtonOutline{text: \"Outline\"}"
+            text: r#"use makepad_components::*;
+
+ShadButton{text: "Default"}
+ShadButtonDestructive{text: "Delete"}
+ShadButtonOutline{text: "Outline"}"#
         }
 
         View{width: Fill, height: Fill}

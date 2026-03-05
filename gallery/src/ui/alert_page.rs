@@ -67,7 +67,16 @@ script_mod! {
         }
 
         GalleryCodeSnippet{
-            text: "use makepad_components::*;\n\nShadAlert{\n    width: Fill\n    icon := ShadAlertIcon{text: \"ⓘ\"}\n    content := ShadAlertContent{\n        title := ShadAlertTitle{text: \"Heads up!\"}\n        description := ShadAlertDescription{text: \"Action complete.\"}\n    }\n}"
+            text: r#"use makepad_components::*;
+
+ShadAlert{
+    width: Fill
+    icon := ShadAlertIcon{text: "ⓘ"}
+    content := ShadAlertContent{
+        title := ShadAlertTitle{text: "Heads up!"}
+        description := ShadAlertDescription{text: "Action complete."}
+    }
+}"#
         }
 
         View{width: Fill, height: Fill}
