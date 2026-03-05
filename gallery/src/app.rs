@@ -1,4 +1,3 @@
-use makepad_components::accordion::AccordionItemWidgetRefExt;
 use makepad_components::makepad_widgets::*;
 
 app_main!(App);
@@ -6,6 +5,23 @@ app_main!(App);
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
+
+    // ---- Script internal state ----
+
+    // Counter demo state (for button page)
+    let counter = 0
+
+    // Accordion state
+    let allow_multiple = true
+    let open_accessible = false
+    let open_styled = true
+    let open_third = true
+
+    fn sync_accordion_state() {
+        ui.accordion_panel.item_accessible.set_is_open(open_accessible)
+        ui.accordion_panel.item_styled.set_is_open(open_styled)
+        ui.accordion_panel.item_third.set_is_open(open_third)
+    }
 
     let SidebarItem = ButtonFlatter{
         width: Fill
@@ -25,6 +41,9 @@ script_mod! {
 
     startup() do #(App::script_component(vm)){
         ui: Root{
+            on_startup: || {
+                sync_accordion_state()
+            }
             main_window := Window{
                 window.inner_size: vec2(1400 900)
                 body +: {
@@ -96,7 +115,26 @@ script_mod! {
 
                                 View{width: Fill, height: Fit}
 
-                                option_multiple := CheckBox{text: "Multiple"}
+                                option_multiple := CheckBox{
+                                    text: "Multiple"
+                                    active: true
+                                    on_click: |checked| {
+                                        allow_multiple = checked
+                                        if !allow_multiple {
+                                            if open_accessible {
+                                                open_styled = false
+                                                open_third = false
+                                            } else if open_styled {
+                                                open_accessible = false
+                                                open_third = false
+                                            } else if open_third {
+                                                open_accessible = false
+                                                open_styled = false
+                                            }
+                                        }
+                                        sync_accordion_state()
+                                    }
+                                }
                                 option_icon := CheckBox{text: "Icon"}
                                 option_disabled := CheckBox{text: "Disabled"}
                                 option_bordered := CheckBox{text: "Bordered"}
@@ -116,6 +154,18 @@ script_mod! {
 
                                 accordion_panel := Accordion{
                                     item_accessible := AccordionItem{
+                                        on_toggle: |is_open| {
+                                            if allow_multiple {
+                                                open_accessible = is_open
+                                            } else if is_open {
+                                                open_accessible = true
+                                                open_styled = false
+                                                open_third = false
+                                            } else {
+                                                open_accessible = false
+                                            }
+                                            sync_accordion_state()
+                                        }
                                         header: View{
                                             width: Fill
                                             height: Fit
@@ -142,6 +192,18 @@ script_mod! {
                                     }
 
                                     item_styled := AccordionItem{
+                                        on_toggle: |is_open| {
+                                            if allow_multiple {
+                                                open_styled = is_open
+                                            } else if is_open {
+                                                open_accessible = false
+                                                open_styled = true
+                                                open_third = false
+                                            } else {
+                                                open_styled = false
+                                            }
+                                            sync_accordion_state()
+                                        }
                                         header: View{
                                             width: Fill
                                             height: Fit
@@ -180,6 +242,18 @@ script_mod! {
                                     }
 
                                     item_third := AccordionItem{
+                                        on_toggle: |is_open| {
+                                            if allow_multiple {
+                                                open_third = is_open
+                                            } else if is_open {
+                                                open_accessible = false
+                                                open_styled = false
+                                                open_third = true
+                                            } else {
+                                                open_third = false
+                                            }
+                                            sync_accordion_state()
+                                        }
                                         header: View{
                                             width: Fill
                                             height: Fit
@@ -334,6 +408,40 @@ script_mod! {
                                 IconSearch{}
                             }
 
+                            Label{
+                                text: "Script State Demo"
+                                draw_text.color: (shad_theme.color_muted_foreground)
+                                draw_text.text_style.font_size: 10
+                            }
+
+                            View{
+                                width: Fill
+                                height: Fit
+                                flow: Right
+                                align: Align{y: 0.5}
+                                spacing: 8.0
+
+                                ShadButton{
+                                    text: "Increment"
+                                    on_click: || {
+                                        counter = counter + 1
+                                        ui.counter_label.set_text(counter)
+                                    }
+                                }
+                                ShadButtonDestructive{
+                                    text: "Reset"
+                                    on_click: || {
+                                        counter = 0
+                                        ui.counter_label.set_text("0")
+                                    }
+                                }
+                                counter_label := Label{
+                                    text: "0"
+                                    draw_text.color: (shad_theme.color_primary)
+                                    draw_text.text_style.font_size: 14
+                                }
+                            }
+
                             View{width: Fill, height: Fill}
                         }
                     }
@@ -349,74 +457,12 @@ impl App {
         makepad_components::script_mod(vm);
         App::from_script_mod(vm, self::script_mod)
     }
-
-    fn sync_accordion_state(&self, cx: &mut Cx) {
-        self.ui
-            .accordion_item(cx, ids!(accordion_panel.item_accessible))
-            .set_is_open(cx, self.open_accessible);
-        self.ui
-            .accordion_item(cx, ids!(accordion_panel.item_styled))
-            .set_is_open(cx, self.open_styled);
-        self.ui
-            .accordion_item(cx, ids!(accordion_panel.item_third))
-            .set_is_open(cx, self.open_third);
-    }
-
-    fn set_single_open(&mut self, item: LiveId, is_open: bool) {
-        if is_open {
-            self.open_accessible = item == live_id!(item_accessible);
-            self.open_styled = item == live_id!(item_styled);
-            self.open_third = item == live_id!(item_third);
-            return;
-        }
-
-        if item == live_id!(item_accessible) {
-            self.open_accessible = false;
-        } else if item == live_id!(item_styled) {
-            self.open_styled = false;
-        } else if item == live_id!(item_third) {
-            self.open_third = false;
-        }
-    }
-
-    fn set_multi_open(&mut self, item: LiveId, is_open: bool) {
-        if item == live_id!(item_accessible) {
-            self.open_accessible = is_open;
-        } else if item == live_id!(item_styled) {
-            self.open_styled = is_open;
-        } else if item == live_id!(item_third) {
-            self.open_third = is_open;
-        }
-    }
-
-    fn normalize_single_mode(&mut self) {
-        let open_count =
-            self.open_accessible as u8 + self.open_styled as u8 + self.open_third as u8;
-        if open_count <= 1 {
-            return;
-        }
-
-        if self.open_accessible {
-            self.open_styled = false;
-            self.open_third = false;
-        } else if self.open_styled {
-            self.open_third = false;
-        }
-    }
 }
 
 #[derive(Script, ScriptHook)]
 pub struct App {
     #[live]
     ui: WidgetRef,
-    #[rust]
-    allow_multiple: bool,
-    #[rust]
-    open_accessible: bool,
-    #[rust]
-    open_styled: bool,
-    #[rust]
-    open_third: bool,
 }
 
 impl MatchEvent for App {
@@ -432,94 +478,12 @@ impl MatchEvent for App {
                 .page_flip(cx, ids!(content_flip))
                 .set_active_page(cx, live_id!(button_page));
         }
-
-        if let Some(value) = self
-            .ui
-            .check_box(cx, ids!(option_multiple))
-            .changed(actions)
-        {
-            self.allow_multiple = value;
-            if !self.allow_multiple {
-                self.normalize_single_mode();
-            }
-            self.sync_accordion_state(cx);
-        }
-
-        let item_actions = [
-            (
-                live_id!(item_accessible),
-                self.ui
-                    .fold_button(cx, ids!(accordion_panel.item_accessible.header.fold_button))
-                    .opening(actions),
-                self.ui
-                    .fold_button(cx, ids!(accordion_panel.item_accessible.header.fold_button))
-                    .closing(actions),
-            ),
-            (
-                live_id!(item_styled),
-                self.ui
-                    .fold_button(cx, ids!(accordion_panel.item_styled.header.fold_button))
-                    .opening(actions),
-                self.ui
-                    .fold_button(cx, ids!(accordion_panel.item_styled.header.fold_button))
-                    .closing(actions),
-            ),
-            (
-                live_id!(item_third),
-                self.ui
-                    .fold_button(cx, ids!(accordion_panel.item_third.header.fold_button))
-                    .opening(actions),
-                self.ui
-                    .fold_button(cx, ids!(accordion_panel.item_third.header.fold_button))
-                    .closing(actions),
-            ),
-        ];
-
-        let mut changed = false;
-        for (item, opening, closing) in item_actions {
-            if opening {
-                if self.allow_multiple {
-                    self.set_multi_open(item, true);
-                } else {
-                    self.set_single_open(item, true);
-                }
-                changed = true;
-            } else if closing {
-                if self.allow_multiple {
-                    self.set_multi_open(item, false);
-                } else {
-                    self.set_single_open(item, false);
-                }
-                changed = true;
-            }
-        }
-
-        if changed {
-            self.sync_accordion_state(cx);
-        }
     }
 }
 
 impl AppMain for App {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
-        if let Event::Startup = event {
-            self.allow_multiple = true;
-            self.open_accessible = false;
-            self.open_styled = true;
-            self.open_third = true;
-            self.ui
-                .check_box(cx, ids!(option_multiple))
-                .set_active(cx, true);
-            self.sync_accordion_state(cx);
-        }
-
         self.match_event(cx, event);
         self.ui.handle_event(cx, event, &mut Scope::empty());
-
-        // FoldHeader currently reacts to FoldButton actions broadly; re-apply our
-        // explicit accordion state after widget action handling to keep icon/body in sync.
-        if let Event::Actions(_) = event {
-            self.sync_accordion_state(cx);
-        }
     }
 }
