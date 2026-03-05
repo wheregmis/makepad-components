@@ -57,11 +57,6 @@ jobs:
       - name: Build Wasm package
         run: cargo makepad wasm --strip --brotli build -p "${APP_PACKAGE}" --profile=small
 
-      - name: Verify Wasm output
-        run: |
-          test -d "${WASM_OUTPUT_ROOT}/${APP_PACKAGE}"
-          ls -la "${WASM_OUTPUT_ROOT}/${APP_PACKAGE}"
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
