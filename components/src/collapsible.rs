@@ -236,7 +236,11 @@ impl Widget for ShadCollapsible {
         let uid = self.widget_uid();
 
         if self.animator_handle_event(cx, event).must_redraw() {
-            cx.widget_action_with_data(&self.action_data, uid, ShadCollapsibleAction::Animating(self.active));
+            cx.widget_action_with_data(
+                &self.action_data,
+                uid,
+                ShadCollapsibleAction::Animating(self.active),
+            );
             self.area.redraw(cx);
         }
 
@@ -249,11 +253,19 @@ impl Widget for ShadCollapsible {
                 if self.animator_in_state(cx, ids!(active.on)) {
                     self.is_open = false;
                     self.animator_play(cx, ids!(active.off));
-                    cx.widget_action_with_data(&self.action_data, uid, ShadCollapsibleAction::Closing);
+                    cx.widget_action_with_data(
+                        &self.action_data,
+                        uid,
+                        ShadCollapsibleAction::Closing,
+                    );
                 } else {
                     self.is_open = true;
                     self.animator_play(cx, ids!(active.on));
-                    cx.widget_action_with_data(&self.action_data, uid, ShadCollapsibleAction::Opening);
+                    cx.widget_action_with_data(
+                        &self.action_data,
+                        uid,
+                        ShadCollapsibleAction::Opening,
+                    );
                 }
                 self.animator_play(cx, ids!(hover.on));
                 self.area.redraw(cx);
@@ -306,7 +318,8 @@ impl Widget for ShadCollapsible {
                 Align { x: 0.0, y: 0.5 },
                 self.title.as_ref(),
             );
-            self.draw_icon.draw_walk(cx, Walk::fixed(icon_size, icon_size));
+            self.draw_icon
+                .draw_walk(cx, Walk::fixed(icon_size, icon_size));
             cx.end_turtle_with_area(&mut self.header_area);
         }
 
@@ -374,7 +387,7 @@ impl ShadCollapsibleRef {
     }
 
     pub fn is_open(&self, cx: &Cx) -> bool {
-        self.borrow().map_or(false, |inner| inner.is_open(cx))
+        self.borrow().is_some_and(|inner| inner.is_open(cx))
     }
 
     pub fn opening(&self, actions: &Actions) -> bool {

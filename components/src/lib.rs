@@ -1,5 +1,5 @@
-pub use makepad_widgets;
 pub use makepad_icon;
+pub use makepad_widgets;
 
 use makepad_widgets::*;
 

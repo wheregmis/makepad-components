@@ -64,7 +64,7 @@ pub struct GalleryCodeSnippet {
     #[live]
     code: ArcStringMut,
     #[rust]
-    rendered_markdown: String,
+    last_code: String,
 }
 
 impl GalleryCodeSnippet {
@@ -77,11 +77,15 @@ impl GalleryCodeSnippet {
     }
 
     fn sync_markdown(&mut self, cx: &mut Cx) {
-        let markdown = self.build_markdown();
-        if markdown != self.rendered_markdown {
+        // Optimization: avoid repeated string allocations in handle_event loop
+        // Previously: unconditionally called `build_markdown()` (which allocates via format!) every event
+        // Now: cache the raw code string, only reallocate when the raw code actually changes
+        let current_code = self.code.as_ref().trim();
+        if current_code != self.last_code {
+            self.last_code = current_code.to_string();
+            let markdown = self.build_markdown();
             let mut md = self.view.markdown(cx, ids!(markdown));
             md.set_text(cx, &markdown);
-            self.rendered_markdown = markdown;
         }
     }
 }

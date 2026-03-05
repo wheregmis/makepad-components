@@ -384,7 +384,7 @@ impl ShadAccordionItemRef {
     }
 
     pub fn is_open(&self, cx: &Cx) -> bool {
-        self.borrow().map_or(true, |inner| inner.is_open(cx))
+        self.borrow().is_none_or(|inner| inner.is_open(cx))
     }
 
     pub fn opening(&self, actions: &Actions) -> bool {
