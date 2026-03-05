@@ -1,0 +1,12 @@
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/makepad_math-cc55af5bc4401d1e.d: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/complex.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/geometry.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/math_f32.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/math_f64.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/math_usize.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/shader.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/shader_runtime.rs
+
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/libmakepad_math-cc55af5bc4401d1e.rmeta: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/complex.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/geometry.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/math_f32.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/math_f64.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/math_usize.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/shader.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/shader_runtime.rs
+
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/lib.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/complex.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/geometry.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/math_f32.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/math_f64.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/math_usize.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/shader.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/math/src/shader_runtime.rs:

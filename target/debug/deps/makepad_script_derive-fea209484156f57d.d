@@ -1,0 +1,9 @@
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/makepad_script_derive-fea209484156f57d.d: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/derive_scriptable.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/error.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/script.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/swizzle.rs
+
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/libmakepad_script_derive-fea209484156f57d.so: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/derive_scriptable.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/error.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/script.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/swizzle.rs
+
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/lib.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/derive_scriptable.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/error.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/script.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/script/derive/src/swizzle.rs:

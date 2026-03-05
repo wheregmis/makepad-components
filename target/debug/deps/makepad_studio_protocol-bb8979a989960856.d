@@ -1,0 +1,11 @@
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/makepad_studio_protocol-bb8979a989960856.d: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/hub_protocol.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/cursor.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/keyboard.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/mouse.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/shared_framebuf.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/studio.rs
+
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/libmakepad_studio_protocol-bb8979a989960856.rmeta: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/hub_protocol.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/cursor.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/keyboard.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/mouse.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/shared_framebuf.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/studio.rs
+
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/lib.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/hub_protocol.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/cursor.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/keyboard.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/mouse.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/shared_framebuf.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/platform/studio/src/studio.rs:

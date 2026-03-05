@@ -1,0 +1,8 @@
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/unicode_segmentation-9fc8794096eb5e23.d: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/grapheme.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/word.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/tables.rs
+
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/libunicode_segmentation-9fc8794096eb5e23.rmeta: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/grapheme.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/word.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/tables.rs
+
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/lib.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/grapheme.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/word.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/unicode/unicode-segmentation/src/tables.rs:

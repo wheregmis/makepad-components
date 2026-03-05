@@ -1,0 +1,11 @@
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/bitflags-edae0a578c31919c.d: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/iter.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/parser.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/traits.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/public.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/internal.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/external.rs
+
+/home/runner/work/makepad-components/makepad-components/target/debug/deps/libbitflags-edae0a578c31919c.rmeta: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/iter.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/parser.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/traits.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/public.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/internal.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/external.rs
+
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/lib.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/iter.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/parser.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/traits.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/public.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/internal.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/bitflags/src/external.rs:

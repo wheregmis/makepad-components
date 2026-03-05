@@ -1,0 +1,3 @@
+cargo:rustc-check-cfg=cfg(coverage)
+cargo:rustc-check-cfg=cfg(unstable_coverage)
+cargo:rerun-if-changed=build.rs

@@ -1,0 +1,9 @@
+/home/runner/work/makepad-components/makepad-components/target/release/deps/makepad_latex_math-8216a75f59556690.d: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/layout.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/parser.rs
+
+/home/runner/work/makepad-components/makepad-components/target/release/deps/libmakepad_latex_math-8216a75f59556690.rlib: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/layout.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/parser.rs
+
+/home/runner/work/makepad-components/makepad-components/target/release/deps/libmakepad_latex_math-8216a75f59556690.rmeta: /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/lib.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/layout.rs /home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/parser.rs
+
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/lib.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/layout.rs:
+/home/runner/.cargo/git/checkouts/makepad-ec2f134f34cd9f98/8b51533/libs/latex_math/src/parser.rs:
