@@ -46,7 +46,7 @@ jobs:
             APP_PACKAGE="makepad-example-component-gallery"
           fi
           echo "APP_PACKAGE=${APP_PACKAGE}" >> "${GITHUB_ENV}"
-          echo "WASM_OUTPUT_ROOT=target/makepad-wasm-app/release" >> "${GITHUB_ENV}"
+          echo "WASM_OUTPUT_ROOT=target/makepad-wasm-app/small" >> "${GITHUB_ENV}"
 
       - name: Install cargo-makepad
         run: cargo install --git https://github.com/makepad/makepad.git --branch dev cargo-makepad --locked
@@ -54,13 +54,13 @@ jobs:
       - name: Install Wasm toolchain
         run: cargo makepad wasm install-toolchain
 
-      - name: Build Wasm package
+      - name: Build Wasm package (small profile, no bindgen)
         run: cargo makepad wasm --strip --brotli build -p "${APP_PACKAGE}" --profile=small
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: target/makepad-wasm-app/release/${{ env.APP_PACKAGE }}
+          path: target/makepad-wasm-app/small/${{ env.APP_PACKAGE }}
 
   deploy:
     needs: build-wasm
