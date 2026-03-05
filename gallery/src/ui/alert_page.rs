@@ -4,7 +4,7 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryAlertPage = View{
+    mod.widgets.GalleryAlertPage = ScrollYView{
         width: Fill
         height: Fill
         flow: Down
@@ -61,15 +61,13 @@ script_mod! {
         }
 
         Label{
-            text: "Code Snippet"
+            text: "Preview + Source"
             draw_text.color: (shad_theme.color_muted_foreground)
             draw_text.text_style.font_size: 10
         }
 
-        GalleryCodeSnippet{
-            text: "use makepad_components::*;\n\nShadAlert{\n    width: Fill\n    icon := ShadAlertIcon{text: \"ⓘ\"}\n    content := ShadAlertContent{\n        title := ShadAlertTitle{text: \"Heads up!\"}\n        description := ShadAlertDescription{text: \"Action complete.\"}\n    }\n}"
+        alert_example_snippet := GalleryCodeSnippet{
+            code: "mod.widgets.ShadAlert{\n    width: Fill\n    icon := mod.widgets.ShadAlertIcon{text: \"ⓘ\"}\n    content := mod.widgets.ShadAlertContent{\n        title := mod.widgets.ShadAlertTitle{text: \"Heads up!\"}\n        description := mod.widgets.ShadAlertDescription{text: \"Action complete.\"}\n    }\n}"
         }
-
-        View{width: Fill, height: Fill}
     }
 }
