@@ -12,7 +12,7 @@ script_mod! {
         padding: Inset{left: 10, right: 10, top: 2, bottom: 2}
         draw_bg +: {
             color: (shad_theme.color_primary)
-            border_radius: 99.0
+            border_radius: 8.0
             border_size: 0.0
             border_color: #0000
         }
