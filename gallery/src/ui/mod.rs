@@ -6,8 +6,10 @@ pub mod button_page;
 pub mod content_flip;
 pub mod root;
 pub mod sidebar;
+pub mod themed_widgets;
 
 pub fn script_mod(vm: &mut ScriptVm) {
+    crate::ui::themed_widgets::script_mod(vm);
     crate::ui::sidebar::script_mod(vm);
     crate::ui::accordion_page::script_mod(vm);
     crate::ui::alert_page::script_mod(vm);
