@@ -1,0 +1,82 @@
+name: Build And Deploy Makepad Wasm
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Cargo package/profile name for `cargo makepad wasm build -p`
+        required: false
+        default: makepad-example-component-gallery
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libssl-dev clang lld
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo files
+        uses: Swatinem/rust-cache@v2
+
+      - name: Resolve app package
+        run: |
+          APP_PACKAGE="${{ github.event.inputs.package }}"
+          if [ -z "${APP_PACKAGE}" ]; then
+            APP_PACKAGE="makepad-example-component-gallery"
+          fi
+          echo "APP_PACKAGE=${APP_PACKAGE}" >> "${GITHUB_ENV}"
+          echo "WASM_OUTPUT_ROOT=target/makepad-wasm-app/release" >> "${GITHUB_ENV}"
+
+      - name: Install cargo-makepad
+        run: cargo install --git https://github.com/makepad/makepad.git --branch dev cargo-makepad --locked
+
+      - name: Install Wasm toolchain
+        run: cargo makepad wasm install-toolchain
+
+      - name: Install Wasm CLI tools
+        run: cargo makepad wasm install-cli-tools
+
+      - name: Build Wasm package
+        run: cargo makepad wasm build -p "${APP_PACKAGE}" --release
+
+      - name: Verify Wasm output
+        run: |
+          test -d "${WASM_OUTPUT_ROOT}/${APP_PACKAGE}"
+          ls -la "${WASM_OUTPUT_ROOT}/${APP_PACKAGE}"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: target/makepad-wasm-app/release/${{ env.APP_PACKAGE }}
+
+  deploy:
+    needs: build-wasm
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
