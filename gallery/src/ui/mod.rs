@@ -21,6 +21,9 @@ pub mod progress_page;
 pub mod root;
 pub mod sidebar;
 pub mod sidebar_page;
+pub mod slider_page;
+pub mod sonner_page;
+pub mod spinner_page;
 pub mod skeleton_page;
 pub mod snippets;
 pub mod switch_page;
@@ -49,6 +52,9 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::label_page::script_mod(vm);
     crate::ui::progress_page::script_mod(vm);
     crate::ui::sidebar_page::script_mod(vm);
+    crate::ui::slider_page::script_mod(vm);
+    crate::ui::sonner_page::script_mod(vm);
+    crate::ui::spinner_page::script_mod(vm);
     crate::ui::content_flip::script_mod(vm);
     crate::ui::root::script_mod(vm);
 }

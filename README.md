@@ -183,9 +183,9 @@ script_mod! {
 - [ ] Sheet
 - [x] Sidebar
 - [x] Skeleton
-- [ ] Slider
-- [ ] Sonner
-- [ ] Spinner
+- [x] Slider
+- [x] Sonner
+- [x] Spinner
 - [x] Switch
 - [ ] Table
 - [ ] Tabs
@@ -247,6 +247,26 @@ Script API: `set_open(bool)` and `is_open() -> bool` (e.g. from app or script to
 - `ShadProgressIndeterminate` — animated loading bar (continuous sweep)
 
 Use `ShadProgress66{}` for 66%. For custom values, extend `ShadProgressBase` with `draw_bg +: { progress: instance(0.42) }`.
+
+### Slider (`components/src/slider.rs`)
+
+- `ShadSlider` — shadcn-style range slider (extends makepad SliderRoundFlat)
+
+Props: `default`, `min`, `max`, `step`. Uses makepad Slider actions for value changes.
+
+### Sonner / Toast (`components/src/sonner.rs`)
+
+- `ShadToast` — toast notification card container
+- `ShadToastTitle` — title text
+- `ShadToastDescription` — optional description (uses `ShadAlertDescription` styling)
+
+Use: `ShadToast{ title := ShadToastTitle{text: "Event created"} }` or add `description := ShadToastDescription{text: "..."}`.
+
+### Spinner (`components/src/spinner.rs`)
+
+- `ShadSpinner` — circular loading indicator (24×24, animated arc)
+
+Use for async operations and loading states.
 
 ### Kbd (`components/src/kbd.rs`)
 

@@ -1,5 +1,5 @@
 use makepad_components::makepad_widgets::*;
-use makepad_components::{ShadAlertDialog, ShadCarousel};
+use makepad_components::{ShadAlertDialog, ShadCarousel, ShadSonner};
 
 app_main!(App);
 
@@ -166,6 +166,27 @@ impl MatchEvent for App {
         self.set_page(cx, actions, ids!(sidebar_label), live_id!(label_page));
         self.set_page(cx, actions, ids!(sidebar_progress), live_id!(progress_page));
         self.set_page(cx, actions, ids!(sidebar_sidebar), live_id!(sidebar_page));
+        self.set_page(cx, actions, ids!(sidebar_slider), live_id!(slider_page));
+        self.set_page(cx, actions, ids!(sidebar_sonner), live_id!(sonner_page));
+        if self.ui.button(cx, ids!(toast_event_btn)).clicked(actions) {
+            if let Some(mut s) = self
+                .ui
+                .widget_flood(cx, ids!(toast_event))
+                .borrow_mut::<ShadSonner>()
+            {
+                s.set_open(true);
+            }
+        }
+        if self.ui.button(cx, ids!(toast_desc_btn)).clicked(actions) {
+            if let Some(mut s) = self
+                .ui
+                .widget_flood(cx, ids!(toast_desc))
+                .borrow_mut::<ShadSonner>()
+            {
+                s.set_open(true);
+            }
+        }
+        self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page));
 
         Self::handle_preview_tabs(
             &self.ui,
@@ -366,6 +387,36 @@ impl MatchEvent for App {
             ids!(sidebar_preview_flip),
             ids!(sidebar_demo_indicator),
             ids!(sidebar_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(slider_demo_tab),
+            ids!(slider_code_tab),
+            ids!(slider_preview_flip),
+            ids!(slider_demo_indicator),
+            ids!(slider_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(sonner_demo_tab),
+            ids!(sonner_code_tab),
+            ids!(sonner_preview_flip),
+            ids!(sonner_demo_indicator),
+            ids!(sonner_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(spinner_demo_tab),
+            ids!(spinner_code_tab),
+            ids!(spinner_preview_flip),
+            ids!(spinner_demo_indicator),
+            ids!(spinner_code_indicator),
         );
     }
 }

@@ -67,6 +67,8 @@ script_mod! {
         height: Fit
         margin: Inset{}
         padding: Inset{}
+        grab_key_focus: false
+        reset_hover_on_click: true
 
         draw_bg +: {
             color: #0000

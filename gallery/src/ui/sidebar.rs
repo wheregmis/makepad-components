@@ -40,6 +40,9 @@ script_mod! {
             sidebar_progress := ShadSidebarItem{text: "Progress"}
             sidebar_label := ShadSidebarItem{text: "Label"}
             sidebar_sidebar := ShadSidebarItem{text: "Sidebar"}
+            sidebar_slider := ShadSidebarItem{text: "Slider"}
+            sidebar_sonner := ShadSidebarItem{text: "Sonner"}
+            sidebar_spinner := ShadSidebarItem{text: "Spinner"}
         }
     }
 }

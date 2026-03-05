@@ -29,5 +29,8 @@ script_mod! {
         label_page := mod.widgets.GalleryLabelPage{}
         progress_page := mod.widgets.GalleryProgressPage{}
         sidebar_page := mod.widgets.GallerySidebarPage{}
+        slider_page := mod.widgets.GallerySliderPage{}
+        sonner_page := mod.widgets.GallerySonnerPage{}
+        spinner_page := mod.widgets.GallerySpinnerPage{}
     }
 }
