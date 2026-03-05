@@ -283,8 +283,19 @@ script_mod! {
                                 align: Align{y: 0.5}
                                 spacing: 8.0
 
-                                ShadButtonDestructive{text: "Default Destructive"}
-                                ShadButtonDestructive{text: "Destructive"}
+                                ShadButtonDestructive{
+                                    height: 28
+                                    padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
+                                    draw_text.text_style.font_size: 10
+                                    text: "Small"
+                                }
+                                ShadButtonDestructive{text: "Default"}
+                                ShadButtonDestructive{
+                                    height: 44
+                                    padding: Inset{left: 32, right: 32, top: 0, bottom: 0}
+                                    draw_text.text_style.font_size: 13
+                                    text: "Large"
+                                }
                             }
 
                             Label{

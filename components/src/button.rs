@@ -124,7 +124,6 @@ script_mod! {
         width: 36
         height: 36
         spacing: 0.0
-        text: ""
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
     }
 }
