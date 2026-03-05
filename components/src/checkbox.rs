@@ -312,7 +312,7 @@ impl ShadCheckboxRef {
     }
 
     pub fn is_checked(&self) -> bool {
-        self.borrow().map_or(false, |inner| inner.is_checked())
+        self.borrow().is_some_and(|inner| inner.is_checked())
     }
 
     pub fn changed(&self, actions: &Actions) -> Option<bool> {

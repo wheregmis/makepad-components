@@ -41,7 +41,11 @@ impl MatchEvent for App {
                 .set_active_page(cx, live_id!(alert_page));
         }
 
-        if self.ui.button(cx, ids!(sidebar_aspect_ratio)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(sidebar_aspect_ratio))
+            .clicked(actions)
+        {
             self.ui
                 .page_flip(cx, ids!(content_flip))
                 .set_active_page(cx, live_id!(aspect_ratio_page));
@@ -59,7 +63,11 @@ impl MatchEvent for App {
                 .set_active_page(cx, live_id!(badge_page));
         }
 
-        if self.ui.button(cx, ids!(sidebar_breadcrumb)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(sidebar_breadcrumb))
+            .clicked(actions)
+        {
             self.ui
                 .page_flip(cx, ids!(content_flip))
                 .set_active_page(cx, live_id!(breadcrumb_page));
@@ -71,7 +79,11 @@ impl MatchEvent for App {
                 .set_active_page(cx, live_id!(button_page));
         }
 
-        if self.ui.button(cx, ids!(sidebar_button_group)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(sidebar_button_group))
+            .clicked(actions)
+        {
             self.ui
                 .page_flip(cx, ids!(content_flip))
                 .set_active_page(cx, live_id!(button_group_page));
@@ -83,7 +95,11 @@ impl MatchEvent for App {
                 .set_active_page(cx, live_id!(checkbox_page));
         }
 
-        if self.ui.button(cx, ids!(sidebar_collapsible)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(sidebar_collapsible))
+            .clicked(actions)
+        {
             self.ui
                 .page_flip(cx, ids!(content_flip))
                 .set_active_page(cx, live_id!(collapsible_page));
