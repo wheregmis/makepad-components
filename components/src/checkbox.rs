@@ -29,31 +29,37 @@ script_mod! {
                 sdf.clear(vec4(0.0))
 
                 let sz = self.rect_size
+                let box_radius = 2.0
+                let inset = 1.5
 
-                // Focus ring
-                sdf.box(0.0, 0.0, sz.x, sz.y, 5.0)
-                sdf.stroke(mix(vec4(0.0), self.color_border_hover, self.focus), 1.5)
-
-                // Box fill: transparent when unchecked, primary color when checked
-                sdf.box(1.5, 1.5, sz.x - 3.0, sz.y - 3.0, 3.0)
+                // Checkbox box: square with subtle rounding (Shadcn-style)
+                sdf.box(inset, inset, sz.x - inset * 2.0, sz.y - inset * 2.0, box_radius)
                 sdf.fill(mix(vec4(0.0, 0.0, 0.0, 0.0), self.color_primary, self.checked_val))
 
-                // Border: visible when unchecked, fades to transparent when checked
-                sdf.box(1.5, 1.5, sz.x - 3.0, sz.y - 3.0, 3.0)
+                // Border: visible when unchecked, fades when checked; thicker on hover
                 let border_col = mix(self.color_border, self.color_border_hover, self.hover)
-                sdf.stroke(mix(border_col, vec4(0.0, 0.0, 0.0, 0.0), self.checked_val), 1.0)
+                let border_w = mix(1.0, 1.25, self.hover)
+                sdf.box(inset, inset, sz.x - inset * 2.0, sz.y - inset * 2.0, box_radius)
+                sdf.stroke(mix(border_col, vec4(0.0, 0.0, 0.0, 0.0), self.checked_val), border_w)
 
-                // Checkmark: transparent when unchecked, visible when checked
-                let x0 = sz.x * 0.22
-                let y0 = sz.y * 0.5
-                let x1 = sz.x * 0.41
-                let y1 = sz.y * 0.69
-                let x2 = sz.x * 0.78
-                let y2 = sz.y * 0.25
+                // Checkmark: scaled down so tick has clear padding inside the box
+                let cx = 0.51
+                let cy = 0.48
+                let scale = 0.72
+                let x0 = sz.x * (cx + (0.22 - cx) * scale)
+                let y0 = sz.y * (cy + (0.54 - cy) * scale)
+                let x1 = sz.x * (cx + (0.42 - cx) * scale)
+                let y1 = sz.y * (cy + (0.74 - cy) * scale)
+                let x2 = sz.x * (cx + (0.80 - cx) * scale)
+                let y2 = sz.y * (cy + (0.22 - cy) * scale)
                 sdf.move_to(x0, y0)
                 sdf.line_to(x1, y1)
                 sdf.line_to(x2, y2)
-                sdf.stroke(mix(vec4(0.0, 0.0, 0.0, 0.0), self.color_checkmark, self.checked_val), 1.5)
+                sdf.stroke(mix(vec4(0.0, 0.0, 0.0, 0.0), self.color_checkmark, self.checked_val), 1.75)
+
+                // Focus ring (drawn last so it's visible)
+                sdf.box(0.0, 0.0, sz.x, sz.y, box_radius + 1.0)
+                sdf.stroke(mix(vec4(0.0), self.color_border_hover, self.focus), 1.5)
 
                 return sdf.result
             }
@@ -61,7 +67,7 @@ script_mod! {
 
         draw_text +: {
             color: (shad_theme.color_primary)
-            text_style: theme.font_regular{font_size: 11}
+            text_style: theme.font_regular{font_size: 12}
         }
 
         animator: Animator{
@@ -260,10 +266,10 @@ impl Widget for ShadCheckbox {
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, _scope: &mut Scope, walk: Walk) -> DrawStep {
-        let box_size = 16.0;
+        let box_size = 18.0;
 
         let mut layout = Layout::flow_right().with_align_y(0.5);
-        layout.spacing = 8.0;
+        layout.spacing = 10.0;
 
         cx.begin_turtle(walk, layout);
 

@@ -13,14 +13,14 @@ script_mod! {
 
         overlay: Modal{
             bg_view +: {
-                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.45)
+                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.55)
             }
 
             content +: {
                 width: 360
                 height: Fit
 
-                RoundedView{
+                dialog_panel := RoundedView{
                     width: Fill
                     height: Fit
                     padding: Inset{left: 20, right: 20, top: 20, bottom: 16}
@@ -28,8 +28,10 @@ script_mod! {
                     spacing: 12.0
 
                     draw_bg +: {
-                        color: (shad_theme.color_background)
+                        color: (shad_theme.color_secondary)
                         border_radius: (shad_theme.radius)
+                        border_size: 1.0
+                        border_color: (shad_theme.color_outline_border)
                     }
 
                     title_label := ShadAlertTitle{
@@ -89,14 +91,14 @@ script_mod! {
 
         overlay: Modal{
             bg_view +: {
-                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.45)
+                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.55)
             }
 
             content +: {
                 width: 360
                 height: Fit
 
-                RoundedView{
+                dialog_panel := RoundedView{
                     width: Fill
                     height: Fit
                     padding: Inset{left: 20, right: 20, top: 20, bottom: 16}
@@ -104,8 +106,10 @@ script_mod! {
                     spacing: 12.0
 
                     draw_bg +: {
-                        color: (shad_theme.color_background)
+                        color: (shad_theme.color_secondary)
                         border_radius: (shad_theme.radius)
+                        border_size: 1.0
+                        border_color: (shad_theme.color_outline_border)
                     }
 
                     title_label := ShadAlertTitle{
@@ -219,6 +223,48 @@ impl Widget for ShadAlertDialog {
                 modal.open(cx);
             }
             self.overlay.handle_event(cx, event, scope);
+            // Close when Cancel/Confirm is clicked or modal is dismissed (backdrop/Escape)
+            if let Event::Actions(actions) = event {
+                let content = self.overlay.widget(cx, ids!(content));
+                if actions
+                    .find_widget_action(content.widget_uid())
+                    .is_some_and(|a| matches!(a.cast(), ModalAction::Dismissed))
+                {
+                    self.open = false;
+                }
+                let cancel_btn = self.overlay.widget(
+                    cx,
+                    &[
+                        live_id!(content),
+                        live_id!(dialog_panel),
+                        live_id!(footer),
+                        live_id!(cancel),
+                    ],
+                );
+                let confirm_btn = self.overlay.widget(
+                    cx,
+                    &[
+                        live_id!(content),
+                        live_id!(dialog_panel),
+                        live_id!(footer),
+                        live_id!(confirm),
+                    ],
+                );
+                if !cancel_btn.is_empty()
+                    && actions
+                        .find_widget_action(cancel_btn.widget_uid())
+                        .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
+                {
+                    self.open = false;
+                }
+                if !confirm_btn.is_empty()
+                    && actions
+                        .find_widget_action(confirm_btn.widget_uid())
+                        .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
+                {
+                    self.open = false;
+                }
+            }
         } else {
             if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
                 modal.close(cx);
