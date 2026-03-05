@@ -128,31 +128,44 @@ impl Widget for AccordionItem {
         }
 
         if let Event::Actions(actions) = event {
-            let uid = self.widget_uid();
-            let fold_button = self.header.fold_button(cx, ids!(fold_button));
-            let opening = fold_button.opening(actions);
-            let closing = fold_button.closing(actions);
+            let fold_button_uid = self.header.widget(cx, ids!(fold_button)).widget_uid();
+            if fold_button_uid != WidgetUid(0) {
+                let mut opening = false;
+                let mut closing = false;
 
-            if opening && !self.is_open {
-                self.is_open = true;
-                self.area.redraw(cx);
-                cx.widget_to_script_call(
-                    uid,
-                    NIL,
-                    self.source.clone(),
-                    self.on_toggle.clone(),
-                    &[ScriptValue::from_bool(true)],
-                );
-            } else if closing && self.is_open {
-                self.is_open = false;
-                self.area.redraw(cx);
-                cx.widget_to_script_call(
-                    uid,
-                    NIL,
-                    self.source.clone(),
-                    self.on_toggle.clone(),
-                    &[ScriptValue::from_bool(false)],
-                );
+                for action in actions {
+                    if let Some(widget_action) = action.downcast_ref::<WidgetAction>() {
+                        if widget_action.widget_uid == fold_button_uid {
+                            match widget_action.cast::<FoldButtonAction>() {
+                                FoldButtonAction::Opening => opening = true,
+                                FoldButtonAction::Closing => closing = true,
+                                _ => {}
+                            }
+                        }
+                    }
+                }
+
+                if opening && !self.is_open {
+                    self.is_open = true;
+                    self.area.redraw(cx);
+                    cx.widget_to_script_call(
+                        self.widget_uid(),
+                        NIL,
+                        self.source.clone(),
+                        self.on_toggle.clone(),
+                        &[ScriptValue::from_bool(true)],
+                    );
+                } else if closing && self.is_open {
+                    self.is_open = false;
+                    self.area.redraw(cx);
+                    cx.widget_to_script_call(
+                        self.widget_uid(),
+                        NIL,
+                        self.source.clone(),
+                        self.on_toggle.clone(),
+                        &[ScriptValue::from_bool(false)],
+                    );
+                }
             }
         }
     }
@@ -187,8 +200,13 @@ impl Widget for AccordionItem {
 impl AccordionItem {
     pub fn set_is_open(&mut self, cx: &mut Cx, is_open: bool) {
         self.is_open = is_open;
-        let fold_button = self.header.fold_button(cx, ids!(fold_button));
-        fold_button.set_is_open(cx, is_open, animator::Animate::No);
+        if let Some(mut fold_button) = self
+            .header
+            .widget(cx, ids!(fold_button))
+            .borrow_mut::<FoldButton>()
+        {
+            fold_button.set_is_open(cx, is_open, animator::Animate::No);
+        }
         self.area.redraw(cx);
     }
 
