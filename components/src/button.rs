@@ -28,6 +28,7 @@ script_mod! {
             color: (shad_theme.color_destructive)
             color_hover: (shad_theme.color_destructive_hover)
             color_down: (shad_theme.color_destructive_down)
+            color_focus: (shad_theme.color_destructive)
             border_size: 0.0
             border_radius: (shad_theme.radius)
             border_color: #0000
@@ -35,6 +36,7 @@ script_mod! {
         draw_text.color: (shad_theme.color_destructive_foreground)
         draw_text.color_hover: (shad_theme.color_destructive_foreground)
         draw_text.color_down: (shad_theme.color_destructive_foreground)
+        draw_text.color_focus: (shad_theme.color_destructive_foreground)
         draw_text.text_style.font_size: 11
     }
 
