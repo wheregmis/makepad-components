@@ -27,48 +27,109 @@ script_mod! {
 
         GalleryHr{}
 
-        Label{
-            text: "Default"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
-
-        ShadAlert{
+        alert_preview_section := View{
             width: Fill
-            icon := ShadAlertIcon{text: "ⓘ"}
-            content := ShadAlertContent{
-                title := ShadAlertTitle{text: "Heads up!"}
-                description := ShadAlertDescription{
-                    text: "You can add components and dependencies to your app using the cli."
+            height: Fit
+            flow: Down
+
+            alert_tabs_row := View{
+                width: Fit
+                height: Fit
+                flow: Right
+                spacing: 20.0
+                margin: Inset{top: 4, bottom: 12}
+
+                alert_demo_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
+
+                    alert_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+
+                    alert_demo_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
+                }
+
+                alert_code_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
+
+                    alert_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+
+                    alert_code_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        visible: false
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
                 }
             }
-        }
 
-        Label{
-            text: "Destructive"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
+            alert_preview_panel := mod.widgets.GalleryPreviewPanel{
+                alert_preview_flip := PageFlip{
+                    width: Fill
+                    height: Fit
+                    active_page: @demo_page
 
-        ShadAlertDestructive{
-            width: Fill
-            icon := ShadAlertDestructiveIcon{text: "✕"}
-            content := ShadAlertContent{
-                title := ShadAlertDestructiveTitle{text: "Error"}
-                description := ShadAlertDescription{
-                    text: "Your session has expired. Please log in again."
+                    demo_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        Label{
+                            text: "Default"
+                            draw_text.color: (shad_theme.color_muted_foreground)
+                            draw_text.text_style.font_size: 10
+                        }
+
+                        ShadAlert{
+                            width: Fill
+                            icon := ShadAlertIcon{text: "ⓘ"}
+                            content := ShadAlertContent{
+                                title := ShadAlertTitle{text: "Heads up!"}
+                                description := ShadAlertDescription{
+                                    text: "You can add components and dependencies to your app using the cli."
+                                }
+                            }
+                        }
+
+                        Label{
+                            text: "Destructive"
+                            draw_text.color: (shad_theme.color_muted_foreground)
+                            draw_text.text_style.font_size: 10
+                        }
+
+                        ShadAlertDestructive{
+                            width: Fill
+                            icon := ShadAlertDestructiveIcon{text: "✕"}
+                            content := ShadAlertContent{
+                                title := ShadAlertDestructiveTitle{text: "Error"}
+                                description := ShadAlertDescription{
+                                    text: "Your session has expired. Please log in again."
+                                }
+                            }
+                        }
+                    }
+
+                    code_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        GalleryCodeSnippet{
+                            code: #(ALERT_PREVIEW_CODE)
+                        }
+                    }
                 }
             }
-        }
-
-        Label{
-            text: "Preview + Source"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
-
-        alert_example_snippet := GalleryCodeSnippet{
-            code: #(ALERT_PREVIEW_CODE)
         }
     }
 }

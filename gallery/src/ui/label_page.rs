@@ -27,22 +27,83 @@ script_mod! {
 
         GalleryHr{}
 
-        Label{
-            text: "Default Label"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
+        label_preview_section := View{
+            width: Fill
+            height: Fit
+            flow: Down
 
-        ShadLabel{ text: "Your email address" }
+            label_tabs_row := View{
+                width: Fit
+                height: Fit
+                flow: Right
+                spacing: 20.0
+                margin: Inset{top: 4, bottom: 12}
 
-        Label{
-            text: "Preview + Source"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
+                label_demo_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
 
-        label_code_snippet := GalleryCodeSnippet{
-            code: #(LABEL_PREVIEW_CODE)
+                    label_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+
+                    label_demo_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
+                }
+
+                label_code_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
+
+                    label_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+
+                    label_code_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        visible: false
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
+                }
+            }
+
+            label_preview_panel := mod.widgets.GalleryPreviewPanel{
+                label_preview_flip := PageFlip{
+                    width: Fill
+                    height: Fit
+                    active_page: @demo_page
+
+                    demo_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        Label{
+                            text: "Default Label"
+                            draw_text.color: (shad_theme.color_muted_foreground)
+                            draw_text.text_style.font_size: 10
+                        }
+
+                        ShadLabel{ text: "Your email address" }
+                    }
+
+                    code_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        GalleryCodeSnippet{
+                            code: #(LABEL_PREVIEW_CODE)
+                        }
+                    }
+                }
+            }
         }
     }
 }

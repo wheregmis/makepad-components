@@ -27,44 +27,105 @@ script_mod! {
 
         GalleryHr{}
 
-        Label{
-            text: "Variants"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
-
-        View{
+        badge_preview_section := View{
             width: Fill
             height: Fit
-            flow: Right
-            align: Align{y: 0.5}
-            spacing: 8.0
+            flow: Down
 
-            ShadBadge{
-                label := ShadBadgeLabel{text: "Default"}
+            badge_tabs_row := View{
+                width: Fit
+                height: Fit
+                flow: Right
+                spacing: 20.0
+                margin: Inset{top: 4, bottom: 12}
+
+                badge_demo_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
+
+                    badge_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+
+                    badge_demo_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
+                }
+
+                badge_code_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
+
+                    badge_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+
+                    badge_code_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        visible: false
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
+                }
             }
 
-            ShadBadgeSecondary{
-                label := ShadBadgeSecondaryLabel{text: "Secondary"}
+            badge_preview_panel := mod.widgets.GalleryPreviewPanel{
+                badge_preview_flip := PageFlip{
+                    width: Fill
+                    height: Fit
+                    active_page: @demo_page
+
+                    demo_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                Label{
+                    text: "Variants"
+                    draw_text.color: (shad_theme.color_muted_foreground)
+                    draw_text.text_style.font_size: 10
+                }
+
+                View{
+                    width: Fill
+                    height: Fit
+                    flow: Right
+                    align: Align{y: 0.5}
+                    spacing: 8.0
+
+                    ShadBadge{
+                        label := ShadBadgeLabel{text: "Default"}
+                    }
+
+                    ShadBadgeSecondary{
+                        label := ShadBadgeSecondaryLabel{text: "Secondary"}
+                    }
+
+                    ShadBadgeDestructive{
+                        label := ShadBadgeDestructiveLabel{text: "Destructive"}
+                    }
+
+                    ShadBadgeOutline{
+                        label := ShadBadgeOutlineLabel{text: "Outline"}
+                    }
+                }
+                    }
+
+                    code_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        GalleryCodeSnippet{
+                            code: #(BADGE_PREVIEW_CODE)
+                        }
+                    }
+                }
             }
-
-            ShadBadgeDestructive{
-                label := ShadBadgeDestructiveLabel{text: "Destructive"}
-            }
-
-            ShadBadgeOutline{
-                label := ShadBadgeOutlineLabel{text: "Outline"}
-            }
-        }
-
-        Label{
-            text: "Preview + Source"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
-
-        badge_example_snippet := GalleryCodeSnippet{
-            code: #(BADGE_PREVIEW_CODE)
         }
     }
 }
