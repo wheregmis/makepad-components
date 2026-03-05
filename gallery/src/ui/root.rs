@@ -9,6 +9,7 @@ script_mod! {
             window.inner_size: vec2(1400 900)
             body +: {
                 flow: Right
+                draw_bg.color: (shad_theme.color_background)
 
                 sidebar := mod.widgets.GallerySidebar{}
                 content_flip := mod.widgets.GalleryContentFlip{}
