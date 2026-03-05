@@ -128,39 +128,44 @@ impl Widget for AccordionItem {
         }
 
         if let Event::Actions(actions) = event {
-            let mut opening = false;
-            let mut closing = false;
+            let fold_button_uid = self.header.widget(cx, ids!(fold_button)).widget_uid();
+            if fold_button_uid != WidgetUid(0) {
+                let mut opening = false;
+                let mut closing = false;
 
-            for action in actions {
-                if let Some(widget_action) = action.downcast_ref::<WidgetAction>() {
-                    match widget_action.cast::<FoldButtonAction>() {
-                        FoldButtonAction::Opening => opening = true,
-                        FoldButtonAction::Closing => closing = true,
-                        _ => {}
+                for action in actions {
+                    if let Some(widget_action) = action.downcast_ref::<WidgetAction>() {
+                        if widget_action.widget_uid == fold_button_uid {
+                            match widget_action.cast::<FoldButtonAction>() {
+                                FoldButtonAction::Opening => opening = true,
+                                FoldButtonAction::Closing => closing = true,
+                                _ => {}
+                            }
+                        }
                     }
                 }
-            }
 
-            if opening && !self.is_open {
-                self.is_open = true;
-                self.area.redraw(cx);
-                cx.widget_to_script_call(
-                    self.widget_uid(),
-                    NIL,
-                    self.source.clone(),
-                    self.on_toggle.clone(),
-                    &[ScriptValue::from_bool(true)],
-                );
-            } else if closing && self.is_open {
-                self.is_open = false;
-                self.area.redraw(cx);
-                cx.widget_to_script_call(
-                    self.widget_uid(),
-                    NIL,
-                    self.source.clone(),
-                    self.on_toggle.clone(),
-                    &[ScriptValue::from_bool(false)],
-                );
+                if opening && !self.is_open {
+                    self.is_open = true;
+                    self.area.redraw(cx);
+                    cx.widget_to_script_call(
+                        self.widget_uid(),
+                        NIL,
+                        self.source.clone(),
+                        self.on_toggle.clone(),
+                        &[ScriptValue::from_bool(true)],
+                    );
+                } else if closing && self.is_open {
+                    self.is_open = false;
+                    self.area.redraw(cx);
+                    cx.widget_to_script_call(
+                        self.widget_uid(),
+                        NIL,
+                        self.source.clone(),
+                        self.on_toggle.clone(),
+                        &[ScriptValue::from_bool(false)],
+                    );
+                }
             }
         }
     }
