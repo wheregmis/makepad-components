@@ -217,6 +217,12 @@ script_mod! {
 - `ShadAlertDestructiveIcon`
 - `ShadAlertDestructiveTitle`
 
+### Sidebar (`components/src/sidebar.rs`)
+
+- `ShadSidebar`
+- `ShadSidebarSectionLabel`
+- `ShadSidebarItem`
+
 ### Theme (`components/src/theme.rs`)
 
 Exports `mod.widgets.shad_theme` with tokens such as:

@@ -21,5 +21,6 @@ script_mod! {
         collapsible_page := mod.widgets.GalleryCollapsiblePage{}
         input_page := mod.widgets.GalleryInputPage{}
         label_page := mod.widgets.GalleryLabelPage{}
+        sidebar_page := mod.widgets.GallerySidebarPage{}
     }
 }

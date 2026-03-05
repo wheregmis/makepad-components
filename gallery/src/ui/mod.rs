@@ -15,6 +15,7 @@ pub mod input_page;
 pub mod label_page;
 pub mod root;
 pub mod sidebar;
+pub mod sidebar_page;
 pub mod themed_widgets;
 
 pub fn script_mod(vm: &mut ScriptVm) {
@@ -32,6 +33,7 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::collapsible_page::script_mod(vm);
     crate::ui::input_page::script_mod(vm);
     crate::ui::label_page::script_mod(vm);
+    crate::ui::sidebar_page::script_mod(vm);
     crate::ui::content_flip::script_mod(vm);
     crate::ui::root::script_mod(vm);
 }
