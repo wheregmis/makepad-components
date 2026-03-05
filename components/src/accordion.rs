@@ -35,7 +35,7 @@ script_mod! {
 
             title := Label{
                 text: "Accordion Item"
-                draw_text.color: #ddd
+                draw_text.color: (shad_theme.color_primary)
                 draw_text.text_style.font_size: 11
             }
 
@@ -56,7 +56,7 @@ script_mod! {
 
             body_text := Label{
                 text: "Accordion content"
-                draw_text.color: #b8b8b8
+                draw_text.color: (shad_theme.color_muted_foreground)
                 draw_text.text_style.font_size: 10
             }
         }
