@@ -105,6 +105,12 @@ impl MatchEvent for App {
                 .set_active_page(cx, live_id!(collapsible_page));
         }
 
+        if self.ui.button(cx, ids!(sidebar_skeleton)).clicked(actions) {
+            self.ui
+                .page_flip(cx, ids!(content_flip))
+                .set_active_page(cx, live_id!(skeleton_page));
+        }
+
         if self.ui.button(cx, ids!(sidebar_switch)).clicked(actions) {
             self.ui
                 .page_flip(cx, ids!(content_flip))

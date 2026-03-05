@@ -19,6 +19,7 @@ script_mod! {
         button_group_page := mod.widgets.GalleryButtonGroupPage{}
         checkbox_page := mod.widgets.GalleryCheckboxPage{}
         collapsible_page := mod.widgets.GalleryCollapsiblePage{}
+        skeleton_page := mod.widgets.GallerySkeletonPage{}
         switch_page := mod.widgets.GallerySwitchPage{}
         input_page := mod.widgets.GalleryInputPage{}
         label_page := mod.widgets.GalleryLabelPage{}
