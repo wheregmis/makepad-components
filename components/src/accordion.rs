@@ -1,51 +1,82 @@
+use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
 #[derive(Clone)]
 enum DrawState {
-    DrawHeader,
     DrawBody,
 }
-
-use makepad_script::ScriptFnRef;
 
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.Accordion = View{
+    mod.widgets.ShadAccordion = View{
         width: Fill
         height: Fit
         flow: Down
         spacing: 0.0
     }
 
-    mod.widgets.AccordionItemBase = #(AccordionItem::register_widget(vm))
+    mod.widgets.ShadAccordionItemBase = #(ShadAccordionItem::register_widget(vm))
 
-    mod.widgets.AccordionItem = set_type_default() do mod.widgets.AccordionItemBase{
+    mod.widgets.ShadAccordionItem = set_type_default() do mod.widgets.ShadAccordionItemBase{
         width: Fill
         height: Fit
-        body_walk: Walk{width: Fill, height: Fit}
+        flow: Down
         is_open: true
+        active: 1.0
+        title: "Accordion Item"
 
-        header: View{
-            width: Fill
-            height: Fit
-            flow: Right
-            align: Align{y: 0.5}
-            padding: Inset{top: 12, bottom: 12, left: 12, right: 12}
-            spacing: 8.0
+        draw_bg +: {
+            hover: instance(0.0)
+            header_height: uniform(48.0)
 
-            title := Label{
-                text: "Accordion Item"
-                draw_text.color: (shad_theme.color_primary)
-                draw_text.text_style.font_size: 11
+            color_hover: uniform(shad_theme.color_secondary_hover)
+            color_divider: uniform(shad_theme.color_outline_border)
+
+            pixel: fn() {
+                let sdf = Sdf2d.viewport(self.pos * self.rect_size)
+                sdf.clear(vec4(0.0))
+
+                // Header hover background (top strip only)
+                let hh = clamp(self.header_height, 0.0, self.rect_size.y)
+                sdf.rect(0.0, 0.0, self.rect_size.x, hh)
+                sdf.fill(mix(vec4(0.0, 0.0, 0.0, 0.0), self.color_hover, self.hover))
+
+                // Bottom divider line
+                sdf.rect(0.0, self.rect_size.y - 1.0, self.rect_size.x, 1.0)
+                sdf.fill(self.color_divider)
+
+                return sdf.result
             }
+        }
 
-            View{width: Fill, height: Fit}
+        draw_text +: {
+            color: (shad_theme.color_primary)
+            text_style: theme.font_regular{font_size: 11}
+        }
 
-            fold_button := FoldButton{
-                width: 16
-                height: 16
+        draw_icon +: {
+            active: instance(1.0)
+            hover: instance(0.0)
+
+            color: uniform(shad_theme.color_muted_foreground)
+            color_hover: uniform(shad_theme.color_primary)
+
+            pixel: fn() {
+                let sz = 3.5
+                let c = self.rect_size * 0.5
+                let sdf = Sdf2d.viewport(self.pos * self.rect_size)
+                sdf.clear(vec4(0.0))
+
+                // 0 = right chevron, 1 = down chevron
+                sdf.rotate(self.active * 0.5 * PI, c.x, c.y)
+                sdf.move_to(c.x - sz, c.y - sz)
+                sdf.line_to(c.x + sz, c.y)
+                sdf.line_to(c.x - sz, c.y + sz)
+                sdf.stroke(mix(self.color, self.color_hover, self.hover), 1.4)
+
+                return sdf.result
             }
         }
 
@@ -53,50 +84,126 @@ script_mod! {
             width: Fill
             height: Fit
             flow: Down
-            padding: Inset{left: 12, right: 12, top: 0, bottom: 12}
+            padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
             spacing: 8.0
+        }
 
-            body_text := Label{
-                text: "Accordion content"
-                draw_text.color: (shad_theme.color_muted_foreground)
-                draw_text.text_style.font_size: 10
+        animator: Animator{
+            hover: {
+                default: @off
+                off: AnimatorState{
+                    from: {all: Forward {duration: 0.1}}
+                    apply: {
+                        draw_bg: {hover: 0.0}
+                        draw_icon: {hover: 0.0}
+                    }
+                }
+                on: AnimatorState{
+                    from: {all: Snap}
+                    apply: {
+                        draw_bg: {hover: 1.0}
+                        draw_icon: {hover: 1.0}
+                    }
+                }
+            }
+
+            active: {
+                default: @on
+                off: AnimatorState{
+                    from: {all: Forward {duration: 0.2}}
+                    ease: ExpDecay {d1: 0.96, d2: 0.97}
+                    redraw: true
+                    apply: {
+                        active: 0.0
+                        draw_icon: {active: 0.0}
+                    }
+                }
+                on: AnimatorState{
+                    from: {all: Forward {duration: 0.2}}
+                    ease: ExpDecay {d1: 0.98, d2: 0.95}
+                    redraw: true
+                    apply: {
+                        active: 1.0
+                        draw_icon: {active: 1.0}
+                    }
+                }
             }
         }
     }
 }
 
-#[derive(Script, ScriptHook, Widget)]
-pub struct AccordionItem {
+#[derive(Clone, Debug, Default)]
+pub enum ShadAccordionItemAction {
+    #[default]
+    None,
+    Opening,
+    Closing,
+    Animating(f64),
+}
+
+#[derive(Script, Widget, Animator)]
+pub struct ShadAccordionItem {
     #[uid]
     uid: WidgetUid,
     #[source]
     source: ScriptObjectRef,
+    #[apply_default]
+    animator: Animator,
 
     #[rust]
     draw_state: DrawStateWrap<DrawState>,
     #[rust]
     area: Area,
-    #[find]
+    #[rust]
+    header_area: Area,
+
     #[redraw]
     #[live]
-    header: WidgetRef,
+    draw_bg: DrawQuad,
+    #[redraw]
+    #[live]
+    draw_text: DrawText,
+    #[redraw]
+    #[live]
+    draw_icon: DrawQuad,
+
     #[find]
     #[redraw]
     #[live]
     body: WidgetRef,
+
+    #[live]
+    title: String,
+    #[live]
+    is_open: bool,
+    #[live]
+    active: f64,
+
     #[layout]
     layout: Layout,
     #[walk]
     walk: Walk,
-    #[live]
-    body_walk: Walk,
-    #[live]
-    is_open: bool,
-    #[live]
-    on_toggle: ScriptFnRef,
+
+    #[action_data]
+    #[rust]
+    action_data: WidgetActionData,
 }
 
-impl Widget for AccordionItem {
+impl ScriptHook for ShadAccordionItem {
+    fn on_after_new(&mut self, vm: &mut ScriptVm) {
+        vm.with_cx_mut(|cx| {
+            self.animator_toggle(
+                cx,
+                self.is_open,
+                animator::Animate::No,
+                ids!(active.on),
+                ids!(active.off),
+            );
+        });
+    }
+}
+
+impl Widget for ShadAccordionItem {
     fn script_call(
         &mut self,
         vm: &mut ScriptVm,
@@ -109,120 +216,198 @@ impl Widget for AccordionItem {
                 let value = vm.bx.heap.vec_value(args_obj, 0, trap);
                 if let Some(is_open) = value.as_bool() {
                     vm.with_cx_mut(|cx| {
-                        self.set_is_open(cx, is_open);
+                        self.set_is_open(cx, is_open, animator::Animate::No);
                     });
                 }
             }
             return ScriptAsyncResult::Return(NIL);
         }
         if method == live_id!(is_open) {
-            return ScriptAsyncResult::Return(ScriptValue::from_bool(self.is_open));
+            let is_open = vm.with_cx(|cx| self.is_open(cx));
+            return ScriptAsyncResult::Return(ScriptValue::from_bool(is_open));
         }
         ScriptAsyncResult::MethodNotFound
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
-        self.header.handle_event(cx, event, scope);
-        if self.is_open {
+        let uid = self.widget_uid();
+
+        if self.animator_handle_event(cx, event).must_redraw() {
+            cx.widget_action_with_data(
+                &self.action_data,
+                uid,
+                ShadAccordionItemAction::Animating(self.active),
+            );
+            self.area.redraw(cx);
+        }
+
+        if self.active > 0.0 {
             self.body.handle_event(cx, event, scope);
         }
 
-        if let Event::Actions(actions) = event {
-            let fold_button_uid = self.header.widget(cx, ids!(fold_button)).widget_uid();
-            if fold_button_uid != WidgetUid(0) {
-                let mut opening = false;
-                let mut closing = false;
-
-                for action in actions {
-                    if let Some(widget_action) = action.downcast_ref::<WidgetAction>() {
-                        if widget_action.widget_uid == fold_button_uid {
-                            match widget_action.cast::<FoldButtonAction>() {
-                                FoldButtonAction::Opening => opening = true,
-                                FoldButtonAction::Closing => closing = true,
-                                _ => {}
-                            }
-                        }
-                    }
-                }
-
-                if opening && !self.is_open {
-                    self.is_open = true;
-                    self.area.redraw(cx);
-                    cx.widget_to_script_call(
-                        self.widget_uid(),
-                        NIL,
-                        self.source.clone(),
-                        self.on_toggle.clone(),
-                        &[ScriptValue::from_bool(true)],
-                    );
-                } else if closing && self.is_open {
+        match event.hits(cx, self.header_area) {
+            Hit::FingerDown(_) => {
+                if self.animator_in_state(cx, ids!(active.on)) {
                     self.is_open = false;
-                    self.area.redraw(cx);
-                    cx.widget_to_script_call(
-                        self.widget_uid(),
-                        NIL,
-                        self.source.clone(),
-                        self.on_toggle.clone(),
-                        &[ScriptValue::from_bool(false)],
+                    self.animator_play(cx, ids!(active.off));
+                    cx.widget_action_with_data(
+                        &self.action_data,
+                        uid,
+                        ShadAccordionItemAction::Closing,
                     );
+                } else {
+                    self.is_open = true;
+                    self.animator_play(cx, ids!(active.on));
+                    cx.widget_action_with_data(
+                        &self.action_data,
+                        uid,
+                        ShadAccordionItemAction::Opening,
+                    );
+                }
+                self.animator_play(cx, ids!(hover.on));
+                self.area.redraw(cx);
+            }
+            Hit::FingerHoverIn(_) => {
+                cx.set_cursor(MouseCursor::Hand);
+                self.animator_play(cx, ids!(hover.on));
+            }
+            Hit::FingerHoverOut(_) => {
+                self.animator_play(cx, ids!(hover.off));
+            }
+            Hit::FingerUp(fe) => {
+                if fe.is_over {
+                    if fe.device.has_hovers() {
+                        self.animator_play(cx, ids!(hover.on));
+                    } else {
+                        self.animator_play(cx, ids!(hover.off));
+                    }
+                } else {
+                    self.animator_play(cx, ids!(hover.off));
                 }
             }
+            _ => {}
         }
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
-        if self.draw_state.begin(cx, DrawState::DrawHeader) {
-            cx.begin_turtle(walk, self.layout);
-        }
-        if let Some(DrawState::DrawHeader) = self.draw_state.get() {
-            let header_walk = self.header.walk(cx);
-            self.header.draw_walk(cx, scope, header_walk)?;
+        let header_height = 48.0;
+        let icon_size = 12.0;
 
-            if self.is_open {
-                cx.begin_turtle(self.body_walk, Layout::flow_down());
-                self.draw_state.set(DrawState::DrawBody);
-            } else {
-                cx.end_turtle_with_area(&mut self.area);
-                self.draw_state.end();
-            }
+        if self.draw_state.begin(cx, DrawState::DrawBody) {
+            self.draw_bg.begin(cx, walk, self.layout);
+
+            let mut header_layout = Layout::flow_right().with_align_y(0.5);
+            header_layout.padding = Inset {
+                left: 16.0,
+                right: 16.0,
+                top: 12.0,
+                bottom: 12.0,
+            };
+            header_layout.spacing = 8.0;
+
+            cx.begin_turtle(
+                Walk::new(Size::fill(), Size::Fixed(header_height)),
+                header_layout,
+            );
+            self.draw_text.draw_walk(
+                cx,
+                Walk::new(Size::fill(), Size::fit()),
+                Align { x: 0.0, y: 0.5 },
+                self.title.as_ref(),
+            );
+            self.draw_icon
+                .draw_walk(cx, Walk::fixed(icon_size, icon_size));
+            cx.end_turtle_with_area(&mut self.header_area);
         }
+
         if let Some(DrawState::DrawBody) = self.draw_state.get() {
-            let body_walk = self.body.walk(cx);
-            self.body.draw_walk(cx, scope, body_walk)?;
-            cx.end_turtle();
-            cx.end_turtle_with_area(&mut self.area);
+            if self.active > 0.0 {
+                let body_walk = self.body.walk(cx);
+                self.body.draw_walk(cx, scope, body_walk)?;
+            }
+            self.draw_bg.end(cx);
+            self.area = self.draw_bg.area();
             self.draw_state.end();
         }
         DrawStep::done()
     }
 }
 
-impl AccordionItem {
-    pub fn set_is_open(&mut self, cx: &mut Cx, is_open: bool) {
+impl ShadAccordionItem {
+    pub fn set_is_open(&mut self, cx: &mut Cx, is_open: bool, animate: animator::Animate) {
         self.is_open = is_open;
-        if let Some(mut fold_button) = self
-            .header
-            .widget(cx, ids!(fold_button))
-            .borrow_mut::<FoldButton>()
-        {
-            fold_button.set_is_open(cx, is_open, animator::Animate::No);
-        }
+        self.animator_toggle(cx, is_open, animate, ids!(active.on), ids!(active.off));
         self.area.redraw(cx);
     }
 
-    pub fn is_open(&self) -> bool {
-        self.is_open
+    pub fn is_open(&self, cx: &Cx) -> bool {
+        self.animator_in_state(cx, ids!(active.on))
     }
-}
 
-impl AccordionItemRef {
-    pub fn set_is_open(&self, cx: &mut Cx, is_open: bool) {
-        if let Some(mut inner) = self.borrow_mut() {
-            inner.set_is_open(cx, is_open);
+    pub fn opening(&self, actions: &Actions) -> bool {
+        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
+            matches!(
+                item.cast::<ShadAccordionItemAction>(),
+                ShadAccordionItemAction::Opening
+            )
+        } else {
+            false
         }
     }
 
-    pub fn is_open(&self) -> bool {
-        self.borrow().map_or(true, |inner| inner.is_open())
+    pub fn closing(&self, actions: &Actions) -> bool {
+        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
+            matches!(
+                item.cast::<ShadAccordionItemAction>(),
+                ShadAccordionItemAction::Closing
+            )
+        } else {
+            false
+        }
+    }
+
+    pub fn animating(&self, actions: &Actions) -> Option<f64> {
+        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
+            if let ShadAccordionItemAction::Animating(v) = item.cast() {
+                return Some(v);
+            }
+        }
+        None
+    }
+}
+
+impl ShadAccordionItemRef {
+    pub fn set_is_open(&self, cx: &mut Cx, is_open: bool, animate: animator::Animate) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.set_is_open(cx, is_open, animate);
+        }
+    }
+
+    pub fn is_open(&self, cx: &Cx) -> bool {
+        self.borrow().map_or(true, |inner| inner.is_open(cx))
+    }
+
+    pub fn opening(&self, actions: &Actions) -> bool {
+        if let Some(inner) = self.borrow() {
+            inner.opening(actions)
+        } else {
+            false
+        }
+    }
+
+    pub fn closing(&self, actions: &Actions) -> bool {
+        if let Some(inner) = self.borrow() {
+            inner.closing(actions)
+        } else {
+            false
+        }
+    }
+
+    pub fn animating(&self, actions: &Actions) -> Option<f64> {
+        if let Some(inner) = self.borrow() {
+            inner.animating(actions)
+        } else {
+            None
+        }
     }
 }

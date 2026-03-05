@@ -26,139 +26,62 @@ script_mod! {
 
         GalleryHr{}
 
-        View{
-            width: Fill
-            height: Fit
-            flow: Right
-            spacing: 6.0
-
-            ShadButtonGhost{
-                height: 28
-                padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
-                draw_text.text_style.font_size: 9
-                text: "XSmall"
-            }
-            ShadButtonGhost{
-                height: 28
-                padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
-                draw_text.text_style.font_size: 10
-                text: "Small"
-            }
-            size_medium := ShadButton{text: "Medium"}
-            ShadButtonGhost{
-                height: 44
-                padding: Inset{left: 14, right: 14, top: 0, bottom: 0}
-                draw_text.text_style.font_size: 13
-                text: "Large"
-            }
-
-            View{width: Fill, height: Fit}
-
-            option_icon := GalleryCheckBox{text: "Icon"}
-            option_disabled := GalleryCheckBox{text: "Disabled"}
-            option_bordered := GalleryCheckBox{text: "Bordered"}
-        }
-
-        Label{
-            text: "Normal"
-            draw_text.color: (shad_theme.color_muted_foreground)
-        }
-
-        accordion_wrap := RoundedView{
-            width: Fill
-            height: Fit
-            draw_bg.color: (shad_theme.color_secondary)
-            draw_bg.radius: (shad_theme.radius)
-            padding: Inset{top: 8, right: 8, bottom: 8, left: 8}
-
-            accordion_panel := Accordion{
-                item_accessible := AccordionItem{
-                    header: View{
-                        width: Fill
-                        height: Fit
-                        flow: Right
-                        align: Align{y: 0.5}
-                        padding: Inset{top: 10, bottom: 10, left: 12, right: 12}
-                        spacing: 8.0
-
-                        title := Label{text: "Is it accessible?"}
-                        View{width: Fill, height: Fit}
-                        fold_button := FoldButton{}
-                    }
-                    body: View{
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        padding: Inset{left: 12, right: 12, top: 0, bottom: 12}
-                        Label{
-                            text: "Yes. This accordion is keyboard and mouse friendly by default through FoldHeader/FoldButton behavior."
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+        accordion_panel := ShadAccordion{
+            margin: Inset{top: 12}
+            item_accessible := ShadAccordionItem{
+                title: "Is it accessible?"
+                is_open: true
+                body: View{
+                    width: Fill
+                    height: Fit
+                    flow: Down
+                    padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
+                    Label{
+                        text: "Yes. This accordion is keyboard and mouse friendly by default through FoldHeader/FoldButton behavior."
+                        draw_text.color: (shad_theme.color_muted_foreground)
+                        draw_text.text_style.font_size: 10
                     }
                 }
+            }
 
-                item_styled := AccordionItem{
-                    header: View{
+            item_styled := ShadAccordionItem{
+                title: "Is it styled with complex elements?"
+                body: View{
+                    width: Fill
+                    height: Fit
+                    flow: Down
+                    padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
+                    spacing: 8.0
+
+                    Label{
+                        text: "We can put any view here, like a row with toggles."
+                        draw_text.color: (shad_theme.color_muted_foreground)
+                        draw_text.text_style.font_size: 10
+                    }
+
+                    View{
                         width: Fill
                         height: Fit
                         flow: Right
-                        align: Align{y: 0.5}
-                        padding: Inset{top: 10, bottom: 10, left: 12, right: 12}
-                        spacing: 8.0
+                        spacing: 16
 
-                        title := Label{text: "Is it styled with complex elements?"}
-                        View{width: Fill, height: Fit}
-                        fold_button := FoldButton{}
-                    }
-                    body: View{
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        padding: Inset{left: 12, right: 12, top: 0, bottom: 12}
-                        spacing: 8.0
-
-                        Label{
-                            text: "We can put any view here, like a row with toggles."
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
-
-                        View{
-                            width: Fill
-                            height: Fit
-                            flow: Right
-                            spacing: 16
-
-                            GalleryToggle{text: "Switch"}
-                            GalleryCheckBox{text: "Or a CheckBox"}
-                        }
+                        GalleryToggle{text: "Switch"}
+                        GalleryCheckBox{text: "Or a CheckBox"}
                     }
                 }
+            }
 
-                item_third := AccordionItem{
-                    header: View{
-                        width: Fill
-                        height: Fit
-                        flow: Right
-                        align: Align{y: 0.5}
-                        padding: Inset{top: 10, bottom: 10, left: 12, right: 12}
-                        spacing: 8.0
-
-                        title := Label{text: "This is third accordion"}
-                        View{width: Fill, height: Fit}
-                        fold_button := FoldButton{}
-                    }
-                    body: View{
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        padding: Inset{left: 12, right: 12, top: 0, bottom: 12}
-                        Label{
-                            text: "This is third accordion content. It can be any view, like a text view or a button."
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+            item_third := ShadAccordionItem{
+                title: "This is third accordion"
+                body: View{
+                    width: Fill
+                    height: Fit
+                    flow: Down
+                    padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
+                    Label{
+                        text: "This is third accordion content. It can be any view, like a text view or a button."
+                        draw_text.color: (shad_theme.color_muted_foreground)
+                        draw_text.text_style.font_size: 10
                     }
                 }
             }
