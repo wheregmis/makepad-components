@@ -12,9 +12,11 @@ script_mod! {
         height: Fit
         label: "Checkbox"
         checked: false
+        grab_key_focus: true
 
         draw_bg +: {
             hover: instance(0.0)
+            focus: instance(0.0)
             checked_val: instance(0.0)
 
             color_border: uniform(shad_theme.color_outline_border)
@@ -28,12 +30,16 @@ script_mod! {
 
                 let sz = self.rect_size
 
+                // Focus ring
+                sdf.box(0.0, 0.0, sz.x, sz.y, 5.0)
+                sdf.stroke(mix(vec4(0.0), self.color_border_hover, self.focus), 1.5)
+
                 // Box fill: transparent when unchecked, primary color when checked
-                sdf.box(1.0, 1.0, sz.x - 2.0, sz.y - 2.0, 4.0)
+                sdf.box(1.5, 1.5, sz.x - 3.0, sz.y - 3.0, 3.0)
                 sdf.fill(mix(vec4(0.0, 0.0, 0.0, 0.0), self.color_primary, self.checked_val))
 
                 // Border: visible when unchecked, fades to transparent when checked
-                sdf.box(0.5, 0.5, sz.x - 1.0, sz.y - 1.0, 4.0)
+                sdf.box(1.5, 1.5, sz.x - 3.0, sz.y - 3.0, 3.0)
                 let border_col = mix(self.color_border, self.color_border_hover, self.hover)
                 sdf.stroke(mix(border_col, vec4(0.0, 0.0, 0.0, 0.0), self.checked_val), 1.0)
 
@@ -68,6 +74,18 @@ script_mod! {
                 on: AnimatorState{
                     from: {all: Snap}
                     apply: {draw_bg: {hover: 1.0}}
+                }
+            }
+
+            focus: {
+                default: @off
+                off: AnimatorState{
+                    from: {all: Forward {duration: 0.1}}
+                    apply: {draw_bg: {focus: 0.0}}
+                }
+                on: AnimatorState{
+                    from: {all: Snap}
+                    apply: {draw_bg: {focus: 1.0}}
                 }
             }
 
@@ -116,6 +134,8 @@ pub struct ShadCheckbox {
     label: String,
     #[live]
     checked: bool,
+    #[live]
+    grab_key_focus: bool,
 
     #[layout]
     layout: Layout,
@@ -174,7 +194,28 @@ impl Widget for ShadCheckbox {
         }
 
         match event.hits(cx, self.area) {
+            Hit::KeyDown(ke) => {
+                if let KeyCode::Space | KeyCode::ReturnKey = ke.key_code {
+                    self.checked = !self.checked;
+                    self.animator_toggle(
+                        cx,
+                        self.checked,
+                        animator::Animate::Yes,
+                        ids!(checked.on),
+                        ids!(checked.off),
+                    );
+                    cx.widget_action_with_data(
+                        &self.action_data,
+                        uid,
+                        ShadCheckboxAction::Changed(self.checked),
+                    );
+                    self.area.redraw(cx);
+                }
+            }
             Hit::FingerDown(_) => {
+                if self.grab_key_focus {
+                    cx.set_key_focus(self.area);
+                }
                 self.checked = !self.checked;
                 self.animator_toggle(
                     cx,
@@ -189,6 +230,12 @@ impl Widget for ShadCheckbox {
                     ShadCheckboxAction::Changed(self.checked),
                 );
                 self.area.redraw(cx);
+            }
+            Hit::KeyFocus(_) => {
+                self.animator_play(cx, ids!(focus.on));
+            }
+            Hit::KeyFocusLost(_) => {
+                self.animator_play(cx, ids!(focus.off));
             }
             Hit::FingerHoverIn(_) => {
                 cx.set_cursor(MouseCursor::Hand);
