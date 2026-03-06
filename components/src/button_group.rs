@@ -28,7 +28,7 @@ script_mod! {
             color: #0000
             color_hover: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_ghost_down)
-            color_focus: #0000
+            color_focus: (shad_theme.color_ghost_hover)
             border_size: 0.0
             border_radius: 0.0
             border_color: #0000
