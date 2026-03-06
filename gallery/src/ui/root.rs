@@ -10,6 +10,8 @@ script_mod! {
             window.title: "Makepad Components Gallery"
             pass +: { clear_color: (shad_theme.color_background) }
             body +: {
+                width: Fill
+                height: Fill
                 flow: Right
                 draw_bg.color: (shad_theme.color_background)
 

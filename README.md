@@ -13,7 +13,7 @@ This workspace contains:
 - **Aspect Ratio**: ratio-constrained container for media/content layouts (`ShadAspectRatio`).
 - **Accordion**: a composable accordion item widget with open/close state and script-call support (`set_is_open`, `is_open`).
 - **Alerts**: shadcn-inspired alert layouts with default and destructive variants.
-- **Alert Dialog**: modal dialog with title, description, and Cancel/Confirm buttons; `set_open(bool)` / `is_open()` API and optional destructive variant.
+- **Dialog**: modal with variants — generic (custom body), alert (title + Cancel/Confirm), destructive; `set_open(bool)` / `is_open()` API.
 - **Theme tokens**: centralized `shad_theme` color + radius tokens in script space.
 - **Icons**: SVG-based icon widgets (`IconCheck`, `IconX`, `IconSearch`).
 - **Kbd**: keyboard shortcut key caps (`ShadKbd`, `ShadKbdLabel`, `ShadKbdSeparator`) for displaying shortcuts (e.g. ⌘ ⇧ ⌥ ⌃ or Ctrl + B).
@@ -138,7 +138,6 @@ script_mod! {
 
 - [x] Accordion
 - [x] Alert
-- [x] Alert Dialog
 - [x] Aspect Ratio
 - [x] Avatar
 - [x] Badge
@@ -154,19 +153,14 @@ script_mod! {
 - [ ] Combobox
 - [ ] Command
 - [ ] Context Menu
-- [ ] Data Table
 - [ ] Date Picker
-- [ ] Dialog
-- [ ] Direction
-- [ ] Drawer
-- [ ] Dropdown Menu
+- [x] Dialog
+- [x] Drawer
+- [x] Dropdown Menu
 - [ ] Empty
-- [ ] Field
-- [ ] Hover Card
-- [x] Input
-- [ ] Input Group
+- [ ] Input & Field
+- [x] Hover Card
 - [ ] Input OTP
-- [ ] Item
 - [x] Kbd
 - [x] Label
 - [ ] Menubar
@@ -190,9 +184,10 @@ script_mod! {
 - [ ] Table
 - [ ] Tabs
 - [ ] Textarea
-- [ ] Toggle
-- [ ] Toggle Group
+- [ ] Toggle & Toggle Group
 - [ ] Tooltip
+
+**Known limitation:** In the gallery app, the Dropdown Menu (and the base `DropDown` widget) may not open on click; this appears to be an interaction between the gallery’s layout (flow + PageFlip) and the platform’s hit/sweep handling. For a working dropdown example, see the splash app (`splash_app.md` or the makepad repo’s splash example), which uses a Dock-based layout.
 
 ### Buttons (`components/src/button.rs`)
 
@@ -231,14 +226,15 @@ script_mod! {
 - `ShadAlertDestructiveIcon`
 - `ShadAlertDestructiveTitle`
 
-### Alert Dialog (`components/src/alert_dialog.rs`)
+### Dialog (`components/src/dialog.rs`)
 
-- `ShadAlertDialog` — modal with primary Confirm and outline Cancel
-- `ShadAlertDialogDestructive` — same layout with destructive Confirm (e.g. Delete)
+- `ShadDialog` — generic modal with customizable `body` content (closes on backdrop/Escape; wire your own Close button)
+- `ShadDialogAlert` — preset with title, description, Cancel/Continue (closes on Cancel, Confirm, or backdrop)
+- `ShadDialogAlertDestructive` — same layout with destructive Confirm (e.g. Delete)
 
-Props: `open` (bool). Title and description are set in the script template (`title_label`, `description_label`).
+Props: `open` (bool). For generic: put content in `overlay +: { content +: { body +: { ... } } }`. For alert variants: customize `title_label`, `description_label` in the template.
 
-Script API: `set_open(bool)` and `is_open() -> bool` (e.g. from app or script to show/hide). Optional: use actions (Confirmed / Cancelled) in `handle_actions` when buttons or backdrop close the dialog.
+Script API: `set_open(bool)` and `is_open() -> bool`.
 
 ### Progress (`components/src/progress.rs`)
 

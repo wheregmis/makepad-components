@@ -4,9 +4,41 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.ShadAlertDialogBase = #(ShadAlertDialog::register_widget(vm))
+    mod.widgets.ShadDialogBase = #(ShadDialog::register_widget(vm))
 
-    mod.widgets.ShadAlertDialog = set_type_default() do mod.widgets.ShadAlertDialogBase{
+    mod.widgets.ShadDialog = set_type_default() do mod.widgets.ShadDialogBase{
+        width: Fill
+        height: Fit
+        open: false
+
+        overlay: Modal{
+            bg_view +: {
+                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.55)
+            }
+
+            content +: {
+                width: 360
+                height: Fit
+
+                body := RoundedView{
+                    width: Fill
+                    height: Fit
+                    padding: Inset{left: 20, right: 20, top: 20, bottom: 16}
+                    flow: Down
+                    spacing: 12.0
+
+                    draw_bg +: {
+                        color: (shad_theme.color_secondary)
+                        border_radius: (shad_theme.radius)
+                        border_size: 1.0
+                        border_color: (shad_theme.color_outline_border)
+                    }
+                }
+            }
+        }
+    }
+
+    mod.widgets.ShadDialogAlert = set_type_default() do mod.widgets.ShadDialogBase{
         width: Fill
         height: Fit
         open: false
@@ -90,7 +122,7 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadAlertDialogDestructive = set_type_default() do mod.widgets.ShadAlertDialogBase{
+    mod.widgets.ShadDialogAlertDestructive = set_type_default() do mod.widgets.ShadDialogBase{
         width: Fill
         height: Fit
         open: false
@@ -176,7 +208,7 @@ script_mod! {
 }
 
 #[derive(Script, ScriptHook, Widget)]
-pub struct ShadAlertDialog {
+pub struct ShadDialog {
     #[uid]
     uid: WidgetUid,
     #[source]
@@ -196,7 +228,7 @@ pub struct ShadAlertDialog {
     walk: Walk,
 }
 
-impl ShadAlertDialog {
+impl ShadDialog {
     pub fn set_open(&mut self, open: bool) {
         self.open = open;
     }
@@ -206,7 +238,7 @@ impl ShadAlertDialog {
     }
 }
 
-impl Widget for ShadAlertDialog {
+impl Widget for ShadDialog {
     fn script_call(
         &mut self,
         vm: &mut ScriptVm,
@@ -235,7 +267,7 @@ impl Widget for ShadAlertDialog {
                 modal.open(cx);
             }
             self.overlay.handle_event(cx, event, scope);
-            // Close when Cancel/Confirm is clicked or modal is dismissed (backdrop/Escape)
+            // Close when modal is dismissed (backdrop/Escape) or when cancel/confirm clicked (alert variants)
             if let Event::Actions(actions) = event {
                 let content = self.overlay.widget(cx, ids!(content));
                 if actions
@@ -302,4 +334,3 @@ impl Widget for ShadAlertDialog {
         step
     }
 }
-

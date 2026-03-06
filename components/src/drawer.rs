@@ -12,20 +12,22 @@ script_mod! {
         open: false
 
         overlay: Modal{
+            align: Align{x: 0.5, y: 0.0}
+
             bg_view +: {
                 draw_bg.color: vec4(0.0, 0.0, 0.0, 0.55)
             }
 
             content +: {
-                width: Fill
-                height: Fill
-                align: Align{x: 0.5, y: 1.0}
+                width: 640
+                height: Fit
+                margin: Inset{top: 0, right: 0, bottom: 0, left: 0}
 
-                drawer_panel := SlidePanel{
-                    side: Bottom
-
+                drawer_panel := RoundedView{
                     width: Fill
                     height: Fit
+                    flow: Down
+                    spacing: 0.0
 
                     draw_bg +: {
                         color: (shad_theme.color_secondary)
@@ -39,7 +41,7 @@ script_mod! {
                         height: Fit
                         flow: Down
                         spacing: 12.0
-                        padding: Inset{left: 20, right: 20, top: 20, bottom: 20}
+                        padding: Inset{left: 20, right: 20, top: 20, bottom: 16}
 
                         drawer_handle := View{
                             width: Fill
@@ -56,10 +58,10 @@ script_mod! {
                         }
 
                         title_label := ShadAlertTitle{
-                            text: "Drawer Title"
+                            text: "Edit profile"
                         }
                         description_label := ShadAlertDescription{
-                            text: "Drawer Description"
+                            text: "Make changes to your profile here. Click submit when you're done."
                         }
                     }
 
@@ -121,6 +123,9 @@ pub struct ShadDrawer {
     #[live]
     open: bool,
 
+    #[rust]
+    is_synced_open: bool,
+
     #[layout]
     layout: Layout,
     #[walk]
@@ -128,6 +133,24 @@ pub struct ShadDrawer {
 }
 
 impl ShadDrawer {
+    fn sync_open_state(&mut self, cx: &mut Cx) {
+        if self.is_synced_open == self.open {
+            return;
+        }
+
+        if self.open {
+            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
+                modal.open(cx);
+            }
+        } else {
+            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
+                modal.close(cx);
+            }
+        }
+
+        self.is_synced_open = self.open;
+    }
+
     pub fn set_open(&mut self, open: bool) {
         self.open = open;
     }
@@ -149,7 +172,10 @@ impl Widget for ShadDrawer {
                 let trap = vm.bx.threads.cur().trap.pass();
                 let value = vm.bx.heap.vec_value(args_obj, 0, trap);
                 if let Some(open) = value.as_bool() {
-                    self.open = open;
+                    vm.with_cx_mut(|cx| {
+                        self.open = open;
+                        self.sync_open_state(cx);
+                    });
                 }
             }
             return ScriptAsyncResult::Return(NIL);
@@ -161,10 +187,9 @@ impl Widget for ShadDrawer {
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.sync_open_state(cx);
+
         if self.open {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.open(cx);
-            }
             self.overlay.handle_event(cx, event, scope);
             // Close when Cancel/Confirm is clicked or modal is dismissed (backdrop/Escape)
             if let Event::Actions(actions) = event {
@@ -174,6 +199,7 @@ impl Widget for ShadDrawer {
                     .is_some_and(|a| matches!(a.cast(), ModalAction::Dismissed))
                 {
                     self.open = false;
+                    self.sync_open_state(cx);
                 }
                 let cancel_btn = self.overlay.widget(
                     cx,
@@ -199,6 +225,7 @@ impl Widget for ShadDrawer {
                         .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
                 {
                     self.open = false;
+                    self.sync_open_state(cx);
                 }
                 if !confirm_btn.is_empty()
                     && actions
@@ -206,24 +233,17 @@ impl Widget for ShadDrawer {
                         .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
                 {
                     self.open = false;
+                    self.sync_open_state(cx);
                 }
-            }
-        } else {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.close(cx);
             }
         }
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.sync_open_state(cx);
+
         if !self.open {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.close(cx);
-            }
             return DrawStep::done();
-        }
-        if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-            modal.open(cx);
         }
         cx.begin_turtle(walk, self.layout);
         let step = self

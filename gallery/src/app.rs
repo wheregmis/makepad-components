@@ -1,5 +1,6 @@
 use makepad_components::makepad_widgets::*;
-use makepad_components::{ShadAlertDialog, ShadCarousel, ShadSonner};
+use makepad_components::drawer::ShadDrawer;
+use makepad_components::{ShadCarousel, ShadDialog, ShadSonner};
 
 app_main!(App);
 
@@ -21,6 +22,8 @@ impl App {
         page: LiveId,
     ) {
         if self.ui.button(cx, sidebar_button).clicked(actions) {
+            // Avoid cx.set_key_focus(Area::Empty) here - can trigger KeyFocusLost feedback loop
+            // when TextInput or DropDown popup had focus (makepad-platform issue).
             self.ui
                 .page_flip(cx, ids!(content_flip))
                 .set_active_page(cx, page);
@@ -35,6 +38,8 @@ impl App {
         code_indicator: &[LiveId],
         show_code: bool,
     ) {
+        // Avoid cx.set_key_focus(Area::Empty) - can trigger KeyFocusLost feedback loop
+        // when TextInput or DropDown had focus (makepad-platform issue).
         ui.page_flip(cx, flip).set_active_page(
             cx,
             if show_code {
@@ -79,6 +84,8 @@ impl App {
 pub struct App {
     #[live]
     ui: WidgetRef,
+    #[rust]
+    hover_card_open: bool,
 }
 
 impl MatchEvent for App {
@@ -94,34 +101,6 @@ impl MatchEvent for App {
             live_id!(accordion_page),
         );
         self.set_page(cx, actions, ids!(sidebar_alert), live_id!(alert_page));
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_alert_dialog),
-            live_id!(alert_dialog_page),
-        );
-        if self.ui.button(cx, ids!(open_default_btn)).clicked(actions) {
-            if let Some(mut d) = self
-                .ui
-                .widget_flood(cx, ids!(default_dialog))
-                .borrow_mut::<ShadAlertDialog>()
-            {
-                d.set_open(true);
-            }
-        }
-        if self
-            .ui
-            .button(cx, ids!(open_destructive_btn))
-            .clicked(actions)
-        {
-            if let Some(mut d) = self
-                .ui
-                .widget_flood(cx, ids!(destructive_dialog))
-                .borrow_mut::<ShadAlertDialog>()
-            {
-                d.set_open(true);
-            }
-        }
         if let Some(mut carousel) = self
             .ui
             .widget_flood(cx, ids!(carousel_demo))
@@ -159,9 +138,62 @@ impl MatchEvent for App {
             ids!(sidebar_collapsible),
             live_id!(collapsible_page),
         );
+        self.set_page(cx, actions, ids!(sidebar_dialog), live_id!(dialog_page));
+        if self.ui.button(cx, ids!(open_dialog_btn)).clicked(actions) {
+            if let Some(mut d) = self
+                .ui
+                .widget_flood(cx, ids!(default_dialog))
+                .borrow_mut::<ShadDialog>()
+            {
+                d.set_open(true);
+            }
+        }
+        if self.ui.button(cx, ids!(open_default_btn)).clicked(actions) {
+            if let Some(mut d) = self
+                .ui
+                .widget_flood(cx, ids!(alert_default_dialog))
+                .borrow_mut::<ShadDialog>()
+            {
+                d.set_open(true);
+            }
+        }
+        if self.ui.button(cx, ids!(open_destructive_btn)).clicked(actions) {
+            if let Some(mut d) = self
+                .ui
+                .widget_flood(cx, ids!(destructive_dialog))
+                .borrow_mut::<ShadDialog>()
+            {
+                d.set_open(true);
+            }
+        }
+        let dialog_ref = self.ui.widget_flood(cx, ids!(default_dialog));
+        if !dialog_ref.is_empty() && dialog_ref.button(cx, ids!(close_btn)).clicked(actions) {
+            if let Some(mut d) = dialog_ref.borrow_mut::<ShadDialog>() {
+                d.set_open(false);
+            }
+        }
+        self.set_page(cx, actions, ids!(sidebar_drawer), live_id!(drawer_page));
+        if self.ui.button(cx, ids!(open_drawer_btn)).clicked(actions) {
+            let drawer = self.ui.widget_flood(cx, ids!(drawer_demo));
+            if let Some(mut d) = drawer.borrow_mut::<ShadDrawer>() {
+                d.set_open(true);
+            }
+            drawer.redraw(cx);
+        }
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_dropdown_menu),
+            live_id!(dropdown_menu_page),
+        );
+                self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_hover_card),
+            live_id!(hover_card_page),
+        );
         self.set_page(cx, actions, ids!(sidebar_skeleton), live_id!(skeleton_page));
         self.set_page(cx, actions, ids!(sidebar_switch), live_id!(switch_page));
-        self.set_page(cx, actions, ids!(sidebar_input), live_id!(input_page));
         self.set_page(cx, actions, ids!(sidebar_kbd), live_id!(kbd_page));
         self.set_page(cx, actions, ids!(sidebar_label), live_id!(label_page));
         self.set_page(cx, actions, ids!(sidebar_progress), live_id!(progress_page));
@@ -188,136 +220,35 @@ impl MatchEvent for App {
         }
         self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page));
 
-        Self::handle_preview_tabs(
+                Self::handle_preview_tabs(
             &self.ui,
             cx,
             actions,
-            ids!(accordion_demo_tab),
-            ids!(accordion_code_tab),
-            ids!(accordion_preview_flip),
-            ids!(accordion_demo_indicator),
-            ids!(accordion_code_indicator),
+            ids!(hover_card_demo_tab),
+            ids!(hover_card_code_tab),
+            ids!(hover_card_preview_flip),
+            ids!(hover_card_demo_indicator),
+            ids!(hover_card_code_indicator),
         );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(alert_demo_tab),
-            ids!(alert_code_tab),
-            ids!(alert_preview_flip),
-            ids!(alert_demo_indicator),
-            ids!(alert_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(alert_dialog_demo_tab),
-            ids!(alert_dialog_code_tab),
-            ids!(alert_dialog_preview_flip),
-            ids!(alert_dialog_demo_indicator),
-            ids!(alert_dialog_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(aspect_ratio_demo_tab),
-            ids!(aspect_ratio_code_tab),
-            ids!(aspect_ratio_preview_flip),
-            ids!(aspect_ratio_demo_indicator),
-            ids!(aspect_ratio_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(avatar_demo_tab),
-            ids!(avatar_code_tab),
-            ids!(avatar_preview_flip),
-            ids!(avatar_demo_indicator),
-            ids!(avatar_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(badge_demo_tab),
-            ids!(badge_code_tab),
-            ids!(badge_preview_flip),
-            ids!(badge_demo_indicator),
-            ids!(badge_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(breadcrumb_demo_tab),
-            ids!(breadcrumb_code_tab),
-            ids!(breadcrumb_preview_flip),
-            ids!(breadcrumb_demo_indicator),
-            ids!(breadcrumb_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(button_demo_tab),
-            ids!(button_code_tab),
-            ids!(button_preview_flip),
-            ids!(button_demo_indicator),
-            ids!(button_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(button_group_demo_tab),
-            ids!(button_group_code_tab),
-            ids!(button_group_preview_flip),
-            ids!(button_group_demo_indicator),
-            ids!(button_group_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(card_demo_tab),
-            ids!(card_code_tab),
-            ids!(card_preview_flip),
-            ids!(card_demo_indicator),
-            ids!(card_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(carousel_demo_tab),
-            ids!(carousel_code_tab),
-            ids!(carousel_preview_flip),
-            ids!(carousel_demo_indicator),
-            ids!(carousel_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(checkbox_demo_tab),
-            ids!(checkbox_code_tab),
-            ids!(checkbox_preview_flip),
-            ids!(checkbox_demo_indicator),
-            ids!(checkbox_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(collapsible_demo_tab),
-            ids!(collapsible_code_tab),
-            ids!(collapsible_preview_flip),
-            ids!(collapsible_demo_indicator),
-            ids!(collapsible_code_indicator),
-        );
+        let tooltip_ref = self.ui.widget_flood(cx, ids!(hover_card_tooltip));
+        if self.ui.button(cx, ids!(hover_card_trigger)).clicked(actions) && !tooltip_ref.is_empty() {
+            self.hover_card_open = !self.hover_card_open;
+            if let Some(mut ct) = tooltip_ref.borrow_mut::<CalloutTooltip>() {
+                if self.hover_card_open {
+                    let trigger = self.ui.view(cx, ids!(hover_card_trigger));
+                    let rect = trigger.area().rect(cx);
+                    ct.show_with_options(
+                        cx,
+                        "Card-style tooltip shown on hover or click.",
+                        rect,
+                        CalloutTooltipOptions::default(),
+                        false,
+                    );
+                } else {
+                    ct.hide(cx);
+                }
+            }
+        }
         Self::handle_preview_tabs(
             &self.ui,
             cx,
@@ -337,16 +268,6 @@ impl MatchEvent for App {
             ids!(switch_preview_flip),
             ids!(switch_demo_indicator),
             ids!(switch_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(input_demo_tab),
-            ids!(input_code_tab),
-            ids!(input_preview_flip),
-            ids!(input_demo_indicator),
-            ids!(input_code_indicator),
         );
         Self::handle_preview_tabs(
             &self.ui,

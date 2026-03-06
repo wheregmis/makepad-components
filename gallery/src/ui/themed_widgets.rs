@@ -28,6 +28,31 @@ script_mod! {
             }
         }
     }
+
+    // Read-only variant: uses Label instead of CodeView. Use on pages with TextInput
+    // to avoid KeyFocus feedback loop when PageFlip forwards focus events to hidden code tab.
+    mod.widgets.GalleryCodeSnippetSimpleBase = #(GalleryCodeSnippetSimple::register_widget(vm))
+
+    mod.widgets.GalleryCodeSnippetSimple = set_type_default() do mod.widgets.GalleryCodeSnippetSimpleBase{
+        width: Fill
+        height: Fit
+        code: ""
+        code_container := SolidView{
+            width: Fill
+            height: Fit
+            padding: Inset{top: 12, right: 12, bottom: 12, left: 12}
+            draw_bg +: {
+                color: (shad_theme.color_muted)
+                border_radius: (shad_theme.radius)
+            }
+            code_label := Label{
+                width: Fill
+                draw_text.flow: Flow.Right{wrap: true}
+                draw_text.text_style.font_size: 12
+                draw_text.color: (shad_theme.color_primary)
+            }
+        }
+    }
 }
 
 #[derive(Script, ScriptHook, Widget)]
@@ -59,6 +84,43 @@ impl GalleryCodeSnippet {
 }
 
 impl Widget for GalleryCodeSnippet {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.sync_code(cx);
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.sync_code(cx);
+        self.view.draw_walk(cx, scope, walk)
+    }
+}
+
+#[derive(Script, ScriptHook, Widget)]
+pub struct GalleryCodeSnippetSimple {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+    #[live]
+    code: ArcStringMut,
+    #[rust]
+    last_code: String,
+}
+
+impl GalleryCodeSnippetSimple {
+    fn sync_code(&mut self, cx: &mut Cx) {
+        let current_code = self.code.as_ref().trim().to_string();
+        if current_code != self.last_code {
+            self.last_code = current_code.clone();
+            let container = self.view.widget(cx, ids!(code_container));
+            if !container.is_empty() {
+                container.label(cx, ids!(code_label)).set_text(cx, &current_code);
+            }
+        }
+    }
+}
+
+impl Widget for GalleryCodeSnippetSimple {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
         self.sync_code(cx);
         self.view.handle_event(cx, event, scope);

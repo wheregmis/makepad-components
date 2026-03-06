@@ -5,8 +5,8 @@ use makepad_widgets::*;
 
 pub mod accordion;
 pub mod alert;
-pub mod alert_dialog;
-pub use alert_dialog::ShadAlertDialog;
+pub mod dialog;
+pub use dialog::ShadDialog;
 pub use sonner::ShadSonner;
 pub mod aspect_ratio;
 pub mod avatar;
@@ -21,11 +21,8 @@ pub mod checkbox;
 pub mod collapsible;
 pub mod drawer;
 pub mod dropdown_menu;
-pub mod empty;
-pub mod field;
 pub mod hover_card;
 pub mod hr;
-pub mod input;
 pub mod kbd;
 pub mod label;
 pub mod panel;
@@ -44,7 +41,6 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::theme::script_mod(vm);
     crate::accordion::script_mod(vm);
     crate::alert::script_mod(vm);
-    crate::alert_dialog::script_mod(vm);
     crate::aspect_ratio::script_mod(vm);
     crate::avatar::script_mod(vm);
     crate::badge::script_mod(vm);
@@ -55,13 +51,12 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::carousel::script_mod(vm);
     crate::checkbox::script_mod(vm);
     crate::collapsible::script_mod(vm);
+    crate::dialog::script_mod(vm);
     crate::drawer::script_mod(vm);
     crate::dropdown_menu::script_mod(vm);
-    crate::empty::script_mod(vm);
-    crate::field::script_mod(vm);
     crate::hover_card::script_mod(vm);
+
     crate::skeleton::script_mod(vm);
-    crate::input::script_mod(vm);
     crate::kbd::script_mod(vm);
     crate::hr::script_mod(vm);
     crate::label::script_mod(vm);

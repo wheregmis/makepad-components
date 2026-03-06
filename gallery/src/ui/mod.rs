@@ -1,7 +1,6 @@
 use makepad_components::makepad_widgets::*;
 
 pub mod accordion_page;
-pub mod alert_dialog_page;
 pub mod alert_page;
 pub mod aspect_ratio_page;
 pub mod avatar_page;
@@ -14,7 +13,10 @@ pub mod carousel_page;
 pub mod checkbox_page;
 pub mod collapsible_page;
 pub mod content_flip;
-pub mod input_page;
+pub mod dialog_page;
+pub mod drawer_page;
+pub mod dropdown_menu_page;
+pub mod hover_card_page;
 pub mod kbd_page;
 pub mod label_page;
 pub mod progress_page;
@@ -34,7 +36,6 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::sidebar::script_mod(vm);
     crate::ui::accordion_page::script_mod(vm);
     crate::ui::alert_page::script_mod(vm);
-    crate::ui::alert_dialog_page::script_mod(vm);
     crate::ui::aspect_ratio_page::script_mod(vm);
     crate::ui::avatar_page::script_mod(vm);
     crate::ui::badge_page::script_mod(vm);
@@ -45,9 +46,13 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::carousel_page::script_mod(vm);
     crate::ui::checkbox_page::script_mod(vm);
     crate::ui::collapsible_page::script_mod(vm);
+    crate::ui::dialog_page::script_mod(vm);
+    crate::ui::drawer_page::script_mod(vm);
+    crate::ui::dropdown_menu_page::script_mod(vm);
+    crate::ui::hover_card_page::script_mod(vm);
+
     crate::ui::skeleton_page::script_mod(vm);
     crate::ui::switch_page::script_mod(vm);
-    crate::ui::input_page::script_mod(vm);
     crate::ui::kbd_page::script_mod(vm);
     crate::ui::label_page::script_mod(vm);
     crate::ui::progress_page::script_mod(vm);
