@@ -1,5 +1,10 @@
 use makepad_widgets::*;
 
+use crate::overlay_base::{
+    handle_overlay_close_button, handle_overlay_dismissed, handle_overlay_script_call,
+    sync_overlay_open,
+};
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
@@ -134,21 +139,7 @@ pub struct ShadDrawer {
 
 impl ShadDrawer {
     fn sync_open_state(&mut self, cx: &mut Cx) {
-        if self.is_synced_open == self.open {
-            return;
-        }
-
-        if self.open {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.open(cx);
-            }
-        } else {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.close(cx);
-            }
-        }
-
-        self.is_synced_open = self.open;
+        sync_overlay_open(self.open, &mut self.is_synced_open, &self.overlay, cx);
     }
 
     pub fn set_open(&mut self, open: bool) {
@@ -167,23 +158,14 @@ impl Widget for ShadDrawer {
         method: LiveId,
         args: ScriptValue,
     ) -> ScriptAsyncResult {
-        if method == live_id!(set_open) {
-            if let Some(args_obj) = args.as_object() {
-                let trap = vm.bx.threads.cur().trap.pass();
-                let value = vm.bx.heap.vec_value(args_obj, 0, trap);
-                if let Some(open) = value.as_bool() {
-                    vm.with_cx_mut(|cx| {
-                        self.open = open;
-                        self.sync_open_state(cx);
-                    });
-                }
-            }
-            return ScriptAsyncResult::Return(NIL);
-        }
-        if method == live_id!(is_open) {
-            return ScriptAsyncResult::Return(ScriptValue::from_bool(self.open));
-        }
-        ScriptAsyncResult::MethodNotFound
+        handle_overlay_script_call(
+            &mut self.open,
+            &mut self.is_synced_open,
+            &self.overlay,
+            vm,
+            method,
+            args,
+        )
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
@@ -193,16 +175,19 @@ impl Widget for ShadDrawer {
             self.overlay.handle_event(cx, event, scope);
             // Close when Cancel/Confirm is clicked or modal is dismissed (backdrop/Escape)
             if let Event::Actions(actions) = event {
-                let content = self.overlay.widget(cx, ids!(content));
-                if actions
-                    .find_widget_action(content.widget_uid())
-                    .is_some_and(|a| matches!(a.cast(), ModalAction::Dismissed))
-                {
-                    self.open = false;
-                    self.sync_open_state(cx);
-                }
-                let cancel_btn = self.overlay.widget(
+                handle_overlay_dismissed(
+                    &mut self.open,
+                    &mut self.is_synced_open,
+                    &self.overlay,
                     cx,
+                    actions,
+                );
+                handle_overlay_close_button(
+                    &mut self.open,
+                    &mut self.is_synced_open,
+                    &self.overlay,
+                    cx,
+                    actions,
                     &[
                         live_id!(content),
                         live_id!(drawer_panel),
@@ -210,8 +195,12 @@ impl Widget for ShadDrawer {
                         live_id!(cancel),
                     ],
                 );
-                let confirm_btn = self.overlay.widget(
+                handle_overlay_close_button(
+                    &mut self.open,
+                    &mut self.is_synced_open,
+                    &self.overlay,
                     cx,
+                    actions,
                     &[
                         live_id!(content),
                         live_id!(drawer_panel),
@@ -219,22 +208,6 @@ impl Widget for ShadDrawer {
                         live_id!(confirm),
                     ],
                 );
-                if !cancel_btn.is_empty()
-                    && actions
-                        .find_widget_action(cancel_btn.widget_uid())
-                        .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
-                {
-                    self.open = false;
-                    self.sync_open_state(cx);
-                }
-                if !confirm_btn.is_empty()
-                    && actions
-                        .find_widget_action(confirm_btn.widget_uid())
-                        .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
-                {
-                    self.open = false;
-                    self.sync_open_state(cx);
-                }
             }
         }
     }

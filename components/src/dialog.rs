@@ -1,5 +1,10 @@
 use makepad_widgets::*;
 
+use crate::overlay_base::{
+    handle_overlay_close_button, handle_overlay_dismissed, handle_overlay_script_call,
+    sync_overlay_open,
+};
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
@@ -222,6 +227,9 @@ pub struct ShadDialog {
     #[live]
     open: bool,
 
+    #[rust]
+    is_synced_open: bool,
+
     #[layout]
     layout: Layout,
     #[walk]
@@ -229,6 +237,10 @@ pub struct ShadDialog {
 }
 
 impl ShadDialog {
+    fn sync_open_state(&mut self, cx: &mut Cx) {
+        sync_overlay_open(self.open, &mut self.is_synced_open, &self.overlay, cx);
+    }
+
     pub fn set_open(&mut self, open: bool) {
         self.open = open;
     }
@@ -245,39 +257,36 @@ impl Widget for ShadDialog {
         method: LiveId,
         args: ScriptValue,
     ) -> ScriptAsyncResult {
-        if method == live_id!(set_open) {
-            if let Some(args_obj) = args.as_object() {
-                let trap = vm.bx.threads.cur().trap.pass();
-                let value = vm.bx.heap.vec_value(args_obj, 0, trap);
-                if let Some(open) = value.as_bool() {
-                    self.open = open;
-                }
-            }
-            return ScriptAsyncResult::Return(NIL);
-        }
-        if method == live_id!(is_open) {
-            return ScriptAsyncResult::Return(ScriptValue::from_bool(self.open));
-        }
-        ScriptAsyncResult::MethodNotFound
+        handle_overlay_script_call(
+            &mut self.open,
+            &mut self.is_synced_open,
+            &self.overlay,
+            vm,
+            method,
+            args,
+        )
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.sync_open_state(cx);
+
         if self.open {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.open(cx);
-            }
             self.overlay.handle_event(cx, event, scope);
-            // Close when modal is dismissed (backdrop/Escape) or when cancel/confirm clicked (alert variants)
+            // Close when modal is dismissed (backdrop/Escape) or when cancel/confirm clicked
             if let Event::Actions(actions) = event {
-                let content = self.overlay.widget(cx, ids!(content));
-                if actions
-                    .find_widget_action(content.widget_uid())
-                    .is_some_and(|a| matches!(a.cast(), ModalAction::Dismissed))
-                {
-                    self.open = false;
-                }
-                let cancel_btn = self.overlay.widget(
+                handle_overlay_dismissed(
+                    &mut self.open,
+                    &mut self.is_synced_open,
+                    &self.overlay,
                     cx,
+                    actions,
+                );
+                handle_overlay_close_button(
+                    &mut self.open,
+                    &mut self.is_synced_open,
+                    &self.overlay,
+                    cx,
+                    actions,
                     &[
                         live_id!(content),
                         live_id!(dialog_panel),
@@ -285,8 +294,12 @@ impl Widget for ShadDialog {
                         live_id!(cancel),
                     ],
                 );
-                let confirm_btn = self.overlay.widget(
+                handle_overlay_close_button(
+                    &mut self.open,
+                    &mut self.is_synced_open,
+                    &self.overlay,
                     cx,
+                    actions,
                     &[
                         live_id!(content),
                         live_id!(dialog_panel),
@@ -294,37 +307,15 @@ impl Widget for ShadDialog {
                         live_id!(confirm),
                     ],
                 );
-                if !cancel_btn.is_empty()
-                    && actions
-                        .find_widget_action(cancel_btn.widget_uid())
-                        .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
-                {
-                    self.open = false;
-                }
-                if !confirm_btn.is_empty()
-                    && actions
-                        .find_widget_action(confirm_btn.widget_uid())
-                        .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
-                {
-                    self.open = false;
-                }
-            }
-        } else {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.close(cx);
             }
         }
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.sync_open_state(cx);
+
         if !self.open {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.close(cx);
-            }
             return DrawStep::done();
-        }
-        if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-            modal.open(cx);
         }
         cx.begin_turtle(walk, self.layout);
         let step = self

@@ -26,6 +26,8 @@ pub mod hr;
 pub mod input;
 pub mod kbd;
 pub mod label;
+pub mod overlay_base;
+pub use overlay_base::ShadOverlayBase;
 pub mod panel;
 pub mod progress;
 pub mod radio_group;
@@ -46,6 +48,7 @@ pub mod tooltip;
 pub fn script_mod(vm: &mut ScriptVm) {
     makepad_icon::script_mod(vm);
     crate::theme::script_mod(vm);
+    crate::overlay_base::script_mod(vm);
     crate::accordion::script_mod(vm);
     crate::alert::script_mod(vm);
     crate::aspect_ratio::script_mod(vm);

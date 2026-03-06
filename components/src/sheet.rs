@@ -1,5 +1,9 @@
 use makepad_widgets::*;
 
+use crate::overlay_base::{
+    handle_overlay_dismissed, handle_overlay_script_call, sync_overlay_open,
+};
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
@@ -151,20 +155,7 @@ impl ShadSheet {
 
     fn sync_open_state(&mut self, cx: &mut Cx) {
         self.sync_side_layout(cx);
-
-        if self.is_synced_open == self.open {
-            return;
-        }
-
-        if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-            if self.open {
-                modal.open(cx);
-            } else {
-                modal.close(cx);
-            }
-        }
-
-        self.is_synced_open = self.open;
+        sync_overlay_open(self.open, &mut self.is_synced_open, &self.overlay, cx);
     }
 
     pub fn set_open(&mut self, open: bool) {
@@ -183,23 +174,14 @@ impl Widget for ShadSheet {
         method: LiveId,
         args: ScriptValue,
     ) -> ScriptAsyncResult {
-        if method == live_id!(set_open) {
-            if let Some(args_obj) = args.as_object() {
-                let trap = vm.bx.threads.cur().trap.pass();
-                let value = vm.bx.heap.vec_value(args_obj, 0, trap);
-                if let Some(open) = value.as_bool() {
-                    vm.with_cx_mut(|cx| {
-                        self.open = open;
-                        self.sync_open_state(cx);
-                    });
-                }
-            }
-            return ScriptAsyncResult::Return(NIL);
-        }
-        if method == live_id!(is_open) {
-            return ScriptAsyncResult::Return(ScriptValue::from_bool(self.open));
-        }
-        ScriptAsyncResult::MethodNotFound
+        handle_overlay_script_call(
+            &mut self.open,
+            &mut self.is_synced_open,
+            &self.overlay,
+            vm,
+            method,
+            args,
+        )
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
@@ -208,14 +190,13 @@ impl Widget for ShadSheet {
         if self.open {
             self.overlay.handle_event(cx, event, scope);
             if let Event::Actions(actions) = event {
-                let content = self.overlay.widget(cx, ids!(content));
-                if actions
-                    .find_widget_action(content.widget_uid())
-                    .is_some_and(|a| matches!(a.cast(), ModalAction::Dismissed))
-                {
-                    self.open = false;
-                    self.sync_open_state(cx);
-                }
+                handle_overlay_dismissed(
+                    &mut self.open,
+                    &mut self.is_synced_open,
+                    &self.overlay,
+                    cx,
+                    actions,
+                );
             }
         }
     }
