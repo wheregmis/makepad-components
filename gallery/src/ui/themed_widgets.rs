@@ -1,25 +1,9 @@
+use makepad_code_editor::code_view::CodeView;
 use makepad_components::makepad_widgets::*;
 
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
-
-    mod.widgets.GalleryHr = Hr{
-        draw_bg.color: (shad_theme.color_outline_border)
-    }
-
-    mod.widgets.GalleryCheckBox = CheckBox{
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.text_style.font_size: 10
-        draw_bg.color: (shad_theme.color_muted_foreground)
-        draw_bg.color_hover: (shad_theme.color_secondary_hover)
-    }
-
-    mod.widgets.GalleryToggle = Toggle{
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.text_style.font_size: 10
-    }
 
     mod.widgets.GalleryCodeSnippetBase = #(GalleryCodeSnippet::register_widget(vm))
 
@@ -27,27 +11,18 @@ script_mod! {
         width: Fill
         height: Fit
         code: ""
-        markdown := Markdown{
+        code_container := SolidView{
             width: Fill
             height: Fit
-            margin: Inset{top: 4}
-            body: ""
-            use_code_block_widget: false
-            paragraph_spacing: 8
-            pre_code_spacing: 8
+            padding: Inset{top: 12, right: 12, bottom: 12, left: 12}
+            draw_bg +: {
+                color: (shad_theme.color_muted)
+                border_radius: (shad_theme.radius)
+            }
 
-            draw_text.color: (shad_theme.color_muted_foreground)
-
-            splash_block := SolidView{
-                width: Fill
-                height: Fit
-                flow: Overlay
-                margin: Inset{bottom: 8}
-                padding: Inset{top: 8, right: 8, bottom: 8, left: 8}
-                draw_bg.color: (shad_theme.color_secondary)
-
-                splash_view := Splash{
-                    width: Fill
+            code_view := CodeView{
+                keep_cursor_at_end: false
+                editor +: {
                     height: Fit
                 }
             }
@@ -68,35 +43,29 @@ pub struct GalleryCodeSnippet {
 }
 
 impl GalleryCodeSnippet {
-    fn build_markdown(&self) -> String {
-        let source = self.code.as_ref().trim();
-        if source.is_empty() {
-            return String::new();
-        }
-        format!("```runsplash\n{source}\n```\n\n```rust\n{source}\n```")
-    }
-
-    fn sync_markdown(&mut self, cx: &mut Cx) {
-        // Optimization: avoid repeated string allocations in handle_event loop
-        // Previously: unconditionally called `build_markdown()` (which allocates via format!) every event
-        // Now: cache the raw code string, only reallocate when the raw code actually changes
-        let current_code = self.code.as_ref().trim();
+    fn sync_code(&mut self, cx: &mut Cx) {
+        let current_code = self.code.as_ref().trim().to_string();
         if current_code != self.last_code {
-            self.last_code = current_code.to_string();
-            let markdown = self.build_markdown();
-            let mut md = self.view.markdown(cx, ids!(markdown));
-            md.set_text(cx, &markdown);
+            self.last_code = current_code.clone();
+            if let Some(mut cv) = self
+                .view
+                .widget(cx, ids!(code_view))
+                .borrow_mut::<CodeView>()
+            {
+                cv.set_text(cx, &current_code);
+            }
         }
     }
 }
 
 impl Widget for GalleryCodeSnippet {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
-        self.sync_markdown(cx);
+        self.sync_code(cx);
         self.view.handle_event(cx, event, scope);
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.sync_code(cx);
         self.view.draw_walk(cx, scope, walk)
     }
 }

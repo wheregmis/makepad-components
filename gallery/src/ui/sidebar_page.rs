@@ -4,61 +4,117 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GallerySidebarPage = ScrollYView{
-        width: Fill
-        height: Fill
-        flow: Down
-        draw_bg.color: (shad_theme.color_background)
-        padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
-        spacing: 12.0
-
-        Label{
+    mod.widgets.GallerySidebarPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Sidebar"
-            draw_text.color: (shad_theme.color_primary)
-            draw_text.text_style.font_size: 18
         }
 
-        Label{
+        ShadPageSubtitle{
             text: "Composable sidebar primitives used by the gallery navigation."
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        View{
+        sidebar_preview_section := View{
             width: Fill
             height: Fit
-            flow: Right
+            flow: Down
             spacing: 12.0
-            align: Align{y: 0.0}
 
-            ShadSidebar{
-                width: 300
-                height: 320
-                Label{
-                    text: "Acme Inc"
-                    draw_text.color: (shad_theme.color_primary)
-                    draw_text.text_style.font_size: 12
+            sidebar_tabs_row := View{
+                width: Fit
+                height: Fit
+                flow: Right
+                spacing: 20.0
+                margin: Inset{top: 4, bottom: 12}
+
+                sidebar_demo_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
+
+                    sidebar_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+
+                    sidebar_demo_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
                 }
-                ShadSidebarSectionLabel{text: "Platform"}
-                ShadSidebarItem{text: "Playground"}
-                ShadSidebarItem{text: "History"}
-                ShadSidebarItem{text: "Settings"}
+
+                sidebar_code_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
+
+                    sidebar_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+
+                    sidebar_code_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        visible: false
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
+                }
             }
 
-            View{
-                width: Fill
-                height: 320
-                draw_bg.color: #0000
-                draw_bg.border_size: 1.0
-                draw_bg.border_color: (shad_theme.color_outline_border)
-                draw_bg.border_radius: (shad_theme.radius)
-            }
-        }
+            sidebar_preview_panel := mod.widgets.ShadPanel{
+                sidebar_preview_flip := PageFlip{
+                    width: Fill
+                    height: Fit
+                    active_page: @demo_page
 
-        sidebar_example_snippet := GalleryCodeSnippet{
-            code: "mod.widgets.ShadSidebar{\n    width: 300\n    Label{text: \"Acme Inc\"}\n    ShadSidebarSectionLabel{text: \"Platform\"}\n    ShadSidebarItem{text: \"Playground\"}\n    ShadSidebarItem{text: \"History\"}\n}"
+                    demo_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                View{
+                    width: Fill
+                    height: Fit
+                    flow: Right
+                    spacing: 12.0
+                    align: Align{y: 0.0}
+
+                    ShadSidebar{
+                        width: 300
+                        height: 320
+                        ShadLabel{
+                            text: "Acme Inc"
+                            draw_text.text_style.font_size: 12
+                        }
+                        ShadSidebarSectionLabel{text: "Platform"}
+                        ShadSidebarItem{text: "Playground"}
+                        ShadSidebarItem{text: "History"}
+                        ShadSidebarItem{text: "Settings"}
+                    }
+
+                    View{
+                        width: Fill
+                        height: 320
+                        draw_bg.color: #0000
+                        draw_bg.border_size: 1.0
+                        draw_bg.border_color: (shad_theme.color_outline_border)
+                        draw_bg.border_radius: (shad_theme.radius)
+                    }
+                }
+                    }
+
+                    code_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        GalleryCodeSnippet{
+                            code: "mod.widgets.ShadSidebar{\n    width: 300\n    Label{text: \"Acme Inc\"}\n    ShadSidebarSectionLabel{text: \"Platform\"}\n    ShadSidebarItem{text: \"Playground\"}\n    ShadSidebarItem{text: \"History\"}\n}"
+                        }
+                    }
+                }
+            }
         }
     }
 }

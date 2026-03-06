@@ -7,6 +7,7 @@ script_mod! {
     mod.widgets.GalleryAppUi = Root{
         main_window := Window{
             window.inner_size: vec2(1400 900)
+            window.title: "Makepad Components Gallery"
             pass +: { clear_color: (shad_theme.color_background) }
             body +: {
                 flow: Right

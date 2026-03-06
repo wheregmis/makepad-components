@@ -5,152 +5,181 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryAspectRatioPage = ScrollYView{
-        width: Fill
-        height: Fill
-        flow: Down
-        draw_bg.color: (shad_theme.color_background)
-        padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
-        spacing: 12.0
-
-        Label{
+    mod.widgets.GalleryAspectRatioPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Aspect Ratio"
-            draw_text.color: (shad_theme.color_primary)
-            draw_text.text_style.font_size: 18
         }
 
-        Label{
+        ShadPageSubtitle{
             text: "Displays content within a desired ratio."
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        Label{
-            text: "16:9 Preview"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
-
-        RoundedView{
+        aspect_ratio_preview_section := View{
             width: Fill
             height: Fit
-            padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
-            draw_bg +: {
-                color: #0000
-                border_size: 1.0
-                border_radius: (shad_theme.radius)
-                border_color: (shad_theme.color_outline_border)
-            }
+            flow: Down
 
-            ShadAspectRatio{
-                width: Fill
-                ratio: 1.7777777778
+            aspect_ratio_tabs_row := View{
+                width: Fit
+                height: Fit
+                flow: Right
+                spacing: 20.0
+                margin: Inset{top: 4, bottom: 12}
 
-                RoundedView{
-                    width: Fill
-                    height: Fill
-                    flow: Overlay
-                    align: Align{x: 0.5, y: 0.5}
-                    draw_bg +: {
-                        color: (shad_theme.color_secondary)
-                        border_radius: (shad_theme.radius)
-                    }
+                aspect_ratio_demo_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
 
-                    Label{
-                        text: "16:9"
-                        draw_text.color: (shad_theme.color_muted_foreground)
-                        draw_text.text_style.font_size: 11
+                    aspect_ratio_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+
+                    aspect_ratio_demo_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        draw_bg.color: (shad_theme.color_primary)
                     }
                 }
-            }
-        }
 
-        Label{
-            text: "Common Ratios"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
+                aspect_ratio_code_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
 
-        View{
-            width: Fill
-            height: Fit
-            flow: Right
-            spacing: 12.0
+                    aspect_ratio_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
-            ShadAspectRatio{
-                width: 180
-                ratio: 1.0
-
-                RoundedView{
-                    width: Fill
-                    height: Fill
-                    flow: Overlay
-                    align: Align{x: 0.5, y: 0.5}
-                    draw_bg +: {
-                        color: (shad_theme.color_secondary)
-                        border_radius: (shad_theme.radius)
-                    }
-                    Label{
-                        text: "1:1"
-                        draw_text.color: (shad_theme.color_muted_foreground)
-                        draw_text.text_style.font_size: 10
+                    aspect_ratio_code_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        visible: false
+                        draw_bg.color: (shad_theme.color_primary)
                     }
                 }
             }
 
-            ShadAspectRatio{
-                width: 180
-                ratio: 1.3333333333
+            aspect_ratio_preview_panel := mod.widgets.ShadPanel{
+                aspect_ratio_preview_flip := PageFlip{
+                    width: Fill
+                    height: Fit
+                    active_page: @demo_page
+
+                    demo_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                ShadSectionHeader{ text: "16:9 Preview" }
 
                 RoundedView{
                     width: Fill
-                    height: Fill
-                    flow: Overlay
-                    align: Align{x: 0.5, y: 0.5}
+                    height: Fit
+                    padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
                     draw_bg +: {
-                        color: (shad_theme.color_secondary)
+                        color: #0000
+                        border_size: 1.0
                         border_radius: (shad_theme.radius)
+                        border_color: (shad_theme.color_outline_border)
                     }
-                    Label{
-                        text: "4:3"
-                        draw_text.color: (shad_theme.color_muted_foreground)
-                        draw_text.text_style.font_size: 10
+
+                    ShadAspectRatio{
+                        width: Fill
+                        ratio: 1.7777777778
+
+                        RoundedView{
+                            width: Fill
+                            height: Fill
+                            flow: Overlay
+                            align: Align{x: 0.5, y: 0.5}
+                            draw_bg +: {
+                                color: (shad_theme.color_secondary)
+                                border_radius: (shad_theme.radius)
+                            }
+
+                            ShadSectionHeader{
+                                text: "16:9"
+                                draw_text.text_style.font_size: 11
+                            }
+                        }
                     }
                 }
-            }
 
-            ShadAspectRatio{
-                width: 180
-                ratio: 0.5625
+                ShadSectionHeader{ text: "Common Ratios" }
 
-                RoundedView{
+                View{
                     width: Fill
-                    height: Fill
-                    flow: Overlay
-                    align: Align{x: 0.5, y: 0.5}
-                    draw_bg +: {
-                        color: (shad_theme.color_secondary)
-                        border_radius: (shad_theme.radius)
+                    height: Fit
+                    flow: Right
+                    spacing: 12.0
+
+                    ShadAspectRatio{
+                        width: 180
+                        ratio: 1.0
+
+                        RoundedView{
+                            width: Fill
+                            height: Fill
+                            flow: Overlay
+                            align: Align{x: 0.5, y: 0.5}
+                            draw_bg +: {
+                                color: (shad_theme.color_secondary)
+                                border_radius: (shad_theme.radius)
+                            }
+                            ShadSectionHeader{ text: "1:1" }
+                        }
                     }
-                    Label{
-                        text: "9:16"
-                        draw_text.color: (shad_theme.color_muted_foreground)
-                        draw_text.text_style.font_size: 10
+
+                    ShadAspectRatio{
+                        width: 180
+                        ratio: 1.3333333333
+
+                        RoundedView{
+                            width: Fill
+                            height: Fill
+                            flow: Overlay
+                            align: Align{x: 0.5, y: 0.5}
+                            draw_bg +: {
+                                color: (shad_theme.color_secondary)
+                                border_radius: (shad_theme.radius)
+                            }
+                            ShadSectionHeader{ text: "4:3" }
+                        }
+                    }
+
+                    ShadAspectRatio{
+                        width: 180
+                        ratio: 0.5625
+
+                        RoundedView{
+                            width: Fill
+                            height: Fill
+                            flow: Overlay
+                            align: Align{x: 0.5, y: 0.5}
+                            draw_bg +: {
+                                color: (shad_theme.color_secondary)
+                                border_radius: (shad_theme.radius)
+                            }
+                            ShadSectionHeader{ text: "9:16" }
+                        }
+                    }
+                }
+                    }
+
+                    code_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        GalleryCodeSnippet{
+                            code: #(ASPECT_RATIO_PREVIEW_CODE)
+                        }
                     }
                 }
             }
-        }
-
-        Label{
-            text: "Preview + Source"
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-        }
-
-        aspect_ratio_example_snippet := GalleryCodeSnippet{
-            code: #(ASPECT_RATIO_PREVIEW_CODE)
         }
     }
 }

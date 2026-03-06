@@ -7,9 +7,8 @@ script_mod! {
     mod.widgets.GallerySidebar = ShadSidebar{
         width: 280
 
-        Label{
+        ShadLabel{
             text: "Makepad Component\nGallery"
-            draw_text.color: (shad_theme.color_primary)
             draw_text.text_style.font_size: 13
         }
 
@@ -22,19 +21,27 @@ script_mod! {
 
             sidebar_accordion := ShadSidebarItem{text: "Accordion"}
             sidebar_alert := ShadSidebarItem{text: "Alert"}
+            sidebar_alert_dialog := ShadSidebarItem{text: "Alert Dialog"}
             sidebar_aspect_ratio := ShadSidebarItem{text: "Aspect Ratio"}
             sidebar_avatar := ShadSidebarItem{text: "Avatar"}
             sidebar_badge := ShadSidebarItem{text: "Badge"}
             sidebar_breadcrumb := ShadSidebarItem{text: "Breadcrumb"}
             sidebar_button := ShadSidebarItem{text: "Button"}
             sidebar_button_group := ShadSidebarItem{text: "Button Group"}
+            sidebar_card := ShadSidebarItem{text: "Card"}
+            sidebar_carousel := ShadSidebarItem{text: "Carousel"}
             sidebar_checkbox := ShadSidebarItem{text: "Checkbox"}
             sidebar_collapsible := ShadSidebarItem{text: "Collapsible"}
             sidebar_skeleton := ShadSidebarItem{text: "Skeleton"}
             sidebar_switch := ShadSidebarItem{text: "Switch"}
             sidebar_input := ShadSidebarItem{text: "Input"}
+            sidebar_kbd := ShadSidebarItem{text: "Kbd"}
+            sidebar_progress := ShadSidebarItem{text: "Progress"}
             sidebar_label := ShadSidebarItem{text: "Label"}
             sidebar_sidebar := ShadSidebarItem{text: "Sidebar"}
+            sidebar_slider := ShadSidebarItem{text: "Slider"}
+            sidebar_sonner := ShadSidebarItem{text: "Sonner"}
+            sidebar_spinner := ShadSidebarItem{text: "Spinner"}
         }
     }
 }

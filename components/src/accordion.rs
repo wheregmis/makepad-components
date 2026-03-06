@@ -92,14 +92,16 @@ script_mod! {
             hover: {
                 default: @off
                 off: AnimatorState{
-                    from: {all: Forward {duration: 0.1}}
+                    from: {all: Forward {duration: 0.10}}
+                    ease: InOutQuad
                     apply: {
                         draw_bg: {hover: 0.0}
                         draw_icon: {hover: 0.0}
                     }
                 }
                 on: AnimatorState{
-                    from: {all: Snap}
+                    from: {all: Forward {duration: 0.12}}
+                    ease: InOutQuad
                     apply: {
                         draw_bg: {hover: 1.0}
                         draw_icon: {hover: 1.0}
@@ -110,8 +112,8 @@ script_mod! {
             active: {
                 default: @on
                 off: AnimatorState{
-                    from: {all: Forward {duration: 0.2}}
-                    ease: ExpDecay {d1: 0.96, d2: 0.97}
+                    from: {all: Forward {duration: 0.24}}
+                    ease: InOutQuad
                     redraw: true
                     apply: {
                         active: 0.0
@@ -119,8 +121,8 @@ script_mod! {
                     }
                 }
                 on: AnimatorState{
-                    from: {all: Forward {duration: 0.2}}
-                    ease: ExpDecay {d1: 0.98, d2: 0.95}
+                    from: {all: Forward {duration: 0.24}}
+                    ease: InOutQuad
                     redraw: true
                     apply: {
                         active: 1.0
@@ -299,7 +301,7 @@ impl Widget for ShadAccordionItem {
             let mut header_layout = Layout::flow_right().with_align_y(0.5);
             header_layout.padding = Inset {
                 left: 16.0,
-                right: 16.0,
+                right: 20.0,
                 top: 12.0,
                 bottom: 12.0,
             };

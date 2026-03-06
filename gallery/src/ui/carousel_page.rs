@@ -1,58 +1,57 @@
+use crate::ui::snippets::CAROUSEL_PREVIEW_CODE;
 use makepad_components::makepad_widgets::*;
-use crate::ui::snippets::LABEL_PREVIEW_CODE;
 
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryLabelPage = ShadScrollYView{
+    mod.widgets.GalleryCarouselPage = ShadScrollYView{
         ShadPageTitle{
-            text: "Label"
+            text: "Carousel"
         }
 
         ShadPageSubtitle{
-            text: "Shadcn-inspired accessible label associated with controls."
+            text: "Shadcn-inspired carousel with prev/next navigation and slide indicators."
         }
 
         ShadHr{}
 
-        label_preview_section := View{
+        carousel_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
-            spacing: 12.0
 
-            label_tabs_row := View{
+            carousel_tabs_row := View{
                 width: Fit
                 height: Fit
                 flow: Right
                 spacing: 20.0
                 margin: Inset{top: 4, bottom: 12}
 
-                label_demo_tab_group := View{
+                carousel_demo_tab_group := View{
                     width: Fit
                     height: Fit
                     flow: Down
                     spacing: 6.0
 
-                    label_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    carousel_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
-                    label_demo_indicator := SolidView{
+                    carousel_demo_indicator := SolidView{
                         width: Fill
                         height: 2
                         draw_bg.color: (shad_theme.color_primary)
                     }
                 }
 
-                label_code_tab_group := View{
+                carousel_code_tab_group := View{
                     width: Fit
                     height: Fit
                     flow: Down
                     spacing: 6.0
 
-                    label_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    carousel_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
-                    label_code_indicator := SolidView{
+                    carousel_code_indicator := SolidView{
                         width: Fill
                         height: 2
                         visible: false
@@ -61,8 +60,8 @@ script_mod! {
                 }
             }
 
-            label_preview_panel := mod.widgets.ShadPanel{
-                label_preview_flip := PageFlip{
+            carousel_preview_panel := mod.widgets.ShadPanel{
+                carousel_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
                     active_page: @demo_page
@@ -73,9 +72,9 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                        ShadSectionHeader{ text: "Default Label" }
+                        ShadSectionHeader{ text: "Default" }
 
-                        ShadLabel{ text: "Your email address" }
+                        carousel_demo := mod.widgets.ShadCarousel{}
                     }
 
                     code_page := View{
@@ -85,7 +84,7 @@ script_mod! {
                         spacing: 12.0
 
                         GalleryCodeSnippet{
-                            code: #(LABEL_PREVIEW_CODE)
+                            code: #(CAROUSEL_PREVIEW_CODE)
                         }
                     }
                 }

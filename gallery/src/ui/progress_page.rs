@@ -1,58 +1,57 @@
+use crate::ui::snippets::PROGRESS_PREVIEW_CODE;
 use makepad_components::makepad_widgets::*;
-use crate::ui::snippets::LABEL_PREVIEW_CODE;
 
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryLabelPage = ShadScrollYView{
+    mod.widgets.GalleryProgressPage = ShadScrollYView{
         ShadPageTitle{
-            text: "Label"
+            text: "Progress"
         }
 
         ShadPageSubtitle{
-            text: "Shadcn-inspired accessible label associated with controls."
+            text: "Shadcn-inspired progress bars. Determinate (value 0–1) and indeterminate (animated)."
         }
 
         ShadHr{}
 
-        label_preview_section := View{
+        progress_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
-            spacing: 12.0
 
-            label_tabs_row := View{
+            progress_tabs_row := View{
                 width: Fit
                 height: Fit
                 flow: Right
                 spacing: 20.0
                 margin: Inset{top: 4, bottom: 12}
 
-                label_demo_tab_group := View{
+                progress_demo_tab_group := View{
                     width: Fit
                     height: Fit
                     flow: Down
                     spacing: 6.0
 
-                    label_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    progress_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
-                    label_demo_indicator := SolidView{
+                    progress_demo_indicator := SolidView{
                         width: Fill
                         height: 2
                         draw_bg.color: (shad_theme.color_primary)
                     }
                 }
 
-                label_code_tab_group := View{
+                progress_code_tab_group := View{
                     width: Fit
                     height: Fit
                     flow: Down
                     spacing: 6.0
 
-                    label_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    progress_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
-                    label_code_indicator := SolidView{
+                    progress_code_indicator := SolidView{
                         width: Fill
                         height: 2
                         visible: false
@@ -61,8 +60,8 @@ script_mod! {
                 }
             }
 
-            label_preview_panel := mod.widgets.ShadPanel{
-                label_preview_flip := PageFlip{
+            progress_preview_panel := mod.widgets.ShadPanel{
+                progress_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
                     active_page: @demo_page
@@ -73,9 +72,15 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                        ShadSectionHeader{ text: "Default Label" }
+                        ShadSectionHeader{ text: "Determinate" }
 
-                        ShadLabel{ text: "Your email address" }
+                        ShadProgress33{}
+                        ShadProgress66{}
+                        ShadProgressFull{}
+
+                        ShadSectionHeader{ text: "Indeterminate (animated)" }
+
+                        ShadProgressIndeterminate{}
                     }
 
                     code_page := View{
@@ -85,7 +90,7 @@ script_mod! {
                         spacing: 12.0
 
                         GalleryCodeSnippet{
-                            code: #(LABEL_PREVIEW_CODE)
+                            code: #(PROGRESS_PREVIEW_CODE)
                         }
                     }
                 }

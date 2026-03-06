@@ -18,18 +18,20 @@ script_mod! {
         draw_text.text_style.font_size: 9
     }
 
-    mod.widgets.ShadSidebarItem = ButtonFlatter{
+    mod.widgets.ShadSidebarItem = mod.widgets.ShadButtonGhost{
         width: Fill
         height: 32
+        padding: Inset{left: 10, right: 10}
+        align: Align{x: 0.0, y: 0.5}
+        grab_key_focus: false
+        reset_hover_on_click: true
+        draw_bg +: {
+            border_radius: (shad_theme.radius)
+        }
         draw_text.text_style.font_size: 10
         draw_text.color: (shad_theme.color_muted_foreground)
         draw_text.color_hover: (shad_theme.color_primary)
         draw_text.color_down: (shad_theme.color_primary)
-        draw_bg.color: #0000
-        draw_bg.color_hover: (shad_theme.color_ghost_hover)
-        draw_bg.color_down: (shad_theme.color_ghost_down)
-        padding: Inset{left: 10, right: 10}
-        align: Align{x: 0.0, y: 0.5}
         text: "Item"
     }
 }

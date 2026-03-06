@@ -8,14 +8,13 @@ script_mod! {
         width: 100
         height: 20
 
-        // Background with hover-driven shimmer
+        // Background with continuous shimmer (uses draw_pass.time)
         draw_bg +: {
             color: (shad_theme.color_secondary)
             border_radius: (shad_theme.radius)
             border_size: 0.0
             border_color: #0000
 
-            anim_time: instance(0.0)
             shimmer_speed: uniform(2.0)
 
             pixel: fn() {
@@ -24,7 +23,7 @@ script_mod! {
                 let base = self.color
                 let highlight = mix(base, vec4(1.0, 1.0, 1.0, base.w), 0.75)
 
-                let phase = (self.pos.x * 6.28318) - (self.anim_time * self.shimmer_speed * 6.28318)
+                let phase = (self.pos.x * 6.28318) - (self.draw_pass.time * self.shimmer_speed * 6.28318)
                 let wave = cos(phase) * 0.5 + 0.5
                 let fill_color = mix(base, highlight, wave)
 
@@ -46,23 +45,16 @@ script_mod! {
             }
         }
 
-        // Shimmer runs while hovered
+        // Keep redrawing so draw_pass.time drives the shimmer
         animator: Animator{
-            hover: {
-                default: @off
-                off: AnimatorState{
-                    from: {all: Forward {duration: 0.0}}
-                    apply: {draw_bg: {anim_time: 0.0}}
-                }
+            time: {
+                default: @on
                 on: AnimatorState{
                     redraw: true
-                    from: {all: Loop {duration: 1.4, end: 1000000000.0}}
-                    apply: {
-                        draw_bg: {anim_time: [{time: 0.0, value: 0.0}, {time: 1.0, value: 1.0}]}
-                    }
+                    from: {all: Loop {duration: 100.0, end: 1000000000.0}}
+                    apply: {}
                 }
             }
         }
     }
 }
-

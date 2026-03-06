@@ -22,6 +22,8 @@ script_mod! {
         width: Fit
         height: 36
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
+        grab_key_focus: false
+        reset_hover_on_click: true
         draw_bg +: {
             color: #0000
             color_hover: (shad_theme.color_ghost_hover)

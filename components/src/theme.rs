@@ -32,5 +32,9 @@ script_mod! {
         color_background: #09090b
 
         radius: 6.0
+
+        color_kbd_bg: #x3c3c3c
+        color_kbd_border: #555555
+        color_kbd_foreground: #ffffff
     }
 }

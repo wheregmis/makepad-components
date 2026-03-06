@@ -13,8 +13,10 @@ This workspace contains:
 - **Aspect Ratio**: ratio-constrained container for media/content layouts (`ShadAspectRatio`).
 - **Accordion**: a composable accordion item widget with open/close state and script-call support (`set_is_open`, `is_open`).
 - **Alerts**: shadcn-inspired alert layouts with default and destructive variants.
+- **Alert Dialog**: modal dialog with title, description, and Cancel/Confirm buttons; `set_open(bool)` / `is_open()` API and optional destructive variant.
 - **Theme tokens**: centralized `shad_theme` color + radius tokens in script space.
 - **Icons**: SVG-based icon widgets (`IconCheck`, `IconX`, `IconSearch`).
+- **Kbd**: keyboard shortcut key caps (`ShadKbd`, `ShadKbdLabel`, `ShadKbdSeparator`) for displaying shortcuts (e.g. ⌘ ⇧ ⌥ ⌃ or Ctrl + B).
 - **Gallery app**: a live catalog demonstrating component usage and styling.
 
 ## Workspace Layout
@@ -23,6 +25,19 @@ This workspace contains:
 - `makepad-icon/` → `makepad-icon` library
 - `gallery/` → `makepad-example-component-gallery` app
 - `.github/workflows/wasm-pages.yml` → GitHub Pages WASM build + deploy
+
+## Architecture & naming conventions
+
+- **Crate roles**:
+  - `components`: owns reusable `Shad*` UI widgets and the shared `shad_theme` design tokens.
+  - `makepad-icon`: provides icon widgets that can be used by both the component library and apps.
+  - `gallery`: owns the documentation/gallery UI that showcases components.
+- **Naming**:
+  - **`Shad*` widgets** live in the `components` crate and are intended for reuse in any Makepad app (for example `ShadButton`, `ShadAccordionItem`, `ShadSidebar`).
+  - **`Gallery*` widgets** live in the `gallery` crate and are only for the docs/gallery experience (for example the code snippet widget). Layout wrappers and preview panels use `Shad*` components from the components crate.
+- **File placement**:
+  - New reusable components belong under `components/src/*.rs` and should be registered from `components::script_mod(vm)` into the `mod.widgets.*` namespace.
+  - Gallery-only layout and helper widgets belong under `gallery/src/ui/*.rs` (for example `themed_widgets.rs`) and are registered from `gallery::ui::script_mod(vm)`.
 
 ## Prerequisites
 
@@ -123,7 +138,7 @@ script_mod! {
 
 - [x] Accordion
 - [x] Alert
-- [ ] Alert Dialog
+- [x] Alert Dialog
 - [x] Aspect Ratio
 - [x] Avatar
 - [x] Badge
@@ -131,8 +146,8 @@ script_mod! {
 - [x] Button
 - [x] Button Group
 - [ ] Calendar
-- [ ] Card
-- [ ] Carousel
+- [x] Card
+- [x] Carousel
 - [ ] Chart
 - [x] Checkbox
 - [x] Collapsible
@@ -152,30 +167,29 @@ script_mod! {
 - [ ] Input Group
 - [ ] Input OTP
 - [ ] Item
-- [ ] Kbd
+- [x] Kbd
 - [x] Label
 - [ ] Menubar
 - [ ] Native Select
 - [ ] Navigation Menu
 - [ ] Pagination
 - [ ] Popover
-- [ ] Progress
+- [x] Progress
 - [ ] Radio Group
 - [ ] Resizable
 - [ ] Scroll Area
 - [ ] Select
 - [ ] Separator
 - [ ] Sheet
-- [ ] Sidebar
-- [ ] Skeleton
-- [ ] Slider
-- [ ] Sonner
-- [ ] Spinner
-- [ ] Switch
+- [x] Sidebar
+- [x] Skeleton
+- [x] Slider
+- [x] Sonner
+- [x] Spinner
+- [x] Switch
 - [ ] Table
 - [ ] Tabs
 - [ ] Textarea
-- [ ] Toast
 - [ ] Toggle
 - [ ] Toggle Group
 - [ ] Tooltip
@@ -216,6 +230,51 @@ script_mod! {
 - `ShadAlertDestructive`
 - `ShadAlertDestructiveIcon`
 - `ShadAlertDestructiveTitle`
+
+### Alert Dialog (`components/src/alert_dialog.rs`)
+
+- `ShadAlertDialog` — modal with primary Confirm and outline Cancel
+- `ShadAlertDialogDestructive` — same layout with destructive Confirm (e.g. Delete)
+
+Props: `open` (bool). Title and description are set in the script template (`title_label`, `description_label`).
+
+Script API: `set_open(bool)` and `is_open() -> bool` (e.g. from app or script to show/hide). Optional: use actions (Confirmed / Cancelled) in `handle_actions` when buttons or backdrop close the dialog.
+
+### Progress (`components/src/progress.rs`)
+
+- `ShadProgress` — default 50%
+- `ShadProgress33`, `ShadProgress66`, `ShadProgressFull` — 33%, 66%, 100%
+- `ShadProgressIndeterminate` — animated loading bar (continuous sweep)
+
+Use `ShadProgress66{}` for 66%. For custom values, extend `ShadProgressBase` with `draw_bg +: { progress: instance(0.42) }`.
+
+### Slider (`components/src/slider.rs`)
+
+- `ShadSlider` — shadcn-style range slider (extends makepad SliderRoundFlat)
+
+Props: `default`, `min`, `max`, `step`. Uses makepad Slider actions for value changes.
+
+### Sonner / Toast (`components/src/sonner.rs`)
+
+- `ShadToast` — toast notification card container
+- `ShadToastTitle` — title text
+- `ShadToastDescription` — optional description (uses `ShadAlertDescription` styling)
+
+Use: `ShadToast{ title := ShadToastTitle{text: "Event created"} }` or add `description := ShadToastDescription{text: "..."}`.
+
+### Spinner (`components/src/spinner.rs`)
+
+- `ShadSpinner` — circular loading indicator (24×24, animated arc)
+
+Use for async operations and loading states.
+
+### Kbd (`components/src/kbd.rs`)
+
+- `ShadKbd` — key cap container (dark grey rounded rect, subtle border)
+- `ShadKbdLabel` — text/symbol inside a key (e.g. ⌘, ⇧, Ctrl, B)
+- `ShadKbdSeparator` — " + " between keys in a shortcut
+
+Use with a horizontal layout: `ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }` and `ShadKbdSeparator{}` for shortcuts like "Ctrl + B".
 
 ### Sidebar (`components/src/sidebar.rs`)
 
@@ -283,6 +342,18 @@ The gallery (`gallery/src/app.rs`) includes:
 - Icon preview section
 
 Run it to validate behavior and styling changes quickly.
+
+### Adding a new component + docs page
+
+- **Library component (`Shad*`)**
+  - Add or extend a module under `components/src/` (for example `button.rs`, `accordion.rs`).
+  - Register the widget in `components::script_mod(vm)` with a `Shad*` name in the `mod.widgets.*` namespace.
+  - Use `shad_theme` tokens for colors, radii, and spacing instead of hardcoded values.
+- **Gallery docs page (`Gallery*`)**
+  - Create a new page script under `gallery/src/ui/` (for example `tooltip_page.rs`) that uses `ShadScrollYView`, `ShadPageTitle`, and `ShadPageSubtitle`.
+  - Add a snippet constant to `gallery/src/ui/snippets.rs` and reference it from `GalleryCodeSnippet` on the page.
+  - Add a `ShadSidebarItem` entry in `GallerySidebar` and a matching page in `GalleryContentFlip`.
+  - Wire the sidebar item to the page in `gallery/src/app.rs` using a `set_page` call in `handle_actions`.
 
 ## CI/CD
 

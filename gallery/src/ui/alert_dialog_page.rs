@@ -1,57 +1,57 @@
 use makepad_components::makepad_widgets::*;
-use crate::ui::snippets::ALERT_PREVIEW_CODE;
+use crate::ui::snippets::ALERT_DIALOG_PREVIEW_CODE;
 
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryAlertPage = ShadScrollYView{
+    mod.widgets.GalleryAlertDialogPage = ShadScrollYView{
         ShadPageTitle{
-            text: "Alert"
+            text: "Alert Dialog"
         }
 
         ShadPageSubtitle{
-            text: "Shadcn-inspired alert components from makepad-components library"
+            text: "Modal dialog with title, description, and action buttons (Cancel / Continue or OK). Use set_open(bool) and is_open() to control visibility."
         }
 
         ShadHr{}
 
-        alert_preview_section := View{
+        alert_dialog_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
 
-            alert_tabs_row := View{
+            alert_dialog_tabs_row := View{
                 width: Fit
                 height: Fit
                 flow: Right
                 spacing: 20.0
                 margin: Inset{top: 4, bottom: 12}
 
-                alert_demo_tab_group := View{
+                alert_dialog_demo_tab_group := View{
                     width: Fit
                     height: Fit
                     flow: Down
                     spacing: 6.0
 
-                    alert_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    alert_dialog_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
-                    alert_demo_indicator := SolidView{
+                    alert_dialog_demo_indicator := SolidView{
                         width: Fill
                         height: 2
                         draw_bg.color: (shad_theme.color_primary)
                     }
                 }
 
-                alert_code_tab_group := View{
+                alert_dialog_code_tab_group := View{
                     width: Fit
                     height: Fit
                     flow: Down
                     spacing: 6.0
 
-                    alert_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    alert_dialog_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
-                    alert_code_indicator := SolidView{
+                    alert_dialog_code_indicator := SolidView{
                         width: Fill
                         height: 2
                         visible: false
@@ -60,8 +60,8 @@ script_mod! {
                 }
             }
 
-            alert_preview_panel := mod.widgets.ShadPanel{
-                alert_preview_flip := PageFlip{
+            alert_dialog_preview_panel := mod.widgets.ShadPanel{
+                alert_dialog_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
                     active_page: @demo_page
@@ -70,31 +70,37 @@ script_mod! {
                         width: Fill
                         height: Fit
                         flow: Down
-                        spacing: 12.0
+                        spacing: 24.0
 
                         ShadSectionHeader{ text: "Default" }
 
-                        ShadAlert{
+                        open_default_btn := mod.widgets.ShadButton{
+                            text: "Open dialog"
+                        }
+
+                        View{
                             width: Fill
-                            icon := ShadAlertIcon{text: "ⓘ"}
-                            content := ShadAlertContent{
-                                title := ShadAlertTitle{text: "Heads up!"}
-                                description := ShadAlertDescription{
-                                    text: "You can add components and dependencies to your app using the cli."
-                                }
+                            height: 280
+                            default_dialog := ShadAlertDialog{
+                                width: Fill
+                                height: Fill
+                                open: false
                             }
                         }
 
                         ShadSectionHeader{ text: "Destructive" }
 
-                        ShadAlertDestructive{
+                        open_destructive_btn := mod.widgets.ShadButtonDestructive{
+                            text: "Open destructive dialog"
+                        }
+
+                        View{
                             width: Fill
-                            icon := ShadAlertDestructiveIcon{text: "✕"}
-                            content := ShadAlertContent{
-                                title := ShadAlertDestructiveTitle{text: "Error"}
-                                description := ShadAlertDescription{
-                                    text: "Your session has expired. Please log in again."
-                                }
+                            height: 280
+                            destructive_dialog := ShadAlertDialogDestructive{
+                                width: Fill
+                                height: Fill
+                                open: false
                             }
                         }
                     }
@@ -106,7 +112,7 @@ script_mod! {
                         spacing: 12.0
 
                         GalleryCodeSnippet{
-                            code: #(ALERT_PREVIEW_CODE)
+                            code: #(ALERT_DIALOG_PREVIEW_CODE)
                         }
                     }
                 }
