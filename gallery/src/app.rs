@@ -13,6 +13,39 @@ script_mod! {
 }
 
 impl App {
+    const SMALL_SCREEN_WIDTH: f64 = 900.0;
+
+    fn sync_mobile_sidebar_button(&self, cx: &mut Cx) {
+        self.ui.button(cx, ids!(mobile_sidebar_button)).set_text(
+            cx,
+            if self.is_small_screen && self.sidebar_open {
+                "X"
+            } else {
+                "☰"
+            },
+        );
+    }
+
+    fn apply_responsive_visibility(&mut self, cx: &mut Cx) {
+        self.ui
+            .view(cx, ids!(mobile_header))
+            .set_visible(cx, self.is_small_screen);
+        self.ui.view(cx, ids!(sidebar)).set_visible(
+            cx,
+            !self.is_small_screen || self.sidebar_open,
+        );
+        self.sync_mobile_sidebar_button(cx);
+    }
+
+    fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {
+        let is_small_screen = window_width < Self::SMALL_SCREEN_WIDTH;
+        if self.is_small_screen != is_small_screen {
+            self.is_small_screen = is_small_screen;
+            self.sidebar_open = !is_small_screen;
+        }
+        self.apply_responsive_visibility(cx);
+    }
+
     fn set_page(
         &mut self,
         cx: &mut Cx,
@@ -23,6 +56,13 @@ impl App {
     ) {
         if self.ui.button(cx, sidebar_button).clicked(actions) {
             content_flip.set_active_page(cx, page);
+            self.ui
+                .page_flip(cx, ids!(content_flip))
+                .set_active_page(cx, page);
+            if self.is_small_screen {
+                self.sidebar_open = false;
+                self.apply_responsive_visibility(cx);
+            }
         }
     }
 
@@ -78,11 +118,19 @@ impl App {
 pub struct App {
     #[live]
     ui: WidgetRef,
+    #[rust]
+    is_small_screen: bool,
+    #[rust]
+    sidebar_open: bool,
 }
 
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
         let content_flip = self.ui.page_flip(cx, ids!(content_flip));
+        if self.ui.button(cx, ids!(mobile_sidebar_button)).clicked(actions) && self.is_small_screen {
+            self.sidebar_open = !self.sidebar_open;
+            self.apply_responsive_visibility(cx);
+        }
 
         // Sidebar → page mappings. When adding a new component:
         // 1) Add a ShadSidebarItem in GallerySidebar (sidebar::<name>)
@@ -431,6 +479,14 @@ impl MatchEvent for App {
 
 impl AppMain for App {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
+        match event {
+            Event::Startup => {
+                self.sidebar_open = true;
+                self.apply_responsive_visibility(cx);
+            }
+            Event::WindowGeomChange(geom) => self.update_screen_mode(cx, geom.new_geom.inner_size.x),
+            _ => {}
+        }
         self.match_event(cx, event);
         self.ui.handle_event(cx, event, &mut Scope::empty());
     }
