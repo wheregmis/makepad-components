@@ -59,6 +59,43 @@ script_mod! {
 
     mod.widgets.ShadCarouselBase = #(ShadCarousel::register_widget(vm))
 
+    // Named nav button types for prev/next, sharing the same outline styling.
+    mod.widgets.ShadCarouselPrevBtn = mod.widgets.IconButtonChevronLeft{
+        width: 36
+        height: 36
+        draw_bg +: {
+            color: #0000
+            color_hover: (shad_theme.color_ghost_hover)
+            color_down: (shad_theme.color_ghost_down)
+            color_focus: (shad_theme.color_ghost_hover)
+            border_size: 1.0
+            border_radius: (shad_theme.radius)
+            border_color: (shad_theme.color_outline_border)
+            border_color_hover: (shad_theme.color_outline_border_hover)
+            border_color_down: (shad_theme.color_outline_border_down)
+            border_color_focus: (shad_theme.color_outline_border_hover)
+        }
+        draw_icon.color: (shad_theme.color_primary)
+    }
+
+    mod.widgets.ShadCarouselNextBtn = mod.widgets.IconButtonChevronRight{
+        width: 36
+        height: 36
+        draw_bg +: {
+            color: #0000
+            color_hover: (shad_theme.color_ghost_hover)
+            color_down: (shad_theme.color_ghost_down)
+            color_focus: (shad_theme.color_ghost_hover)
+            border_size: 1.0
+            border_radius: (shad_theme.radius)
+            border_color: (shad_theme.color_outline_border)
+            border_color_hover: (shad_theme.color_outline_border_hover)
+            border_color_down: (shad_theme.color_outline_border_down)
+            border_color_focus: (shad_theme.color_outline_border_hover)
+        }
+        draw_icon.color: (shad_theme.color_primary)
+    }
+
     mod.widgets.ShadCarousel = set_type_default() do mod.widgets.ShadCarouselBase{
         width: Fill
         height: Fit
@@ -148,23 +185,11 @@ script_mod! {
             spacing: 12.0
             align: Align{x: 0.5, y: 0.5}
 
-            prev_btn := mod.widgets.ShadButtonOutline{
-                text: "‹"
-                width: 36
-                height: 36
-                padding: Inset{}
-                draw_text.text_style.font_size: 18
-            }
+            prev_btn := mod.widgets.ShadCarouselPrevBtn{}
 
             dots := mod.widgets.ShadCarouselDots{}
 
-            next_btn := mod.widgets.ShadButtonOutline{
-                text: "›"
-                width: 36
-                height: 36
-                padding: Inset{}
-                draw_text.text_style.font_size: 18
-            }
+            next_btn := mod.widgets.ShadCarouselNextBtn{}
         }
     }
 }

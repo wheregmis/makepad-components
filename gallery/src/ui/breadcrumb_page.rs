@@ -84,18 +84,6 @@ script_mod! {
 
                 ShadHr{}
 
-                ShadSectionHeader{ text: "Custom Separator" }
-
-                ShadBreadcrumb{
-                    ShadBreadcrumbLink{ text: "Home" }
-                    ShadBreadcrumbSeparator{ text: "/" }
-                    ShadBreadcrumbLink{ text: "Components" }
-                    ShadBreadcrumbSeparator{ text: "/" }
-                    ShadBreadcrumbPage{ text: "Breadcrumb" }
-                }
-
-                ShadHr{}
-
                 ShadSectionHeader{ text: "Collapsed / Ellipsis" }
 
                 ShadBreadcrumb{

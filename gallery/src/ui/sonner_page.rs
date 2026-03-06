@@ -72,6 +72,8 @@ script_mod! {
                         flow: Down
                         spacing: 16.0
 
+                        ShadSectionHeader{ text: "Basic" }
+
                         View{
                             width: Fill
                             height: Fit
@@ -91,6 +93,29 @@ script_mod! {
                                 open: false
                             }
                             toast_desc := ShadSonnerWithDescription{
+                                width: Fill
+                                height: Fill
+                                open: false
+                            }
+                        }
+
+                        ShadHr{}
+
+                        ShadSectionHeader{ text: "With Close Button" }
+
+                        View{
+                            width: Fill
+                            height: Fit
+                            flow: Right
+                            spacing: 8.0
+
+                            toast_close_btn := ShadButton{text: "Show toast with close"}
+                        }
+
+                        View{
+                            width: Fill
+                            height: 200
+                            toast_close := ShadSonnerWithClose{
                                 width: Fill
                                 height: Fill
                                 open: false

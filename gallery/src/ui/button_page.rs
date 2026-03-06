@@ -140,18 +140,75 @@ script_mod! {
                     ShadButtonLink{text: "Link"}
                 }
 
-                ShadSectionHeader{ text: "Makepad Icon Crate" }
+                ShadSectionHeader{ text: "Icons" }
 
                 View{
                     width: Fill
                     height: Fit
                     flow: Right
                     align: Align{y: 0.5}
-                    spacing: 10.0
+                    spacing: 14.0
 
                     IconCheck{}
                     IconX{}
                     IconSearch{}
+                    IconInfo{}
+                    IconChevronLeft{}
+                    IconChevronRight{}
+                    IconChevronDown{}
+                }
+
+                ShadSectionHeader{ text: "Icon Buttons" }
+
+                View{
+                    width: Fill
+                    height: Fit
+                    flow: Right
+                    align: Align{y: 0.5}
+                    spacing: 8.0
+
+                    ShadButtonIcon{text: "✓"}
+
+                    IconButtonChevronLeft{
+                        width: 36
+                        height: 36
+                        draw_bg +: {
+                            color: #0000
+                            color_hover: (shad_theme.color_ghost_hover)
+                            color_down: (shad_theme.color_ghost_down)
+                            border_size: 1.0
+                            border_radius: (shad_theme.radius)
+                            border_color: (shad_theme.color_outline_border)
+                        }
+                        draw_icon.color: (shad_theme.color_primary)
+                    }
+
+                    IconButtonChevronRight{
+                        width: 36
+                        height: 36
+                        draw_bg +: {
+                            color: #0000
+                            color_hover: (shad_theme.color_ghost_hover)
+                            color_down: (shad_theme.color_ghost_down)
+                            border_size: 1.0
+                            border_radius: (shad_theme.radius)
+                            border_color: (shad_theme.color_outline_border)
+                        }
+                        draw_icon.color: (shad_theme.color_primary)
+                    }
+
+                    IconButtonX{
+                        width: 36
+                        height: 36
+                        draw_bg +: {
+                            color: #0000
+                            color_hover: (shad_theme.color_ghost_hover)
+                            color_down: (shad_theme.color_ghost_down)
+                            border_size: 0.0
+                            border_radius: (shad_theme.radius)
+                        }
+                        draw_icon.color: (shad_theme.color_muted_foreground)
+                    }
                 }
                     }
 

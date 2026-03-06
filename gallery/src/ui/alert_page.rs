@@ -76,7 +76,7 @@ script_mod! {
 
                         ShadAlert{
                             width: Fill
-                            icon := ShadAlertIcon{text: "ⓘ"}
+                            icon := ShadAlertIcon{}
                             content := ShadAlertContent{
                                 title := ShadAlertTitle{text: "Heads up!"}
                                 description := ShadAlertDescription{
@@ -89,7 +89,7 @@ script_mod! {
 
                         ShadAlertDestructive{
                             width: Fill
-                            icon := ShadAlertDestructiveIcon{text: "✕"}
+                            icon := ShadAlertDestructiveIcon{}
                             content := ShadAlertContent{
                                 title := ShadAlertDestructiveTitle{text: "Error"}
                                 description := ShadAlertDescription{

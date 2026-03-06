@@ -27,12 +27,9 @@ script_mod! {
         draw_text.text_style.font_size: 11
     }
 
-    mod.widgets.ShadBreadcrumbSeparator = mod.widgets.Label{
-        width: Fit
-        height: Fit
-        draw_text.color: (shad_theme.color_muted_foreground)
-        draw_text.text_style.font_size: 11
-        text: ">"
+    mod.widgets.ShadBreadcrumbSeparator = mod.widgets.IconChevronRight{
+        icon_walk: Walk{width: 12, height: 12}
+        draw_icon.color: (shad_theme.color_muted_foreground)
     }
 
     mod.widgets.ShadBreadcrumbEllipsis = mod.widgets.Label{

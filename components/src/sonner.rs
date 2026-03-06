@@ -131,6 +131,78 @@ script_mod! {
             }
         }
     }
+
+    // Toast with a leading check icon and a close (X) button.
+    // The close button dismisses the toast when clicked.
+    mod.widgets.ShadSonnerWithClose = set_type_default() do mod.widgets.ShadSonnerBase{
+        width: Fill
+        height: Fit
+        open: false
+
+        overlay: Modal{
+            align: Align{x: 1.0 y: 0.0}
+
+            bg_view +: {
+                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.0)
+            }
+
+            content +: {
+                width: Fit
+                height: Fit
+                margin: Inset{top: 16, right: 16}
+
+                toast_panel := RoundedView{
+                    width: 260
+                    height: Fit
+                    padding: Inset{left: 14, right: 8, top: 10, bottom: 10}
+                    flow: Down
+                    spacing: 4.0
+
+                    draw_bg +: {
+                        color: (shad_theme.color_secondary)
+                        border_radius: (shad_theme.radius)
+                        border_size: 1.0
+                        border_color: (shad_theme.color_outline_border)
+                    }
+
+                    header_row := View{
+                        width: Fill
+                        height: Fit
+                        flow: Right
+                        align: Align{y: 0.5}
+                        spacing: 8.0
+
+                        check_icon := mod.widgets.IconCheck{
+                            icon_walk: Walk{width: 14, height: 14}
+                            draw_icon.color: (shad_theme.color_primary)
+                        }
+
+                        title_label := mod.widgets.ShadToastTitle{
+                            width: Fill
+                            text: "Event created"
+                        }
+
+                        close_btn := mod.widgets.IconButtonX{
+                            width: 24
+                            height: 24
+                            draw_bg +: {
+                                color: #0000
+                                color_hover: (shad_theme.color_ghost_hover)
+                                color_down: (shad_theme.color_ghost_down)
+                                border_size: 0.0
+                                border_radius: (shad_theme.radius)
+                            }
+                            draw_icon.color: (shad_theme.color_muted_foreground)
+                        }
+                    }
+
+                    description_label := mod.widgets.ShadToastDescription{
+                        visible: false
+                    }
+                }
+            }
+        }
+    }
 }
 
 #[derive(Script, ScriptHook, Widget)]
@@ -198,6 +270,23 @@ impl Widget for ShadSonner {
                 if actions
                     .find_widget_action(content.widget_uid())
                     .is_some_and(|a| matches!(a.cast(), ModalAction::Dismissed))
+                {
+                    self.open = false;
+                }
+                // Handle close button click (ShadSonnerWithClose variant)
+                let close_btn = self.overlay.widget(
+                    cx,
+                    &[
+                        live_id!(content),
+                        live_id!(toast_panel),
+                        live_id!(header_row),
+                        live_id!(close_btn),
+                    ],
+                );
+                if !close_btn.is_empty()
+                    && actions
+                        .find_widget_action(close_btn.widget_uid())
+                        .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
                 {
                     self.open = false;
                 }

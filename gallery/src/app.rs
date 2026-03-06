@@ -368,6 +368,15 @@ impl MatchEvent for App {
                 s.set_open(true);
             }
         }
+        if self.ui.button(cx, ids!(toast_close_btn)).clicked(actions) {
+            if let Some(mut s) = self
+                .ui
+                .widget_flood(cx, ids!(toast_close))
+                .borrow_mut::<ShadSonner>()
+            {
+                s.set_open(true);
+            }
+        }
         self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page), &content_flip);
 
         if self.ui.button(cx, ids!(tooltip_basic_btn)).clicked(actions) {

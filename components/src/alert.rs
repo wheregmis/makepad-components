@@ -19,11 +19,9 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadAlertIcon = mod.widgets.Label{
-        width: Fit
-        height: Fit
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.text_style.font_size: 12
+    mod.widgets.ShadAlertIcon = mod.widgets.IconInfo{
+        icon_walk: Walk{width: 16, height: 16}
+        draw_icon.color: (shad_theme.color_primary)
     }
 
     mod.widgets.ShadAlertContent = mod.widgets.View{
@@ -48,8 +46,9 @@ script_mod! {
         draw_bg.border_color: (shad_theme.color_destructive)
     }
 
-    mod.widgets.ShadAlertDestructiveIcon = mod.widgets.ShadAlertIcon{
-        draw_text.color: (shad_theme.color_destructive)
+    mod.widgets.ShadAlertDestructiveIcon = mod.widgets.IconX{
+        icon_walk: Walk{width: 16, height: 16}
+        draw_icon.color: (shad_theme.color_destructive)
     }
 
     mod.widgets.ShadAlertDestructiveTitle = mod.widgets.ShadAlertTitle{
