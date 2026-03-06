@@ -28,8 +28,9 @@ script_mod! {
                         padding: Inset{top: 12, right: 12, bottom: 8, left: 12}
 
                         mobile_sidebar_button := mod.widgets.ShadButtonGhost{
-                            text: "☰ Menu"
-                            width: Fit
+                            text: "☰"
+                            width: 36
+                            padding: Inset{}
                         }
                     }
 

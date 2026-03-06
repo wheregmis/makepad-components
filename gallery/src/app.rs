@@ -15,6 +15,17 @@ script_mod! {
 impl App {
     const SMALL_SCREEN_WIDTH: f64 = 900.0;
 
+    fn sync_mobile_sidebar_button(&self, cx: &mut Cx) {
+        self.ui.button(cx, ids!(mobile_sidebar_button)).set_text(
+            cx,
+            if self.is_small_screen && self.sidebar_open {
+                "X"
+            } else {
+                "☰"
+            },
+        );
+    }
+
     fn apply_responsive_visibility(&mut self, cx: &mut Cx) {
         self.ui
             .view(cx, ids!(mobile_header))
@@ -23,6 +34,7 @@ impl App {
             cx,
             !self.is_small_screen || self.sidebar_open,
         );
+        self.sync_mobile_sidebar_button(cx);
     }
 
     fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {
