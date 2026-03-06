@@ -88,6 +88,7 @@ script_mod! {
 
     // A composite View containing an Icon and a borderless Input field.
     // The View itself provides the Shadcn standard borders and focus rings.
+    // This allows keeping the library simple while providing an easy out-of-the-box DSL variant.
     mod.widgets.ShadInputWithIcon = mod.widgets.View {
         width: Fill
         height: Fit

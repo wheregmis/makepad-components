@@ -1,7 +1,5 @@
 use makepad_components::makepad_widgets::*;
-use makepad_components::drawer::ShadDrawer;
-use makepad_components::sheet::ShadSheet;
-use makepad_components::{ShadCarousel, ShadDialog, ShadSonner};
+use makepad_components::{ShadCarousel, ShadPopup};
 
 app_main!(App);
 
@@ -198,7 +196,7 @@ impl MatchEvent for App {
             if let Some(mut d) = self
                 .ui
                 .widget_flood(cx, ids!(default_dialog))
-                .borrow_mut::<ShadDialog>()
+                .borrow_mut::<ShadPopup>()
             {
                 d.set_open(true);
             }
@@ -207,7 +205,7 @@ impl MatchEvent for App {
             if let Some(mut d) = self
                 .ui
                 .widget_flood(cx, ids!(alert_default_dialog))
-                .borrow_mut::<ShadDialog>()
+                .borrow_mut::<ShadPopup>()
             {
                 d.set_open(true);
             }
@@ -216,21 +214,21 @@ impl MatchEvent for App {
             if let Some(mut d) = self
                 .ui
                 .widget_flood(cx, ids!(destructive_dialog))
-                .borrow_mut::<ShadDialog>()
+                .borrow_mut::<ShadPopup>()
             {
                 d.set_open(true);
             }
         }
         let dialog_ref = self.ui.widget_flood(cx, ids!(default_dialog));
         if !dialog_ref.is_empty() && dialog_ref.button(cx, ids!(close_btn)).clicked(actions) {
-            if let Some(mut d) = dialog_ref.borrow_mut::<ShadDialog>() {
+            if let Some(mut d) = dialog_ref.borrow_mut::<ShadPopup>() {
                 d.set_open(false);
             }
         }
         self.set_page(cx, actions, ids!(sidebar_drawer), live_id!(drawer_page), &content_flip);
         if self.ui.button(cx, ids!(open_drawer_btn)).clicked(actions) {
             let drawer = self.ui.widget_flood(cx, ids!(drawer_demo));
-            if let Some(mut d) = drawer.borrow_mut::<ShadDrawer>() {
+            if let Some(mut d) = drawer.borrow_mut::<ShadPopup>() {
                 d.set_open(true);
             }
             drawer.redraw(cx);
@@ -354,7 +352,7 @@ impl MatchEvent for App {
             if let Some(mut s) = self
                 .ui
                 .widget_flood(cx, ids!(toast_event))
-                .borrow_mut::<ShadSonner>()
+                .borrow_mut::<ShadPopup>()
             {
                 s.set_open(true);
             }
@@ -363,7 +361,7 @@ impl MatchEvent for App {
             if let Some(mut s) = self
                 .ui
                 .widget_flood(cx, ids!(toast_desc))
-                .borrow_mut::<ShadSonner>()
+                .borrow_mut::<ShadPopup>()
             {
                 s.set_open(true);
             }
@@ -449,28 +447,28 @@ impl MatchEvent for App {
 
         if self.ui.button(cx, ids!(open_right_sheet_btn)).clicked(actions) {
             let sheet = self.ui.widget_flood(cx, ids!(right_sheet));
-            if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
+            if let Some(mut s) = sheet.borrow_mut::<ShadPopup>() {
                 s.set_open(true);
             }
             sheet.redraw(cx);
         }
         if self.ui.button(cx, ids!(open_left_sheet_btn)).clicked(actions) {
             let sheet = self.ui.widget_flood(cx, ids!(left_sheet));
-            if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
+            if let Some(mut s) = sheet.borrow_mut::<ShadPopup>() {
                 s.set_open(true);
             }
             sheet.redraw(cx);
         }
         if self.ui.button(cx, ids!(open_top_sheet_btn)).clicked(actions) {
             let sheet = self.ui.widget_flood(cx, ids!(top_sheet));
-            if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
+            if let Some(mut s) = sheet.borrow_mut::<ShadPopup>() {
                 s.set_open(true);
             }
             sheet.redraw(cx);
         }
         if self.ui.button(cx, ids!(open_bottom_sheet_btn)).clicked(actions) {
             let sheet = self.ui.widget_flood(cx, ids!(bottom_sheet));
-            if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
+            if let Some(mut s) = sheet.borrow_mut::<ShadPopup>() {
                 s.set_open(true);
             }
             sheet.redraw(cx);
@@ -483,7 +481,7 @@ impl MatchEvent for App {
         ] {
             if self.ui.button(cx, button).clicked(actions) {
                 let sheet = self.ui.widget_flood(cx, path);
-                if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
+                if let Some(mut s) = sheet.borrow_mut::<ShadPopup>() {
                     s.set_open(false);
                 }
                 sheet.redraw(cx);

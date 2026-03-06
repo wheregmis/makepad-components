@@ -112,7 +112,7 @@ script_mod! {
                         View{
                             width: Fill
                             height: 280
-                            alert_default_dialog := ShadDialogAlert{
+                            alert_default_dialog := ShadPopupAlert{
                                 width: Fill
                                 height: Fill
                                 open: false
@@ -128,7 +128,7 @@ script_mod! {
                         View{
                             width: Fill
                             height: 280
-                            destructive_dialog := ShadDialogAlertDestructive{
+                            destructive_dialog := ShadPopupAlertDestructive{
                                 width: Fill
                                 height: Fill
                                 open: false

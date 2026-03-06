@@ -118,7 +118,7 @@ script_mod! {
                     width: 320
                     height: Fit
 
-                    ShadInputWithIcon{}
+                            ShadInputWithIcon{}
                 }
                     }
 

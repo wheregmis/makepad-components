@@ -11,7 +11,7 @@ script_mod! {
         }
 
         ShadPageSubtitle{
-            text: "Toast notifications with Modal overlay. Use ShadSonner or ShadSonnerWithDescription with set_open(true) to show. Click outside or Escape to dismiss."
+            text: "Toast notifications with Modal overlay. Use ShadPopup or ShadPopupWithDescription with set_open(true) to show. Click outside or Escape to dismiss."
         }
 
         ShadHr{}
@@ -90,7 +90,7 @@ script_mod! {
                                 height: Fill
                                 open: false
                             }
-                            toast_desc := ShadSonnerWithDescription{
+                            toast_desc := ShadPopupWithDescription{
                                 width: Fill
                                 height: Fill
                                 open: false
