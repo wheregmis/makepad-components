@@ -459,7 +459,10 @@ impl MatchEvent for App {
 impl AppMain for App {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
         match event {
-            Event::Startup => self.update_screen_mode(cx, 1400.0),
+            Event::Startup => {
+                self.sidebar_open = true;
+                self.apply_responsive_visibility(cx);
+            }
             Event::WindowGeomChange(geom) => self.update_screen_mode(cx, geom.new_geom.inner_size.x),
             _ => {}
         }
