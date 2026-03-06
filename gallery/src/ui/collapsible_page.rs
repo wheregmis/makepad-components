@@ -5,21 +5,22 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryCollapsiblePage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryCollapsiblePage = ShadScrollYView{
+        ShadPageTitle{
             text: "Collapsible"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Single section toggle inspired by shadcn/ui collapsible."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        collapsible_preview_section := GalleryExamplesSection{
+        collapsible_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
+            spacing: 12.0
 
             collapsible_tabs_row := View{
                 width: Fit
@@ -34,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    collapsible_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    collapsible_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     collapsible_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    collapsible_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    collapsible_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     collapsible_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +61,7 @@ script_mod! {
                 }
             }
 
-            collapsible_preview_panel := mod.widgets.GalleryPreviewPanel{
+            collapsible_preview_panel := mod.widgets.ShadPanel{
                 collapsible_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -94,15 +95,12 @@ script_mod! {
                                 border_color: (shad_theme.color_outline_border)
                             }
 
-                            Label{
+                            ShadSectionHeader{
                                 width: Fill
                                 text: "Status"
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 10
                             }
-                            Label{
+                            ShadLabel{
                                 text: "Shipped"
-                                draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 10
                             }
                         }
@@ -120,16 +118,11 @@ script_mod! {
                                 border_color: (shad_theme.color_outline_border)
                             }
 
-                            Label{
+                            ShadLabel{
                                 text: "Shipping address"
-                                draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 10
                             }
-                            Label{
-                                text: "100 Market St, San Francisco"
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 10
-                            }
+                            ShadSectionHeader{ text: "100 Market St, San Francisco" }
                         }
 
                         RoundedView{
@@ -145,16 +138,11 @@ script_mod! {
                                 border_color: (shad_theme.color_outline_border)
                             }
 
-                            Label{
+                            ShadLabel{
                                 text: "Items"
-                                draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 10
                             }
-                            Label{
-                                text: "2x Studio Headphones"
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 10
-                            }
+                            ShadSectionHeader{ text: "2x Studio Headphones" }
                         }
                     }
                 }

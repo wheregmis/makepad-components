@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryAspectRatioPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryAspectRatioPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Aspect Ratio"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Displays content within a desired ratio."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         aspect_ratio_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    aspect_ratio_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    aspect_ratio_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     aspect_ratio_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    aspect_ratio_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    aspect_ratio_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     aspect_ratio_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            aspect_ratio_preview_panel := mod.widgets.GalleryPreviewPanel{
+            aspect_ratio_preview_panel := mod.widgets.ShadPanel{
                 aspect_ratio_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "16:9 Preview"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "16:9 Preview" }
 
                 RoundedView{
                     width: Fill
@@ -103,20 +99,15 @@ script_mod! {
                                 border_radius: (shad_theme.radius)
                             }
 
-                            Label{
+                            ShadSectionHeader{
                                 text: "16:9"
-                                draw_text.color: (shad_theme.color_muted_foreground)
                                 draw_text.text_style.font_size: 11
                             }
                         }
                     }
                 }
 
-                Label{
-                    text: "Common Ratios"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Common Ratios" }
 
                 View{
                     width: Fill
@@ -137,11 +128,7 @@ script_mod! {
                                 color: (shad_theme.color_secondary)
                                 border_radius: (shad_theme.radius)
                             }
-                            Label{
-                                text: "1:1"
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 10
-                            }
+                            ShadSectionHeader{ text: "1:1" }
                         }
                     }
 
@@ -158,11 +145,7 @@ script_mod! {
                                 color: (shad_theme.color_secondary)
                                 border_radius: (shad_theme.radius)
                             }
-                            Label{
-                                text: "4:3"
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 10
-                            }
+                            ShadSectionHeader{ text: "4:3" }
                         }
                     }
 
@@ -179,11 +162,7 @@ script_mod! {
                                 color: (shad_theme.color_secondary)
                                 border_radius: (shad_theme.radius)
                             }
-                            Label{
-                                text: "9:16"
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 10
-                            }
+                            ShadSectionHeader{ text: "9:16" }
                         }
                     }
                 }

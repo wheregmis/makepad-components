@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryCarouselPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryCarouselPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Carousel"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired carousel with prev/next navigation and slide indicators."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         carousel_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    carousel_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    carousel_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     carousel_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    carousel_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    carousel_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     carousel_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            carousel_preview_panel := mod.widgets.GalleryPreviewPanel{
+            carousel_preview_panel := mod.widgets.ShadPanel{
                 carousel_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                        Label{
-                            text: "Default"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Default" }
 
                         carousel_demo := mod.widgets.ShadCarousel{}
                     }

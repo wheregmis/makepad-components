@@ -4,21 +4,22 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GallerySidebarPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GallerySidebarPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Sidebar"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Composable sidebar primitives used by the gallery navigation."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        sidebar_preview_section := GalleryExamplesSection{
+        sidebar_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
+            spacing: 12.0
 
             sidebar_tabs_row := View{
                 width: Fit
@@ -33,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    sidebar_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    sidebar_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     sidebar_demo_indicator := SolidView{
                         width: Fill
@@ -48,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    sidebar_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    sidebar_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     sidebar_code_indicator := SolidView{
                         width: Fill
@@ -59,7 +60,7 @@ script_mod! {
                 }
             }
 
-            sidebar_preview_panel := mod.widgets.GalleryPreviewPanel{
+            sidebar_preview_panel := mod.widgets.ShadPanel{
                 sidebar_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -81,9 +82,8 @@ script_mod! {
                     ShadSidebar{
                         width: 300
                         height: 320
-                        Label{
+                        ShadLabel{
                             text: "Acme Inc"
-                            draw_text.color: (shad_theme.color_primary)
                             draw_text.text_style.font_size: 12
                         }
                         ShadSidebarSectionLabel{text: "Platform"}

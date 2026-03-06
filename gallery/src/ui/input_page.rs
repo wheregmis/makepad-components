@@ -5,21 +5,22 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryInputPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryInputPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Input"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired text input field component."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        input_preview_section := GalleryExamplesSection{
+        input_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
+            spacing: 12.0
 
             input_tabs_row := View{
                 width: Fit
@@ -34,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    input_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    input_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     input_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    input_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    input_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     input_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +61,7 @@ script_mod! {
                 }
             }
 
-            input_preview_panel := mod.widgets.GalleryPreviewPanel{
+            input_preview_panel := mod.widgets.ShadPanel{
                 input_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +73,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "Default"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Default" }
 
                 View{
                     width: 320
@@ -87,13 +84,9 @@ script_mod! {
                     }
                 }
 
-                GalleryHr{}
+                ShadHr{}
 
-                Label{
-                    text: "Disabled"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Disabled" }
 
                 View{
                     width: 320
@@ -105,13 +98,9 @@ script_mod! {
                     }
                 }
 
-                GalleryHr{}
+                ShadHr{}
 
-                Label{
-                    text: "With Label"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "With Label" }
 
                 View{
                     width: 320
@@ -123,11 +112,7 @@ script_mod! {
                     ShadInput{ empty_text: "Email" }
                 }
 
-                Label{
-                    text: "With Leading Icon"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "With Leading Icon" }
 
                 View{
                     width: 320

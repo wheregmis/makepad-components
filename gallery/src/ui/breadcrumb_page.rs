@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryBreadcrumbPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryBreadcrumbPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Breadcrumb"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Displays the path to the current resource using a hierarchy of links."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         breadcrumb_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    breadcrumb_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    breadcrumb_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     breadcrumb_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    breadcrumb_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    breadcrumb_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     breadcrumb_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            breadcrumb_preview_panel := mod.widgets.GalleryPreviewPanel{
+            breadcrumb_preview_panel := mod.widgets.ShadPanel{
                 breadcrumb_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "Default"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Default" }
 
                 ShadBreadcrumb{
                     ShadBreadcrumbLink{ text: "Home" }
@@ -86,13 +82,9 @@ script_mod! {
                     ShadBreadcrumbPage{ text: "Breadcrumb" }
                 }
 
-                GalleryHr{}
+                ShadHr{}
 
-                Label{
-                    text: "Custom Separator"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Custom Separator" }
 
                 ShadBreadcrumb{
                     ShadBreadcrumbLink{ text: "Home" }
@@ -102,13 +94,9 @@ script_mod! {
                     ShadBreadcrumbPage{ text: "Breadcrumb" }
                 }
 
-                GalleryHr{}
+                ShadHr{}
 
-                Label{
-                    text: "Collapsed / Ellipsis"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Collapsed / Ellipsis" }
 
                 ShadBreadcrumb{
                     ShadBreadcrumbLink{ text: "Home" }

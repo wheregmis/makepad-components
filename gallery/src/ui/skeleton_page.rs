@@ -4,21 +4,22 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GallerySkeletonPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GallerySkeletonPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Skeleton"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Use to show a placeholder while content is loading."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        skeleton_preview_section := GalleryExamplesSection{
+        skeleton_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
+            spacing: 12.0
 
             skeleton_tabs_row := View{
                 width: Fit
@@ -33,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    skeleton_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    skeleton_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     skeleton_demo_indicator := SolidView{
                         width: Fill
@@ -48,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    skeleton_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    skeleton_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     skeleton_code_indicator := SolidView{
                         width: Fill
@@ -59,7 +60,7 @@ script_mod! {
                 }
             }
 
-            skeleton_preview_panel := mod.widgets.GalleryPreviewPanel{
+            skeleton_preview_panel := mod.widgets.ShadPanel{
                 skeleton_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -71,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "Preview"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Preview" }
 
                 View{
                     width: Fill

@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryAccordionPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryAccordionPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Accordion"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Accordion component from makepad-components library"
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         accordion_preview_section := View{
             width: Fill
@@ -34,9 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    accordion_demo_tab := mod.widgets.GalleryPreviewTabButton{
-                        text: "DEMO"
-                    }
+                    accordion_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     accordion_demo_indicator := SolidView{
                         width: Fill
@@ -51,9 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    accordion_code_tab := mod.widgets.GalleryPreviewTabButton{
-                        text: "CODE"
-                    }
+                    accordion_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     accordion_code_indicator := SolidView{
                         width: Fill
@@ -64,7 +60,7 @@ script_mod! {
                 }
             }
 
-            accordion_preview_panel := mod.widgets.GalleryPreviewPanel{
+            accordion_preview_panel := mod.widgets.ShadPanel{
                 accordion_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -86,11 +82,7 @@ script_mod! {
                             height: Fit
                             flow: Down
                             padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
-                            Label{
-                                text: "Yes. This accordion is keyboard and mouse friendly by default through FoldHeader/FoldButton behavior."
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 10
-                            }
+                            ShadSectionHeader{ text: "Yes. This accordion is keyboard and mouse friendly by default through FoldHeader/FoldButton behavior." }
                         }
                     }
 
@@ -103,11 +95,7 @@ script_mod! {
                             padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
                             spacing: 8.0
 
-                            Label{
-                                text: "We can put any view here, like a row with toggles."
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 10
-                            }
+                            ShadSectionHeader{ text: "We can put any view here, like a row with toggles." }
 
                             View{
                                 width: Fill
@@ -116,7 +104,7 @@ script_mod! {
                                 spacing: 16
 
                                 ShadSwitch{text: "Switch"}
-                                GalleryCheckBox{text: "Or a CheckBox"}
+                                ShadCheckbox{label: "Or a CheckBox"}
                             }
                         }
                     }
@@ -128,11 +116,7 @@ script_mod! {
                             height: Fit
                             flow: Down
                             padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
-                            Label{
-                                text: "This is third accordion content. It can be any view, like a text view or a button."
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 10
-                            }
+                            ShadSectionHeader{ text: "This is third accordion content. It can be any view, like a text view or a button." }
                         }
                     }
                 }

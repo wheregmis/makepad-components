@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryProgressPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryProgressPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Progress"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired progress bars. Determinate (value 0–1) and indeterminate (animated)."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         progress_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    progress_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    progress_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     progress_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    progress_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    progress_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     progress_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            progress_preview_panel := mod.widgets.GalleryPreviewPanel{
+            progress_preview_panel := mod.widgets.ShadPanel{
                 progress_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,21 +72,13 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                        Label{
-                            text: "Determinate"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Determinate" }
 
                         ShadProgress33{}
                         ShadProgress66{}
                         ShadProgressFull{}
 
-                        Label{
-                            text: "Indeterminate (animated)"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Indeterminate (animated)" }
 
                         ShadProgressIndeterminate{}
                     }

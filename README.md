@@ -34,7 +34,7 @@ This workspace contains:
   - `gallery`: owns the documentation/gallery UI that showcases components.
 - **Naming**:
   - **`Shad*` widgets** live in the `components` crate and are intended for reuse in any Makepad app (for example `ShadButton`, `ShadAccordionItem`, `ShadSidebar`).
-  - **`Gallery*` widgets** live in the `gallery` crate and are only for the docs/gallery experience (for example layout wrappers, preview panels, and code snippet widgets).
+  - **`Gallery*` widgets** live in the `gallery` crate and are only for the docs/gallery experience (for example the code snippet widget). Layout wrappers and preview panels use `Shad*` components from the components crate.
 - **File placement**:
   - New reusable components belong under `components/src/*.rs` and should be registered from `components::script_mod(vm)` into the `mod.widgets.*` namespace.
   - Gallery-only layout and helper widgets belong under `gallery/src/ui/*.rs` (for example `themed_widgets.rs`) and are registered from `gallery::ui::script_mod(vm)`.
@@ -350,7 +350,7 @@ Run it to validate behavior and styling changes quickly.
   - Register the widget in `components::script_mod(vm)` with a `Shad*` name in the `mod.widgets.*` namespace.
   - Use `shad_theme` tokens for colors, radii, and spacing instead of hardcoded values.
 - **Gallery docs page (`Gallery*`)**
-  - Create a new page script under `gallery/src/ui/` (for example `tooltip_page.rs`) that uses `GalleryComponentPage`, `GalleryPageTitle`, and `GalleryPageSubtitle`.
+  - Create a new page script under `gallery/src/ui/` (for example `tooltip_page.rs`) that uses `ShadScrollYView`, `ShadPageTitle`, and `ShadPageSubtitle`.
   - Add a snippet constant to `gallery/src/ui/snippets.rs` and reference it from `GalleryCodeSnippet` on the page.
   - Add a `ShadSidebarItem` entry in `GallerySidebar` and a matching page in `GalleryContentFlip`.
   - Wire the sidebar item to the page in `gallery/src/app.rs` using a `set_page` call in `handle_actions`.

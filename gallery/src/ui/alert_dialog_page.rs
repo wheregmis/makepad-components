@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryAlertDialogPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryAlertDialogPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Alert Dialog"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Modal dialog with title, description, and action buttons (Cancel / Continue or OK). Use set_open(bool) and is_open() to control visibility."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         alert_dialog_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    alert_dialog_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    alert_dialog_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     alert_dialog_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    alert_dialog_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    alert_dialog_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     alert_dialog_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            alert_dialog_preview_panel := mod.widgets.GalleryPreviewPanel{
+            alert_dialog_preview_panel := mod.widgets.ShadPanel{
                 alert_dialog_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 24.0
 
-                        Label{
-                            text: "Default"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Default" }
 
                         open_default_btn := mod.widgets.ShadButton{
                             text: "Open dialog"
@@ -92,11 +88,7 @@ script_mod! {
                             }
                         }
 
-                        Label{
-                            text: "Destructive"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Destructive" }
 
                         open_destructive_btn := mod.widgets.ShadButtonDestructive{
                             text: "Open destructive dialog"

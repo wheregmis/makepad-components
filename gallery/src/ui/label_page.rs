@@ -5,21 +5,22 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryLabelPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryLabelPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Label"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired accessible label associated with controls."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        label_preview_section := GalleryExamplesSection{
+        label_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
+            spacing: 12.0
 
             label_tabs_row := View{
                 width: Fit
@@ -34,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    label_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    label_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     label_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    label_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    label_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     label_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +61,7 @@ script_mod! {
                 }
             }
 
-            label_preview_panel := mod.widgets.GalleryPreviewPanel{
+            label_preview_panel := mod.widgets.ShadPanel{
                 label_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +73,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                        Label{
-                            text: "Default Label"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Default Label" }
 
                         ShadLabel{ text: "Your email address" }
                     }

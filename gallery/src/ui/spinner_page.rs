@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GallerySpinnerPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GallerySpinnerPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Spinner"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Circular loading indicator. Use for async operations and loading states."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         spinner_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    spinner_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    spinner_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     spinner_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    spinner_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    spinner_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     spinner_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            spinner_preview_panel := mod.widgets.GalleryPreviewPanel{
+            spinner_preview_panel := mod.widgets.ShadPanel{
                 spinner_preview_flip := PageFlip{
                     width: Fill
                     height: Fit

@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryAvatarPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryAvatarPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Avatar"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired avatar components from makepad-components library"
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         avatar_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    avatar_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    avatar_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     avatar_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    avatar_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    avatar_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     avatar_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            avatar_preview_panel := mod.widgets.GalleryPreviewPanel{
+            avatar_preview_panel := mod.widgets.ShadPanel{
                 avatar_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "Sizes"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Sizes" }
 
                 View{
                     width: Fill
@@ -98,11 +94,7 @@ script_mod! {
                     }
                 }
 
-                Label{
-                    text: "Fallback Variants"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Fallback Variants" }
 
                 View{
                     width: Fill

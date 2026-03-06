@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GallerySliderPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GallerySliderPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Slider"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-style range slider. Extends makepad Slider with theme colors."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         slider_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    slider_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    slider_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     slider_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    slider_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    slider_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     slider_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            slider_preview_panel := mod.widgets.GalleryPreviewPanel{
+            slider_preview_panel := mod.widgets.ShadPanel{
                 slider_preview_flip := PageFlip{
                     width: Fill
                     height: Fit

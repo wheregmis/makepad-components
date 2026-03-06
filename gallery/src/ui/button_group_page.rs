@@ -5,21 +5,22 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryButtonGroupPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryButtonGroupPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Button Group"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "A container that groups related actions with consistent segmented styling"
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        button_group_preview_section := GalleryExamplesSection{
+        button_group_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
+            spacing: 12.0
 
             button_group_tabs_row := View{
                 width: Fit
@@ -34,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    button_group_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    button_group_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     button_group_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    button_group_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    button_group_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     button_group_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +61,7 @@ script_mod! {
                 }
             }
 
-            button_group_preview_panel := mod.widgets.GalleryPreviewPanel{
+            button_group_preview_panel := mod.widgets.ShadPanel{
                 button_group_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +73,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "Default"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Default" }
 
                 View{
                     width: Fit
@@ -100,11 +97,7 @@ script_mod! {
                     }
                 }
 
-                Label{
-                    text: "Sizes"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Sizes" }
 
                 View{
                     width: Fill
@@ -137,11 +130,7 @@ script_mod! {
                     }
                 }
 
-                Label{
-                    text: "Toolbar"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Toolbar" }
 
                 View{
                     width: Fit

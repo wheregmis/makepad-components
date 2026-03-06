@@ -4,21 +4,22 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GallerySwitchPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GallerySwitchPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Switch"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Toggle between on and off states."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        switch_preview_section := GalleryExamplesSection{
+        switch_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
+            spacing: 12.0
 
             switch_tabs_row := View{
                 width: Fit
@@ -33,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    switch_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    switch_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     switch_demo_indicator := SolidView{
                         width: Fill
@@ -48,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    switch_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    switch_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     switch_code_indicator := SolidView{
                         width: Fill
@@ -59,7 +60,7 @@ script_mod! {
                 }
             }
 
-            switch_preview_panel := mod.widgets.GalleryPreviewPanel{
+            switch_preview_panel := mod.widgets.ShadPanel{
                 switch_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -71,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "Default"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Default" }
 
                 View{
                     width: Fill
@@ -88,13 +85,9 @@ script_mod! {
                     ShadSwitch{text: "Use cellular data"}
                 }
 
-                GalleryHr{}
+                ShadHr{}
 
-                Label{
-                    text: "Inline with label"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Inline with label" }
 
                 View{
                     width: Fill
@@ -107,7 +100,7 @@ script_mod! {
                     ShadSwitch{text: "SMS alerts"}
                 }
 
-                GalleryHr{}
+                ShadHr{}
                     }
 
                     code_page := View{

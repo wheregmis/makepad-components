@@ -5,21 +5,22 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryCheckboxPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryCheckboxPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Checkbox"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired checkbox component from makepad-components library"
         }
 
-        GalleryHr{}
+        ShadHr{}
 
-        checkbox_preview_section := GalleryExamplesSection{
+        checkbox_preview_section := View{
             width: Fill
             height: Fit
             flow: Down
+            spacing: 12.0
 
             checkbox_tabs_row := View{
                 width: Fit
@@ -34,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    checkbox_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    checkbox_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     checkbox_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    checkbox_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    checkbox_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     checkbox_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +61,7 @@ script_mod! {
                 }
             }
 
-            checkbox_preview_panel := mod.widgets.GalleryPreviewPanel{
+            checkbox_preview_panel := mod.widgets.ShadPanel{
                 checkbox_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +73,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "Default"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Default" }
 
                 View{
                     width: Fill
@@ -89,13 +86,9 @@ script_mod! {
                     ShadCheckbox{label: "Subscribe to newsletter"}
                 }
 
-                GalleryHr{}
+                ShadHr{}
 
-                Label{
-                    text: "In a form row"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "In a form row" }
 
                 View{
                     width: Fill
@@ -109,7 +102,7 @@ script_mod! {
                     ShadCheckbox{label: "Option C"}
                 }
 
-                GalleryHr{}
+                ShadHr{}
                     }
 
                     code_page := View{

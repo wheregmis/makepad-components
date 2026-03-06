@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryAlertPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryAlertPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Alert"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired alert components from makepad-components library"
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         alert_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    alert_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    alert_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     alert_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    alert_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    alert_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     alert_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            alert_preview_panel := mod.widgets.GalleryPreviewPanel{
+            alert_preview_panel := mod.widgets.ShadPanel{
                 alert_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                        Label{
-                            text: "Default"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Default" }
 
                         ShadAlert{
                             width: Fill
@@ -89,11 +85,7 @@ script_mod! {
                             }
                         }
 
-                        Label{
-                            text: "Destructive"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Destructive" }
 
                         ShadAlertDestructive{
                             width: Fill

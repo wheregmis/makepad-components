@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GallerySonnerPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GallerySonnerPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Sonner / Toast"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Toast notifications with Modal overlay. Use ShadSonner or ShadSonnerWithDescription with set_open(true) to show. Click outside or Escape to dismiss."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         sonner_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    sonner_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    sonner_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     sonner_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    sonner_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    sonner_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     sonner_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            sonner_preview_panel := mod.widgets.GalleryPreviewPanel{
+            sonner_preview_panel := mod.widgets.ShadPanel{
                 sonner_preview_flip := PageFlip{
                     width: Fill
                     height: Fit

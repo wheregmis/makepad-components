@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryBadgePage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryBadgePage = ShadScrollYView{
+        ShadPageTitle{
             text: "Badge"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired badge components from makepad-components library"
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         badge_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    badge_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    badge_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     badge_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    badge_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    badge_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     badge_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            badge_preview_panel := mod.widgets.GalleryPreviewPanel{
+            badge_preview_panel := mod.widgets.ShadPanel{
                 badge_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "Variants"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Variants" }
 
                 View{
                     width: Fill

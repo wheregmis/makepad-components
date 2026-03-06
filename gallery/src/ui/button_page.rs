@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryButtonPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryButtonPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Button"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired button components from makepad-components library"
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         button_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    button_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    button_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     button_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    button_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    button_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     button_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            button_preview_panel := mod.widgets.GalleryPreviewPanel{
+            button_preview_panel := mod.widgets.ShadPanel{
                 button_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                Label{
-                    text: "Variants"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Variants" }
 
                 View{
                     width: Fill
@@ -92,11 +88,7 @@ script_mod! {
                     ShadButtonLink{text: "Link"}
                 }
 
-                Label{
-                    text: "Sizes"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Sizes" }
 
                 View{
                     width: Fill
@@ -110,11 +102,7 @@ script_mod! {
                     ShadButtonLg{text: "Large"}
                 }
 
-                Label{
-                    text: "Destructive Sizes"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Destructive Sizes" }
 
                 View{
                     width: Fill
@@ -138,11 +126,7 @@ script_mod! {
                     }
                 }
 
-                Label{
-                    text: "Outline Variations"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Outline Variations" }
 
                 View{
                     width: Fill
@@ -156,11 +140,7 @@ script_mod! {
                     ShadButtonLink{text: "Link"}
                 }
 
-                Label{
-                    text: "Makepad Icon Crate"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 10
-                }
+                ShadSectionHeader{ text: "Makepad Icon Crate" }
 
                 View{
                     width: Fill

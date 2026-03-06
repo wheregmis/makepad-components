@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryKbdPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryKbdPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Kbd"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Keyboard shortcut key caps for displaying shortcuts (e.g. ⌘ ⇧ ⌥ ⌃ or Ctrl + B)."
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         kbd_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    kbd_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    kbd_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     kbd_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    kbd_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    kbd_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     kbd_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            kbd_preview_panel := mod.widgets.GalleryPreviewPanel{
+            kbd_preview_panel := mod.widgets.ShadPanel{
                 kbd_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                        Label{
-                            text: "Modifier keys"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Modifier keys" }
 
                         View{
                             width: Fit
@@ -91,11 +87,7 @@ script_mod! {
                             ShadKbd{ label := ShadKbdLabel{text: "⌃"} }
                         }
 
-                        Label{
-                            text: "Shortcut"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Shortcut" }
 
                         View{
                             width: Fit

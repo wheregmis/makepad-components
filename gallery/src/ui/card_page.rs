@@ -5,16 +5,16 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryCardPage = GalleryComponentPage{
-        GalleryPageTitle{
+    mod.widgets.GalleryCardPage = ShadScrollYView{
+        ShadPageTitle{
             text: "Card"
         }
 
-        GalleryPageSubtitle{
+        ShadPageSubtitle{
             text: "Shadcn-inspired card component from makepad-components library"
         }
 
-        GalleryHr{}
+        ShadHr{}
 
         card_preview_section := View{
             width: Fill
@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    card_demo_tab := mod.widgets.GalleryPreviewTabButton{text: "DEMO"}
+                    card_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
 
                     card_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    card_code_tab := mod.widgets.GalleryPreviewTabButton{text: "CODE"}
+                    card_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
 
                     card_code_indicator := SolidView{
                         width: Fill
@@ -60,7 +60,7 @@ script_mod! {
                 }
             }
 
-            card_preview_panel := mod.widgets.GalleryPreviewPanel{
+            card_preview_panel := mod.widgets.ShadPanel{
                 card_preview_flip := PageFlip{
                     width: Fill
                     height: Fit
@@ -72,11 +72,7 @@ script_mod! {
                         flow: Down
                         spacing: 16.0
 
-                        Label{
-                            text: "Default"
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                        }
+                        ShadSectionHeader{ text: "Default" }
 
                         mod.widgets.ShadCard{
                             header := mod.widgets.ShadCardHeader{
@@ -84,9 +80,8 @@ script_mod! {
                                 description := mod.widgets.ShadCardDescription{text: "Card description goes here."}
                             }
                             content := mod.widgets.ShadCardContent{
-                                Label{
+                                ShadLabel{
                                     text: "Card content area. Put any widgets here."
-                                    draw_text.color: (shad_theme.color_muted_foreground)
                                     draw_text.text_style.font_size: 14
                                 }
                             }

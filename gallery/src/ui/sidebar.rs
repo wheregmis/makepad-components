@@ -7,9 +7,8 @@ script_mod! {
     mod.widgets.GallerySidebar = ShadSidebar{
         width: 280
 
-        Label{
+        ShadLabel{
             text: "Makepad Component\nGallery"
-            draw_text.color: (shad_theme.color_primary)
             draw_text.text_style.font_size: 13
         }
 

@@ -5,88 +5,6 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryHr = Hr{
-        draw_bg.color: (shad_theme.color_outline_border)
-    }
-
-    mod.widgets.GalleryCheckBox = CheckBox{
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.text_style.font_size: 10
-        draw_bg.color: (shad_theme.color_muted_foreground)
-        draw_bg.color_hover: (shad_theme.color_secondary_hover)
-    }
-
-    mod.widgets.GalleryComponentPage = ScrollYView{
-        width: Fill
-        height: Fill
-        flow: Down
-        draw_bg.color: (shad_theme.color_background)
-        padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
-        spacing: 12.0
-    }
-
-    mod.widgets.GalleryPageTitle = Label{
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.text_style.font_size: 18
-    }
-
-    mod.widgets.GalleryPageSubtitle = Label{
-        draw_text.color: (shad_theme.color_muted_foreground)
-        draw_text.text_style.font_size: 10
-    }
-
-    mod.widgets.GallerySectionHeader = Label{
-        draw_text.color: (shad_theme.color_muted_foreground)
-        draw_text.text_style.font_size: 10
-    }
-
-    mod.widgets.GallerySectionBody = View{
-        width: Fill
-        height: Fit
-        flow: Down
-        spacing: 12.0
-    }
-
-    mod.widgets.GalleryExamplesSection = View{
-        width: Fill
-        height: Fit
-        flow: Down
-        spacing: 12.0
-    }
-
-    mod.widgets.GalleryUsageSection = View{
-        width: Fill
-        height: Fit
-        flow: Down
-        spacing: 12.0
-    }
-
-    mod.widgets.GalleryPreviewTabButton = ButtonFlat{
-        width: Fit
-        height: Fit
-        margin: Inset{}
-        padding: Inset{}
-        grab_key_focus: false
-        reset_hover_on_click: true
-
-        draw_bg +: {
-            color: #0000
-            color_hover: #0000
-            color_down: #0000
-            color_focus: #0000
-            border_size: 0.0
-        }
-
-        draw_text +: {
-            color: (shad_theme.color_muted_foreground)
-            color_hover: (shad_theme.color_primary)
-            color_down: (shad_theme.color_primary)
-            color_focus: (shad_theme.color_primary)
-            text_style.font_size: 10
-        }
-    }
-
     mod.widgets.GalleryCodeSnippetBase = #(GalleryCodeSnippet::register_widget(vm))
 
     mod.widgets.GalleryCodeSnippet = set_type_default() do mod.widgets.GalleryCodeSnippetBase{
@@ -109,16 +27,6 @@ script_mod! {
                 }
             }
         }
-    }
-
-    mod.widgets.GalleryPreviewPanel = SolidView{
-        width: Fill
-        height: Fit
-        padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
-        draw_bg.color: #0000
-        draw_bg.border_size: 1.0
-        draw_bg.border_color: (shad_theme.color_outline_border)
-        draw_bg.border_radius: (shad_theme.radius)
     }
 }
 
