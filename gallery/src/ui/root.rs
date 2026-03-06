@@ -10,32 +10,19 @@ script_mod! {
             window.title: "Makepad Components Gallery"
             pass +: { clear_color: (shad_theme.color_background) }
             body +: {
-                flow: Right
+                width: Fill
+                height: Fill
+                flow: Overlay
                 draw_bg.color: (shad_theme.color_background)
 
-                sidebar := mod.widgets.GallerySidebar{}
-                content := View{
+                View{
                     width: Fill
                     height: Fill
-                    flow: Down
-
-                    mobile_header := View{
-                        visible: false
-                        width: Fill
-                        height: Fit
-                        flow: Right
-                        align: Align{x: 0.0, y: 0.5}
-                        padding: Inset{top: 12, right: 12, bottom: 8, left: 12}
-
-                        mobile_sidebar_button := mod.widgets.ShadButtonGhost{
-                            text: "☰"
-                            width: 36
-                            padding: Inset{}
-                        }
-                    }
-
+                    flow: Right
+                    sidebar := mod.widgets.GallerySidebar{}
                     content_flip := mod.widgets.GalleryContentFlip{}
                 }
+                hover_card_tooltip := CalloutTooltip{width: Fill height: Fill}
             }
         }
     }

@@ -128,7 +128,7 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                        GalleryCodeSnippet{
+                        GalleryCodeSnippetSimple{
                             code: #(INPUT_PREVIEW_CODE)
                         }
                     }

@@ -30,7 +30,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libssl-dev clang lld
+          sudo apt-get install -y pkg-config libssl-dev clang lld binaryen brotli
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -48,13 +48,13 @@ jobs:
           echo "WASM_OUTPUT_ROOT=target/makepad-wasm-app/small" >> "${GITHUB_ENV}"
 
       - name: Install cargo-makepad
-        run: cargo install --git https://github.com/wheregmis/makepad.git --branch no_thread_makepad cargo-makepad --locked
+        run: cargo install --git https://github.com/makepad/makepad.git --branch no_thread_makepad cargo-makepad --locked
 
       - name: Install Wasm toolchain
         run: cargo makepad wasm install-toolchain
 
       - name: Build Wasm package (small profile, no bindgen)
-        run: cargo makepad wasm --strip --brotli --no-threads build -p "${APP_PACKAGE}" --profile=small
+        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile small --no-threads
 
       - name: Patch index.html for GitHub Pages subpath hosting
         run: |

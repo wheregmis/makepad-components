@@ -4,6 +4,30 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
+    mod.widgets.ShadField = mod.widgets.View {
+        width: Fill
+        height: Fit
+        flow: Down
+        spacing: 6.0
+    }
+
+    mod.widgets.ShadFieldLabel = mod.widgets.Label {
+        draw_text.color: (shad_theme.color_primary)
+        draw_text.text_style.font_size: 11.0
+    }
+
+    mod.widgets.ShadFieldDescription = mod.widgets.Label {
+        width: Fill
+        draw_text.color: (shad_theme.color_muted_foreground)
+        draw_text.text_style.font_size: 10.0
+    }
+
+    mod.widgets.ShadFieldMessage = mod.widgets.Label {
+        width: Fill
+        draw_text.color: (shad_theme.color_destructive)
+        draw_text.text_style.font_size: 10.0
+    }
+
     mod.widgets.ShadInput = mod.widgets.TextInput {
         width: Fill
         height: Fit

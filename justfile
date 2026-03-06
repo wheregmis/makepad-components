@@ -3,3 +3,6 @@ run:
 
 run_wasm:
 	cargo makepad wasm run -p makepad-example-component-gallery
+
+build_wasm:
+	./scripts/build_wasm.sh -p makepad-example-component-gallery --profile small --no-threads
