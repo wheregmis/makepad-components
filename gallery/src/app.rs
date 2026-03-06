@@ -19,11 +19,10 @@ impl App {
         actions: &Actions,
         sidebar_button: &[LiveId],
         page: LiveId,
+        content_flip: &PageFlipRef,
     ) {
         if self.ui.button(cx, sidebar_button).clicked(actions) {
-            self.ui
-                .page_flip(cx, ids!(content_flip))
-                .set_active_page(cx, page);
+            content_flip.set_active_page(cx, page);
         }
     }
 
@@ -83,6 +82,8 @@ pub struct App {
 
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
+        let content_flip = self.ui.page_flip(cx, ids!(content_flip));
+
         // Sidebar → page mappings. When adding a new component:
         // 1) Add a ShadSidebarItem in GallerySidebar (sidebar::<name>)
         // 2) Add a matching page in GalleryContentFlip (<name>_page)
@@ -92,13 +93,15 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_accordion),
             live_id!(accordion_page),
+            &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_alert), live_id!(alert_page));
+        self.set_page(cx, actions, ids!(sidebar_alert), live_id!(alert_page), &content_flip);
         self.set_page(
             cx,
             actions,
             ids!(sidebar_alert_dialog),
             live_id!(alert_dialog_page),
+            &content_flip,
         );
         if self.ui.button(cx, ids!(open_default_btn)).clicked(actions) {
             if let Some(mut d) = self
@@ -134,40 +137,44 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_aspect_ratio),
             live_id!(aspect_ratio_page),
+            &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_avatar), live_id!(avatar_page));
-        self.set_page(cx, actions, ids!(sidebar_badge), live_id!(badge_page));
+        self.set_page(cx, actions, ids!(sidebar_avatar), live_id!(avatar_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_badge), live_id!(badge_page), &content_flip);
         self.set_page(
             cx,
             actions,
             ids!(sidebar_breadcrumb),
             live_id!(breadcrumb_page),
+            &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_button), live_id!(button_page));
+        self.set_page(cx, actions, ids!(sidebar_button), live_id!(button_page), &content_flip);
         self.set_page(
             cx,
             actions,
             ids!(sidebar_button_group),
             live_id!(button_group_page),
+            &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_card), live_id!(card_page));
-        self.set_page(cx, actions, ids!(sidebar_carousel), live_id!(carousel_page));
-        self.set_page(cx, actions, ids!(sidebar_checkbox), live_id!(checkbox_page));
+        self.set_page(cx, actions, ids!(sidebar_card), live_id!(card_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_carousel), live_id!(carousel_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_checkbox), live_id!(checkbox_page), &content_flip);
         self.set_page(
             cx,
             actions,
             ids!(sidebar_collapsible),
             live_id!(collapsible_page),
+            &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_skeleton), live_id!(skeleton_page));
-        self.set_page(cx, actions, ids!(sidebar_switch), live_id!(switch_page));
-        self.set_page(cx, actions, ids!(sidebar_input), live_id!(input_page));
-        self.set_page(cx, actions, ids!(sidebar_kbd), live_id!(kbd_page));
-        self.set_page(cx, actions, ids!(sidebar_label), live_id!(label_page));
-        self.set_page(cx, actions, ids!(sidebar_progress), live_id!(progress_page));
-        self.set_page(cx, actions, ids!(sidebar_sidebar), live_id!(sidebar_page));
-        self.set_page(cx, actions, ids!(sidebar_slider), live_id!(slider_page));
-        self.set_page(cx, actions, ids!(sidebar_sonner), live_id!(sonner_page));
+        self.set_page(cx, actions, ids!(sidebar_skeleton), live_id!(skeleton_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_switch), live_id!(switch_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_input), live_id!(input_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_kbd), live_id!(kbd_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_label), live_id!(label_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_progress), live_id!(progress_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_sidebar), live_id!(sidebar_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_slider), live_id!(slider_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_sonner), live_id!(sonner_page), &content_flip);
         if self.ui.button(cx, ids!(toast_event_btn)).clicked(actions) {
             if let Some(mut s) = self
                 .ui
@@ -186,7 +193,7 @@ impl MatchEvent for App {
                 s.set_open(true);
             }
         }
-        self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page));
+        self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page), &content_flip);
 
         Self::handle_preview_tabs(
             &self.ui,
