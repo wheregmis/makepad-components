@@ -15,19 +15,58 @@ script_mod! {
 }
 
 impl App {
+    const SMALL_SCREEN_WIDTH: f64 = 900.0;
+
+    fn sync_mobile_sidebar_button(&self, cx: &mut Cx) {
+        self.ui.button(cx, ids!(mobile_sidebar_button)).set_text(
+            cx,
+            if self.is_small_screen && self.sidebar_open {
+                "X"
+            } else {
+                "☰"
+            },
+        );
+    }
+
+    fn apply_responsive_visibility(&mut self, cx: &mut Cx) {
+        self.ui
+            .view(cx, ids!(mobile_header))
+            .set_visible(cx, self.is_small_screen);
+        self.ui.view(cx, ids!(sidebar)).set_visible(
+            cx,
+            !self.is_small_screen || self.sidebar_open,
+        );
+        self.sync_mobile_sidebar_button(cx);
+    }
+
+    fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {
+        let is_small_screen = window_width < Self::SMALL_SCREEN_WIDTH;
+        if self.is_small_screen != is_small_screen {
+            self.is_small_screen = is_small_screen;
+            self.sidebar_open = !is_small_screen;
+        }
+        self.apply_responsive_visibility(cx);
+    }
+
     fn set_page(
         &mut self,
         cx: &mut Cx,
         actions: &Actions,
         sidebar_button: &[LiveId],
         page: LiveId,
+        content_flip: &PageFlipRef,
     ) {
         if self.ui.button(cx, sidebar_button).clicked(actions) {
             // Avoid cx.set_key_focus(Area::Empty) here - can trigger KeyFocusLost feedback loop
             // when TextInput or DropDown popup had focus (makepad-platform issue).
+            content_flip.set_active_page(cx, page);
             self.ui
                 .page_flip(cx, ids!(content_flip))
                 .set_active_page(cx, page);
+            if self.is_small_screen {
+                self.sidebar_open = false;
+                self.apply_responsive_visibility(cx);
+            }
         }
     }
 
@@ -87,10 +126,19 @@ pub struct App {
     ui: WidgetRef,
     #[rust]
     hover_card_open: bool,
+    is_small_screen: bool,
+    #[rust]
+    sidebar_open: bool,
 }
 
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
+        let content_flip = self.ui.page_flip(cx, ids!(content_flip));
+        if self.ui.button(cx, ids!(mobile_sidebar_button)).clicked(actions) && self.is_small_screen {
+            self.sidebar_open = !self.sidebar_open;
+            self.apply_responsive_visibility(cx);
+        }
+
         // Sidebar → page mappings. When adding a new component:
         // 1) Add a ShadSidebarItem in GallerySidebar (sidebar::<name>)
         // 2) Add a matching page in GalleryContentFlip (<name>_page)
@@ -100,6 +148,7 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_accordion),
             live_id!(accordion_page),
+            &content_flip,
         );
         self.set_page(cx, actions, ids!(sidebar_alert), live_id!(alert_page));
         if let Some(mut carousel) = self
@@ -114,30 +163,34 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_aspect_ratio),
             live_id!(aspect_ratio_page),
+            &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_avatar), live_id!(avatar_page));
-        self.set_page(cx, actions, ids!(sidebar_badge), live_id!(badge_page));
+        self.set_page(cx, actions, ids!(sidebar_avatar), live_id!(avatar_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_badge), live_id!(badge_page), &content_flip);
         self.set_page(
             cx,
             actions,
             ids!(sidebar_breadcrumb),
             live_id!(breadcrumb_page),
+            &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_button), live_id!(button_page));
+        self.set_page(cx, actions, ids!(sidebar_button), live_id!(button_page), &content_flip);
         self.set_page(
             cx,
             actions,
             ids!(sidebar_button_group),
             live_id!(button_group_page),
+            &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_card), live_id!(card_page));
-        self.set_page(cx, actions, ids!(sidebar_carousel), live_id!(carousel_page));
-        self.set_page(cx, actions, ids!(sidebar_checkbox), live_id!(checkbox_page));
+        self.set_page(cx, actions, ids!(sidebar_card), live_id!(card_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_carousel), live_id!(carousel_page), &content_flip);
+        self.set_page(cx, actions, ids!(sidebar_checkbox), live_id!(checkbox_page), &content_flip);
         self.set_page(
             cx,
             actions,
             ids!(sidebar_collapsible),
             live_id!(collapsible_page),
+            &content_flip,
         );
         self.set_page(cx, actions, ids!(sidebar_dialog), live_id!(dialog_page));
         if self.ui.button(cx, ids!(open_dialog_btn)).clicked(actions) {
@@ -248,7 +301,7 @@ impl MatchEvent for App {
                 s.set_open(true);
             }
         }
-        self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page));
+        self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page), &content_flip);
 
         if self.ui.button(cx, ids!(tooltip_basic_btn)).clicked(actions) {
             let trigger = self.ui.button(cx, ids!(tooltip_basic_btn));
@@ -510,6 +563,14 @@ impl MatchEvent for App {
 
 impl AppMain for App {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
+        match event {
+            Event::Startup => {
+                self.sidebar_open = true;
+                self.apply_responsive_visibility(cx);
+            }
+            Event::WindowGeomChange(geom) => self.update_screen_mode(cx, geom.new_geom.inner_size.x),
+            _ => {}
+        }
         self.match_event(cx, event);
         self.ui.handle_event(cx, event, &mut Scope::empty());
     }
