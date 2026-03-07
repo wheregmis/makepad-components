@@ -40,4 +40,4 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-cargo makepad wasm --wasm-opt --strip --split --brotli build -p "${APP_PACKAGE}" --profile="${PROFILE}" "${MODE_FLAGS[@]}" "${EXTRA_FLAGS[@]}"
+cargo makepad wasm --wasm-opt --strip --split --brotli --no-threads build -p "${APP_PACKAGE}" --profile=small

@@ -54,7 +54,7 @@ jobs:
         run: cargo makepad wasm install-toolchain
 
       - name: Build Wasm package (small profile, no bindgen)
-        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile=small --no-threads
+        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}"
 
       - name: Patch index.html for GitHub Pages subpath hosting
         run: |
