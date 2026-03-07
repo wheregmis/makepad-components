@@ -14,7 +14,8 @@ pub const KBD_PREVIEW_CODE: &str = "View{\n    width: Fit\n    height: Fit\n    
 pub const LABEL_PREVIEW_CODE: &str = "mod.widgets.ShadLabel{ text: \"Your email address\" }";
 pub const PROGRESS_PREVIEW_CODE: &str = "View{\n    width: Fill\n    height: Fit\n    flow: Down\n    spacing: 12.0\n    ShadProgress33{}\n    ShadProgress66{}\n    ShadProgressFull{}\n    ShadProgressIndeterminate{}\n}";
 pub const SLIDER_PREVIEW_CODE: &str = "View{\n    width: Fill\n    height: Fit\n    flow: Down\n    spacing: 16.0\n    ShadSlider{default: 0.5}\n    ShadSlider{default: 0.8}\n}";
-pub const SPINNER_PREVIEW_CODE: &str = "ShadSpinner{}\n\n// 24×24 circular loading indicator. Use for async/loading states.";
+pub const SPINNER_PREVIEW_CODE: &str =
+    "ShadSpinner{}\n\n// 24×24 circular loading indicator. Use for async/loading states.";
 pub const SONNER_PREVIEW_CODE: &str = "View{\n    flow: Right\n    spacing: 8.0\n    ShadButton{text: \"Event created\"}\n    ShadButton{text: \"Toast with description\"}\n}\nShadSonner{open: false}\nShadSonnerWithDescription{open: false}\n\n// In handle_actions: call set_open(true) when button clicked.\n// Click outside or Escape to dismiss.";
 
 pub const DIALOG_PREVIEW_CODE: &str = "// Generic: ShadDialog with overlay +: { content +: { body +: { ... } } }\n// Alert: ShadDialogAlert{ open: false } — closes on Cancel/Confirm/backdrop\n// Destructive: ShadDialogAlertDestructive{ open: false }\n\nmod.widgets.ShadButton{text: \"Open dialog\"}\nmod.widgets.ShadDialog{ open: false }\nmod.widgets.ShadDialogAlert{ open: false }\nmod.widgets.ShadDialogAlertDestructive{ open: false }\n\n// In handle_actions: call set_open(true) when trigger clicked.";

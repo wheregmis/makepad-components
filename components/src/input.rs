@@ -62,11 +62,11 @@ script_mod! {
             color_disabled: (shad_theme.color_muted_foreground)
         }
         draw_text.text_style.font_size: 11.0
-        
+
         draw_cursor +: {
             color: (shad_theme.color_primary)
         }
-        
+
         draw_selection +: {
             color: (shad_theme.color_muted)
         }

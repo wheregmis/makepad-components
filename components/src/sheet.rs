@@ -99,6 +99,11 @@ pub struct ShadSheet {
     #[rust]
     is_synced_open: bool,
 
+    #[rust]
+    last_side: String,
+    #[rust]
+    is_side_initialized: bool,
+
     #[layout]
     layout: Layout,
     #[walk]
@@ -107,8 +112,17 @@ pub struct ShadSheet {
 
 impl ShadSheet {
     fn sync_side_layout(&mut self, cx: &mut Cx) {
-        let side = self.side.as_ref();
-        let (align, content_width, content_height) = match side {
+        let current_side = self.side.as_ref();
+
+        // Optimization: only reapply script evaluation if the side has changed or on first run
+        if self.is_side_initialized && current_side == self.last_side.as_str() {
+            return;
+        }
+
+        self.last_side = current_side.to_string();
+        self.is_side_initialized = true;
+
+        let (align, content_width, content_height) = match current_side {
             "left" => (
                 Align { x: 0.0, y: 0.0 },
                 Size::Fixed(self.sheet_size),
