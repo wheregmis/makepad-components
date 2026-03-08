@@ -1,5 +1,5 @@
-use makepad_components::makepad_widgets::*;
 use crate::ui::snippets::SHEET_PREVIEW_CODE;
+use makepad_components::makepad_widgets::*;
 
 script_mod! {
     use mod.prelude.widgets.*
