@@ -6,6 +6,7 @@ script_mod! {
 
     mod.widgets.ShadButton = mod.widgets.ButtonFlat{
         height: 36
+        cursor: MouseCursor.Hand
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: (shad_theme.color_primary_foreground)
@@ -25,6 +26,7 @@ script_mod! {
 
     mod.widgets.ShadButtonDestructive = mod.widgets.ButtonFlat{
         height: 36
+        cursor: MouseCursor.Hand
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: (shad_theme.color_destructive)
@@ -44,6 +46,7 @@ script_mod! {
 
     mod.widgets.ShadButtonOutline = mod.widgets.ButtonFlat{
         height: 36
+        cursor: MouseCursor.Hand
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: #0000
@@ -66,6 +69,7 @@ script_mod! {
 
     mod.widgets.ShadButtonSecondary = mod.widgets.ButtonFlat{
         height: 36
+        cursor: MouseCursor.Hand
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: (shad_theme.color_secondary)
@@ -85,6 +89,7 @@ script_mod! {
 
     mod.widgets.ShadButtonGhost = mod.widgets.ButtonFlat{
         height: 36
+        cursor: MouseCursor.Hand
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: #0000
@@ -104,6 +109,7 @@ script_mod! {
 
     mod.widgets.ShadButtonLink = mod.widgets.ButtonFlat{
         height: 36
+        cursor: MouseCursor.Hand
         padding: Inset{left: 4, right: 4, top: 0, bottom: 0}
         draw_bg +: {
             color: #0000
