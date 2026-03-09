@@ -119,10 +119,10 @@ impl GalleryCodeSnippetSimple {
         let current_raw = self.code.as_ref();
         if current_raw != self.last_code.as_str() {
             self.last_code = current_raw.to_string();
-            let trimmed = current_raw.trim().to_string();
+            let trimmed = current_raw.trim();
             let container = self.view.widget(cx, ids!(code_container));
             if !container.is_empty() {
-                container.label(cx, ids!(code_label)).set_text(cx, &trimmed);
+                container.label(cx, ids!(code_label)).set_text(cx, trimmed);
             }
         }
     }
