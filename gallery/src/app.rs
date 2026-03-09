@@ -1,5 +1,5 @@
-use makepad_components::makepad_widgets::*;
 use makepad_components::drawer::ShadDrawer;
+use makepad_components::makepad_widgets::*;
 use makepad_components::sheet::ShadSheet;
 use makepad_components::{ShadCarousel, ShadDialog, ShadSonner};
 
@@ -32,10 +32,9 @@ impl App {
         self.ui
             .view(cx, ids!(mobile_header))
             .set_visible(cx, self.is_small_screen);
-        self.ui.view(cx, ids!(sidebar)).set_visible(
-            cx,
-            !self.is_small_screen || self.sidebar_open,
-        );
+        self.ui
+            .view(cx, ids!(sidebar))
+            .set_visible(cx, !self.is_small_screen || self.sidebar_open);
         self.sync_mobile_sidebar_button(cx);
     }
 
@@ -92,6 +91,7 @@ impl App {
         ui.view(cx, code_indicator).set_visible(cx, show_code);
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn handle_preview_tabs(
         ui: &WidgetRef,
         cx: &mut Cx,
@@ -135,7 +135,12 @@ pub struct App {
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
         let content_flip = self.ui.page_flip(cx, ids!(content_flip));
-        if self.ui.button(cx, ids!(mobile_sidebar_button)).clicked(actions) && self.is_small_screen {
+        if self
+            .ui
+            .button(cx, ids!(mobile_sidebar_button))
+            .clicked(actions)
+            && self.is_small_screen
+        {
             self.sidebar_open = !self.sidebar_open;
             self.apply_responsive_visibility(cx);
         }
@@ -151,7 +156,13 @@ impl MatchEvent for App {
             live_id!(accordion_page),
             &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_alert), live_id!(alert_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_alert),
+            live_id!(alert_page),
+            &content_flip,
+        );
         if let Some(mut carousel) = self
             .ui
             .widget_flood(cx, ids!(carousel_demo))
@@ -166,8 +177,20 @@ impl MatchEvent for App {
             live_id!(aspect_ratio_page),
             &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_avatar), live_id!(avatar_page), &content_flip);
-        self.set_page(cx, actions, ids!(sidebar_badge), live_id!(badge_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_avatar),
+            live_id!(avatar_page),
+            &content_flip,
+        );
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_badge),
+            live_id!(badge_page),
+            &content_flip,
+        );
         self.set_page(
             cx,
             actions,
@@ -175,7 +198,13 @@ impl MatchEvent for App {
             live_id!(breadcrumb_page),
             &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_button), live_id!(button_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_button),
+            live_id!(button_page),
+            &content_flip,
+        );
         self.set_page(
             cx,
             actions,
@@ -183,9 +212,27 @@ impl MatchEvent for App {
             live_id!(button_group_page),
             &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_card), live_id!(card_page), &content_flip);
-        self.set_page(cx, actions, ids!(sidebar_carousel), live_id!(carousel_page), &content_flip);
-        self.set_page(cx, actions, ids!(sidebar_checkbox), live_id!(checkbox_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_card),
+            live_id!(card_page),
+            &content_flip,
+        );
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_carousel),
+            live_id!(carousel_page),
+            &content_flip,
+        );
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_checkbox),
+            live_id!(checkbox_page),
+            &content_flip,
+        );
         self.set_page(
             cx,
             actions,
@@ -193,7 +240,13 @@ impl MatchEvent for App {
             live_id!(collapsible_page),
             &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_dialog), live_id!(dialog_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_dialog),
+            live_id!(dialog_page),
+            &content_flip,
+        );
         if self.ui.button(cx, ids!(open_dialog_btn)).clicked(actions) {
             if let Some(mut d) = self
                 .ui
@@ -212,7 +265,11 @@ impl MatchEvent for App {
                 d.set_open(true);
             }
         }
-        if self.ui.button(cx, ids!(open_destructive_btn)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(open_destructive_btn))
+            .clicked(actions)
+        {
             if let Some(mut d) = self
                 .ui
                 .widget_flood(cx, ids!(destructive_dialog))
@@ -227,7 +284,13 @@ impl MatchEvent for App {
                 d.set_open(false);
             }
         }
-        self.set_page(cx, actions, ids!(sidebar_drawer), live_id!(drawer_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_drawer),
+            live_id!(drawer_page),
+            &content_flip,
+        );
         if self.ui.button(cx, ids!(open_drawer_btn)).clicked(actions) {
             let drawer = self.ui.widget_flood(cx, ids!(drawer_demo));
             if let Some(mut d) = drawer.borrow_mut::<ShadDrawer>() {
@@ -249,7 +312,13 @@ impl MatchEvent for App {
             live_id!(hover_card_page),
             &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_input), live_id!(input_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_input),
+            live_id!(input_page),
+            &content_flip,
+        );
         self.set_page(
             cx,
             actions,
@@ -271,7 +340,13 @@ impl MatchEvent for App {
             live_id!(scroll_area_page),
             &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_select), live_id!(select_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_select),
+            live_id!(select_page),
+            &content_flip,
+        );
         self.set_page(
             cx,
             actions,
@@ -279,7 +354,13 @@ impl MatchEvent for App {
             live_id!(separator_page),
             &content_flip,
         );
-        self.set_page(cx, actions, ids!(sidebar_sheet), live_id!(sheet_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_sheet),
+            live_id!(sheet_page),
+            &content_flip,
+        );
         self.set_page(
             cx,
             actions,
@@ -368,7 +449,13 @@ impl MatchEvent for App {
                 s.set_open(true);
             }
         }
-        self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page), &content_flip);
+        self.set_page(
+            cx,
+            actions,
+            ids!(sidebar_spinner),
+            live_id!(spinner_page),
+            &content_flip,
+        );
 
         if self.ui.button(cx, ids!(tooltip_basic_btn)).clicked(actions) {
             let trigger = self.ui.button(cx, ids!(tooltip_basic_btn));
@@ -378,11 +465,17 @@ impl MatchEvent for App {
                 x: content_rect.pos.x + trigger_rect.pos.x,
                 y: content_rect.pos.y + trigger_rect.pos.y + trigger_rect.size.y + 8.0,
             };
-            self.ui
-                .tooltip(cx, ids!(basic_tooltip))
-                .show_with_options(cx, pos, "Helpful context for a nearby action.");
+            self.ui.tooltip(cx, ids!(basic_tooltip)).show_with_options(
+                cx,
+                pos,
+                "Helpful context for a nearby action.",
+            );
         }
-        if self.ui.button(cx, ids!(tooltip_callout_btn)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(tooltip_callout_btn))
+            .clicked(actions)
+        {
             let tooltip_ref = self.ui.widget_flood(cx, ids!(callout_tooltip));
             if !tooltip_ref.is_empty() {
                 let trigger = self.ui.button(cx, ids!(tooltip_callout_btn));
@@ -404,7 +497,11 @@ impl MatchEvent for App {
             }
         }
 
-        if self.ui.button(cx, ids!(tabs_overview_trigger)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(tabs_overview_trigger))
+            .clicked(actions)
+        {
             self.ui
                 .page_flip(cx, ids!(tabs_content_flip))
                 .set_active_page(cx, live_id!(overview_page));
@@ -418,7 +515,11 @@ impl MatchEvent for App {
                 .view(cx, ids!(tabs_settings_indicator))
                 .set_visible(cx, false);
         }
-        if self.ui.button(cx, ids!(tabs_usage_trigger)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(tabs_usage_trigger))
+            .clicked(actions)
+        {
             self.ui
                 .page_flip(cx, ids!(tabs_content_flip))
                 .set_active_page(cx, live_id!(usage_page));
@@ -432,7 +533,11 @@ impl MatchEvent for App {
                 .view(cx, ids!(tabs_settings_indicator))
                 .set_visible(cx, false);
         }
-        if self.ui.button(cx, ids!(tabs_settings_trigger)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(tabs_settings_trigger))
+            .clicked(actions)
+        {
             self.ui
                 .page_flip(cx, ids!(tabs_content_flip))
                 .set_active_page(cx, live_id!(settings_page));
@@ -447,28 +552,44 @@ impl MatchEvent for App {
                 .set_visible(cx, true);
         }
 
-        if self.ui.button(cx, ids!(open_right_sheet_btn)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(open_right_sheet_btn))
+            .clicked(actions)
+        {
             let sheet = self.ui.widget_flood(cx, ids!(right_sheet));
             if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
                 s.set_open(true);
             }
             sheet.redraw(cx);
         }
-        if self.ui.button(cx, ids!(open_left_sheet_btn)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(open_left_sheet_btn))
+            .clicked(actions)
+        {
             let sheet = self.ui.widget_flood(cx, ids!(left_sheet));
             if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
                 s.set_open(true);
             }
             sheet.redraw(cx);
         }
-        if self.ui.button(cx, ids!(open_top_sheet_btn)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(open_top_sheet_btn))
+            .clicked(actions)
+        {
             let sheet = self.ui.widget_flood(cx, ids!(top_sheet));
             if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
                 s.set_open(true);
             }
             sheet.redraw(cx);
         }
-        if self.ui.button(cx, ids!(open_bottom_sheet_btn)).clicked(actions) {
+        if self
+            .ui
+            .button(cx, ids!(open_bottom_sheet_btn))
+            .clicked(actions)
+        {
             let sheet = self.ui.widget_flood(cx, ids!(bottom_sheet));
             if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
                 s.set_open(true);
@@ -511,7 +632,12 @@ impl MatchEvent for App {
             ids!(input_code_indicator),
         );
         let tooltip_ref = self.ui.widget_flood(cx, ids!(hover_card_tooltip));
-        if self.ui.button(cx, ids!(hover_card_trigger)).clicked(actions) && !tooltip_ref.is_empty() {
+        if self
+            .ui
+            .button(cx, ids!(hover_card_trigger))
+            .clicked(actions)
+            && !tooltip_ref.is_empty()
+        {
             self.hover_card_open = !self.hover_card_open;
             if let Some(mut ct) = tooltip_ref.borrow_mut::<CalloutTooltip>() {
                 if self.hover_card_open {
@@ -624,7 +750,6 @@ impl MatchEvent for App {
             ids!(spinner_demo_indicator),
             ids!(spinner_code_indicator),
         );
-
     }
 }
 
@@ -635,7 +760,9 @@ impl AppMain for App {
                 self.sidebar_open = true;
                 self.apply_responsive_visibility(cx);
             }
-            Event::WindowGeomChange(geom) => self.update_screen_mode(cx, geom.new_geom.inner_size.x),
+            Event::WindowGeomChange(geom) => {
+                self.update_screen_mode(cx, geom.new_geom.inner_size.x)
+            }
             _ => {}
         }
         self.match_event(cx, event);
