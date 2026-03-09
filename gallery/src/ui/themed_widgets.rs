@@ -122,7 +122,9 @@ impl GalleryCodeSnippetSimple {
             let trimmed = current_raw.trim();
             let container = self.view.widget(cx, ids!(code_container));
             if !container.is_empty() {
-                container.label(cx, ids!(code_label)).set_text(cx, trimmed);
+                container
+                    .label(cx, ids!(code_label))
+                    .set_text(cx, &current_code);
             }
         }
     }
