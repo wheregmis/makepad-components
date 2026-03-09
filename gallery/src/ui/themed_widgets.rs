@@ -113,9 +113,13 @@ pub struct GalleryCodeSnippetSimple {
 
 impl GalleryCodeSnippetSimple {
     fn sync_code(&mut self, cx: &mut Cx) {
-        let current_code = self.code.as_ref().trim().to_string();
-        if current_code != self.last_code {
-            self.last_code = current_code.clone();
+        // Optimization: avoid repeated string allocations in handle_event/draw_walk loops
+        // Previously: called trim().to_string() unconditionally on every frame/event
+        // Now: check raw ArcStringMut reference first, only allocate if it changed
+        let current_raw = self.code.as_ref();
+        if current_raw != self.last_code.as_str() {
+            self.last_code = current_raw.to_string();
+            let trimmed = current_raw.trim();
             let container = self.view.widget(cx, ids!(code_container));
             if !container.is_empty() {
                 container

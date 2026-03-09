@@ -91,6 +91,7 @@ impl App {
         ui.view(cx, code_indicator).set_visible(cx, show_code);
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn handle_preview_tabs(
         ui: &WidgetRef,
         cx: &mut Cx,

@@ -142,6 +142,7 @@ script_mod! {
     mod.widgets.ShadButtonIcon = mod.widgets.ShadButton{
         width: 36
         height: 36
+        cursor: MouseCursor.Hand
         spacing: 0.0
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
     }
