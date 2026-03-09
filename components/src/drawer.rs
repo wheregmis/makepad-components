@@ -142,10 +142,8 @@ impl ShadDrawer {
             if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
                 modal.open(cx);
             }
-        } else {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.close(cx);
-            }
+        } else if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
+            modal.close(cx);
         }
 
         self.is_synced_open = self.open;

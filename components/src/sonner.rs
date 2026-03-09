@@ -202,10 +202,8 @@ impl Widget for ShadSonner {
                     self.open = false;
                 }
             }
-        } else {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.close(cx);
-            }
+        } else if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
+            modal.close(cx);
         }
     }
 
