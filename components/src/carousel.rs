@@ -241,7 +241,7 @@ impl Widget for ShadCarouselDots {
         }
         if let Hit::FingerDown(fe) = event.hits(cx, self.area) {
             if fe.is_primary_hit() {
-                if let Some(i) = self.hit_to_index(cx, fe.abs.into()) {
+                if let Some(i) = self.hit_to_index(cx, fe.abs) {
                     cx.widget_action_with_data(
                         &self.action_data,
                         self.widget_uid(),
