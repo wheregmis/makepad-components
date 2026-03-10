@@ -64,17 +64,18 @@ script_mod! {
             color_hover: uniform(shad_theme.color_primary)
 
             pixel: fn() {
-                let sz = 3.5
+                let sz = 4.0
                 let c = self.rect_size * 0.5
                 let sdf = Sdf2d.viewport(self.pos * self.rect_size)
                 sdf.clear(vec4(0.0))
 
-                // 0 = right chevron, 1 = down chevron
+                // 0 = right chevron, 1 = down chevron. Use filled triangle for crisp edges.
                 sdf.rotate(self.active * 0.5 * PI, c.x, c.y)
                 sdf.move_to(c.x - sz, c.y - sz)
                 sdf.line_to(c.x + sz, c.y)
                 sdf.line_to(c.x - sz, c.y + sz)
-                sdf.stroke(mix(self.color, self.color_hover, self.hover), 1.4)
+                sdf.close_path()
+                sdf.fill(mix(self.color, self.color_hover, self.hover))
 
                 return sdf.result
             }
