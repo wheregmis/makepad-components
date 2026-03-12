@@ -35,7 +35,6 @@ pub mod spinner_page;
 pub mod switch_page;
 pub mod tabs_page;
 pub mod themed_widgets;
-pub mod tooltip_page;
 
 pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::themed_widgets::script_mod(vm);
@@ -65,7 +64,6 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::skeleton_page::script_mod(vm);
     crate::ui::switch_page::script_mod(vm);
     crate::ui::tabs_page::script_mod(vm);
-    crate::ui::tooltip_page::script_mod(vm);
     crate::ui::kbd_page::script_mod(vm);
     crate::ui::label_page::script_mod(vm);
     crate::ui::progress_page::script_mod(vm);

@@ -32,7 +32,6 @@ script_mod! {
         skeleton_page := mod.widgets.GallerySkeletonPage{}
         switch_page := mod.widgets.GallerySwitchPage{}
         tabs_page := mod.widgets.GalleryTabsPage{}
-        tooltip_page := mod.widgets.GalleryTooltipPage{}
         kbd_page := mod.widgets.GalleryKbdPage{}
         label_page := mod.widgets.GalleryLabelPage{}
         progress_page := mod.widgets.GalleryProgressPage{}

@@ -42,7 +42,6 @@ script_mod! {
             sidebar_skeleton := ShadSidebarItem{text: "Skeleton"}
             sidebar_switch := ShadSidebarItem{text: "Switch"}
             sidebar_tabs := ShadSidebarItem{text: "Tabs"}
-            sidebar_tooltip := ShadSidebarItem{text: "Tooltip"}
             sidebar_kbd := ShadSidebarItem{text: "Kbd"}
             sidebar_progress := ShadSidebarItem{text: "Progress"}
             sidebar_label := ShadSidebarItem{text: "Label"}

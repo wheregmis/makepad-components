@@ -99,38 +99,6 @@ impl App {
         ui.page_flip(cx, flip).set_active_page(cx, page);
     }
 
-    fn show_basic_tooltip(&self, cx: &mut Cx) {
-        let trigger = self.ui.button(cx, ids!(tooltip_basic_btn));
-        let trigger_rect = trigger.area().rect(cx);
-        let pos = Vec2d {
-            x: trigger_rect.pos.x,
-            y: trigger_rect.pos.y + trigger_rect.size.y + 8.0,
-        };
-        self.ui.tooltip(cx, ids!(basic_tooltip)).show_with_options(
-            cx,
-            pos,
-            "Helpful context for a nearby action.",
-        );
-    }
-
-    fn show_callout_tooltip(&self, cx: &mut Cx) {
-        let trigger = self.ui.button(cx, ids!(tooltip_callout_btn));
-        let rect = trigger.area().rect(cx);
-        self.ui.callout_tooltip(cx, ids!(callout_tooltip)).show_with_options(
-            cx,
-            "Callout tooltips can point at the related control.",
-            rect,
-            CalloutTooltipOptions {
-                position: TooltipPosition::Right,
-                ..Default::default()
-            },
-        );
-    }
-
-    fn hide_callout_tooltip(&self, cx: &mut Cx) {
-        self.ui.callout_tooltip(cx, ids!(callout_tooltip)).hide(cx);
-    }
-
     #[allow(clippy::too_many_arguments)]
     fn handle_preview_tabs(
         ui: &WidgetRef,
@@ -378,13 +346,6 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_tabs),
             live_id!(tabs_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_tooltip),
-            live_id!(tooltip_page),
             content_flip,
         );
         self.set_page(
@@ -866,16 +827,6 @@ impl MatchEvent for App {
             ids!(tabs_demo_indicator),
             ids!(tabs_code_indicator),
         );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(tooltip_demo_tab),
-            ids!(tooltip_code_tab),
-            ids!(tooltip_preview_flip),
-            ids!(tooltip_demo_indicator),
-            ids!(tooltip_code_indicator),
-        );
     }
 }
 
@@ -902,16 +853,5 @@ impl AppMain for App {
         self.match_event(cx, event);
         self.ui.handle_event(cx, event, &mut Scope::empty());
 
-        match event.hits(cx, self.ui.button(cx, ids!(tooltip_basic_btn)).area()) {
-            Hit::FingerHoverIn(_) => self.show_basic_tooltip(cx),
-            Hit::FingerHoverOut(_) => self.ui.tooltip(cx, ids!(basic_tooltip)).hide(cx),
-            _ => {}
-        }
-
-        match event.hits(cx, self.ui.button(cx, ids!(tooltip_callout_btn)).area()) {
-            Hit::FingerHoverIn(_) => self.show_callout_tooltip(cx),
-            Hit::FingerHoverOut(_) => self.hide_callout_tooltip(cx),
-            _ => {}
-        }
     }
 }

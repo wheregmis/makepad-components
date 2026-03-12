@@ -38,7 +38,6 @@ pub mod spinner;
 pub mod switch;
 pub mod tabs;
 pub mod theme;
-pub mod tooltip;
 
 pub fn script_mod(vm: &mut ScriptVm) {
     makepad_icon::script_mod(vm);
@@ -75,5 +74,4 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::spinner::script_mod(vm);
     crate::switch::script_mod(vm);
     crate::tabs::script_mod(vm);
-    crate::tooltip::script_mod(vm);
 }
