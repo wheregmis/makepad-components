@@ -4,7 +4,7 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryContentFlip = PageFlip{
+    mod.widgets.GalleryContentFlip = mod.widgets.GalleryPageFlipBase{
         width: Fill
         height: Fill
         active_page: @accordion_page

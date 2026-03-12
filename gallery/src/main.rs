@@ -2,6 +2,7 @@ pub use makepad_widgets;
 
 mod ui;
 
+use crate::ui::content_flip::GalleryPageFlip;
 use makepad_components::makepad_widgets::*;
 use makepad_components::sheet::ShadSheet;
 use makepad_components::{ShadCarousel, ShadDialog, ShadSonner};
@@ -90,6 +91,11 @@ impl App {
     }
 
     fn set_flip_page(ui: &WidgetRef, cx: &mut Cx, flip: &[LiveId], page: LiveId) {
+        let widget = ui.widget_flood(cx, flip);
+        if let Some(mut gallery_flip) = widget.borrow_mut::<GalleryPageFlip>() {
+            gallery_flip.set_active_page(cx, page);
+            return;
+        }
         ui.page_flip(cx, flip).set_active_page(cx, page);
     }
 
