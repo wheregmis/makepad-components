@@ -1,0 +1,14 @@
+[package]
+name = "makepad-router-widgets"
+version = "1.0.0"
+edition = "2021"
+authors = ["Makepad <info@makepad.nl>"]
+description = "Router widgets for Makepad"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+makepad-router-core = { workspace = true }
+makepad-draw = { workspace = true }
+makepad-widgets = { workspace = true }
+makepad-live-id = { workspace = true }
+makepad-micro-serde = { workspace = true }

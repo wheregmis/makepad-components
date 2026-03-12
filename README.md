@@ -411,6 +411,8 @@ Run it to validate behavior and styling changes quickly.
 
 GitHub Actions workflow: `.github/workflows/wasm-pages.yml`
 
+For clean-path deep links on GitHub Pages, deploy both `index.html` and a copy of it as `404.html`. The Pages workflow in this repo patches `index.html` for subpath hosting and then reuses that patched app shell as `404.html` so refreshes on routes like `/scroll-area` still bootstrap the app.
+
 On pushes to `main`/`master` (or manual dispatch), it:
 - Installs Rust + system dependencies
 - Installs `cargo-makepad`

@@ -3,12 +3,53 @@ pub use makepad_widgets;
 mod ui;
 
 use crate::ui::command_palette::GalleryCommandPalette;
-use crate::ui::content_flip::GalleryPageFlip;
 use makepad_components::context_menu::ShadContextMenu;
 use makepad_components::input_otp::ShadInputOtp;
 use makepad_components::makepad_widgets::*;
 use makepad_components::sheet::ShadSheet;
 use makepad_components::{ShadCarousel, ShadDialog, ShadSonner};
+use makepad_router::RouterWidgetWidgetRefExt;
+
+const SIDEBAR_ROUTES: &[(LiveId, LiveId)] = &[
+    (live_id!(sidebar_accordion), live_id!(accordion_page)),
+    (live_id!(sidebar_alert), live_id!(alert_page)),
+    (live_id!(sidebar_aspect_ratio), live_id!(aspect_ratio_page)),
+    (live_id!(sidebar_avatar), live_id!(avatar_page)),
+    (live_id!(sidebar_badge), live_id!(badge_page)),
+    (live_id!(sidebar_breadcrumb), live_id!(breadcrumb_page)),
+    (live_id!(sidebar_button), live_id!(button_page)),
+    (live_id!(sidebar_button_group), live_id!(button_group_page)),
+    (live_id!(sidebar_card), live_id!(card_page)),
+    (live_id!(sidebar_carousel), live_id!(carousel_page)),
+    (live_id!(sidebar_checkbox), live_id!(checkbox_page)),
+    (live_id!(sidebar_collapsible), live_id!(collapsible_page)),
+    (
+        live_id!(sidebar_command_palette),
+        live_id!(command_palette_page),
+    ),
+    (live_id!(sidebar_context_menu), live_id!(context_menu_page)),
+    (live_id!(sidebar_dialog), live_id!(dialog_page)),
+    (live_id!(sidebar_input), live_id!(input_page)),
+    (live_id!(sidebar_input_otp), live_id!(input_otp_page)),
+    (live_id!(sidebar_radio_group), live_id!(radio_group_page)),
+    (live_id!(sidebar_resizable), live_id!(resizable_page)),
+    (live_id!(sidebar_scroll_area), live_id!(scroll_area_page)),
+    (live_id!(sidebar_select), live_id!(select_page)),
+    (live_id!(sidebar_separator), live_id!(separator_page)),
+    (live_id!(sidebar_sheet), live_id!(sheet_page)),
+    (live_id!(sidebar_skeleton), live_id!(skeleton_page)),
+    (live_id!(sidebar_switch), live_id!(switch_page)),
+    (live_id!(sidebar_tabs), live_id!(tabs_page)),
+    (live_id!(sidebar_textarea), live_id!(textarea_page)),
+    (live_id!(sidebar_toggle), live_id!(toggle_page)),
+    (live_id!(sidebar_kbd), live_id!(kbd_page)),
+    (live_id!(sidebar_label), live_id!(label_page)),
+    (live_id!(sidebar_progress), live_id!(progress_page)),
+    (live_id!(sidebar_sidebar), live_id!(sidebar_page)),
+    (live_id!(sidebar_slider), live_id!(slider_page)),
+    (live_id!(sidebar_sonner), live_id!(sonner_page)),
+    (live_id!(sidebar_spinner), live_id!(spinner_page)),
+];
 
 app_main!(App);
 
@@ -24,20 +65,17 @@ script_mod! {
 impl App {
     const SMALL_SCREEN_WIDTH: f64 = 900.0;
 
-    fn try_focus_app_shell(&mut self, cx: &mut Cx) -> bool {
-        let app_shell = self.ui.widget_flood(cx, ids!(app_shell));
-        if app_shell.area() != Area::Empty {
-            app_shell.set_key_focus(cx);
-            true
-        } else {
-            false
-        }
+    fn widget_button_clicked(ui: &WidgetRef, cx: &Cx, actions: &Actions, path: &[LiveId]) -> bool {
+        let widget = ui.widget_flood(cx, path);
+        actions
+            .find_widget_action(widget.widget_uid())
+            .is_some_and(|action| matches!(action.cast(), ButtonAction::Clicked(_)))
     }
 
     fn set_current_page(&mut self, cx: &mut Cx, page: LiveId) {
-        let nav = self.ui.stack_navigation(cx, ids!(content_flip));
-        nav.pop_to_root(cx);
-        nav.push(cx, page);
+        self.ui
+            .router_widget(cx, ids!(content_flip))
+            .go_to_route(cx, page);
         if self.is_small_screen {
             self.sidebar_open = false;
             self.apply_responsive_visibility(cx);
@@ -97,17 +135,12 @@ impl App {
         self.apply_responsive_visibility(cx);
     }
 
-    fn set_page(
-        &mut self,
-        cx: &mut Cx,
-        actions: &Actions,
-        sidebar_button: &[LiveId],
-        page: LiveId,
-        content_flip: &[LiveId],
-    ) {
-        if self.ui.button(cx, sidebar_button).clicked(actions) {
-            let _ = content_flip;
-            self.set_current_page(cx, page);
+    fn handle_sidebar_navigation(&mut self, cx: &mut Cx, actions: &Actions) {
+        for (button_id, page_id) in SIDEBAR_ROUTES {
+            if self.ui.button(cx, &[*button_id]).clicked(actions) {
+                self.set_current_page(cx, *page_id);
+                break;
+            }
         }
     }
 
@@ -135,9 +168,11 @@ impl App {
 
     fn set_gallery_flip_page(ui: &WidgetRef, cx: &mut Cx, flip: &[LiveId], page: LiveId) {
         let widget = ui.widget_flood(cx, flip);
-        if let Some(mut gallery_flip) = widget.borrow_mut::<GalleryPageFlip>() {
-            gallery_flip.set_active_page(cx, page);
-        };
+        if let Some(mut page_flip) = widget.borrow_mut::<PageFlip>() {
+            page_flip.set_active_page(cx, page);
+            return;
+        }
+        ui.router_widget(cx, flip).go_to_route(cx, page);
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -151,11 +186,11 @@ impl App {
         demo_indicator: &[LiveId],
         code_indicator: &[LiveId],
     ) {
-        if ui.button(cx, demo_button).clicked(actions) {
+        if Self::widget_button_clicked(ui, cx, actions, demo_button) {
             Self::set_preview_mode(ui, cx, flip, demo_indicator, code_indicator, false);
         }
 
-        if ui.button(cx, code_button).clicked(actions) {
+        if Self::widget_button_clicked(ui, cx, actions, code_button) {
             Self::set_preview_mode(ui, cx, flip, demo_indicator, code_indicator, true);
         }
     }
@@ -169,13 +204,10 @@ pub struct App {
     is_small_screen: bool,
     #[rust]
     sidebar_open: bool,
-    #[rust]
-    focus_shell_next_frame: NextFrame,
 }
 
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
-        let content_flip = ids!(content_flip);
         let palette = self.ui.widget_flood(cx, ids!(command_palette));
         if let Some(page) = actions
             .find_widget_action(palette.widget_uid())
@@ -196,20 +228,7 @@ impl MatchEvent for App {
             self.apply_responsive_visibility(cx);
         }
 
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_accordion),
-            live_id!(accordion_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_alert),
-            live_id!(alert_page),
-            content_flip,
-        );
+        self.handle_sidebar_navigation(cx, actions);
         if let Some(mut carousel) = self
             .ui
             .widget_flood(cx, ids!(carousel_demo))
@@ -217,90 +236,6 @@ impl MatchEvent for App {
         {
             carousel.handle_actions(cx, actions);
         }
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_aspect_ratio),
-            live_id!(aspect_ratio_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_avatar),
-            live_id!(avatar_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_badge),
-            live_id!(badge_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_breadcrumb),
-            live_id!(breadcrumb_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_button),
-            live_id!(button_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_button_group),
-            live_id!(button_group_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_card),
-            live_id!(card_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_carousel),
-            live_id!(carousel_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_checkbox),
-            live_id!(checkbox_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_collapsible),
-            live_id!(collapsible_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_command_palette),
-            live_id!(command_palette_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_context_menu),
-            live_id!(context_menu_page),
-            content_flip,
-        );
         if self
             .ui
             .button(cx, ids!(open_command_palette_btn))
@@ -308,13 +243,6 @@ impl MatchEvent for App {
         {
             self.open_command_palette(cx);
         }
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_dialog),
-            live_id!(dialog_page),
-            content_flip,
-        );
         if self.ui.button(cx, ids!(open_dialog_btn)).clicked(actions) {
             if let Some(mut d) = self
                 .ui
@@ -352,139 +280,6 @@ impl MatchEvent for App {
                 d.set_open(false);
             }
         }
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_input),
-            live_id!(input_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_input_otp),
-            live_id!(input_otp_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_radio_group),
-            live_id!(radio_group_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_resizable),
-            live_id!(resizable_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_scroll_area),
-            live_id!(scroll_area_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_select),
-            live_id!(select_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_separator),
-            live_id!(separator_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_sheet),
-            live_id!(sheet_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_skeleton),
-            live_id!(skeleton_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_switch),
-            live_id!(switch_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_tabs),
-            live_id!(tabs_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_textarea),
-            live_id!(textarea_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_toggle),
-            live_id!(toggle_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_kbd),
-            live_id!(kbd_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_label),
-            live_id!(label_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_progress),
-            live_id!(progress_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_sidebar),
-            live_id!(sidebar_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_slider),
-            live_id!(slider_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_sonner),
-            live_id!(sonner_page),
-            content_flip,
-        );
         if self.ui.button(cx, ids!(toast_event_btn)).clicked(actions) {
             if let Some(mut s) = self
                 .ui
@@ -529,32 +324,28 @@ impl MatchEvent for App {
                 .label(cx, ids!(context_menu_status))
                 .set_text(cx, &format!("Selected: {}", label));
         }
-        if let Some(value) = self
-            .ui
-            .widget_flood(cx, ids!(otp_demo))
-            .borrow::<ShadInputOtp>()
-            .and_then(|inner| inner.completed(actions))
-        {
-            self.ui
-                .label(cx, ids!(otp_status))
-                .set_text(cx, &format!("Completed: {}", value));
-        } else if let Some(value) = self
-            .ui
-            .widget_flood(cx, ids!(otp_demo))
-            .borrow::<ShadInputOtp>()
-            .and_then(|inner| inner.changed(actions))
-        {
-            self.ui
-                .label(cx, ids!(otp_status))
-                .set_text(cx, &format!("Current value: {}", value));
+        let otp_demo = self.ui.widget_flood(cx, ids!(otp_demo));
+        let otp_state = otp_demo.borrow::<ShadInputOtp>().map(|inner| {
+            (
+                inner.completed(actions),
+                inner.changed(actions),
+                inner.value().to_string(),
+            )
+        });
+        if let Some((completed, changed, current_value)) = otp_state {
+            let status = if let Some(value) = completed {
+                format!("Completed: {}", value)
+            } else if let Some(value) = changed {
+                format!("Current value: {}", value)
+            } else if current_value.len() >= 6 {
+                format!("Completed: {}", current_value)
+            } else if !current_value.is_empty() {
+                format!("Current value: {}", current_value)
+            } else {
+                "Waiting for input.".to_string()
+            };
+            self.ui.label(cx, ids!(otp_status)).set_text(cx, &status);
         }
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_spinner),
-            live_id!(spinner_page),
-            content_flip,
-        );
 
         if self
             .ui
@@ -1035,35 +826,24 @@ impl MatchEvent for App {
 impl AppMain for App {
     fn script_mod(vm: &mut ScriptVm) -> ScriptValue {
         crate::makepad_widgets::script_mod(vm);
-        makepad_code_editor::script_mod(vm);
         makepad_components::script_mod(vm);
+        makepad_router::script_mod(vm);
         crate::ui::script_mod(vm);
         self::script_mod(vm)
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
-        #[allow(clippy::collapsible_if)]
-        if self.focus_shell_next_frame.is_event(event).is_some() {
-            if !self.try_focus_app_shell(cx) {
-                self.focus_shell_next_frame = cx.new_next_frame();
-            }
-        }
-
         match event {
             Event::Startup => {
                 self.sidebar_open = true;
                 self.apply_responsive_visibility(cx);
                 self.set_current_page(cx, live_id!(accordion_page));
-                self.focus_shell_next_frame = cx.new_next_frame();
             }
             Event::MacosMenuCommand(command) => {
                 if *command == live_id!(command_palette_menu) {
                     self.open_command_palette(cx);
                     return;
                 }
-            }
-            Event::WindowGotFocus(_) => {
-                self.focus_shell_next_frame = cx.new_next_frame();
             }
             Event::WindowGeomChange(geom) => {
                 self.update_screen_mode(cx, geom.new_geom.inner_size.x)

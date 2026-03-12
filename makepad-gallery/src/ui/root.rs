@@ -22,122 +22,153 @@ script_mod! {
         }
     }
 
-    mod.widgets.GalleryContentFlip = StackNavigation{
+    mod.widgets.GalleryContentFlip = RouterWidget{
         width: Fill
         height: Fill
+        default_route: @accordion_page
+        not_found_route: @accordion_page
+        sync_browser_url: true
 
-        root_view +: {
-            width: Fill
-            height: Fill
-            flow: Overlay
-            show_bg: true
-            draw_bg.color: (shad_theme.color_background)
+        accordion_page := RouterRoute{
+            route_pattern: "/"
+            route_transition: @none
+            mod.widgets.GalleryAccordionPage{}
         }
-
-        accordion_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryAccordionPage{} }
+        alert_page := RouterRoute{
+            route_pattern: "/alert"
+            mod.widgets.GalleryAlertPage{}
         }
-        alert_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryAlertPage{} }
+        aspect_ratio_page := RouterRoute{
+            route_pattern: "/aspect-ratio"
+            mod.widgets.GalleryAspectRatioPage{}
         }
-        aspect_ratio_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryAspectRatioPage{} }
+        avatar_page := RouterRoute{
+            route_pattern: "/avatar"
+            mod.widgets.GalleryAvatarPage{}
         }
-        avatar_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryAvatarPage{} }
+        badge_page := RouterRoute{
+            route_pattern: "/badge"
+            mod.widgets.GalleryBadgePage{}
         }
-        badge_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryBadgePage{} }
+        breadcrumb_page := RouterRoute{
+            route_pattern: "/breadcrumb"
+            mod.widgets.GalleryBreadcrumbPage{}
         }
-        breadcrumb_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryBreadcrumbPage{} }
+        button_page := RouterRoute{
+            route_pattern: "/button"
+            mod.widgets.GalleryButtonPage{}
         }
-        button_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryButtonPage{} }
+        button_group_page := RouterRoute{
+            route_pattern: "/button-group"
+            mod.widgets.GalleryButtonGroupPage{}
         }
-        button_group_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryButtonGroupPage{} }
+        card_page := RouterRoute{
+            route_pattern: "/card"
+            mod.widgets.GalleryCardPage{}
         }
-        card_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryCardPage{} }
+        carousel_page := RouterRoute{
+            route_pattern: "/carousel"
+            mod.widgets.GalleryCarouselPage{}
         }
-        carousel_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryCarouselPage{} }
+        checkbox_page := RouterRoute{
+            route_pattern: "/checkbox"
+            mod.widgets.GalleryCheckboxPage{}
         }
-        checkbox_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryCheckboxPage{} }
+        collapsible_page := RouterRoute{
+            route_pattern: "/collapsible"
+            mod.widgets.GalleryCollapsiblePage{}
         }
-        collapsible_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryCollapsiblePage{} }
+        command_palette_page := RouterRoute{
+            route_pattern: "/command-palette"
+            mod.widgets.GalleryCommandPalettePage{}
         }
-        command_palette_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryCommandPalettePage{} }
+        context_menu_page := RouterRoute{
+            route_pattern: "/context-menu"
+            mod.widgets.GalleryContextMenuPage{}
         }
-        context_menu_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryContextMenuPage{} }
+        dialog_page := RouterRoute{
+            route_pattern: "/dialog"
+            mod.widgets.GalleryDialogPage{}
         }
-        dialog_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryDialogPage{} }
+        input_page := RouterRoute{
+            route_pattern: "/input"
+            mod.widgets.GalleryInputPage{}
         }
-        input_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryInputPage{} }
+        input_otp_page := RouterRoute{
+            route_pattern: "/input-otp"
+            mod.widgets.GalleryInputOtpPage{}
         }
-        input_otp_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryInputOtpPage{} }
+        radio_group_page := RouterRoute{
+            route_pattern: "/radio-group"
+            mod.widgets.GalleryRadioGroupPage{}
         }
-        radio_group_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryRadioGroupPage{} }
+        resizable_page := RouterRoute{
+            route_pattern: "/resizable"
+            mod.widgets.GalleryResizablePage{}
         }
-        resizable_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryResizablePage{} }
+        scroll_area_page := RouterRoute{
+            route_pattern: "/scroll-area"
+            mod.widgets.GalleryScrollAreaPage{}
         }
-        scroll_area_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryScrollAreaPage{} }
+        select_page := RouterRoute{
+            route_pattern: "/select"
+            mod.widgets.GallerySelectPage{}
         }
-        select_page := GalleryPageStackView{
-            body +: { mod.widgets.GallerySelectPage{} }
+        separator_page := RouterRoute{
+            route_pattern: "/separator"
+            mod.widgets.GallerySeparatorPage{}
         }
-        separator_page := GalleryPageStackView{
-            body +: { mod.widgets.GallerySeparatorPage{} }
+        sheet_page := RouterRoute{
+            route_pattern: "/sheet"
+            mod.widgets.GallerySheetPage{}
         }
-        sheet_page := GalleryPageStackView{
-            body +: { mod.widgets.GallerySheetPage{} }
+        skeleton_page := RouterRoute{
+            route_pattern: "/skeleton"
+            mod.widgets.GallerySkeletonPage{}
         }
-        skeleton_page := GalleryPageStackView{
-            body +: { mod.widgets.GallerySkeletonPage{} }
+        switch_page := RouterRoute{
+            route_pattern: "/switch"
+            mod.widgets.GallerySwitchPage{}
         }
-        switch_page := GalleryPageStackView{
-            body +: { mod.widgets.GallerySwitchPage{} }
+        tabs_page := RouterRoute{
+            route_pattern: "/tabs"
+            mod.widgets.GalleryTabsPage{}
         }
-        tabs_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryTabsPage{} }
+        textarea_page := RouterRoute{
+            route_pattern: "/textarea"
+            mod.widgets.GalleryTextareaPage{}
         }
-        textarea_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryTextareaPage{} }
+        toggle_page := RouterRoute{
+            route_pattern: "/toggle"
+            mod.widgets.GalleryTogglePage{}
         }
-        toggle_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryTogglePage{} }
+        kbd_page := RouterRoute{
+            route_pattern: "/kbd"
+            mod.widgets.GalleryKbdPage{}
         }
-        kbd_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryKbdPage{} }
+        label_page := RouterRoute{
+            route_pattern: "/label"
+            mod.widgets.GalleryLabelPage{}
         }
-        label_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryLabelPage{} }
+        progress_page := RouterRoute{
+            route_pattern: "/progress"
+            mod.widgets.GalleryProgressPage{}
         }
-        progress_page := GalleryPageStackView{
-            body +: { mod.widgets.GalleryProgressPage{} }
+        sidebar_page := RouterRoute{
+            route_pattern: "/sidebar"
+            mod.widgets.GallerySidebarPage{}
         }
-        sidebar_page := GalleryPageStackView{
-            body +: { mod.widgets.GallerySidebarPage{} }
+        slider_page := RouterRoute{
+            route_pattern: "/slider"
+            mod.widgets.GallerySliderPage{}
         }
-        slider_page := GalleryPageStackView{
-            body +: { mod.widgets.GallerySliderPage{} }
+        sonner_page := RouterRoute{
+            route_pattern: "/sonner"
+            mod.widgets.GallerySonnerPage{}
         }
-        sonner_page := GalleryPageStackView{
-            body +: { mod.widgets.GallerySonnerPage{} }
-        }
-        spinner_page := GalleryPageStackView{
-            body +: { mod.widgets.GallerySpinnerPage{} }
+        spinner_page := RouterRoute{
+            route_pattern: "/spinner"
+            mod.widgets.GallerySpinnerPage{}
         }
     }
 

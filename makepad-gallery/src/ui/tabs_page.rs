@@ -118,22 +118,26 @@ script_mod! {
                                 }
                             }
 
-                            tabs_content_flip := mod.widgets.GalleryPageFlip{
+                            tabs_content_flip := mod.widgets.RouterWidget{
                                 width: Fill
                                 height: Fit
-                                active_page: @overview_page
+                                default_route: @overview_page
+                                not_found_route: @overview_page
 
-                                overview_page := ShadTabsContent{
+                                overview_page := mod.widgets.RouterRoute{
+                                    route_pattern: "/"
                                     ShadSectionHeader{text: "Overview"}
                                     ShadFieldDescription{text: "Keep the page shell compact while switching between related content areas."}
                                 }
 
-                                usage_page := ShadTabsContent{
+                                usage_page := mod.widgets.RouterRoute{
+                                    route_pattern: "/usage"
                                     ShadSectionHeader{text: "Usage"}
                                     ShadFieldDescription{text: "Pair `ShadTabsTrigger` with `PageFlip` or another state holder in app code."}
                                 }
 
-                                settings_page := ShadTabsContent{
+                                settings_page := mod.widgets.RouterRoute{
+                                    route_pattern: "/settings"
                                     ShadSectionHeader{text: "Settings"}
                                     ShadFieldDescription{text: "This first pass focuses on composition and styling, not a fully stateful tab controller."}
                                 }

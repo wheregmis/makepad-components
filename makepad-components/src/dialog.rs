@@ -221,6 +221,8 @@ pub struct ShadDialog {
 
     #[live]
     open: bool,
+    #[rust]
+    is_synced_open: bool,
 
     #[layout]
     layout: Layout,
@@ -229,6 +231,22 @@ pub struct ShadDialog {
 }
 
 impl ShadDialog {
+    fn sync_open_state(&mut self, cx: &mut Cx) {
+        if self.is_synced_open == self.open {
+            return;
+        }
+
+        if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
+            if self.open {
+                modal.open(cx);
+            } else {
+                modal.close(cx);
+            }
+        }
+
+        self.is_synced_open = self.open;
+    }
+
     pub fn set_open(&mut self, open: bool) {
         self.open = open;
     }
@@ -262,10 +280,9 @@ impl Widget for ShadDialog {
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.sync_open_state(cx);
+
         if self.open {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.open(cx);
-            }
             self.overlay.handle_event(cx, event, scope);
             // Close when modal is dismissed (backdrop/Escape) or when cancel/confirm clicked (alert variants)
             if let Event::Actions(actions) = event {
@@ -309,20 +326,14 @@ impl Widget for ShadDialog {
                     self.open = false;
                 }
             }
-        } else if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-            modal.close(cx);
         }
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.sync_open_state(cx);
+
         if !self.open {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.close(cx);
-            }
             return DrawStep::done();
-        }
-        if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-            modal.open(cx);
         }
         cx.begin_turtle(walk, self.layout);
         let step = self

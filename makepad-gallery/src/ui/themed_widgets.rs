@@ -1,4 +1,3 @@
-use makepad_code_editor::code_view::CodeView;
 use makepad_components::makepad_widgets::*;
 
 script_mod! {
@@ -20,16 +19,22 @@ script_mod! {
                 border_radius: (shad_theme.radius)
             }
 
-            code_view := CodeView{
-                keep_cursor_at_end: false
-                editor +: {
-                    height: Fit
+            code_label := Label{
+                width: Fill
+                height: Fit
+                padding: 0
+                draw_text +: {
+                    color: (shad_theme.color_primary)
+                    text_style: theme.font_code{
+                        font_size: theme.font_size_code
+                        line_spacing: theme.font_longform_line_spacing
+                    }
                 }
             }
         }
     }
 
-    mod.widgets.GalleryPreviewStackNavigation = mod.widgets.GalleryPageFlip{
+    mod.widgets.GalleryPreviewStackNavigation = mod.widgets.PageFlip{
         width: Fill
         height: Fit
         active_page: @root_view
@@ -70,21 +75,18 @@ pub struct GalleryCodeSnippet {
 
 impl GalleryCodeSnippet {
     fn sync_code(&mut self, cx: &mut Cx) {
-        // Optimization: avoid repeated string allocations in handle_event/draw_walk loops
-        // Previously: called trim().to_string() unconditionally on every frame/event
-        // Now: check raw ArcStringMut reference first, only allocate if it changed
         let current_raw = self.code.as_ref();
-        if current_raw != self.last_code.as_str() {
-            self.last_code = current_raw.to_string();
-            let trimmed = current_raw.trim();
-            if let Some(mut cv) = self
-                .view
-                .widget(cx, ids!(code_view))
-                .borrow_mut::<CodeView>()
-            {
-                cv.set_text(cx, trimmed);
-            }
+        if current_raw == self.last_code.as_str() {
+            return;
         }
+
+        let label = self.view.widget(cx, ids!(code_label));
+        if label.is_empty() {
+            return;
+        }
+
+        label.set_text(cx, current_raw.trim());
+        self.last_code = current_raw.to_string();
     }
 }
 

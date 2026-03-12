@@ -1,0 +1,11 @@
+[package]
+name = "makepad-router-core"
+version = "1.0.0"
+edition = "2021"
+authors = ["Makepad <info@makepad.nl>"]
+description = "Core routing types for Makepad"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+makepad-live-id = { workspace = true }
+makepad-micro-serde = { workspace = true }

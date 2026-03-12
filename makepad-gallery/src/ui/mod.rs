@@ -14,7 +14,6 @@ pub mod checkbox_page;
 pub mod collapsible_page;
 pub mod command_palette;
 pub mod command_palette_page;
-pub mod content_flip;
 pub mod context_menu_page;
 pub mod dialog_page;
 pub mod input_otp_page;
@@ -43,7 +42,6 @@ pub mod themed_widgets;
 pub mod toggle_page;
 
 pub fn script_mod(vm: &mut ScriptVm) {
-    crate::ui::content_flip::script_mod(vm);
     crate::ui::themed_widgets::script_mod(vm);
     crate::ui::sidebar::script_mod(vm);
     crate::ui::command_palette::script_mod(vm);

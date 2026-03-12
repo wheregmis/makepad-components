@@ -748,15 +748,34 @@ pub struct GalleryCommandPalette {
     active_index: usize,
     #[rust]
     focus_search_on_next_draw: bool,
+    #[rust]
+    is_synced_open: bool,
 }
 
 impl GalleryCommandPalette {
+    fn sync_modal_state(&mut self, cx: &mut Cx) {
+        if self.is_synced_open == self.open {
+            return;
+        }
+
+        if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
+            if self.open {
+                modal.open(cx);
+            } else {
+                modal.close(cx);
+            }
+        }
+
+        self.is_synced_open = self.open;
+    }
+
     pub fn open(&mut self, cx: &mut Cx) {
         self.open = true;
         self.query.clear();
         self.active_index = 0;
         self.focus_search_on_next_draw = true;
         self.refresh_results(cx);
+        self.sync_modal_state(cx);
     }
 
     pub fn close(&mut self, cx: &mut Cx) {
@@ -767,6 +786,7 @@ impl GalleryCommandPalette {
         self.overlay
             .text_input(cx, ids!(search_input))
             .set_text(cx, "");
+        self.sync_modal_state(cx);
         self.redraw(cx);
     }
 
@@ -886,6 +906,8 @@ impl GalleryCommandPalette {
 
 impl Widget for GalleryCommandPalette {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.sync_modal_state(cx);
+
         if self.open {
             if let Event::KeyDown(key_event) = event {
                 match key_event.key_code {
@@ -910,10 +932,6 @@ impl Widget for GalleryCommandPalette {
             }
 
             let search_input = self.overlay.text_input(cx, ids!(search_input));
-
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.open(cx);
-            }
 
             self.overlay.handle_event(cx, event, scope);
 
@@ -945,16 +963,13 @@ impl Widget for GalleryCommandPalette {
                     }
                 }
             }
-        } else if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-            modal.close(cx);
         }
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.sync_modal_state(cx);
+
         if !self.open {
-            if let Some(mut modal) = self.overlay.borrow_mut::<Modal>() {
-                modal.close(cx);
-            }
             return DrawStep::done();
         }
 

@@ -24,6 +24,7 @@ script_mod! {
     mod.widgets.ShadInputOtp = set_type_default() do mod.widgets.ShadInputOtpBase{
         width: Fit
         height: Fit
+        flow: Overlay
         cell_count: 6
         value: ""
 
@@ -35,39 +36,86 @@ script_mod! {
 
             slot_0 := mod.widgets.ShadInputOtpSlot{
                 label_0 := Label{
+                    text: ""
                     draw_text.color: (shad_theme.color_primary)
                     draw_text.text_style.font_size: 22.0
                 }
             }
             slot_1 := mod.widgets.ShadInputOtpSlot{
                 label_1 := Label{
+                    text: ""
                     draw_text.color: (shad_theme.color_primary)
                     draw_text.text_style.font_size: 22.0
                 }
             }
             slot_2 := mod.widgets.ShadInputOtpSlot{
                 label_2 := Label{
+                    text: ""
                     draw_text.color: (shad_theme.color_primary)
                     draw_text.text_style.font_size: 22.0
                 }
             }
             slot_3 := mod.widgets.ShadInputOtpSlot{
                 label_3 := Label{
+                    text: ""
                     draw_text.color: (shad_theme.color_primary)
                     draw_text.text_style.font_size: 22.0
                 }
             }
             slot_4 := mod.widgets.ShadInputOtpSlot{
                 label_4 := Label{
+                    text: ""
                     draw_text.color: (shad_theme.color_primary)
                     draw_text.text_style.font_size: 22.0
                 }
             }
             slot_5 := mod.widgets.ShadInputOtpSlot{
                 label_5 := Label{
+                    text: ""
                     draw_text.color: (shad_theme.color_primary)
                     draw_text.text_style.font_size: 22.0
                 }
+            }
+        }
+
+        controller := TextInput{
+            width: Fill
+            height: Fill
+            empty_text: ""
+            is_numeric_only: true
+            padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+
+            draw_bg +: {
+                border_size: 0.0
+                color: #0000
+                color_hover: #0000
+                color_focus: #0000
+                color_down: #0000
+                color_empty: #0000
+                color_disabled: #0000
+                border_color: #0000
+                border_color_hover: #0000
+                border_color_focus: #0000
+                border_color_down: #0000
+                border_color_empty: #0000
+                border_color_disabled: #0000
+            }
+
+            draw_text +: {
+                color: #0000
+                color_hover: #0000
+                color_focus: #0000
+                color_down: #0000
+                color_empty: #0000
+                color_disabled: #0000
+            }
+
+            draw_cursor +: {
+                color: #0000
+            }
+
+            draw_selection +: {
+                color: #0000
             }
         }
     }
@@ -111,12 +159,17 @@ impl ScriptHook for ShadInputOtp {
     ) {
         vm.with_cx_mut(|cx| {
             self.value = self.sanitize(&self.value);
+            self.sync_controller(cx);
             self.sync_slots(cx);
         });
     }
 }
 
 impl ShadInputOtp {
+    fn controller_ref(&self, cx: &Cx) -> TextInputRef {
+        self.view.text_input(cx, ids!(controller))
+    }
+
     fn visible_cells(&self) -> usize {
         self.cell_count.clamp(1, MAX_OTP_SLOTS as u32) as usize
     }
@@ -183,40 +236,28 @@ impl ShadInputOtp {
         }
     }
 
-    fn push_input(&mut self, cx: &mut Cx, input: &TextInputEvent) {
-        let mut next = self.value.clone();
-        if input.replace_last && !next.is_empty() {
-            next.pop();
-        }
-        next.push_str(&input.input);
-        self.set_value(cx, self.sanitize(&next));
-    }
-
-    fn pop_digit(&mut self, cx: &mut Cx) {
-        if self.value.is_empty() {
-            return;
-        }
-        let mut next = self.value.clone();
-        next.pop();
-        self.set_value(cx, next);
+    fn sync_controller(&self, cx: &mut Cx) {
+        self.controller_ref(cx).set_text(cx, &self.value);
     }
 
     fn set_value(&mut self, cx: &mut Cx, next: String) {
-        if next != self.value {
-            self.value = next.clone();
+        let sanitized = self.sanitize(&next);
+        if sanitized != self.value {
+            self.value = sanitized.clone();
             cx.widget_action_with_data(
                 &self.action_data,
                 self.widget_uid(),
-                ShadInputOtpAction::Changed(next),
+                ShadInputOtpAction::Changed(sanitized),
             );
         }
         self.emit_completed_if_needed(cx);
+        self.sync_controller(cx);
         self.sync_slots(cx);
     }
 
     pub fn changed(&self, actions: &Actions) -> Option<String> {
-        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
-            if let ShadInputOtpAction::Changed(value) = item.cast() {
+        for action in actions.filter_widget_actions_cast::<ShadInputOtpAction>(self.widget_uid()) {
+            if let ShadInputOtpAction::Changed(value) = action {
                 return Some(value);
             }
         }
@@ -224,12 +265,16 @@ impl ShadInputOtp {
     }
 
     pub fn completed(&self, actions: &Actions) -> Option<String> {
-        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
-            if let ShadInputOtpAction::Completed(value) = item.cast() {
+        for action in actions.filter_widget_actions_cast::<ShadInputOtpAction>(self.widget_uid()) {
+            if let ShadInputOtpAction::Completed(value) = action {
                 return Some(value);
             }
         }
         None
+    }
+
+    pub fn value(&self) -> &str {
+        &self.value
     }
 }
 
@@ -237,29 +282,10 @@ impl Widget for ShadInputOtp {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
         self.view.handle_event(cx, event, scope);
 
-        let area = self.view.area();
-
-        match event.hits(cx, area) {
-            Hit::FingerDown(_) => {
-                cx.set_key_focus(area);
-            }
-            Hit::FingerHoverIn(_) => {
-                cx.set_cursor(MouseCursor::Text);
-            }
-            _ => {}
-        }
-
-        if cx.has_key_focus(area) {
-            match event {
-                Event::KeyDown(ke) => match ke.key_code {
-                    KeyCode::Backspace => self.pop_digit(cx),
-                    KeyCode::Escape => cx.set_key_focus(Area::Empty),
-                    _ => {}
-                },
-                Event::TextInput(input) => {
-                    self.push_input(cx, input);
-                }
-                _ => {}
+        if let Event::Actions(actions) = event {
+            let controller = self.controller_ref(cx);
+            if let Some(text) = controller.changed(actions) {
+                self.set_value(cx, text);
             }
         }
 
@@ -267,6 +293,8 @@ impl Widget for ShadInputOtp {
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.sync_controller(cx);
+        self.sync_slots(cx);
         self.view.draw_walk(cx, scope, walk)
     }
 }
@@ -278,5 +306,9 @@ impl ShadInputOtpRef {
 
     pub fn completed(&self, actions: &Actions) -> Option<String> {
         self.borrow().and_then(|inner| inner.completed(actions))
+    }
+
+    pub fn value(&self) -> Option<String> {
+        self.borrow().map(|inner| inner.value().to_string())
     }
 }

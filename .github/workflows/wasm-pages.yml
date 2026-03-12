@@ -48,7 +48,7 @@ jobs:
           echo "WASM_OUTPUT_ROOT=target/makepad-wasm-app/small" >> "${GITHUB_ENV}"
 
       - name: Install cargo-makepad
-        run: cargo install --git https://github.com/makepad/makepad.git --branch dev cargo-makepad --locked
+        run: cargo install --git https://github.com/wheregmis/makepad.git --branch web_url cargo-makepad --locked
 
       - name: Install Wasm toolchain
         run: cargo makepad wasm install-toolchain
@@ -60,6 +60,7 @@ jobs:
         run: |
           APP_DIR="target/makepad-wasm-app/small/${APP_PACKAGE}"
           INDEX_FILE="${APP_DIR}/index.html"
+          NOT_FOUND_FILE="${APP_DIR}/404.html"
           SNIPPET_FILE="$(mktemp)"
           TMP_FILE="$(mktemp)"
 
@@ -106,7 +107,9 @@ jobs:
           ' "${INDEX_FILE}" > "${TMP_FILE}"
 
           mv "${TMP_FILE}" "${INDEX_FILE}"
+          cp "${INDEX_FILE}" "${NOT_FOUND_FILE}"
           rm -f "${INDEX_FILE}.br"
+          rm -f "${NOT_FOUND_FILE}.br"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

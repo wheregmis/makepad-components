@@ -1,0 +1,656 @@
+//! Route pattern matching types and logic.
+//!
+//! This module provides types for defining and matching URL patterns with support for:
+//! - Static segments (e.g., `/user/profile`)
+//! - Dynamic segments (e.g., `/user/:id`)
+//! - Single-segment wildcards (e.g., `/admin/*`)
+//! - Multi-segment wildcards (e.g., `/admin/**`)
+
+use makepad_live_id::*;
+use makepad_micro_serde::*;
+use std::collections::HashMap;
+use std::ops::Deref;
+use std::sync::Arc;
+
+fn next_non_empty_segment<'a>(segments: &mut std::str::Split<'a, char>) -> Option<&'a str> {
+    while let Some(seg) = segments.next() {
+        if !seg.is_empty() {
+            return Some(seg);
+        }
+    }
+    None
+}
+
+fn collect_tail(first: Option<&str>, segments: &mut std::str::Split<'_, char>) -> String {
+    let mut out = String::new();
+    let push_segment = |segment: &str, out: &mut String| {
+        if out.is_empty() {
+            out.push('/');
+        } else {
+            out.push('/');
+        }
+        out.push_str(segment);
+    };
+
+    if let Some(first) = first {
+        if !first.is_empty() {
+            push_segment(first, &mut out);
+        }
+    }
+
+    while let Some(seg) = next_non_empty_segment(segments) {
+        push_segment(seg, &mut out);
+    }
+
+    out
+}
+
+/// Represents a route segment type in a pattern
+#[derive(Clone, Debug, PartialEq, Eq, Hash, SerBin, DeBin, SerRon, DeRon)]
+pub enum RouteSegment {
+    /// Static segment (e.g., "user", "profile")
+    Static(String),
+    /// Dynamic segment with parameter name (e.g., ":id", ":postId")
+    Dynamic { name: String, key: LiveId },
+    /// Single-segment wildcard
+    WildcardSingle,
+    /// Multi-segment wildcard
+    WildcardMulti,
+}
+
+/// Route pattern for matching paths with dynamic segments and wildcards
+#[derive(Clone, Debug, PartialEq, Eq, Hash, SerBin, DeBin, SerRon, DeRon)]
+pub struct RoutePattern {
+    /// Segments of the pattern
+    pub segments: Vec<RouteSegment>,
+}
+
+/// Shared route pattern reference (Arc-backed) for cheap cloning.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct RoutePatternRef(Arc<RoutePattern>);
+
+impl RoutePatternRef {
+    pub fn new(pattern: RoutePattern) -> Self {
+        Self(Arc::new(pattern))
+    }
+}
+
+impl Deref for RoutePatternRef {
+    type Target = RoutePattern;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl AsRef<RoutePattern> for RoutePatternRef {
+    fn as_ref(&self) -> &RoutePattern {
+        &self.0
+    }
+}
+
+impl SerBin for RoutePatternRef {
+    fn ser_bin(&self, s: &mut Vec<u8>) {
+        self.0.ser_bin(s);
+    }
+}
+
+impl DeBin for RoutePatternRef {
+    fn de_bin(o: &mut usize, d: &[u8]) -> Result<Self, DeBinErr> {
+        let pattern = RoutePattern::de_bin(o, d)?;
+        Ok(Self(Arc::new(pattern)))
+    }
+}
+
+impl SerRon for RoutePatternRef {
+    fn ser_ron(&self, d: usize, s: &mut SerRonState) {
+        self.0.ser_ron(d, s);
+    }
+}
+
+impl DeRon for RoutePatternRef {
+    fn de_ron(s: &mut DeRonState, i: &mut std::str::Chars) -> Result<Self, DeRonErr> {
+        let pattern = RoutePattern::de_ron(s, i)?;
+        Ok(Self(Arc::new(pattern)))
+    }
+}
+
+/// Route parameters - optimized for small param counts.
+#[derive(Clone, Debug, Default)]
+pub struct RouteParams {
+    /// Generic parameters stored as LiveId key-value pairs.
+    pub data: RouteParamStore,
+}
+
+#[derive(Clone, Debug)]
+pub enum RouteParamStore {
+    Small(Vec<(LiveId, LiveId)>),
+    Map(HashMap<LiveId, LiveId>),
+}
+
+impl RoutePattern {
+    /// Parse a route pattern string (e.g., "/user/:id" or "/admin/*")
+    pub fn parse(pattern: &str) -> Result<Self, String> {
+        let pattern = pattern.trim();
+        if pattern.is_empty() {
+            return Err("Pattern cannot be empty".to_string());
+        }
+
+        // Normalize: ensure it starts with /
+        let pattern = pattern.strip_prefix('/').unwrap_or(pattern);
+
+        let mut segments = Vec::new();
+        let parts: Vec<&str> = pattern.split('/').filter(|s| !s.is_empty()).collect();
+
+        for (i, part) in parts.iter().enumerate() {
+            if part == &"**" {
+                // Multi-segment wildcard must be the last segment
+                if i != parts.len() - 1 {
+                    return Err("Multi-segment wildcard (**) must be the last segment".to_string());
+                }
+                segments.push(RouteSegment::WildcardMulti);
+                break;
+            } else if part == &"*" {
+                segments.push(RouteSegment::WildcardSingle);
+            } else if let Some(param_name) = part.strip_prefix(':') {
+                if param_name.is_empty() {
+                    return Err("Dynamic segment parameter name cannot be empty".to_string());
+                }
+                let name = param_name.to_string();
+                let key = LiveId::from_str(param_name);
+                segments.push(RouteSegment::Dynamic { name, key });
+            } else {
+                segments.push(RouteSegment::Static(part.to_string()));
+            }
+        }
+
+        Ok(RoutePattern { segments })
+    }
+
+    /// Match a path against this pattern and extract parameters
+    pub fn matches(&self, path: &str) -> Option<RouteParams> {
+        let path = path.trim();
+        // Normalize: ensure it starts with /
+        let path = path.strip_prefix('/').unwrap_or(path);
+        let mut params = RouteParams::new();
+
+        let mut path_segments = path.split('/');
+        for segment in &self.segments {
+            match segment {
+                RouteSegment::Static(expected) => {
+                    let Some(actual) = next_non_empty_segment(&mut path_segments) else {
+                        return None;
+                    };
+                    if actual != expected {
+                        return None;
+                    }
+                }
+                RouteSegment::Dynamic { key, .. } => {
+                    let Some(value) = next_non_empty_segment(&mut path_segments) else {
+                        return None;
+                    };
+                    // Use from_str_with_intern to store the string so it can be retrieved later
+                    use makepad_live_id::InternLiveId;
+                    let param_value = LiveId::from_str_with_intern(value, InternLiveId::Yes);
+                    params.add(*key, param_value);
+                }
+                RouteSegment::WildcardSingle => {
+                    // Match exactly one segment
+                    next_non_empty_segment(&mut path_segments)?;
+                }
+                RouteSegment::WildcardMulti => {
+                    // Match remaining segments (zero or more)
+                    // This is the last segment, so we're done
+                    return Some(params);
+                }
+            }
+        }
+
+        if next_non_empty_segment(&mut path_segments).is_some() {
+            // Path has more segments than pattern
+            return None;
+        }
+
+        Some(params)
+    }
+
+    /// Match a path prefix against this pattern and return both extracted params and a "tail" path.
+    ///
+    /// This is used for nested routing: if a parent route pattern matches the beginning of a path,
+    /// the remaining part (or captured wildcard part) can be delegated to a child router.
+    ///
+    /// Tail rules:
+    /// - If the pattern ends before the path, the tail is the remaining unmatched segments.
+    /// - If the pattern ends with `*` or `**`, the tail is the segment(s) matched by that wildcard.
+    /// - The returned tail is `""` if there is nothing to delegate, otherwise it starts with `/`.
+    pub fn matches_prefix_with_tail(&self, path: &str) -> Option<(RouteParams, String)> {
+        let path = path.trim();
+        let path = path.strip_prefix('/').unwrap_or(path);
+        let mut path_segments = path.split('/');
+
+        let mut params = RouteParams::new();
+        let mut tail: Option<String> = None;
+        let last_idx = self.segments.len().saturating_sub(1);
+
+        for (pattern_idx, segment) in self.segments.iter().enumerate() {
+            match segment {
+                RouteSegment::Static(expected) => {
+                    let Some(actual) = next_non_empty_segment(&mut path_segments) else {
+                        return None;
+                    };
+                    if actual != expected {
+                        return None;
+                    }
+                }
+                RouteSegment::Dynamic { key, .. } => {
+                    let Some(value) = next_non_empty_segment(&mut path_segments) else {
+                        return None;
+                    };
+                    use makepad_live_id::InternLiveId;
+                    let param_value = LiveId::from_str_with_intern(value, InternLiveId::Yes);
+                    params.add(*key, param_value);
+                }
+                RouteSegment::WildcardSingle => {
+                    let matched = next_non_empty_segment(&mut path_segments)?;
+                    // For nested routing we capture the tail if wildcard is trailing.
+                    if pattern_idx == last_idx {
+                        tail = Some(collect_tail(Some(matched), &mut path_segments));
+                    }
+                }
+                RouteSegment::WildcardMulti => {
+                    // Must be last (enforced by parser). Capture the rest (could be empty).
+                    tail = Some(collect_tail(
+                        next_non_empty_segment(&mut path_segments),
+                        &mut path_segments,
+                    ));
+                    return Some((params, tail.unwrap_or_default()));
+                }
+            }
+        }
+
+        if tail.is_none() {
+            tail = Some(collect_tail(
+                next_non_empty_segment(&mut path_segments),
+                &mut path_segments,
+            ));
+        }
+
+        Some((params, tail.unwrap_or_default()))
+    }
+
+    /// Get the priority for route matching (lower = higher priority)
+    pub fn priority(&self) -> usize {
+        let mut priority = 0;
+        for segment in &self.segments {
+            match segment {
+                RouteSegment::Static(_) => priority += 1,
+                RouteSegment::Dynamic { .. } => priority += 100,
+                RouteSegment::WildcardSingle => priority += 10000,
+                RouteSegment::WildcardMulti => priority += 100000,
+            }
+        }
+        priority
+    }
+
+    /// Format a concrete path (no wildcards) from this pattern and params.
+    pub fn format_path(&self, params: &RouteParams) -> Option<String> {
+        let mut out: Vec<String> = Vec::with_capacity(self.segments.len());
+        for segment in &self.segments {
+            match segment {
+                RouteSegment::Static(s) => out.push(s.clone()),
+                RouteSegment::Dynamic { key, .. } => {
+                    let value = params.get(*key)?;
+                    out.push(value.to_string());
+                }
+                RouteSegment::WildcardSingle | RouteSegment::WildcardMulti => return None,
+            }
+        }
+        Some(format!("/{}", out.join("/")))
+    }
+
+    /// Format the "base" part of a pattern, stopping before wildcards.
+    ///
+    /// This is useful for nested routing patterns like `/admin/**`, where the base is `/admin`.
+    pub fn format_base_path(&self, params: &RouteParams) -> String {
+        let mut out: Vec<String> = Vec::with_capacity(self.segments.len());
+        for segment in &self.segments {
+            match segment {
+                RouteSegment::Static(s) => out.push(s.clone()),
+                RouteSegment::Dynamic { key, .. } => {
+                    if let Some(value) = params.get(*key) {
+                        out.push(value.to_string());
+                    } else {
+                        break;
+                    }
+                }
+                RouteSegment::WildcardSingle | RouteSegment::WildcardMulti => break,
+            }
+        }
+        if out.is_empty() {
+            "/".to_string()
+        } else {
+            format!("/{}", out.join("/"))
+        }
+    }
+}
+
+impl RouteParams {
+    /// Create empty route parameters
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Add a parameter
+    pub fn add(&mut self, key: LiveId, value: LiveId) {
+        match &mut self.data {
+            RouteParamStore::Small(entries) => {
+                for (k, v) in entries.iter_mut() {
+                    if *k == key {
+                        *v = value;
+                        return;
+                    }
+                }
+                if entries.len() < 4 {
+                    entries.push((key, value));
+                } else {
+                    let mut map: HashMap<LiveId, LiveId> = entries.iter().copied().collect();
+                    map.insert(key, value);
+                    self.data = RouteParamStore::Map(map);
+                }
+            }
+            RouteParamStore::Map(map) => {
+                map.insert(key, value);
+            }
+        }
+    }
+
+    /// Get a parameter value by key
+    pub fn get(&self, key: LiveId) -> Option<LiveId> {
+        match &self.data {
+            RouteParamStore::Small(entries) => {
+                entries.iter().find(|(k, _)| *k == key).map(|(_, v)| *v)
+            }
+            RouteParamStore::Map(map) => map.get(&key).copied(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        match &self.data {
+            RouteParamStore::Small(entries) => entries.is_empty(),
+            RouteParamStore::Map(map) => map.is_empty(),
+        }
+    }
+
+    pub fn iter(&self) -> RouteParamIter<'_> {
+        match &self.data {
+            RouteParamStore::Small(entries) => RouteParamIter::Small(entries.iter()),
+            RouteParamStore::Map(map) => RouteParamIter::Map(map.iter()),
+        }
+    }
+}
+
+impl Default for RouteParamStore {
+    fn default() -> Self {
+        RouteParamStore::Small(Vec::new())
+    }
+}
+
+impl PartialEq for RouteParams {
+    fn eq(&self, other: &Self) -> bool {
+        if self.len() != other.len() {
+            return false;
+        }
+        self.iter().all(|(k, v)| other.get(*k) == Some(*v))
+    }
+}
+
+impl Eq for RouteParams {}
+
+impl RouteParams {
+    fn len(&self) -> usize {
+        match &self.data {
+            RouteParamStore::Small(entries) => entries.len(),
+            RouteParamStore::Map(map) => map.len(),
+        }
+    }
+
+    fn to_hash_map(&self) -> HashMap<LiveId, LiveId> {
+        match &self.data {
+            RouteParamStore::Small(entries) => entries.iter().copied().collect(),
+            RouteParamStore::Map(map) => map.clone(),
+        }
+    }
+
+    fn from_hash_map(map: HashMap<LiveId, LiveId>) -> Self {
+        if map.len() <= 4 {
+            let entries = map.into_iter().collect();
+            Self {
+                data: RouteParamStore::Small(entries),
+            }
+        } else {
+            Self {
+                data: RouteParamStore::Map(map),
+            }
+        }
+    }
+}
+
+pub enum RouteParamIter<'a> {
+    Small(std::slice::Iter<'a, (LiveId, LiveId)>),
+    Map(std::collections::hash_map::Iter<'a, LiveId, LiveId>),
+}
+
+impl<'a> Iterator for RouteParamIter<'a> {
+    type Item = (&'a LiveId, &'a LiveId);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            RouteParamIter::Small(iter) => iter.next().map(|(k, v)| (k, v)),
+            RouteParamIter::Map(iter) => iter.next(),
+        }
+    }
+}
+
+impl SerBin for RouteParams {
+    fn ser_bin(&self, s: &mut Vec<u8>) {
+        self.to_hash_map().ser_bin(s);
+    }
+}
+
+impl DeBin for RouteParams {
+    fn de_bin(o: &mut usize, d: &[u8]) -> Result<Self, DeBinErr> {
+        let map = HashMap::<LiveId, LiveId>::de_bin(o, d)?;
+        Ok(Self::from_hash_map(map))
+    }
+}
+
+impl SerRon for RouteParams {
+    fn ser_ron(&self, d: usize, s: &mut SerRonState) {
+        self.to_hash_map().ser_ron(d, s);
+    }
+}
+
+impl DeRon for RouteParams {
+    fn de_ron(s: &mut DeRonState, i: &mut std::str::Chars) -> Result<Self, DeRonErr> {
+        let map = HashMap::<LiveId, LiveId>::de_ron(s, i)?;
+        Ok(Self::from_hash_map(map))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_pattern_parse_static() {
+        let pattern = RoutePattern::parse("/user/profile").unwrap();
+        assert_eq!(pattern.segments.len(), 2);
+        assert!(matches!(pattern.segments[0], RouteSegment::Static(ref s) if s == "user"));
+        assert!(matches!(pattern.segments[1], RouteSegment::Static(ref s) if s == "profile"));
+    }
+
+    #[test]
+    fn test_pattern_parse_dynamic() {
+        let pattern = RoutePattern::parse("/user/:id").unwrap();
+        assert_eq!(pattern.segments.len(), 2);
+        assert!(matches!(pattern.segments[0], RouteSegment::Static(ref s) if s == "user"));
+        assert!(
+            matches!(pattern.segments[1], RouteSegment::Dynamic { ref name, .. } if name == "id")
+        );
+    }
+
+    #[test]
+    fn test_pattern_parse_wildcard_single() {
+        let pattern = RoutePattern::parse("/admin/*").unwrap();
+        assert_eq!(pattern.segments.len(), 2);
+        assert!(matches!(pattern.segments[0], RouteSegment::Static(ref s) if s == "admin"));
+        assert!(matches!(pattern.segments[1], RouteSegment::WildcardSingle));
+    }
+
+    #[test]
+    fn test_pattern_parse_wildcard_multi() {
+        let pattern = RoutePattern::parse("/admin/**").unwrap();
+        assert_eq!(pattern.segments.len(), 2);
+        assert!(matches!(pattern.segments[0], RouteSegment::Static(ref s) if s == "admin"));
+        assert!(matches!(pattern.segments[1], RouteSegment::WildcardMulti));
+    }
+
+    #[test]
+    fn test_pattern_parse_mixed() {
+        let pattern = RoutePattern::parse("/user/:id/posts/*").unwrap();
+        assert_eq!(pattern.segments.len(), 4);
+        assert!(matches!(pattern.segments[0], RouteSegment::Static(ref s) if s == "user"));
+        assert!(
+            matches!(pattern.segments[1], RouteSegment::Dynamic { ref name, .. } if name == "id")
+        );
+        assert!(matches!(pattern.segments[2], RouteSegment::Static(ref s) if s == "posts"));
+        assert!(matches!(pattern.segments[3], RouteSegment::WildcardSingle));
+    }
+
+    #[test]
+    fn test_pattern_match_static() {
+        let pattern = RoutePattern::parse("/user/profile").unwrap();
+        assert!(pattern.matches("/user/profile").is_some());
+        assert!(pattern.matches("/user/settings").is_none());
+    }
+
+    #[test]
+    fn test_pattern_match_dynamic() {
+        let pattern = RoutePattern::parse("/user/:id").unwrap();
+        let params = pattern.matches("/user/123").unwrap();
+        assert_eq!(
+            params.get(LiveId::from_str("id")),
+            Some(LiveId::from_str("123"))
+        );
+
+        let params = pattern.matches("/user/john").unwrap();
+        assert_eq!(
+            params.get(LiveId::from_str("id")),
+            Some(LiveId::from_str("john"))
+        );
+    }
+
+    #[test]
+    fn test_pattern_match_multiple_dynamic() {
+        let pattern = RoutePattern::parse("/post/:postId/:slug").unwrap();
+        let params = pattern.matches("/post/123/my-post").unwrap();
+        assert_eq!(
+            params.get(LiveId::from_str("postId")),
+            Some(LiveId::from_str("123"))
+        );
+        assert_eq!(
+            params.get(LiveId::from_str("slug")),
+            Some(LiveId::from_str("my-post"))
+        );
+    }
+
+    #[test]
+    fn test_pattern_match_wildcard_single() {
+        let pattern = RoutePattern::parse("/admin/*").unwrap();
+        assert!(pattern.matches("/admin/users").is_some());
+        assert!(pattern.matches("/admin/settings").is_some());
+        assert!(pattern.matches("/admin/users/123").is_none()); // Should not match multiple segments
+    }
+
+    #[test]
+    fn test_pattern_match_wildcard_multi() {
+        let pattern = RoutePattern::parse("/admin/**").unwrap();
+        assert!(pattern.matches("/admin/users").is_some());
+        assert!(pattern.matches("/admin/users/123").is_some());
+        assert!(pattern.matches("/admin/users/123/edit").is_some());
+        assert!(pattern.matches("/admin").is_some()); // Should match zero segments too
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_static() {
+        let pattern = RoutePattern::parse("/admin").unwrap();
+        let (params, tail) = pattern
+            .matches_prefix_with_tail("/admin/dashboard")
+            .unwrap();
+        assert!(params.is_empty());
+        assert_eq!(tail, "/dashboard");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_wildcard_single() {
+        let pattern = RoutePattern::parse("/admin/*").unwrap();
+        let (_params, tail) = pattern
+            .matches_prefix_with_tail("/admin/dashboard")
+            .unwrap();
+        assert_eq!(tail, "/dashboard");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_wildcard_single_includes_extra_suffix() {
+        let pattern = RoutePattern::parse("/admin/*").unwrap();
+        let (_params, tail) = pattern
+            .matches_prefix_with_tail("/admin/dashboard/details")
+            .unwrap();
+        assert_eq!(tail, "/dashboard/details");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_wildcard_multi() {
+        let pattern = RoutePattern::parse("/admin/**").unwrap();
+        let (_params, tail) = pattern.matches_prefix_with_tail("/admin/a/b").unwrap();
+        assert_eq!(tail, "/a/b");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_dynamic() {
+        let pattern = RoutePattern::parse("/user/:id/**").unwrap();
+        let (params, tail) = pattern
+            .matches_prefix_with_tail("/user/42/profile/settings")
+            .unwrap();
+        assert_eq!(
+            params.get(LiveId::from_str("id")),
+            Some(LiveId::from_str("42"))
+        );
+        assert_eq!(tail, "/profile/settings");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_non_trailing_wildcard_keeps_remainder() {
+        let pattern = RoutePattern::parse("/a/*/c").unwrap();
+        let (_params, tail) = pattern.matches_prefix_with_tail("/a/x/c/d").unwrap();
+        assert_eq!(tail, "/d");
+    }
+
+    #[test]
+    fn test_pattern_priority() {
+        let static_pattern = RoutePattern::parse("/user/profile").unwrap();
+        let dynamic_pattern = RoutePattern::parse("/user/:id").unwrap();
+        let wildcard_single = RoutePattern::parse("/user/*").unwrap();
+        let wildcard_multi = RoutePattern::parse("/user/**").unwrap();
+
+        assert!(static_pattern.priority() < dynamic_pattern.priority());
+        assert!(dynamic_pattern.priority() < wildcard_single.priority());
+        assert!(wildcard_single.priority() < wildcard_multi.priority());
+    }
+
+    #[test]
+    fn test_pattern_types_exist() {
+        // Verify that RoutePattern and RouteSegment can be constructed
+        let _pattern = RoutePattern::parse("/user/:id").unwrap();
+    }
+}
