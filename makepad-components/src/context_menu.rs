@@ -158,19 +158,24 @@ impl Widget for ShadContextMenu {
             let mut map = global.map.borrow_mut();
             let menu = map.get_mut(&self.popup_menu).unwrap();
             let mut close = false;
-            menu.handle_event_with(cx, event, self.view.area(), &mut |cx, action| match action {
-                PopupMenuAction::WasSweeped(_node_id) => {}
-                PopupMenuAction::WasSelected(node_id) => {
-                    let index = node_id.0 .0 as usize;
-                    cx.widget_action_with_data(
-                        &self.action_data,
-                        uid,
-                        ShadContextMenuAction::Select(index),
-                    );
-                    close = true;
-                }
-                _ => (),
-            });
+            menu.handle_event_with(
+                cx,
+                event,
+                self.view.area(),
+                &mut |cx, action| match action {
+                    PopupMenuAction::WasSweeped(_node_id) => {}
+                    PopupMenuAction::WasSelected(node_id) => {
+                        let index = node_id.0 .0 as usize;
+                        cx.widget_action_with_data(
+                            &self.action_data,
+                            uid,
+                            ShadContextMenuAction::Select(index),
+                        );
+                        close = true;
+                    }
+                    _ => (),
+                },
+            );
             if close {
                 self.close(cx);
             }

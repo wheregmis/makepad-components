@@ -91,12 +91,19 @@ impl GalleryPageFlip {
     pub fn page(&mut self, cx: &mut Cx, page_id: LiveId) -> Option<WidgetRef> {
         if let Some(template_ref) = self.templates.get(&page_id) {
             let template_value: ScriptValue = template_ref.as_object().into();
-            if !self.pages.contains_key(&page_id) {
-                let page = cx.with_vm(|vm| WidgetRef::script_from_value(vm, template_value));
-                self.pages.insert(page_id, page.clone());
-                cx.widget_tree_insert_child_deep(self.uid, page_id, page);
+            // Optimization: Avoid multiple map lookups when caching templates.
+            // Previously: Checked `contains_key`, then `insert` if missing, then `.get().cloned()`.
+            // Now: Use the `Entry` API to lookup, insert conditionally, and return the `WidgetRef` directly.
+            match self.pages.entry(page_id) {
+                std::collections::hash_map::Entry::Occupied(e) => Some(e.get().clone()),
+                std::collections::hash_map::Entry::Vacant(e) => {
+                    let page = cx.with_vm(|vm| WidgetRef::script_from_value(vm, template_value));
+                    let page_clone = page.clone();
+                    e.insert(page);
+                    cx.widget_tree_insert_child_deep(self.uid, page_id, page_clone.clone());
+                    Some(page_clone)
+                }
             }
-            self.pages.get(&page_id).cloned()
         } else {
             error!("Template not found: {page_id}");
             None

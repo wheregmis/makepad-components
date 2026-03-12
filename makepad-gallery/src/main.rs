@@ -1042,6 +1042,7 @@ impl AppMain for App {
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
+        #[allow(clippy::collapsible_if)]
         if self.focus_shell_next_frame.is_event(event).is_some() {
             if !self.try_focus_app_shell(cx) {
                 self.focus_shell_next_frame = cx.new_next_frame();
