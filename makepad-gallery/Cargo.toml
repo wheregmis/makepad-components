@@ -1,0 +1,11 @@
+[package]
+name = "makepad-gallery"
+version = "1.0.0"
+edition = "2021"
+description = "Makepad component gallery example"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+makepad-widgets = { workspace = true }
+makepad-code-editor = { workspace = true }
+makepad-components = { workspace = true }

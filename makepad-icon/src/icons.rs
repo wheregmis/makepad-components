@@ -37,6 +37,22 @@ script_mod! {
         draw_icon.svg: crate_resource("self://resources/icons/chevron-down.svg")
     }
 
+    mod.widgets.IconCommand = mod.widgets.MakepadIconBase{
+        draw_icon.svg: crate_resource("self://resources/icons/command.svg")
+    }
+
+    mod.widgets.IconShift = mod.widgets.MakepadIconBase{
+        draw_icon.svg: crate_resource("self://resources/icons/shift.svg")
+    }
+
+    mod.widgets.IconOption = mod.widgets.MakepadIconBase{
+        draw_icon.svg: crate_resource("self://resources/icons/option.svg")
+    }
+
+    mod.widgets.IconControl = mod.widgets.MakepadIconBase{
+        draw_icon.svg: crate_resource("self://resources/icons/control.svg")
+    }
+
     // Icon-button types: ButtonFlatIcon with SVG pre-bound.
     // Callers apply draw_bg / draw_icon.color styling on top.
     mod.widgets.IconButtonX = mod.widgets.ButtonFlatIcon{

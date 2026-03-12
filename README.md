@@ -156,7 +156,6 @@ script_mod! {
 - [ ] Date Picker
 - [x] Dialog
 - [x] Drawer
-- [x] Dropdown Menu
 - [ ] Empty
 - [x] Input & Field
 - [x] Hover Card
@@ -185,9 +184,8 @@ script_mod! {
 - [x] Tabs
 - [ ] Textarea
 - [ ] Toggle & Toggle Group
-- [x] Tooltip
 
-**Known limitation:** In the gallery app, popup-style selectors (`ShadDropdownMenu`, `ShadSelect`, and the base `DropDown` widget) may not open reliably on click; this appears to be an interaction between the gallery’s layout (flow + `PageFlip`) and the platform’s hit/sweep handling. For working popup interaction examples, see the splash app (`splash_app.md` or the makepad repo’s splash example), which uses a Dock-based layout.
+**Known limitation:** In the gallery app, popup-style selectors (`ShadSelect` and the base `DropDown` widget) may not open reliably on click; this appears to be an interaction between the gallery’s layout (flow + `PageFlip`) and the platform’s hit/sweep handling. For working popup interaction examples, see the splash app (`splash_app.md` or the makepad repo’s splash example), which uses a Dock-based layout.
 
 ### Buttons (`components/src/button.rs`)
 
@@ -250,13 +248,6 @@ Compatibility alias: `ShadHr`.
 - `ShadScrollAreaXY` — two-axis scroll container
 
 Compatibility alias: `ShadScrollYView`.
-
-### Tooltip (`components/src/tooltip.rs`)
-
-- `ShadTooltip`
-- `ShadTooltipCallout`
-
-Thin wrappers over Makepad tooltip primitives. Drive them from hover/focus/click in app code via `show_with_options(...)`.
 
 ### Radio Group (`components/src/radio_group.rs`)
 
@@ -416,7 +407,7 @@ Run it to validate behavior and styling changes quickly.
   - Register the widget in `components::script_mod(vm)` with a `Shad*` name in the `mod.widgets.*` namespace.
   - Use `shad_theme` tokens for colors, radii, and spacing instead of hardcoded values.
 - **Gallery docs page (`Gallery*`)**
-  - Create a new page script under `gallery/src/ui/` (for example `tooltip_page.rs`) that uses `ShadScrollYView`, `ShadPageTitle`, and `ShadPageSubtitle`.
+  - Create a new page script under `gallery/src/ui/` that uses `ShadScrollYView`, `ShadPageTitle`, and `ShadPageSubtitle`.
   - Add a snippet constant to `gallery/src/ui/snippets.rs` and reference it from `GalleryCodeSnippet` on the page.
   - Add a `ShadSidebarItem` entry in `GallerySidebar` and a matching page in `GalleryContentFlip`.
   - Wire the sidebar item to the page in `gallery/src/app.rs` using a `set_page` call in `handle_actions`.

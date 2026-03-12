@@ -1,12 +1,12 @@
 # [PROJECT_DIR]/Cargo.toml
 [workspace]
-members = ["gallery", "components", "makepad-icon"]
+members = ["makepad-gallery", "makepad-components", "makepad-icon"]
 resolver = "3"
 
 [workspace.dependencies]
 makepad-widgets = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "2.0.0" }
 makepad-code-editor = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "2.0.0" }
-makepad-components = { path = "components", version = "1.0.0" }
+makepad-components = { path = "makepad-components", version = "1.0.0" }
 makepad-icon = { path = "makepad-icon", version = "1.0.0" }
 
 [profile.small]
