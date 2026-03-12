@@ -227,6 +227,7 @@ script_mod! {
         width: Fill
         height: Fill
         open: false
+        active_row_color: (shad_theme.color_secondary_hover)
 
         overlay: Modal{
             bg_view +: {
@@ -245,10 +246,10 @@ script_mod! {
                     spacing: 10.0
 
                     draw_bg +: {
-                        color: #x111113
+                        color: (shad_theme.color_popover)
                         border_radius: 18.0
                         border_size: 1.0
-                        border_color: vec4(1.0, 1.0, 1.0, 0.08)
+                        border_color: (shad_theme.color_outline_border)
                     }
 
                     search_shell := RoundedView{
@@ -260,10 +261,10 @@ script_mod! {
                         spacing: 10.0
 
                         draw_bg +: {
-                            color: #x1a1a1d
+                            color: (shad_theme.color_secondary)
                             border_radius: 12.0
                             border_size: 1.0
-                            border_color: vec4(1.0, 1.0, 1.0, 0.06)
+                            border_color: (shad_theme.color_outline_border)
                         }
 
                         IconSearch{
@@ -274,7 +275,7 @@ script_mod! {
                         search_input := ShadInputBorderless{
                             empty_text: "Type a command or search..."
                             draw_text.text_style.font_size: 14
-                            draw_text.color_empty: #x7b7b83
+                            draw_text.color_empty: (shad_theme.color_muted_foreground)
                         }
                     }
 
@@ -740,6 +741,8 @@ pub struct GalleryCommandPalette {
     walk: Walk,
     #[layout]
     layout: Layout,
+    #[live]
+    active_row_color: Vec4f,
     #[rust]
     query: String,
     #[rust]
@@ -859,12 +862,7 @@ impl GalleryCommandPalette {
 
                 let mut row = self.overlay.view(cx, row_path);
                 let background = if slot == self.active_index {
-                    Vec4f {
-                        x: 0.14,
-                        y: 0.14,
-                        z: 0.16,
-                        w: 1.0,
-                    }
+                    self.active_row_color
                 } else {
                     Vec4f::all(0.0)
                 };

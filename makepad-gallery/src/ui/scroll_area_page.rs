@@ -5,137 +5,162 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryScrollAreaPage = ShadScrollArea{
-        ShadPageTitle{
-            text: "Scroll Area"
-        }
+    mod.widgets.GalleryScrollAreaPageBase = #(GalleryScrollAreaPage::register_widget(vm))
 
-        ShadPageSubtitle{
-            text: "Canonical scroll wrappers for vertical, horizontal, and two-axis overflow."
-        }
+    mod.widgets.GalleryScrollAreaPage = set_type_default() do mod.widgets.GalleryScrollAreaPageBase{
+        width: Fill
+        height: Fill
 
-        ShadSeparator{}
-
-        scroll_area_preview_section := View{
-            width: Fill
-            height: Fit
-            flow: Down
-
-            scroll_area_tabs_row := View{
-                width: Fit
-                visible: false
-                height: 0
-                flow: Right
-                spacing: 20.0
-                margin: Inset{top: 4, bottom: 12}
-
-                scroll_area_demo_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    scroll_area_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                    scroll_area_demo_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-
-                scroll_area_code_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    scroll_area_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                    scroll_area_code_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        visible: false
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
+        scroll_area := ShadScrollArea{
+            ShadPageTitle{
+                text: "Scroll Area"
             }
 
-            scroll_area_preview_panel := mod.widgets.ShadPanel{
-                scroll_area_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                    width: Fill
-                    height: Fit
+            ShadPageSubtitle{
+                text: "Canonical scroll wrappers for vertical, horizontal, and two-axis overflow."
+            }
 
-                    root_view +: {
-                        width: Fill
+            ShadSeparator{}
+
+            scroll_area_preview_section := View{
+                width: Fill
+                height: Fit
+                flow: Down
+
+                scroll_area_tabs_row := View{
+                    width: Fit
+                    visible: false
+                    height: 0
+                    flow: Right
+                    spacing: 20.0
+                    margin: Inset{top: 4, bottom: 12}
+
+                    scroll_area_demo_tab_group := View{
+                        width: Fit
                         height: Fit
                         flow: Down
-                        spacing: 12.0
+                        spacing: 6.0
 
-                        ShadSectionHeader{ text: "Vertical" }
-                        ShadPanel{
-                            scroll_area_demo := ShadScrollArea{
-                                width: Fill
-                                height: 220
+                        scroll_area_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
-                                View{
+                        scroll_area_demo_indicator := SolidView{
+                            width: Fill
+                            height: 2
+                            draw_bg.color: (shad_theme.color_primary)
+                        }
+                    }
+
+                    scroll_area_code_tab_group := View{
+                        width: Fit
+                        height: Fit
+                        flow: Down
+                        spacing: 6.0
+
+                        scroll_area_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
+
+                        scroll_area_code_indicator := SolidView{
+                            width: Fill
+                            height: 2
+                            visible: false
+                            draw_bg.color: (shad_theme.color_primary)
+                        }
+                    }
+                }
+
+                scroll_area_preview_panel := mod.widgets.ShadPanel{
+                    scroll_area_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
+                        width: Fill
+                        height: Fit
+
+                        root_view +: {
+                            width: Fill
+                            height: Fit
+                            flow: Down
+                            spacing: 12.0
+
+                            ShadSectionHeader{ text: "Vertical" }
+                            ShadPanel{
+                                scroll_area_demo := ShadScrollArea{
+                                    width: Fill
+                                    height: 220
+
+                                    View{
+                                        width: Fill
+                                        height: Fit
+                                        flow: Down
+                                        spacing: 10.0
+
+                                        ShadLabel{text: "Recent activity"}
+                                        ShadSeparator{}
+                                        ShadLabel{text: "Project Alpha updated 2 minutes ago"}
+                                        ShadLabel{text: "Billing statement exported"}
+                                        ShadLabel{text: "New teammate invited to workspace"}
+                                        ShadLabel{text: "API key rotated successfully"}
+                                        ShadLabel{text: "Audit log downloaded"}
+                                        ShadLabel{text: "Staging deploy completed"}
+                                        ShadLabel{text: "Design review scheduled for Friday"}
+                                        ShadLabel{text: "Feature flag enabled for beta cohort"}
+                                        ShadLabel{text: "Customer note added to ticket #438"}
+                                    }
+                                }
+                            }
+
+                            ShadSectionHeader{ text: "Horizontal" }
+                            ShadPanel{
+                                ShadScrollAreaX{
                                     width: Fill
                                     height: Fit
-                                    flow: Down
-                                    spacing: 10.0
 
-                                    ShadLabel{text: "Recent activity"}
-                                    ShadSeparator{}
-                                    ShadLabel{text: "Project Alpha updated 2 minutes ago"}
-                                    ShadLabel{text: "Billing statement exported"}
-                                    ShadLabel{text: "New teammate invited to workspace"}
-                                    ShadLabel{text: "API key rotated successfully"}
-                                    ShadLabel{text: "Audit log downloaded"}
-                                    ShadLabel{text: "Staging deploy completed"}
-                                    ShadLabel{text: "Design review scheduled for Friday"}
-                                    ShadLabel{text: "Feature flag enabled for beta cohort"}
-                                    ShadLabel{text: "Customer note added to ticket #438"}
+                                    View{
+                                        width: Fit
+                                        height: Fit
+                                        flow: Right
+                                        spacing: 12.0
+
+                                        ShadBadge{ label := ShadBadgeLabel{text: "Analytics"} }
+                                        ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Retention"} }
+                                        ShadBadgeOutline{ label := ShadBadgeOutlineLabel{text: "Growth"} }
+                                        ShadBadge{ label := ShadBadgeLabel{text: "Revenue"} }
+                                        ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Operations"} }
+                                        ShadBadgeOutline{ label := ShadBadgeOutlineLabel{text: "Launch Week"} }
+                                    }
                                 }
                             }
                         }
 
-                        ShadSectionHeader{ text: "Horizontal" }
-                        ShadPanel{
-                            ShadScrollAreaX{
+                        code_page +: {
+                            body +: {
                                 width: Fill
                                 height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                                View{
-                                    width: Fit
-                                    height: Fit
-                                    flow: Right
-                                    spacing: 12.0
-
-                                    ShadBadge{ label := ShadBadgeLabel{text: "Analytics"} }
-                                    ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Retention"} }
-                                    ShadBadgeOutline{ label := ShadBadgeOutlineLabel{text: "Growth"} }
-                                    ShadBadge{ label := ShadBadgeLabel{text: "Revenue"} }
-                                    ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Operations"} }
-                                    ShadBadgeOutline{ label := ShadBadgeOutlineLabel{text: "Launch Week"} }
+                                GalleryCodeSnippet{
+                                    code_view +: { text: #(SCROLL_AREA_PREVIEW_CODE) }
                                 }
                             }
-                        }
-                    }
-
-                    code_page +: {
-                        body +: {
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 12.0
-
-                        GalleryCodeSnippet{
-                            code_view +: { text: #(SCROLL_AREA_PREVIEW_CODE) }
-                        }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+#[derive(Script, ScriptHook, Widget)]
+pub struct GalleryScrollAreaPage {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl Widget for GalleryScrollAreaPage {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
     }
 }

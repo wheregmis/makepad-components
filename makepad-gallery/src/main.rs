@@ -4,11 +4,8 @@ pub use makepad_widgets;
 mod ui;
 
 use crate::ui::command_palette::GalleryCommandPalette;
-use makepad_components::context_menu::ShadContextMenu;
-use makepad_components::input_otp::ShadInputOtp;
+use crate::ui::command_palette_page::GalleryCommandPalettePageWidgetRefExt;
 use makepad_components::makepad_widgets::*;
-use makepad_components::sheet::ShadSheet;
-use makepad_components::{ShadCarousel, ShadDialog, ShadSonner};
 use makepad_router::RouterWidgetWidgetRefExt;
 
 const SIDEBAR_ROUTES: &[(LiveId, LiveId)] = &[
@@ -193,15 +190,6 @@ impl App {
             }
         }
     }
-
-    fn set_gallery_flip_page(ui: &WidgetRef, cx: &mut Cx, flip: &[LiveId], page: LiveId) {
-        let widget = ui.widget_flood(cx, flip);
-        if let Some(mut page_flip) = widget.borrow_mut::<PageFlip>() {
-            page_flip.set_active_page(cx, page);
-            return;
-        }
-        ui.router_widget(cx, flip).go_to_route(cx, page);
-    }
 }
 
 #[derive(Script, ScriptHook)]
@@ -252,245 +240,12 @@ impl MatchEvent for App {
         }
 
         self.handle_sidebar_navigation(cx, actions);
-        if let Some(mut carousel) = self
-            .ui
-            .widget_flood(cx, ids!(carousel_demo))
-            .borrow_mut::<ShadCarousel>()
-        {
-            carousel.handle_actions(cx, actions);
-        }
         if self
             .ui
-            .button(cx, ids!(open_command_palette_btn))
-            .clicked(actions)
+            .gallery_command_palette_page(cx, ids!(command_palette_page))
+            .open_requested(actions)
         {
             self.open_command_palette(cx);
-        }
-        if self.ui.button(cx, ids!(open_dialog_btn)).clicked(actions) {
-            if let Some(mut d) = self
-                .ui
-                .widget_flood(cx, ids!(default_dialog))
-                .borrow_mut::<ShadDialog>()
-            {
-                d.set_open(true);
-            }
-        }
-        if self.ui.button(cx, ids!(open_default_btn)).clicked(actions) {
-            if let Some(mut d) = self
-                .ui
-                .widget_flood(cx, ids!(alert_default_dialog))
-                .borrow_mut::<ShadDialog>()
-            {
-                d.set_open(true);
-            }
-        }
-        if self
-            .ui
-            .button(cx, ids!(open_destructive_btn))
-            .clicked(actions)
-        {
-            if let Some(mut d) = self
-                .ui
-                .widget_flood(cx, ids!(destructive_dialog))
-                .borrow_mut::<ShadDialog>()
-            {
-                d.set_open(true);
-            }
-        }
-        let dialog_ref = self.ui.widget_flood(cx, ids!(default_dialog));
-        if !dialog_ref.is_empty() && dialog_ref.button(cx, ids!(close_btn)).clicked(actions) {
-            if let Some(mut d) = dialog_ref.borrow_mut::<ShadDialog>() {
-                d.set_open(false);
-            }
-        }
-        if self.ui.button(cx, ids!(toast_event_btn)).clicked(actions) {
-            if let Some(mut s) = self
-                .ui
-                .widget_flood(cx, ids!(toast_event))
-                .borrow_mut::<ShadSonner>()
-            {
-                s.set_open(true);
-            }
-        }
-        if self.ui.button(cx, ids!(toast_desc_btn)).clicked(actions) {
-            if let Some(mut s) = self
-                .ui
-                .widget_flood(cx, ids!(toast_desc))
-                .borrow_mut::<ShadSonner>()
-            {
-                s.set_open(true);
-            }
-        }
-        if self.ui.button(cx, ids!(toast_close_btn)).clicked(actions) {
-            if let Some(mut s) = self
-                .ui
-                .widget_flood(cx, ids!(toast_close))
-                .borrow_mut::<ShadSonner>()
-            {
-                s.set_open(true);
-            }
-        }
-        if let Some(index) = self
-            .ui
-            .widget_flood(cx, ids!(context_menu_basic))
-            .borrow::<ShadContextMenu>()
-            .and_then(|inner| inner.selected(actions))
-        {
-            let label = match index {
-                0 => "Open",
-                1 => "Duplicate",
-                2 => "Share",
-                3 => "Delete",
-                _ => "Unknown",
-            };
-            self.ui
-                .label(cx, ids!(context_menu_status))
-                .set_text(cx, &format!("Selected: {}", label));
-        }
-        let otp_demo = self.ui.widget_flood(cx, ids!(otp_demo));
-        let otp_state = otp_demo.borrow::<ShadInputOtp>().map(|inner| {
-            (
-                inner.completed(actions),
-                inner.changed(actions),
-                inner.value().to_string(),
-            )
-        });
-        if let Some((completed, changed, current_value)) = otp_state {
-            let status = if let Some(value) = completed {
-                format!("Completed: {}", value)
-            } else if let Some(value) = changed {
-                format!("Current value: {}", value)
-            } else if current_value.len() >= 6 {
-                format!("Completed: {}", current_value)
-            } else if !current_value.is_empty() {
-                format!("Current value: {}", current_value)
-            } else {
-                "Waiting for input.".to_string()
-            };
-            self.ui.label(cx, ids!(otp_status)).set_text(cx, &status);
-        }
-
-        if self
-            .ui
-            .button(cx, ids!(tabs_overview_trigger))
-            .clicked(actions)
-        {
-            Self::set_gallery_flip_page(
-                &self.ui,
-                cx,
-                ids!(tabs_content_flip),
-                live_id!(overview_page),
-            );
-            self.ui
-                .view(cx, ids!(tabs_overview_indicator))
-                .set_visible(cx, true);
-            self.ui
-                .view(cx, ids!(tabs_usage_indicator))
-                .set_visible(cx, false);
-            self.ui
-                .view(cx, ids!(tabs_settings_indicator))
-                .set_visible(cx, false);
-        }
-        if self
-            .ui
-            .button(cx, ids!(tabs_usage_trigger))
-            .clicked(actions)
-        {
-            Self::set_gallery_flip_page(
-                &self.ui,
-                cx,
-                ids!(tabs_content_flip),
-                live_id!(usage_page),
-            );
-            self.ui
-                .view(cx, ids!(tabs_overview_indicator))
-                .set_visible(cx, false);
-            self.ui
-                .view(cx, ids!(tabs_usage_indicator))
-                .set_visible(cx, true);
-            self.ui
-                .view(cx, ids!(tabs_settings_indicator))
-                .set_visible(cx, false);
-        }
-        if self
-            .ui
-            .button(cx, ids!(tabs_settings_trigger))
-            .clicked(actions)
-        {
-            Self::set_gallery_flip_page(
-                &self.ui,
-                cx,
-                ids!(tabs_content_flip),
-                live_id!(settings_page),
-            );
-            self.ui
-                .view(cx, ids!(tabs_overview_indicator))
-                .set_visible(cx, false);
-            self.ui
-                .view(cx, ids!(tabs_usage_indicator))
-                .set_visible(cx, false);
-            self.ui
-                .view(cx, ids!(tabs_settings_indicator))
-                .set_visible(cx, true);
-        }
-
-        if self
-            .ui
-            .button(cx, ids!(open_right_sheet_btn))
-            .clicked(actions)
-        {
-            let sheet = self.ui.widget_flood(cx, ids!(right_sheet));
-            if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
-                s.set_open(true);
-            }
-            sheet.redraw(cx);
-        }
-        if self
-            .ui
-            .button(cx, ids!(open_left_sheet_btn))
-            .clicked(actions)
-        {
-            let sheet = self.ui.widget_flood(cx, ids!(left_sheet));
-            if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
-                s.set_open(true);
-            }
-            sheet.redraw(cx);
-        }
-        if self
-            .ui
-            .button(cx, ids!(open_top_sheet_btn))
-            .clicked(actions)
-        {
-            let sheet = self.ui.widget_flood(cx, ids!(top_sheet));
-            if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
-                s.set_open(true);
-            }
-            sheet.redraw(cx);
-        }
-        if self
-            .ui
-            .button(cx, ids!(open_bottom_sheet_btn))
-            .clicked(actions)
-        {
-            let sheet = self.ui.widget_flood(cx, ids!(bottom_sheet));
-            if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
-                s.set_open(true);
-            }
-            sheet.redraw(cx);
-        }
-        for (path, button) in [
-            (ids!(right_sheet), ids!(close_right_sheet_btn)),
-            (ids!(left_sheet), ids!(close_left_sheet_btn)),
-            (ids!(top_sheet), ids!(close_top_sheet_btn)),
-            (ids!(bottom_sheet), ids!(close_bottom_sheet_btn)),
-        ] {
-            if self.ui.button(cx, button).clicked(actions) {
-                let sheet = self.ui.widget_flood(cx, path);
-                if let Some(mut s) = sheet.borrow_mut::<ShadSheet>() {
-                    s.set_open(false);
-                }
-                sheet.redraw(cx);
-            }
         }
     }
 }

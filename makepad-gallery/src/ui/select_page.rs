@@ -5,111 +5,136 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GallerySelectPage = ShadScrollArea{
-        ShadPageTitle{
-            text: "Select"
-        }
+    mod.widgets.GallerySelectPageBase = #(GallerySelectPage::register_widget(vm))
 
-        ShadPageSubtitle{
-            text: "Single-choice, non-searchable selection built on the shared popup-menu stack."
-        }
+    mod.widgets.GallerySelectPage = set_type_default() do mod.widgets.GallerySelectPageBase{
+        width: Fill
+        height: Fill
 
-        ShadSeparator{}
-
-        select_preview_section := View{
-            width: Fill
-            height: Fit
-            flow: Down
-
-            select_tabs_row := View{
-                width: Fit
-                visible: false
-                height: 0
-                flow: Right
-                spacing: 20.0
-                margin: Inset{top: 4, bottom: 12}
-
-                select_demo_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    select_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                    select_demo_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-
-                select_code_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    select_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                    select_code_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        visible: false
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
+        scroll_area := ShadScrollArea{
+            ShadPageTitle{
+                text: "Select"
             }
 
-            select_preview_panel := mod.widgets.ShadPanel{
-                select_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                    width: Fill
-                    height: Fit
+            ShadPageSubtitle{
+                text: "Single-choice, non-searchable selection built on the shared popup-menu stack."
+            }
 
-                    root_view +: {
-                        width: Fill
+            ShadSeparator{}
+
+            select_preview_section := View{
+                width: Fill
+                height: Fit
+                flow: Down
+
+                select_tabs_row := View{
+                    width: Fit
+                    visible: false
+                    height: 0
+                    flow: Right
+                    spacing: 20.0
+                    margin: Inset{top: 4, bottom: 12}
+
+                    select_demo_tab_group := View{
+                        width: Fit
                         height: Fit
                         flow: Down
-                        spacing: 12.0
+                        spacing: 6.0
 
-                        ShadPanel{
-                            View{
-                                width: Fill
-                                height: Fit
-                                flow: Down
-                                spacing: 12.0
+                        select_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
+                        select_demo_indicator := SolidView{
+                            width: Fill
+                            height: 2
+                            draw_bg.color: (shad_theme.color_primary)
+                        }
+                    }
+
+                    select_code_tab_group := View{
+                        width: Fit
+                        height: Fit
+                        flow: Down
+                        spacing: 6.0
+
+                        select_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
+
+                        select_code_indicator := SolidView{
+                            width: Fill
+                            height: 2
+                            visible: false
+                            draw_bg.color: (shad_theme.color_primary)
+                        }
+                    }
+                }
+
+                select_preview_panel := mod.widgets.ShadPanel{
+                    select_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
+                        width: Fill
+                        height: Fit
+
+                        root_view +: {
+                            width: Fill
+                            height: Fit
+                            flow: Down
+                            spacing: 12.0
+
+                            ShadPanel{
                                 View{
-                                    width: Fit
+                                    width: Fill
                                     height: Fit
-                                    flow: Right
+                                    flow: Down
                                     spacing: 12.0
 
-                                    ShadSelect{labels: ["Pending" "In Progress" "Done"]}
-                                    ShadSelect{labels: ["Toronto" "Montreal" "Vancouver" "Calgary"]}
-                                }
+                                    View{
+                                        width: Fit
+                                        height: Fit
+                                        flow: Right
+                                        spacing: 12.0
 
-                                ShadFieldDescription{
-                                    text: "Known limitation: popup-style selects can still be unreliable inside the current gallery PageFlip shell. The splash app remains the best place to verify interaction."
+                                        ShadSelect{labels: ["Pending" "In Progress" "Done"]}
+                                        ShadSelect{labels: ["Toronto" "Montreal" "Vancouver" "Calgary"]}
+                                    }
+
+                                    ShadFieldDescription{
+                                        text: "Known limitation: popup-style selects can still be unreliable inside the current gallery PageFlip shell. The splash app remains the best place to verify interaction."
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    code_page +: {
-                        body +: {
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 12.0
+                        code_page +: {
+                            body +: {
+                            width: Fill
+                            height: Fit
+                            flow: Down
+                            spacing: 12.0
 
-                        GalleryCodeSnippet{
-                            code_view +: { text: #(SELECT_PREVIEW_CODE) }
-                        }
+                            GalleryCodeSnippet{
+                                code_view +: { text: #(SELECT_PREVIEW_CODE) }
+                            }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+#[derive(Script, ScriptHook, Widget)]
+pub struct GallerySelectPage {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl Widget for GallerySelectPage {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
     }
 }

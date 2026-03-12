@@ -1,11 +1,14 @@
 use crate::ui::snippets::SHEET_PREVIEW_CODE;
 use makepad_components::makepad_widgets::*;
+use makepad_components::sheet::ShadSheetWidgetExt;
 
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GallerySheetPage = SolidView{
+    mod.widgets.GallerySheetPageBase = #(GallerySheetPage::register_widget(vm))
+
+    mod.widgets.GallerySheetPage = set_type_default() do mod.widgets.GallerySheetPageBase{
         width: Fill
         height: Fill
         draw_bg.color: (shad_theme.color_background)
@@ -207,5 +210,75 @@ script_mod! {
                 }
             }
         }
+    }
+}
+
+#[derive(Script, ScriptHook, Widget)]
+pub struct GallerySheetPage {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl GallerySheetPage {
+    fn set_sheet_open(&mut self, cx: &mut Cx, path: &[LiveId], open: bool) {
+        let sheet = self.view.shad_sheet(cx, path);
+        if open {
+            sheet.open(cx);
+        } else {
+            sheet.close(cx);
+        }
+    }
+}
+
+impl Widget for GallerySheetPage {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+
+        if let Event::Actions(actions) = event {
+            if self
+                .view
+                .button(cx, ids!(open_right_sheet_btn))
+                .clicked(actions)
+            {
+                self.set_sheet_open(cx, ids!(right_sheet), true);
+            }
+            if self
+                .view
+                .button(cx, ids!(open_left_sheet_btn))
+                .clicked(actions)
+            {
+                self.set_sheet_open(cx, ids!(left_sheet), true);
+            }
+            if self
+                .view
+                .button(cx, ids!(open_top_sheet_btn))
+                .clicked(actions)
+            {
+                self.set_sheet_open(cx, ids!(top_sheet), true);
+            }
+            if self
+                .view
+                .button(cx, ids!(open_bottom_sheet_btn))
+                .clicked(actions)
+            {
+                self.set_sheet_open(cx, ids!(bottom_sheet), true);
+            }
+            for (path, button) in [
+                (ids!(right_sheet), ids!(close_right_sheet_btn)),
+                (ids!(left_sheet), ids!(close_left_sheet_btn)),
+                (ids!(top_sheet), ids!(close_top_sheet_btn)),
+                (ids!(bottom_sheet), ids!(close_bottom_sheet_btn)),
+            ] {
+                if self.view.button(cx, button).clicked(actions) {
+                    self.set_sheet_open(cx, path, false);
+                }
+            }
+        }
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
     }
 }

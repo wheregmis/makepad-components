@@ -6,8 +6,12 @@ use makepad_widgets::*;
 pub mod accordion;
 pub mod alert;
 pub mod dialog;
-pub use dialog::ShadDialog;
-pub use sonner::ShadSonner;
+pub use dialog::{
+    ShadDialog, ShadDialogAction, ShadDialogRef, ShadDialogWidgetExt, ShadDialogWidgetRefExt,
+};
+pub use sonner::{
+    ShadSonner, ShadSonnerAction, ShadSonnerRef, ShadSonnerWidgetExt, ShadSonnerWidgetRefExt,
+};
 pub mod aspect_ratio;
 pub mod avatar;
 pub mod badge;
@@ -16,13 +20,24 @@ pub mod button;
 pub mod button_group;
 pub mod card;
 pub mod carousel;
-pub use carousel::ShadCarousel;
+pub use carousel::{
+    ShadCarousel, ShadCarouselAction, ShadCarouselRef, ShadCarouselWidgetExt,
+    ShadCarouselWidgetRefExt,
+};
 pub mod checkbox;
 pub mod collapsible;
 pub mod context_menu;
+pub use context_menu::{
+    ShadContextMenuAction, ShadContextMenuRef, ShadContextMenuWidgetExt,
+    ShadContextMenuWidgetRefExt,
+};
 pub mod hr;
 pub mod input;
 pub mod input_otp;
+pub use input_otp::{
+    ShadInputOtp, ShadInputOtpAction, ShadInputOtpRef, ShadInputOtpWidgetExt,
+    ShadInputOtpWidgetRefExt,
+};
 pub mod kbd;
 pub mod label;
 pub mod panel;
@@ -32,6 +47,9 @@ pub mod resizable;
 pub mod scroll;
 pub mod select;
 pub mod sheet;
+pub use sheet::{
+    ShadSheet, ShadSheetAction, ShadSheetRef, ShadSheetWidgetExt, ShadSheetWidgetRefExt,
+};
 pub mod sidebar;
 pub mod skeleton;
 pub mod slider;

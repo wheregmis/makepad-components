@@ -1,3 +1,4 @@
+use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
 script_mod! {
@@ -207,6 +208,14 @@ script_mod! {
     }
 }
 
+#[derive(Clone, Debug, Default)]
+pub enum ShadDialogAction {
+    Opened,
+    Closed,
+    #[default]
+    None,
+}
+
 #[derive(Script, ScriptHook, Widget)]
 pub struct ShadDialog {
     #[uid]
@@ -223,6 +232,9 @@ pub struct ShadDialog {
     open: bool,
     #[rust]
     is_synced_open: bool,
+    #[action_data]
+    #[rust]
+    action_data: WidgetActionData,
 
     #[layout]
     layout: Layout,
@@ -247,12 +259,52 @@ impl ShadDialog {
         self.is_synced_open = self.open;
     }
 
-    pub fn set_open(&mut self, open: bool) {
+    pub fn set_open(&mut self, cx: &mut Cx, open: bool) {
+        if self.open == open {
+            self.sync_open_state(cx);
+            return;
+        }
+
         self.open = open;
+        self.sync_open_state(cx);
+        self.overlay.redraw(cx);
+        cx.widget_action_with_data(
+            &self.action_data,
+            self.widget_uid(),
+            if open {
+                ShadDialogAction::Opened
+            } else {
+                ShadDialogAction::Closed
+            },
+        );
+    }
+
+    pub fn open(&mut self, cx: &mut Cx) {
+        self.set_open(cx, true);
+    }
+
+    pub fn close(&mut self, cx: &mut Cx) {
+        self.set_open(cx, false);
     }
 
     pub fn is_open(&self) -> bool {
         self.open
+    }
+
+    pub fn opened(&self, actions: &Actions) -> bool {
+        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
+            matches!(item.cast::<ShadDialogAction>(), ShadDialogAction::Opened)
+        } else {
+            false
+        }
+    }
+
+    pub fn closed(&self, actions: &Actions) -> bool {
+        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
+            matches!(item.cast::<ShadDialogAction>(), ShadDialogAction::Closed)
+        } else {
+            false
+        }
     }
 }
 
@@ -268,7 +320,7 @@ impl Widget for ShadDialog {
                 let trap = vm.bx.threads.cur().trap.pass();
                 let value = vm.bx.heap.vec_value(args_obj, 0, trap);
                 if let Some(open) = value.as_bool() {
-                    self.open = open;
+                    vm.with_cx_mut(|cx| self.set_open(cx, open));
                 }
             }
             return ScriptAsyncResult::Return(NIL);
@@ -291,7 +343,7 @@ impl Widget for ShadDialog {
                     .find_widget_action(content.widget_uid())
                     .is_some_and(|a| matches!(a.cast(), ModalAction::Dismissed))
                 {
-                    self.open = false;
+                    self.close(cx);
                 }
                 let cancel_btn = self.overlay.widget(
                     cx,
@@ -316,14 +368,14 @@ impl Widget for ShadDialog {
                         .find_widget_action(cancel_btn.widget_uid())
                         .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
                 {
-                    self.open = false;
+                    self.close(cx);
                 }
                 if !confirm_btn.is_empty()
                     && actions
                         .find_widget_action(confirm_btn.widget_uid())
                         .is_some_and(|a| matches!(a.cast(), ButtonAction::Clicked(_)))
                 {
-                    self.open = false;
+                    self.close(cx);
                 }
             }
         }
@@ -341,5 +393,37 @@ impl Widget for ShadDialog {
             .draw_walk(cx, scope, Walk::new(Size::fill(), Size::fill()));
         cx.end_turtle();
         step
+    }
+}
+
+impl ShadDialogRef {
+    pub fn open(&self, cx: &mut Cx) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.open(cx);
+        }
+    }
+
+    pub fn close(&self, cx: &mut Cx) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.close(cx);
+        }
+    }
+
+    pub fn set_open(&self, cx: &mut Cx, open: bool) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.set_open(cx, open);
+        }
+    }
+
+    pub fn is_open(&self) -> bool {
+        self.borrow().is_some_and(|inner| inner.is_open())
+    }
+
+    pub fn opened(&self, actions: &Actions) -> bool {
+        self.borrow().is_some_and(|inner| inner.opened(actions))
+    }
+
+    pub fn closed(&self, actions: &Actions) -> bool {
+        self.borrow().is_some_and(|inner| inner.closed(actions))
     }
 }

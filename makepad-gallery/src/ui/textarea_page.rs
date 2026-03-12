@@ -5,132 +5,157 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryTextareaPage = ShadScrollYView{
-        ShadPageTitle{
-            text: "Textarea"
-        }
+    mod.widgets.GalleryTextareaPageBase = #(GalleryTextareaPage::register_widget(vm))
 
-        ShadPageSubtitle{
-            text: "Multiline text input with the same field styling as the base input."
-        }
+    mod.widgets.GalleryTextareaPage = set_type_default() do mod.widgets.GalleryTextareaPageBase{
+        width: Fill
+        height: Fill
 
-        ShadHr{}
-
-        textarea_preview_section := View{
-            width: Fill
-            height: Fit
-            flow: Down
-            spacing: 12.0
-
-            textarea_tabs_row := View{
-                width: Fit
-                visible: false
-                height: 0
-                flow: Right
-                spacing: 20.0
-                margin: Inset{top: 4, bottom: 12}
-
-                textarea_demo_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    textarea_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                    textarea_demo_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-
-                textarea_code_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    textarea_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                    textarea_code_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        visible: false
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
+        scroll_area := ShadScrollYView{
+            ShadPageTitle{
+                text: "Textarea"
             }
 
-            textarea_preview_panel := mod.widgets.ShadPanel{
-                textarea_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                    width: Fill
-                    height: Fit
+            ShadPageSubtitle{
+                text: "Multiline text input with the same field styling as the base input."
+            }
 
-                    root_view +: {
-                        width: Fill
+            ShadHr{}
+
+            textarea_preview_section := View{
+                width: Fill
+                height: Fit
+                flow: Down
+                spacing: 12.0
+
+                textarea_tabs_row := View{
+                    width: Fit
+                    visible: false
+                    height: 0
+                    flow: Right
+                    spacing: 20.0
+                    margin: Inset{top: 4, bottom: 12}
+
+                    textarea_demo_tab_group := View{
+                        width: Fit
                         height: Fit
                         flow: Down
-                        spacing: 12.0
+                        spacing: 6.0
 
-                        ShadSectionHeader{ text: "Default" }
+                        textarea_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
-                        View{
-                            width: 420
-                            height: Fit
-
-                            ShadTextarea{
-                                empty_text: "Type your message here."
-                            }
+                        textarea_demo_indicator := SolidView{
+                            width: Fill
+                            height: 2
+                            draw_bg.color: (shad_theme.color_primary)
                         }
+                    }
 
-                        ShadHr{}
+                    textarea_code_tab_group := View{
+                        width: Fit
+                        height: Fit
+                        flow: Down
+                        spacing: 6.0
 
-                        ShadSectionHeader{ text: "With label and helper text" }
+                        textarea_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
-                        View{
-                            width: 420
+                        textarea_code_indicator := SolidView{
+                            width: Fill
+                            height: 2
+                            visible: false
+                            draw_bg.color: (shad_theme.color_primary)
+                        }
+                    }
+                }
+
+                textarea_preview_panel := mod.widgets.ShadPanel{
+                    textarea_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
+                        width: Fill
+                        height: Fit
+
+                        root_view +: {
+                            width: Fill
                             height: Fit
                             flow: Down
-                            spacing: 6.0
+                            spacing: 12.0
 
-                            ShadLabel{ text: "Bio" }
-                            ShadTextareaSm{
-                                empty_text: "Tell us a little bit about yourself"
+                            ShadSectionHeader{ text: "Default" }
+
+                            View{
+                                width: 420
+                                height: Fit
+
+                                ShadTextarea{
+                                    empty_text: "Type your message here."
+                                }
                             }
-                            ShadFieldDescription{
-                                text: "Keep it short. You can always edit this later."
+
+                            ShadHr{}
+
+                            ShadSectionHeader{ text: "With label and helper text" }
+
+                            View{
+                                width: 420
+                                height: Fit
+                                flow: Down
+                                spacing: 6.0
+
+                                ShadLabel{ text: "Bio" }
+                                ShadTextareaSm{
+                                    empty_text: "Tell us a little bit about yourself"
+                                }
+                                ShadFieldDescription{
+                                    text: "Keep it short. You can always edit this later."
+                                }
+                            }
+
+                            ShadHr{}
+
+                            ShadSectionHeader{ text: "Large" }
+
+                            View{
+                                width: 520
+                                height: Fit
+
+                                ShadTextareaLg{
+                                    empty_text: "Draft a longer response..."
+                                }
                             }
                         }
 
-                        ShadHr{}
-
-                        ShadSectionHeader{ text: "Large" }
-
-                        View{
-                            width: 520
+                        code_page +: {
+                            body +: {
+                            width: Fill
                             height: Fit
+                            flow: Down
+                            spacing: 12.0
 
-                            ShadTextareaLg{
-                                empty_text: "Draft a longer response..."
+                            GalleryCodeSnippet{
+                                code_view +: { text: #(TEXTAREA_PREVIEW_CODE) }
                             }
-                        }
-                    }
-
-                    code_page +: {
-                        body +: {
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 12.0
-
-                        GalleryCodeSnippet{
-                            code_view +: { text: #(TEXTAREA_PREVIEW_CODE) }
-                        }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+#[derive(Script, ScriptHook, Widget)]
+pub struct GalleryTextareaPage {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl Widget for GalleryTextareaPage {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
     }
 }
