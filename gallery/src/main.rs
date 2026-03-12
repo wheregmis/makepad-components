@@ -95,11 +95,10 @@ impl App {
 
     fn show_basic_tooltip(&self, cx: &mut Cx) {
         let trigger = self.ui.button(cx, ids!(tooltip_basic_btn));
-        let content_rect = self.ui.view(cx, ids!(content_flip)).area().rect(cx);
         let trigger_rect = trigger.area().rect(cx);
         let pos = Vec2d {
-            x: content_rect.pos.x + trigger_rect.pos.x,
-            y: content_rect.pos.y + trigger_rect.pos.y + trigger_rect.size.y + 8.0,
+            x: trigger_rect.pos.x,
+            y: trigger_rect.pos.y + trigger_rect.size.y + 8.0,
         };
         self.ui.tooltip(cx, ids!(basic_tooltip)).show_with_options(
             cx,
@@ -151,8 +150,6 @@ impl App {
 pub struct App {
     #[live]
     ui: WidgetRef,
-    #[rust]
-    hover_card_open: bool,
     #[rust]
     is_small_screen: bool,
     #[rust]
@@ -312,13 +309,6 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_dropdown_menu),
             live_id!(dropdown_menu_page),
-            content_flip,
-        );
-        self.set_page(
-            cx,
-            actions,
-            ids!(sidebar_hover_card),
-            live_id!(hover_card_page),
             content_flip,
         );
         self.set_page(
@@ -721,51 +711,12 @@ impl MatchEvent for App {
             &self.ui,
             cx,
             actions,
-            ids!(hover_card_demo_tab),
-            ids!(hover_card_code_tab),
-            ids!(hover_card_preview_flip),
-            ids!(hover_card_demo_indicator),
-            ids!(hover_card_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
             ids!(input_demo_tab),
             ids!(input_code_tab),
             ids!(input_preview_flip),
             ids!(input_demo_indicator),
             ids!(input_code_indicator),
         );
-        let tooltip_ref = self.ui.widget_flood(cx, ids!(hover_card_tooltip));
-        if self
-            .ui
-            .button(cx, ids!(hover_card_trigger))
-            .clicked(actions)
-            && !tooltip_ref.is_empty()
-        {
-            self.hover_card_open = !self.hover_card_open;
-            if let Some(mut ct) = tooltip_ref.borrow_mut::<CalloutTooltip>() {
-                if self.hover_card_open {
-                    let trigger = self.ui.view(cx, ids!(hover_card_trigger));
-                    let content_rect = self.ui.view(cx, ids!(content_flip)).area().rect(cx);
-                    let trigger_rect = trigger.area().rect(cx);
-                    let rect = Rect {
-                        pos: content_rect.pos + trigger_rect.pos,
-                        size: trigger_rect.size,
-                    };
-                    ct.show_with_options(
-                        cx,
-                        "Card-style tooltip shown on hover or click.",
-                        rect,
-                        CalloutTooltipOptions::default(),
-                        false,
-                    );
-                } else {
-                    ct.hide(cx);
-                }
-            }
-        }
         Self::handle_preview_tabs(
             &self.ui,
             cx,

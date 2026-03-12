@@ -33,7 +33,6 @@ script_mod! {
             sidebar_collapsible := ShadSidebarItem{text: "Collapsible"}
             sidebar_dialog := ShadSidebarItem{text: "Dialog"}
             sidebar_dropdown_menu := ShadSidebarItem{text: "Dropdown Menu"}
-            sidebar_hover_card := ShadSidebarItem{text: "Hover Card"}
             sidebar_input := ShadSidebarItem{text: "Input"}
             sidebar_radio_group := ShadSidebarItem{text: "Radio Group"}
             sidebar_resizable := ShadSidebarItem{text: "Resizable"}

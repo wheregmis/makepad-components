@@ -23,7 +23,6 @@ script_mod! {
         collapsible_page := mod.widgets.GalleryCollapsiblePage{}
         dialog_page := mod.widgets.GalleryDialogPage{}
         dropdown_menu_page := mod.widgets.GalleryDropdownMenuPage{}
-        hover_card_page := mod.widgets.GalleryHoverCardPage{}
         input_page := mod.widgets.GalleryInputPage{}
         radio_group_page := mod.widgets.GalleryRadioGroupPage{}
         resizable_page := mod.widgets.GalleryResizablePage{}
@@ -62,7 +61,6 @@ script_mod! {
                     sidebar := mod.widgets.GallerySidebar{}
                     content_flip := mod.widgets.GalleryContentFlip{}
                 }
-                hover_card_tooltip := CalloutTooltip{width: Fill height: Fill}
             }
         }
     }
