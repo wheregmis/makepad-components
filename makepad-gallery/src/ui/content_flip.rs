@@ -91,9 +91,9 @@ impl GalleryPageFlip {
     pub fn page(&mut self, cx: &mut Cx, page_id: LiveId) -> Option<WidgetRef> {
         if let Some(template_ref) = self.templates.get(&page_id) {
             let template_value: ScriptValue = template_ref.as_object().into();
-            if !self.pages.contains_key(&page_id) {
+            if let std::collections::hash_map::Entry::Vacant(e) = self.pages.entry(page_id) {
                 let page = cx.with_vm(|vm| WidgetRef::script_from_value(vm, template_value));
-                self.pages.insert(page_id, page.clone());
+                e.insert(page.clone());
                 cx.widget_tree_insert_child_deep(self.uid, page_id, page);
             }
             self.pages.get(&page_id).cloned()
