@@ -59,6 +59,66 @@ script_mod! {
         }
     }
 
+    mod.widgets.GalleryPreviewSection = View{
+        width: Fill
+        height: Fit
+        flow: Down
+
+        tabs_row := View{
+            width: Fit
+            height: Fit
+            flow: Right
+            spacing: 20.0
+            margin: Inset{top: 4, bottom: 12}
+
+            demo_tab_group := View{
+                width: Fit
+                height: Fit
+                flow: Down
+                spacing: 6.0
+
+                demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
+
+                demo_indicator := SolidView{
+                    width: Fill
+                    height: 2
+                    draw_bg.color: (shad_theme.color_primary)
+                }
+            }
+
+            code_tab_group := View{
+                width: Fit
+                height: Fit
+                flow: Down
+                spacing: 6.0
+
+                code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
+
+                code_indicator := SolidView{
+                    width: Fill
+                    height: 2
+                    visible: false
+                    draw_bg.color: (shad_theme.color_primary)
+                }
+            }
+        }
+
+        preview_panel := mod.widgets.ShadPanel{
+            preview_flip := mod.widgets.GalleryPreviewStackNavigation{
+                width: Fill
+                height: Fit
+
+                code_page +: {
+                    body +: {
+                        code_snippet := GalleryCodeSnippet{
+                            code: ""
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 #[derive(Script, ScriptHook, Widget)]
