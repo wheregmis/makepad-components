@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    aspect_ratio_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    aspect_ratio_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     aspect_ratio_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    aspect_ratio_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    aspect_ratio_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     aspect_ratio_code_indicator := SolidView{
                         width: Fill

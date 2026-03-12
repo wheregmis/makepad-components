@@ -16,77 +16,144 @@ script_mod! {
 
         ShadSeparator{}
 
-        ShadTabs{
-            tabs_row := ShadTabsList{
-                overview_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 4.0
+        tabs_preview_section := View{
+            width: Fill
+            height: Fit
+            flow: Down
 
-                    tabs_overview_trigger := ShadTabsTrigger{text: "Overview"}
-                    tabs_overview_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-
-                usage_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 4.0
-
-                    tabs_usage_trigger := ShadTabsTrigger{text: "Usage"}
-                    tabs_usage_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        visible: false
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-
-                settings_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 4.0
-
-                    tabs_settings_trigger := ShadTabsTrigger{text: "Settings"}
-                    tabs_settings_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        visible: false
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-            }
-
-            tabs_content_flip := PageFlip{
-                width: Fill
+            tabs_demo_tabs_row := View{
+                width: Fit
                 height: Fit
-                active_page: @overview_page
+                flow: Right
+                spacing: 20.0
+                margin: Inset{top: 4, bottom: 12}
 
-                overview_page := ShadTabsContent{
-                    ShadSectionHeader{text: "Overview"}
-                    ShadFieldDescription{text: "Keep the page shell compact while switching between related content areas."}
+                tabs_demo_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
+
+                    tabs_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
+
+                    tabs_demo_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
                 }
 
-                usage_page := ShadTabsContent{
-                    ShadSectionHeader{text: "Usage"}
-                    ShadFieldDescription{text: "Pair `ShadTabsTrigger` with `PageFlip` or another state holder in app code."}
-                }
+                tabs_code_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
 
-                settings_page := ShadTabsContent{
-                    ShadSectionHeader{text: "Settings"}
-                    ShadFieldDescription{text: "This first pass focuses on composition and styling, not a fully stateful tab controller."}
+                    tabs_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
+
+                    tabs_code_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        visible: false
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
                 }
             }
-        }
 
-        GalleryCodeSnippetSimple{
-            code: #(TABS_PREVIEW_CODE)
+            tabs_preview_panel := mod.widgets.ShadPanel{
+                tabs_preview_flip := PageFlip{
+                    width: Fill
+                    height: Fit
+                    active_page: @demo_page
+
+                    demo_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        ShadTabs{
+                            tabs_row := ShadTabsList{
+                                overview_group := View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 4.0
+
+                                    tabs_overview_trigger := ShadTabsTrigger{text: "Overview"}
+                                    tabs_overview_indicator := SolidView{
+                                        width: Fill
+                                        height: 2
+                                        draw_bg.color: (shad_theme.color_primary)
+                                    }
+                                }
+
+                                usage_group := View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 4.0
+
+                                    tabs_usage_trigger := ShadTabsTrigger{text: "Usage"}
+                                    tabs_usage_indicator := SolidView{
+                                        width: Fill
+                                        height: 2
+                                        visible: false
+                                        draw_bg.color: (shad_theme.color_primary)
+                                    }
+                                }
+
+                                settings_group := View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 4.0
+
+                                    tabs_settings_trigger := ShadTabsTrigger{text: "Settings"}
+                                    tabs_settings_indicator := SolidView{
+                                        width: Fill
+                                        height: 2
+                                        visible: false
+                                        draw_bg.color: (shad_theme.color_primary)
+                                    }
+                                }
+                            }
+
+                            tabs_content_flip := PageFlip{
+                                width: Fill
+                                height: Fit
+                                active_page: @overview_page
+
+                                overview_page := ShadTabsContent{
+                                    ShadSectionHeader{text: "Overview"}
+                                    ShadFieldDescription{text: "Keep the page shell compact while switching between related content areas."}
+                                }
+
+                                usage_page := ShadTabsContent{
+                                    ShadSectionHeader{text: "Usage"}
+                                    ShadFieldDescription{text: "Pair `ShadTabsTrigger` with `PageFlip` or another state holder in app code."}
+                                }
+
+                                settings_page := ShadTabsContent{
+                                    ShadSectionHeader{text: "Settings"}
+                                    ShadFieldDescription{text: "This first pass focuses on composition and styling, not a fully stateful tab controller."}
+                                }
+                            }
+                        }
+                    }
+
+                    code_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        GalleryCodeSnippetSimple{
+                            code: #(TABS_PREVIEW_CODE)
+                        }
+                    }
+                }
+            }
         }
     }
 }

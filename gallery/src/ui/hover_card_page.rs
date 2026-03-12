@@ -35,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    hover_card_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    hover_card_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     hover_card_demo_indicator := SolidView{
                         width: Fill
@@ -50,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    hover_card_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    hover_card_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     hover_card_code_indicator := SolidView{
                         width: Fill

@@ -16,31 +16,98 @@ script_mod! {
 
         ShadSeparator{}
 
-        ShadPanel{
-            View{
-                width: Fill
-                height: Fit
-                flow: Down
-                spacing: 12.0
+        select_preview_section := View{
+            width: Fill
+            height: Fit
+            flow: Down
 
-                View{
+            select_tabs_row := View{
+                width: Fit
+                height: Fit
+                flow: Right
+                spacing: 20.0
+                margin: Inset{top: 4, bottom: 12}
+
+                select_demo_tab_group := View{
                     width: Fit
                     height: Fit
-                    flow: Right
-                    spacing: 12.0
+                    flow: Down
+                    spacing: 6.0
 
-                    ShadSelect{labels: ["Pending" "In Progress" "Done"]}
-                    ShadSelect{labels: ["Toronto" "Montreal" "Vancouver" "Calgary"]}
+                    select_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
+
+                    select_demo_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
                 }
 
-                ShadFieldDescription{
-                    text: "Known limitation: popup-style selects can still be unreliable inside the current gallery PageFlip shell. The splash app remains the best place to verify interaction."
+                select_code_tab_group := View{
+                    width: Fit
+                    height: Fit
+                    flow: Down
+                    spacing: 6.0
+
+                    select_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
+
+                    select_code_indicator := SolidView{
+                        width: Fill
+                        height: 2
+                        visible: false
+                        draw_bg.color: (shad_theme.color_primary)
+                    }
                 }
             }
-        }
 
-        GalleryCodeSnippetSimple{
-            code: #(SELECT_PREVIEW_CODE)
+            select_preview_panel := mod.widgets.ShadPanel{
+                select_preview_flip := PageFlip{
+                    width: Fill
+                    height: Fit
+                    active_page: @demo_page
+
+                    demo_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        ShadPanel{
+                            View{
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
+
+                                View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Right
+                                    spacing: 12.0
+
+                                    ShadSelect{labels: ["Pending" "In Progress" "Done"]}
+                                    ShadSelect{labels: ["Toronto" "Montreal" "Vancouver" "Calgary"]}
+                                }
+
+                                ShadFieldDescription{
+                                    text: "Known limitation: popup-style selects can still be unreliable inside the current gallery PageFlip shell. The splash app remains the best place to verify interaction."
+                                }
+                            }
+                        }
+                    }
+
+                    code_page := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+
+                        GalleryCodeSnippetSimple{
+                            code: #(SELECT_PREVIEW_CODE)
+                        }
+                    }
+                }
+            }
         }
     }
 }

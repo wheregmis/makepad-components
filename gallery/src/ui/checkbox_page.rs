@@ -35,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    checkbox_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    checkbox_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     checkbox_demo_indicator := SolidView{
                         width: Fill
@@ -50,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    checkbox_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    checkbox_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     checkbox_code_indicator := SolidView{
                         width: Fill

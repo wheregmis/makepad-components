@@ -35,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    button_group_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    button_group_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     button_group_demo_indicator := SolidView{
                         width: Fill
@@ -50,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    button_group_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    button_group_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     button_group_code_indicator := SolidView{
                         width: Fill
@@ -82,7 +82,15 @@ script_mod! {
                     spacing: 10.0
                     align: Align{y: 0.5}
 
-                    ShadButtonIcon{text: "←"}
+                    IconButtonChevronLeft{
+                        draw_bg +: {
+                            color: (shad_theme.color_secondary)
+                            border_size: 1.0
+                            border_radius: (shad_theme.radius)
+                            border_color: (shad_theme.color_outline_border)
+                        }
+                        draw_icon.color: (shad_theme.color_primary)
+                    }
 
                     ShadButtonGroup{
                         ShadButtonGroupItem{text: "Archive"}

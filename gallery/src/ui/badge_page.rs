@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    badge_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    badge_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     badge_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    badge_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    badge_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     badge_code_indicator := SolidView{
                         width: Fill

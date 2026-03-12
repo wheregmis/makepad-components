@@ -22,30 +22,97 @@ script_mod! {
 
             ShadSeparator{}
 
-            ShadPanel{
-                View{
-                    width: Fill
-                    height: Fit
-                    flow: Down
-                    spacing: 12.0
+            sheet_preview_section := View{
+                width: Fill
+                height: Fit
+                flow: Down
 
-                    ShadSectionHeader{ text: "Sides" }
-                    View{
+                sheet_tabs_row := View{
+                    width: Fit
+                    height: Fit
+                    flow: Right
+                    spacing: 20.0
+                    margin: Inset{top: 4, bottom: 12}
+
+                    sheet_demo_tab_group := View{
                         width: Fit
                         height: Fit
-                        flow: Right
-                        spacing: 12.0
+                        flow: Down
+                        spacing: 6.0
 
-                        open_right_sheet_btn := ShadButton{text: "Right"}
-                        open_left_sheet_btn := ShadButtonOutline{text: "Left"}
-                        open_top_sheet_btn := ShadButtonOutline{text: "Top"}
-                        open_bottom_sheet_btn := ShadButtonOutline{text: "Bottom"}
+                        sheet_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
+
+                        sheet_demo_indicator := SolidView{
+                            width: Fill
+                            height: 2
+                            draw_bg.color: (shad_theme.color_primary)
+                        }
+                    }
+
+                    sheet_code_tab_group := View{
+                        width: Fit
+                        height: Fit
+                        flow: Down
+                        spacing: 6.0
+
+                        sheet_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
+
+                        sheet_code_indicator := SolidView{
+                            width: Fill
+                            height: 2
+                            visible: false
+                            draw_bg.color: (shad_theme.color_primary)
+                        }
                     }
                 }
-            }
 
-            GalleryCodeSnippetSimple{
-                code: #(SHEET_PREVIEW_CODE)
+                sheet_preview_panel := mod.widgets.ShadPanel{
+                    sheet_preview_flip := PageFlip{
+                        width: Fill
+                        height: Fit
+                        active_page: @demo_page
+
+                        demo_page := View{
+                            width: Fill
+                            height: Fit
+                            flow: Down
+                            spacing: 12.0
+
+                            ShadPanel{
+                                View{
+                                    width: Fill
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 12.0
+
+                                    ShadSectionHeader{ text: "Sides" }
+                                    View{
+                                        width: Fit
+                                        height: Fit
+                                        flow: Right
+                                        spacing: 12.0
+
+                                        open_right_sheet_btn := ShadButton{text: "Right"}
+                                        open_left_sheet_btn := ShadButtonOutline{text: "Left"}
+                                        open_top_sheet_btn := ShadButtonOutline{text: "Top"}
+                                        open_bottom_sheet_btn := ShadButtonOutline{text: "Bottom"}
+                                    }
+                                }
+                            }
+                        }
+
+                        code_page := View{
+                            width: Fill
+                            height: Fit
+                            flow: Down
+                            spacing: 12.0
+
+                            GalleryCodeSnippetSimple{
+                                code: #(SHEET_PREVIEW_CODE)
+                            }
+                        }
+                    }
+                }
             }
         }
 

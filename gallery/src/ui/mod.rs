@@ -43,6 +43,7 @@ pub mod tooltip_page;
 pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::themed_widgets::script_mod(vm);
     crate::ui::sidebar::script_mod(vm);
+    crate::ui::content_flip::script_mod(vm);
     crate::ui::accordion_page::script_mod(vm);
     crate::ui::alert_page::script_mod(vm);
     crate::ui::aspect_ratio_page::script_mod(vm);
@@ -78,6 +79,5 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::slider_page::script_mod(vm);
     crate::ui::sonner_page::script_mod(vm);
     crate::ui::spinner_page::script_mod(vm);
-    crate::ui::content_flip::script_mod(vm);
     crate::ui::root::script_mod(vm);
 }

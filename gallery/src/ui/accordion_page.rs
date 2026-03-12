@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    accordion_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    accordion_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     accordion_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    accordion_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    accordion_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     accordion_code_indicator := SolidView{
                         width: Fill
@@ -72,54 +72,76 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
-                        accordion_panel := ShadAccordion{
-                    margin: Inset{top: 12, right: 12}
-                    item_accessible := ShadAccordionItem{
-                        title: "Is it accessible?"
-                        is_open: true
-                        body: View{
-                            width: Fill
+                        accordion_demo_shell := View{
+                            width: 840
                             height: Fit
                             flow: Down
-                            padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
-                            ShadSectionHeader{ text: "Yes. This accordion is keyboard and mouse friendly by default through FoldHeader/FoldButton behavior." }
-                        }
-                    }
+                            spacing: 12.0
 
-                    item_styled := ShadAccordionItem{
-                        title: "Is it styled with complex elements?"
-                        body: View{
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
-                            spacing: 8.0
-
-                            ShadSectionHeader{ text: "We can put any view here, like a row with toggles." }
-
-                            View{
+                            ShadFieldDescription{
                                 width: Fill
-                                height: Fit
-                                flow: Right
-                                spacing: 16
+                                text: "Contained preview with realistic spacing, nested content, and divider rhythm."
+                            }
 
-                                ShadSwitch{text: "Switch"}
-                                ShadCheckbox{label: "Or a CheckBox"}
+                            accordion_panel := ShadAccordion{
+                                width: Fill
+                                item_accessible := ShadAccordionItem{
+                                    title: "Is it accessible?"
+                                    is_open: true
+                                    body: View{
+                                        width: Fill
+                                        height: Fit
+                                        flow: Down
+                                        padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
+                                        ShadFieldDescription{
+                                            width: Fill
+                                            text: "Yes. This accordion is keyboard and mouse friendly by default through FoldHeader/FoldButton behavior."
+                                        }
+                                    }
+                                }
+
+                                item_styled := ShadAccordionItem{
+                                    title: "Is it styled with complex elements?"
+                                    body: View{
+                                        width: Fill
+                                        height: Fit
+                                        flow: Down
+                                        padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
+                                        spacing: 10.0
+
+                                        ShadFieldDescription{
+                                            width: Fill
+                                            text: "We can put any view here, like a row with toggles."
+                                        }
+
+                                        View{
+                                            width: Fit
+                                            height: Fit
+                                            flow: Right
+                                            spacing: 20.0
+                                            align: Align{y: 0.5}
+
+                                            ShadSwitch{text: "Switch"}
+                                            ShadCheckbox{label: "Or a CheckBox"}
+                                        }
+                                    }
+                                }
+
+                                item_third := ShadAccordionItem{
+                                    title: "This is third accordion"
+                                    body: View{
+                                        width: Fill
+                                        height: Fit
+                                        flow: Down
+                                        padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
+                                        ShadFieldDescription{
+                                            width: Fill
+                                            text: "This is third accordion content. It can be any view, like a text view or a button."
+                                        }
+                                    }
+                                }
                             }
                         }
-                    }
-
-                    item_third := ShadAccordionItem{
-                        title: "This is third accordion"
-                        body: View{
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            padding: Inset{left: 16, right: 16, top: 0, bottom: 16}
-                            ShadSectionHeader{ text: "This is third accordion content. It can be any view, like a text view or a button." }
-                        }
-                    }
-                }
                     }
 
                     code_page := View{

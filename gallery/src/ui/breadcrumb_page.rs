@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    breadcrumb_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    breadcrumb_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     breadcrumb_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    breadcrumb_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    breadcrumb_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     breadcrumb_code_indicator := SolidView{
                         width: Fill

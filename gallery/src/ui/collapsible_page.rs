@@ -35,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    collapsible_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    collapsible_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     collapsible_demo_indicator := SolidView{
                         width: Fill
@@ -50,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    collapsible_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    collapsible_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     collapsible_code_indicator := SolidView{
                         width: Fill

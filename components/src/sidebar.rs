@@ -27,11 +27,13 @@ script_mod! {
         reset_hover_on_click: true
         draw_bg +: {
             border_radius: (shad_theme.radius)
+            color_focus: #0000
         }
         draw_text.text_style.font_size: 10
         draw_text.color: (shad_theme.color_muted_foreground)
         draw_text.color_hover: (shad_theme.color_primary)
         draw_text.color_down: (shad_theme.color_primary)
+        draw_text.color_focus: (shad_theme.color_muted_foreground)
         text: "Item"
     }
 }

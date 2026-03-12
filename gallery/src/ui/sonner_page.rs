@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    sonner_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    sonner_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     sonner_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    sonner_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    sonner_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     sonner_code_indicator := SolidView{
                         width: Fill

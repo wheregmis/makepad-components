@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    avatar_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    avatar_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     avatar_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    avatar_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    avatar_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     avatar_code_indicator := SolidView{
                         width: Fill

@@ -13,7 +13,7 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    startup() do #(App::script_component(vm)){
+    load_all_resources() do #(App::script_component(vm)){
         ui: mod.widgets.GalleryAppUi{}
     }
 }
@@ -57,13 +57,10 @@ impl App {
         actions: &Actions,
         sidebar_button: &[LiveId],
         page: LiveId,
-        content_flip: &PageFlipRef,
+        content_flip: &[LiveId],
     ) {
         if self.ui.button(cx, sidebar_button).clicked(actions) {
-            content_flip.set_active_page(cx, page);
-            self.ui
-                .page_flip(cx, ids!(content_flip))
-                .set_active_page(cx, page);
+            Self::set_flip_page(&self.ui, cx, content_flip, page);
             if self.is_small_screen {
                 self.sidebar_open = false;
                 self.apply_responsive_visibility(cx);
@@ -79,8 +76,10 @@ impl App {
         code_indicator: &[LiveId],
         show_code: bool,
     ) {
-        ui.page_flip(cx, flip).set_active_page(
+        Self::set_flip_page(
+            ui,
             cx,
+            flip,
             if show_code {
                 live_id!(code_page)
             } else {
@@ -89,6 +88,43 @@ impl App {
         );
         ui.view(cx, demo_indicator).set_visible(cx, !show_code);
         ui.view(cx, code_indicator).set_visible(cx, show_code);
+    }
+
+    fn set_flip_page(ui: &WidgetRef, cx: &mut Cx, flip: &[LiveId], page: LiveId) {
+        ui.page_flip(cx, flip).set_active_page(cx, page);
+    }
+
+    fn show_basic_tooltip(&self, cx: &mut Cx) {
+        let trigger = self.ui.button(cx, ids!(tooltip_basic_btn));
+        let content_rect = self.ui.view(cx, ids!(content_flip)).area().rect(cx);
+        let trigger_rect = trigger.area().rect(cx);
+        let pos = Vec2d {
+            x: content_rect.pos.x + trigger_rect.pos.x,
+            y: content_rect.pos.y + trigger_rect.pos.y + trigger_rect.size.y + 8.0,
+        };
+        self.ui.tooltip(cx, ids!(basic_tooltip)).show_with_options(
+            cx,
+            pos,
+            "Helpful context for a nearby action.",
+        );
+    }
+
+    fn show_callout_tooltip(&self, cx: &mut Cx) {
+        let trigger = self.ui.button(cx, ids!(tooltip_callout_btn));
+        let rect = trigger.area().rect(cx);
+        self.ui.callout_tooltip(cx, ids!(callout_tooltip)).show_with_options(
+            cx,
+            "Callout tooltips can point at the related control.",
+            rect,
+            CalloutTooltipOptions {
+                position: TooltipPosition::Right,
+                ..Default::default()
+            },
+        );
+    }
+
+    fn hide_callout_tooltip(&self, cx: &mut Cx) {
+        self.ui.callout_tooltip(cx, ids!(callout_tooltip)).hide(cx);
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -126,7 +162,7 @@ pub struct App {
 
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
-        let content_flip = self.ui.page_flip(cx, ids!(content_flip));
+        let content_flip = ids!(content_flip);
         if self
             .ui
             .button(cx, ids!(mobile_sidebar_button))
@@ -142,14 +178,14 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_accordion),
             live_id!(accordion_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_alert),
             live_id!(alert_page),
-            &content_flip,
+            content_flip,
         );
         if let Some(mut carousel) = self
             .ui
@@ -163,77 +199,77 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_aspect_ratio),
             live_id!(aspect_ratio_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_avatar),
             live_id!(avatar_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_badge),
             live_id!(badge_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_breadcrumb),
             live_id!(breadcrumb_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_button),
             live_id!(button_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_button_group),
             live_id!(button_group_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_card),
             live_id!(card_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_carousel),
             live_id!(carousel_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_checkbox),
             live_id!(checkbox_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_collapsible),
             live_id!(collapsible_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_dialog),
             live_id!(dialog_page),
-            &content_flip,
+            content_flip,
         );
         if self.ui.button(cx, ids!(open_dialog_btn)).clicked(actions) {
             if let Some(mut d) = self
@@ -277,7 +313,7 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_drawer),
             live_id!(drawer_page),
-            &content_flip,
+            content_flip,
         );
         if self.ui.button(cx, ids!(open_drawer_btn)).clicked(actions) {
             let drawer = self.ui.widget_flood(cx, ids!(drawer_demo));
@@ -291,133 +327,133 @@ impl MatchEvent for App {
             actions,
             ids!(sidebar_dropdown_menu),
             live_id!(dropdown_menu_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_hover_card),
             live_id!(hover_card_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_input),
             live_id!(input_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_radio_group),
             live_id!(radio_group_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_resizable),
             live_id!(resizable_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_scroll_area),
             live_id!(scroll_area_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_select),
             live_id!(select_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_separator),
             live_id!(separator_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_sheet),
             live_id!(sheet_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_skeleton),
             live_id!(skeleton_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_switch),
             live_id!(switch_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_tabs),
             live_id!(tabs_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_tooltip),
             live_id!(tooltip_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_kbd),
             live_id!(kbd_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_label),
             live_id!(label_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_progress),
             live_id!(progress_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_sidebar),
             live_id!(sidebar_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_slider),
             live_id!(slider_page),
-            &content_flip,
+            content_flip,
         );
         self.set_page(
             cx,
             actions,
             ids!(sidebar_sonner),
             live_id!(sonner_page),
-            &content_flip,
+            content_flip,
         );
         if self.ui.button(cx, ids!(toast_event_btn)).clicked(actions) {
             if let Some(mut s) = self
@@ -446,56 +482,14 @@ impl MatchEvent for App {
                 s.set_open(true);
             }
         }
-        self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page), &content_flip);
-
-        if self.ui.button(cx, ids!(tooltip_basic_btn)).clicked(actions) {
-            let trigger = self.ui.button(cx, ids!(tooltip_basic_btn));
-            let content_rect = self.ui.view(cx, ids!(content_flip)).area().rect(cx);
-            let trigger_rect = trigger.area().rect(cx);
-            let pos = Vec2d {
-                x: content_rect.pos.x + trigger_rect.pos.x,
-                y: content_rect.pos.y + trigger_rect.pos.y + trigger_rect.size.y + 8.0,
-            };
-            self.ui.tooltip(cx, ids!(basic_tooltip)).show_with_options(
-                cx,
-                pos,
-                "Helpful context for a nearby action.",
-            );
-        }
-        if self
-            .ui
-            .button(cx, ids!(tooltip_callout_btn))
-            .clicked(actions)
-        {
-            let tooltip_ref = self.ui.widget_flood(cx, ids!(callout_tooltip));
-            if !tooltip_ref.is_empty() {
-                let trigger = self.ui.button(cx, ids!(tooltip_callout_btn));
-                let content_rect = self.ui.view(cx, ids!(content_flip)).area().rect(cx);
-                let trigger_rect = trigger.area().rect(cx);
-                let rect = Rect {
-                    pos: content_rect.pos + trigger_rect.pos,
-                    size: trigger_rect.size,
-                };
-                if let Some(mut ct) = tooltip_ref.borrow_mut::<CalloutTooltip>() {
-                    ct.show_with_options(
-                        cx,
-                        "Callout tooltips can point at the related control.",
-                        rect,
-                        CalloutTooltipOptions::default(),
-                        false,
-                    );
-                }
-            }
-        }
+        self.set_page(cx, actions, ids!(sidebar_spinner), live_id!(spinner_page), content_flip);
 
         if self
             .ui
             .button(cx, ids!(tabs_overview_trigger))
             .clicked(actions)
         {
-            self.ui
-                .page_flip(cx, ids!(tabs_content_flip))
-                .set_active_page(cx, live_id!(overview_page));
+            Self::set_flip_page(&self.ui, cx, ids!(tabs_content_flip), live_id!(overview_page));
             self.ui
                 .view(cx, ids!(tabs_overview_indicator))
                 .set_visible(cx, true);
@@ -511,9 +505,7 @@ impl MatchEvent for App {
             .button(cx, ids!(tabs_usage_trigger))
             .clicked(actions)
         {
-            self.ui
-                .page_flip(cx, ids!(tabs_content_flip))
-                .set_active_page(cx, live_id!(usage_page));
+            Self::set_flip_page(&self.ui, cx, ids!(tabs_content_flip), live_id!(usage_page));
             self.ui
                 .view(cx, ids!(tabs_overview_indicator))
                 .set_visible(cx, false);
@@ -529,9 +521,7 @@ impl MatchEvent for App {
             .button(cx, ids!(tabs_settings_trigger))
             .clicked(actions)
         {
-            self.ui
-                .page_flip(cx, ids!(tabs_content_flip))
-                .set_active_page(cx, live_id!(settings_page));
+            Self::set_flip_page(&self.ui, cx, ids!(tabs_content_flip), live_id!(settings_page));
             self.ui
                 .view(cx, ids!(tabs_overview_indicator))
                 .set_visible(cx, false);
@@ -606,6 +596,156 @@ impl MatchEvent for App {
             &self.ui,
             cx,
             actions,
+            ids!(accordion_demo_tab),
+            ids!(accordion_code_tab),
+            ids!(accordion_preview_flip),
+            ids!(accordion_demo_indicator),
+            ids!(accordion_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(alert_demo_tab),
+            ids!(alert_code_tab),
+            ids!(alert_preview_flip),
+            ids!(alert_demo_indicator),
+            ids!(alert_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(aspect_ratio_demo_tab),
+            ids!(aspect_ratio_code_tab),
+            ids!(aspect_ratio_preview_flip),
+            ids!(aspect_ratio_demo_indicator),
+            ids!(aspect_ratio_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(avatar_demo_tab),
+            ids!(avatar_code_tab),
+            ids!(avatar_preview_flip),
+            ids!(avatar_demo_indicator),
+            ids!(avatar_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(badge_demo_tab),
+            ids!(badge_code_tab),
+            ids!(badge_preview_flip),
+            ids!(badge_demo_indicator),
+            ids!(badge_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(breadcrumb_demo_tab),
+            ids!(breadcrumb_code_tab),
+            ids!(breadcrumb_preview_flip),
+            ids!(breadcrumb_demo_indicator),
+            ids!(breadcrumb_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(button_demo_tab),
+            ids!(button_code_tab),
+            ids!(button_preview_flip),
+            ids!(button_demo_indicator),
+            ids!(button_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(button_group_demo_tab),
+            ids!(button_group_code_tab),
+            ids!(button_group_preview_flip),
+            ids!(button_group_demo_indicator),
+            ids!(button_group_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(card_demo_tab),
+            ids!(card_code_tab),
+            ids!(card_preview_flip),
+            ids!(card_demo_indicator),
+            ids!(card_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(carousel_demo_tab),
+            ids!(carousel_code_tab),
+            ids!(carousel_preview_flip),
+            ids!(carousel_demo_indicator),
+            ids!(carousel_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(checkbox_demo_tab),
+            ids!(checkbox_code_tab),
+            ids!(checkbox_preview_flip),
+            ids!(checkbox_demo_indicator),
+            ids!(checkbox_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(collapsible_demo_tab),
+            ids!(collapsible_code_tab),
+            ids!(collapsible_preview_flip),
+            ids!(collapsible_demo_indicator),
+            ids!(collapsible_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(dialog_demo_tab),
+            ids!(dialog_code_tab),
+            ids!(dialog_preview_flip),
+            ids!(dialog_demo_indicator),
+            ids!(dialog_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(drawer_demo_tab),
+            ids!(drawer_code_tab),
+            ids!(drawer_preview_flip),
+            ids!(drawer_demo_indicator),
+            ids!(drawer_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(dropdown_demo_tab),
+            ids!(dropdown_code_tab),
+            ids!(dropdown_preview_flip),
+            ids!(dropdown_demo_indicator),
+            ids!(dropdown_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
             ids!(hover_card_demo_tab),
             ids!(hover_card_code_tab),
             ids!(hover_card_preview_flip),
@@ -655,26 +795,6 @@ impl MatchEvent for App {
             &self.ui,
             cx,
             actions,
-            ids!(skeleton_demo_tab),
-            ids!(skeleton_code_tab),
-            ids!(skeleton_preview_flip),
-            ids!(skeleton_demo_indicator),
-            ids!(skeleton_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
-            ids!(switch_demo_tab),
-            ids!(switch_code_tab),
-            ids!(switch_preview_flip),
-            ids!(switch_demo_indicator),
-            ids!(switch_code_indicator),
-        );
-        Self::handle_preview_tabs(
-            &self.ui,
-            cx,
-            actions,
             ids!(kbd_demo_tab),
             ids!(kbd_code_tab),
             ids!(kbd_preview_flip),
@@ -700,6 +820,86 @@ impl MatchEvent for App {
             ids!(progress_preview_flip),
             ids!(progress_demo_indicator),
             ids!(progress_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(radio_group_demo_tab),
+            ids!(radio_group_code_tab),
+            ids!(radio_group_preview_flip),
+            ids!(radio_group_demo_indicator),
+            ids!(radio_group_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(resizable_demo_tab),
+            ids!(resizable_code_tab),
+            ids!(resizable_preview_flip),
+            ids!(resizable_demo_indicator),
+            ids!(resizable_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(scroll_area_demo_tab),
+            ids!(scroll_area_code_tab),
+            ids!(scroll_area_preview_flip),
+            ids!(scroll_area_demo_indicator),
+            ids!(scroll_area_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(select_demo_tab),
+            ids!(select_code_tab),
+            ids!(select_preview_flip),
+            ids!(select_demo_indicator),
+            ids!(select_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(separator_demo_tab),
+            ids!(separator_code_tab),
+            ids!(separator_preview_flip),
+            ids!(separator_demo_indicator),
+            ids!(separator_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(sheet_demo_tab),
+            ids!(sheet_code_tab),
+            ids!(sheet_preview_flip),
+            ids!(sheet_demo_indicator),
+            ids!(sheet_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(skeleton_demo_tab),
+            ids!(skeleton_code_tab),
+            ids!(skeleton_preview_flip),
+            ids!(skeleton_demo_indicator),
+            ids!(skeleton_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(switch_demo_tab),
+            ids!(switch_code_tab),
+            ids!(switch_preview_flip),
+            ids!(switch_demo_indicator),
+            ids!(switch_code_indicator),
         );
         Self::handle_preview_tabs(
             &self.ui,
@@ -741,6 +941,26 @@ impl MatchEvent for App {
             ids!(spinner_demo_indicator),
             ids!(spinner_code_indicator),
         );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(tabs_demo_tab),
+            ids!(tabs_code_tab),
+            ids!(tabs_preview_flip),
+            ids!(tabs_demo_indicator),
+            ids!(tabs_code_indicator),
+        );
+        Self::handle_preview_tabs(
+            &self.ui,
+            cx,
+            actions,
+            ids!(tooltip_demo_tab),
+            ids!(tooltip_code_tab),
+            ids!(tooltip_preview_flip),
+            ids!(tooltip_demo_indicator),
+            ids!(tooltip_code_indicator),
+        );
     }
 }
 
@@ -766,5 +986,17 @@ impl AppMain for App {
         }
         self.match_event(cx, event);
         self.ui.handle_event(cx, event, &mut Scope::empty());
+
+        match event.hits(cx, self.ui.button(cx, ids!(tooltip_basic_btn)).area()) {
+            Hit::FingerHoverIn(_) => self.show_basic_tooltip(cx),
+            Hit::FingerHoverOut(_) => self.ui.tooltip(cx, ids!(basic_tooltip)).hide(cx),
+            _ => {}
+        }
+
+        match event.hits(cx, self.ui.button(cx, ids!(tooltip_callout_btn)).area()) {
+            Hit::FingerHoverIn(_) => self.show_callout_tooltip(cx),
+            Hit::FingerHoverOut(_) => self.hide_callout_tooltip(cx),
+            _ => {}
+        }
     }
 }

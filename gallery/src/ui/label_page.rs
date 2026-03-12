@@ -35,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    label_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    label_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     label_demo_indicator := SolidView{
                         width: Fill
@@ -50,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    label_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    label_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     label_code_indicator := SolidView{
                         width: Fill

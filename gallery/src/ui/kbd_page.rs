@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    kbd_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    kbd_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     kbd_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    kbd_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    kbd_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     kbd_code_indicator := SolidView{
                         width: Fill
@@ -81,10 +81,10 @@ script_mod! {
                             spacing: 6.0
                             align: Align{y: 0.5}
 
-                            ShadKbd{ label := ShadKbdLabel{text: "⌘"} }
-                            ShadKbd{ label := ShadKbdLabel{text: "⇧"} }
-                            ShadKbd{ label := ShadKbdLabel{text: "⌥"} }
-                            ShadKbd{ label := ShadKbdLabel{text: "⌃"} }
+                            ShadKbd{ label := IconCommand{ icon_walk: Walk{width: 12 height: 12} draw_icon.color: (shad_theme.color_kbd_foreground) } }
+                            ShadKbd{ label := IconShift{ icon_walk: Walk{width: 12 height: 12} draw_icon.color: (shad_theme.color_kbd_foreground) } }
+                            ShadKbd{ label := IconOption{ icon_walk: Walk{width: 12 height: 12} draw_icon.color: (shad_theme.color_kbd_foreground) } }
+                            ShadKbd{ label := IconControl{ icon_walk: Walk{width: 12 height: 12} draw_icon.color: (shad_theme.color_kbd_foreground) } }
                         }
 
                         ShadSectionHeader{ text: "Shortcut" }

@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    carousel_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    carousel_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     carousel_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    carousel_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    carousel_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     carousel_code_indicator := SolidView{
                         width: Fill

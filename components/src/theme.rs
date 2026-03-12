@@ -30,6 +30,7 @@ script_mod! {
         color_outline_border_down: #71717a
 
         color_background: #09090b
+        color_popover: #09090b
 
         radius: 6.0
 

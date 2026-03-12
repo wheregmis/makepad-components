@@ -8,7 +8,7 @@ script_mod! {
         width: Fill
         height: Fit
         align: Align{y: 0.5}
-        padding: Inset{left: 12, right: 12, top: 8, bottom: 8}
+        padding: Inset{left: 24, right: 12, top: 8, bottom: 8}
 
         draw_text +: {
             color: (shad_theme.color_primary)
@@ -20,7 +20,7 @@ script_mod! {
 
         draw_bg +: {
             border_size: 0.0
-            border_radius: (shad_theme.radius)
+            border_radius: 6.0
             color: #0000
             color_hover: (shad_theme.color_secondary)
             color_active: (shad_theme.color_secondary_hover)
@@ -37,6 +37,7 @@ script_mod! {
     }
 
     mod.widgets.ShadDropdownPopupMenu = mod.widgets.PopupMenu{
+        width: 160
         padding: Inset{left: 4, right: 4, top: 4, bottom: 4}
         menu_item: mod.widgets.ShadDropdownMenuItem{}
 
@@ -70,7 +71,7 @@ script_mod! {
             border_size: 1.0
             color: #0000
             color_hover: (shad_theme.color_ghost_hover)
-            color_focus: #0000
+            color_focus: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_ghost_down)
             color_active: (shad_theme.color_ghost_hover)
             color_disabled: #0000
@@ -87,6 +88,6 @@ script_mod! {
             arrow_color_disabled: (shad_theme.color_muted_foreground)
         }
 
-        popup_menu: mod.widgets.PopupMenu{}
+        popup_menu: mod.widgets.ShadDropdownPopupMenu{}
     }
 }

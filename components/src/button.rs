@@ -102,6 +102,25 @@ script_mod! {
         draw_text.text_style.font_size: 11
     }
 
+    mod.widgets.ShadPreviewTab = mod.widgets.ButtonFlat{
+        height: 36
+        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+        draw_bg +: {
+            color: #0000
+            color_hover: #0000
+            color_down: #0000
+            color_focus: #0000
+            border_size: 0.0
+            border_radius: 0.0
+            border_color: #0000
+        }
+        draw_text.color: (shad_theme.color_muted_foreground)
+        draw_text.color_hover: (shad_theme.color_primary)
+        draw_text.color_down: (shad_theme.color_primary)
+        draw_text.color_focus: (shad_theme.color_primary)
+        draw_text.text_style.font_size: 11
+    }
+
     mod.widgets.ShadButtonLink = mod.widgets.ButtonFlat{
         height: 36
         padding: Inset{left: 4, right: 4, top: 0, bottom: 0}

@@ -34,7 +34,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    progress_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    progress_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     progress_demo_indicator := SolidView{
                         width: Fill
@@ -49,7 +49,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    progress_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    progress_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     progress_code_indicator := SolidView{
                         width: Fill

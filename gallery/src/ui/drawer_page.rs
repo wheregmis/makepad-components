@@ -35,7 +35,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    drawer_demo_tab := mod.widgets.ShadButtonGhost{text: "DEMO" padding: Inset{}}
+                    drawer_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
 
                     drawer_demo_indicator := SolidView{
                         width: Fill
@@ -50,7 +50,7 @@ script_mod! {
                     flow: Down
                     spacing: 6.0
 
-                    drawer_code_tab := mod.widgets.ShadButtonGhost{text: "CODE" padding: Inset{}}
+                    drawer_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
 
                     drawer_code_indicator := SolidView{
                         width: Fill
