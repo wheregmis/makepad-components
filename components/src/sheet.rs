@@ -119,7 +119,11 @@ impl ShadSheet {
             return;
         }
 
-        self.last_side = current_side.to_string();
+        // Optimization: avoid repeated allocation in layout sync loop by reusing string capacity
+        // Previously: allocated a new String using `current_side.to_string()`
+        // Now: reuse `self.last_side` buffer, avoiding a heap allocation
+        self.last_side.clear();
+        self.last_side.push_str(current_side);
         self.is_side_initialized = true;
 
         let (align, content_width, content_height) = match current_side {
@@ -145,8 +149,10 @@ impl ShadSheet {
             ),
         };
 
-        let mut overlay = self.overlay.clone();
-        script_apply_eval!(cx, overlay, {
+        // Optimization: avoid cloning the `WidgetRef`
+        // Previously: created a new cloned reference using `self.overlay.clone()`
+        // Now: apply directly to `self.overlay`, eliminating clone overhead
+        script_apply_eval!(cx, self.overlay, {
             align: #(align)
         });
 
