@@ -21,7 +21,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Composable trigger and content styles for app-level tab state."
+                text: "Composable trigger and content styles for app-level tab state. This gallery page keeps tab clicks local and routes content through a RouterWidget."
             }
 
             ShadSeparator{}
@@ -152,6 +152,15 @@ script_mod! {
                                         ShadSectionHeader{text: "Settings"}
                                         ShadFieldDescription{text: "This first pass focuses on composition and styling, not a fully stateful tab controller."}
                                     }
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. The selected tab is page-owned state, not app-shell glue and not hidden inside the visual trigger widgets."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. The page controller listens to trigger clicks locally and updates one source of truth for the active tab."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. That selected value drives both the RouterWidget content and the active indicator visibility."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. This keeps ShadTabs primitives composable while the page decides how content switching behaves."}
                                 }
                             }
                         }

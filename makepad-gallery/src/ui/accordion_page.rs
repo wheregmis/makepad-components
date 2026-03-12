@@ -14,7 +14,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Accordion component from makepad-components library"
+                text: "Accordion component from makepad-components library. Use ShadAccordionItemRef::set_is_open(cx, ..) and opening/closing(actions) when external state drives expansion."
             }
 
             ShadHr{}
@@ -107,6 +107,15 @@ script_mod! {
                                             }
                                         }
                                     }
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Keep expansion decisions in the page or feature state, not inside the app shell."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Get a ShadAccordionItemRef for the specific item you want to drive, then call set_is_open(cx, true/false, animator::Animate::Yes)."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Use opening(actions) and closing(actions) when surrounding UI needs to react to the transition."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Use is_open(cx) when restoring layout or reconciling external state back into the page."}
                                 }
                             }
                         }

@@ -17,7 +17,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Single-choice, non-searchable selection built on the shared popup-menu stack."
+                text: "Select uses the dropdown ref API: read changed(actions) or changed_label(actions), then store the chosen index or label in page state."
             }
 
             ShadSeparator{}
@@ -100,18 +100,27 @@ script_mod! {
                                     }
                                 }
                             }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Give the select an id, then get the dropdown ref with view.drop_down(cx, ids!(status_select))."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Use changed(actions) when you want the selected index, or changed_label(actions) when the label is enough."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Persist the chosen item in page state, then restore it with set_selected_item(cx, ...) or set_selected_by_label(..., cx)."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. The popup interaction stays inside the component; the page only reacts to the semantic selection result."}
+                                }
+                            }
                         }
 
                         code_page +: {
                             body +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            GalleryCodeSnippet{
-                                code_view +: { text: #(SELECT_PREVIEW_CODE) }
-                            }
+                                GalleryCodeSnippet{
+                                    code_view +: { text: #(SELECT_PREVIEW_CODE) }
+                                }
                             }
                         }
                     }

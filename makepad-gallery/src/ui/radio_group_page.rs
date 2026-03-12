@@ -17,7 +17,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Single-choice groups styled around Makepad radio buttons."
+                text: "Radio groups are page-owned single-choice state: use RadioButtonSet::selected(cx, actions) to map clicks back into a domain value."
             }
 
             ShadSeparator{}
@@ -93,6 +93,15 @@ script_mod! {
                                     ShadRadioItem{text: "Weekly"}
                                     ShadRadioItem{text: "Monthly"}
                                     ShadRadioItem{text: "Yearly"}
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Name the individual radio items that belong to one logical group."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Read the selected index with view.radio_button_set(ids!(starter_plan, pro_plan, enterprise_plan)).selected(cx, actions)."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Convert that index into your domain enum or model value in the page controller."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. When restoring state, call set_active(cx, ...) on the matching item so the UI reflects the domain value again."}
                                 }
                             }
                         }

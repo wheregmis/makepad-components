@@ -18,7 +18,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Global launcher for component pages. Press Command/Ctrl + K anywhere in the gallery, or use the trigger below."
+                text: "Global launcher for component pages. Press Command/Ctrl + K anywhere in the gallery, or use the trigger below. This page emits an open request; the app shell owns the shared overlay."
             }
 
             ShadHr{}
@@ -125,6 +125,15 @@ script_mod! {
 
                                 ShadFieldDescription{
                                     text: "Expected behavior: search filters live, Up/Down changes selection, Enter opens the highlighted page, and Escape dismisses the modal."
+                                }
+
+                                mod.widgets.GalleryActionFlow{
+                                    body +: {
+                                        mod.widgets.GalleryActionFlowStep{text: "1. This page does not open the shared palette directly; it emits GalleryCommandPalettePageAction::OpenRequested."}
+                                        mod.widgets.GalleryActionFlowStep{text: "2. The app shell listens to command_palette_page.open_requested(actions) and opens the global overlay."}
+                                        mod.widgets.GalleryActionFlowStep{text: "3. The overlay remains shell-owned, so no page-internal button ids leak into main.rs."}
+                                        mod.widgets.GalleryActionFlowStep{text: "4. When a command is chosen, the palette emits a semantic selection back to the shell for routing."}
+                                    }
                                 }
                             }
                         }

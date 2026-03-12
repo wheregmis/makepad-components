@@ -17,7 +17,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Multiline text input with the same field styling as the base input."
+                text: "Textarea uses the same TextInputRef flow as Input, just with multiline editing and larger draft state."
             }
 
             ShadHr{}
@@ -85,7 +85,7 @@ script_mod! {
                                 width: 420
                                 height: Fit
 
-                                ShadTextarea{
+                                bio_input := ShadTextarea{
                                     empty_text: "Type your message here."
                                 }
                             }
@@ -121,18 +121,27 @@ script_mod! {
                                     empty_text: "Draft a longer response..."
                                 }
                             }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Give the textarea an id if you want to drive or inspect it from Rust."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Use view.text_input(cx, ids!(bio_input)).changed(actions) for live draft synchronization."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Use set_text(cx, ...) to restore saved drafts, canned replies, or undoable resets."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Keep the actual note, bio, or message in page state; the textarea is the editor for that state."}
+                                }
+                            }
                         }
 
                         code_page +: {
                             body +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            GalleryCodeSnippet{
-                                code_view +: { text: #(TEXTAREA_PREVIEW_CODE) }
-                            }
+                                GalleryCodeSnippet{
+                                    code_view +: { text: #(TEXTAREA_PREVIEW_CODE) }
+                                }
                             }
                         }
                     }

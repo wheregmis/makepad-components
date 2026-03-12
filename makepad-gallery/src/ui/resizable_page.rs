@@ -17,7 +17,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Two-pane layouts built on Makepad splitters with a canonical handle treatment."
+                text: "Resizable panes emit splitter alignment changes, so pages can persist and restore layout without reaching into child internals."
             }
 
             ShadSeparator{}
@@ -146,6 +146,15 @@ script_mod! {
                                         ShadSectionHeader{text: "Details"}
                                         ShadFieldDescription{text: "Expanded logs, notes, or tables."}
                                     }
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Name the splitter you want to persist, like horizontal_resizable or vertical_resizable."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Read layout changes with view.splitter(cx, ids!(horizontal_resizable)).changed(actions)."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Persist the returned SplitterAlign in page state, local storage, or app settings."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Restore the saved layout with set_align(cx, align) when the page is rebuilt."}
                                 }
                             }
                         }

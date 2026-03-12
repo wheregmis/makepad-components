@@ -18,7 +18,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Right click or long press a trigger area to reveal contextual actions."
+                text: "Right click or long press a trigger area to reveal contextual actions. Read the selected item with ShadContextMenuRef::selected(actions)."
             }
 
             ShadHr{}
@@ -105,6 +105,15 @@ script_mod! {
 
                             context_menu_status := ShadFieldDescription{
                                 text: "No action selected yet."
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Compose the trigger area as the child of ShadContextMenu; the component owns the popup internals."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Read selected(actions) from ShadContextMenuRef to get the chosen item index."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Translate that index into domain actions like Open, Duplicate, Share, or Delete inside the page/controller."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Update visible state, status text, or execute commands without touching popup menu internals."}
+                                }
                             }
                         }
 

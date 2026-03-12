@@ -17,7 +17,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Shadcn-inspired checkbox component from makepad-components library"
+                text: "Shadcn-inspired checkbox component from makepad-components library. Use ShadCheckboxRef::changed(actions) or is_checked() when syncing form state."
             }
 
             ShadHr{}
@@ -109,6 +109,15 @@ script_mod! {
                             }
 
                             ShadHr{}
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Keep each checked value in page or form state, even when the visual checkbox looks self-contained."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Read changed(actions) from ShadCheckboxRef to capture the user's latest choice."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Call set_checked(cx, checked, animator::Animate::No) when loading saved data or resetting a form."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Use is_checked() when submitting or validating without waiting for a fresh action event."}
+                                }
+                            }
                         }
 
                         code_page +: {

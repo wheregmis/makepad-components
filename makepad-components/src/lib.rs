@@ -40,7 +40,16 @@ pub use input_otp::{
 };
 pub mod kbd;
 pub mod label;
+pub mod pagination;
 pub mod panel;
+pub use pagination::{
+    ShadPagination, ShadPaginationAction, ShadPaginationRef, ShadPaginationWidgetExt,
+    ShadPaginationWidgetRefExt,
+};
+pub mod popover;
+pub use popover::{
+    ShadPopover, ShadPopoverAction, ShadPopoverRef, ShadPopoverWidgetExt, ShadPopoverWidgetRefExt,
+};
 pub mod progress;
 pub mod radio_group;
 pub mod resizable;
@@ -86,6 +95,8 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::input_otp::script_mod(vm);
     crate::label::script_mod(vm);
     crate::panel::script_mod(vm);
+    crate::pagination::script_mod(vm);
+    crate::popover::script_mod(vm);
     crate::progress::script_mod(vm);
     crate::radio_group::script_mod(vm);
     crate::resizable::script_mod(vm);

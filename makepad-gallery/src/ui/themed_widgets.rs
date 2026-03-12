@@ -34,6 +34,35 @@ script_mod! {
         }
     }
 
+    mod.widgets.GalleryActionFlowStep = ShadFieldDescription{
+        width: Fill
+    }
+
+    mod.widgets.GalleryActionFlow = RoundedView{
+        width: Fill
+        height: Fit
+        flow: Down
+        spacing: 8.0
+        padding: Inset{top: 14, right: 14, bottom: 14, left: 14}
+        draw_bg +: {
+            color: (shad_theme.color_muted)
+            border_radius: (shad_theme.radius)
+            border_size: 1.0
+            border_color: (shad_theme.color_outline_border)
+        }
+
+        title := ShadSectionHeader{
+            text: "Action Flow"
+        }
+
+        body := View{
+            width: Fill
+            height: Fit
+            flow: Down
+            spacing: 8.0
+        }
+    }
+
     mod.widgets.GalleryPreviewStackNavigation = View{
         width: Fill
         height: Fit

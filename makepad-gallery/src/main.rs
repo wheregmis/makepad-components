@@ -29,6 +29,8 @@ const SIDEBAR_ROUTES: &[(LiveId, LiveId)] = &[
     (live_id!(sidebar_dialog), live_id!(dialog_page)),
     (live_id!(sidebar_input), live_id!(input_page)),
     (live_id!(sidebar_input_otp), live_id!(input_otp_page)),
+    (live_id!(sidebar_pagination), live_id!(pagination_page)),
+    (live_id!(sidebar_popover), live_id!(popover_page)),
     (live_id!(sidebar_radio_group), live_id!(radio_group_page)),
     (live_id!(sidebar_resizable), live_id!(resizable_page)),
     (live_id!(sidebar_scroll_area), live_id!(scroll_area_page)),

@@ -20,7 +20,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Modal sheet overlays for contextual editing and supporting flows."
+                text: "Modal sheet overlays for contextual editing and supporting flows. Use ShadSheetRef::open/close plus opened/closed actions for page-level control."
             }
 
             ShadSeparator{}
@@ -100,6 +100,15 @@ script_mod! {
                                         open_top_sheet_btn := ShadButtonOutline{text: "Top"}
                                         open_bottom_sheet_btn := ShadButtonOutline{text: "Bottom"}
                                     }
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Keep one ShadSheetRef per sheet variant the page controls, such as right, left, top, or bottom."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Trigger open(cx) and close(cx) from page buttons or row actions instead of reaching into the sheet internals."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Listen to opened(actions) and closed(actions) if the surrounding page needs to react to visibility changes."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Internal dismiss controls and backdrop behavior remain inside the sheet component."}
                                 }
                             }
                         }

@@ -14,6 +14,8 @@ This workspace contains:
 - **Accordion**: a composable accordion item widget with open/close state and script-call support (`set_is_open`, `is_open`).
 - **Alerts**: shadcn-inspired alert layouts with default and destructive variants.
 - **Dialog**: modal with variants — generic (custom body), alert (title + Cancel/Confirm), destructive; `set_open(bool)` / `is_open()` API.
+- **Pagination**: stateful page navigator with numbered slots, previous/next controls, compact ellipsis ranges, and `changed(actions)` / `set_page(...)` helpers.
+- **Popover**: anchored overlay with configurable side/alignment, auto-flip when space is tight, outside-click dismissal, and popup-content access through `content_widget()`.
 - **Theme tokens**: centralized `shad_theme` color + radius tokens in script space, with built-in `light` and `dark` variants.
 - **Icons**: SVG-based icon widgets (`IconCheck`, `IconX`, `IconSearch`).
 - **Kbd**: keyboard shortcut key caps (`ShadKbd`, `ShadKbdLabel`, `ShadKbdSeparator`) for displaying shortcuts (e.g. ⌘ ⇧ ⌥ ⌃ or Ctrl + B).
@@ -160,8 +162,8 @@ script_mod! {
 - [x] Label
 - [ ] Menubar
 - [ ] Navigation Menu
-- [ ] Pagination
-- [ ] Popover
+- [x] Pagination
+- [x] Popover
 - [x] Progress
 - [x] Radio Group
 - [x] Resizable

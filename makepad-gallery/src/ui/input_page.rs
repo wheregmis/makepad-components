@@ -17,7 +17,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Shadcn-inspired text input field component."
+                text: "Inputs are page-owned draft state: use TextInputRef methods for live changes, submit-on-return, and restoring text from external state."
             }
 
             ShadHr{}
@@ -125,6 +125,15 @@ script_mod! {
                                 height: Fit
 
                                 ShadInputWithIcon{}
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Give any input you need to drive an id, like email_input := ShadInput{...}."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Read live edits with view.text_input(cx, ids!(email_input)).changed(actions)."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Use returned(actions) when Enter should submit or confirm the current draft."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. When external state changes, push it back into the field with set_text(cx, ...)."}
+                                }
                             }
                         }
 

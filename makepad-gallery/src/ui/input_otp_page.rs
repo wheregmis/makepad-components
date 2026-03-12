@@ -21,7 +21,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Segmented one-time passcode entry with numeric filtering and paste support."
+                text: "Segmented one-time passcode entry with numeric filtering and paste support. Read partial updates with changed(actions) and final codes with completed(actions)."
             }
 
             ShadHr{}
@@ -95,6 +95,15 @@ script_mod! {
                                 otp_demo := ShadInputOtp{}
                                 otp_status := ShadFieldDescription{
                                     text: "Waiting for input."
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Use changed(actions) for partial entry so the page can update validation or helper text as the user types."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Use completed(actions) when the full code is available and the feature should verify or submit it."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. value() lets the page rebuild visible state after reload or redraw without waiting for a new action."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Numeric filtering and paste handling stay inside the component, so the page only reacts to semantic values."}
                                 }
                             }
                         }

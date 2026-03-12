@@ -17,7 +17,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Pressed-state buttons for formatting, filtering, and grouped controls."
+                text: "Pressed-state buttons for formatting, filtering, and grouped controls. Keep grouped selection in the page/controller and update each item's active state from that source of truth."
             }
 
             ShadHr{}
@@ -122,6 +122,15 @@ script_mod! {
                                 ShadToggleGroup{
                                     ShadToggleGroupItemLg{text: "Large"}
                                     ShadToggleGroupItemLg{text: "Active" active: true}
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Treat pressed and selected values as page/controller state, especially for grouped toggles."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. On user click, update that state in the page rather than trying to manage each toggle from the app shell."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Re-render the matching toggle or toggle-group item with active: true from the current state."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. This is the same controller pattern used by the Tabs page: local state in the page, visuals derived from that state."}
                                 }
                             }
                         }

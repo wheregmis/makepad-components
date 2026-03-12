@@ -17,7 +17,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Single section toggle inspired by shadcn/ui collapsible."
+                text: "Single section toggle inspired by shadcn/ui collapsible. Use ShadCollapsibleRef::set_is_open(cx, ..) and opening/closing(actions) when a page owns the expansion state."
             }
 
             ShadHr{}
@@ -150,6 +150,15 @@ script_mod! {
                                         }
                                         ShadSectionHeader{ text: "2x Studio Headphones" }
                                     }
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Let the page or feature decide whether the collapsible should be open, especially when it mirrors routing or selection state."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Use ShadCollapsibleRef::set_is_open(cx, bool, animator::Animate::Yes) from external buttons or restored state."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. opening(actions) and closing(actions) are the semantic outputs when sibling UI needs to react."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. is_open(cx) gives you the current visual state if the page needs to reconcile after redraw."}
                                 }
                             }
                         }

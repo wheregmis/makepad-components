@@ -18,7 +18,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Modal dialogs with variants: generic (custom body), alert (title + description + Cancel/Confirm), and destructive. Use set_open(bool) and is_open() to control visibility."
+                text: "Modal dialogs with variants: generic (custom body), alert (title + description + Cancel/Confirm), and destructive. Use ShadDialogRef::open/close plus opened/closed actions to control visibility."
             }
 
             ShadHr{}
@@ -139,6 +139,15 @@ script_mod! {
                                     width: Fill
                                     height: Fill
                                     open: false
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Grab a ShadDialogRef for the specific dialog instance your page owns."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Call open(cx) or close(cx) from page buttons, command handlers, or async completions."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Listen to opened(actions) and closed(actions) when the rest of the page reacts to the dialog lifecycle."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Backdrop dismissal, Escape, and internal close controls remain inside the component, so the shell does not need to know those ids."}
                                 }
                             }
                         }

@@ -99,6 +99,14 @@ script_mod! {
             route_pattern: "/input-otp"
             mod.widgets.GalleryInputOtpPage{}
         }
+        pagination_page := RouterRoute{
+            route_pattern: "/pagination"
+            mod.widgets.GalleryPaginationPage{}
+        }
+        popover_page := RouterRoute{
+            route_pattern: "/popover"
+            mod.widgets.GalleryPopoverPage{}
+        }
         radio_group_page := RouterRoute{
             route_pattern: "/radio-group"
             mod.widgets.GalleryRadioGroupPage{}

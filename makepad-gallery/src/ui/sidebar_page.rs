@@ -1,3 +1,4 @@
+use crate::ui::snippets::SIDEBAR_PREVIEW_CODE;
 use makepad_components::makepad_widgets::*;
 
 script_mod! {
@@ -16,7 +17,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Composable sidebar primitives used by the gallery navigation."
+                text: "Sidebar primitives are navigation-flavored button actions. Name the items you care about, then route or swap page state from their clicks."
             }
 
             ShadHr{}
@@ -107,6 +108,15 @@ script_mod! {
                                     draw_bg.border_radius: (shad_theme.radius)
                                 }
                             }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Treat each ShadSidebarItem like a named button action with sidebar styling."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Read clicks with ui.button(cx, ids!(nav_playground)).clicked(actions), then route or swap the selected page."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Keep the active route in page or app state, not inside the sidebar primitive."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Render the active item from that route state so sidebar, router, and content stay in sync."}
+                                }
+                            }
                         }
 
                         code_page +: {
@@ -117,7 +127,7 @@ script_mod! {
                                 spacing: 12.0
 
                                 GalleryCodeSnippet{
-                                    code_view +: { text: "mod.widgets.ShadSidebar{\\n    width: 300\\n    Label{text: \\\"Acme Inc\\\"}\\n    ShadSidebarSectionLabel{text: \\\"Platform\\\"}\\n    ShadSidebarItem{text: \\\"Playground\\\"}\\n    ShadSidebarItem{text: \\\"History\\\"}\\n}" }
+                                    code_view +: { text: #(SIDEBAR_PREVIEW_CODE) }
                                 }
                             }
                         }

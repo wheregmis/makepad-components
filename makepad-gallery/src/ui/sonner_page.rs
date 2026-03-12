@@ -18,7 +18,7 @@ script_mod! {
             }
 
             ShadPageSubtitle{
-                text: "Toast notifications with Modal overlay. Use ShadSonner or ShadSonnerWithDescription with set_open(true) to show. Click outside or Escape to dismiss."
+                text: "Toast notifications with Modal overlay. Use ShadSonnerRef::show/hide and opened/closed actions when a page or app shell triggers toasts."
             }
 
             ShadHr{}
@@ -126,6 +126,15 @@ script_mod! {
                                     width: Fill
                                     height: Fill
                                     open: false
+                                }
+                            }
+
+                            mod.widgets.GalleryActionFlow{
+                                body +: {
+                                    mod.widgets.GalleryActionFlowStep{text: "1. Keep one ShadSonnerRef per toast variant the page can trigger."}
+                                    mod.widgets.GalleryActionFlowStep{text: "2. Call show(cx) from buttons, async completions, or other semantic page events."}
+                                    mod.widgets.GalleryActionFlowStep{text: "3. Use opened(actions) and closed(actions) when the page or shell reacts to toast lifecycle."}
+                                    mod.widgets.GalleryActionFlowStep{text: "4. Close buttons and modal dismissal remain component-owned, so the page just triggers and observes."}
                                 }
                             }
                         }
