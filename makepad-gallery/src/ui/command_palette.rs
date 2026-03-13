@@ -10,7 +10,7 @@ struct CommandSpec {
     page: LiveId,
 }
 
-const COMMANDS: [CommandSpec; 36] = [
+const COMMANDS: [CommandSpec; 38] = [
     CommandSpec {
         title: "Accordion",
         section: "Components",
@@ -130,6 +130,18 @@ const COMMANDS: [CommandSpec; 36] = [
         section: "Forms",
         shortcut: "M",
         page: live_id!(label_page),
+    },
+    CommandSpec {
+        title: "Menubar",
+        section: "Navigation",
+        shortcut: "M",
+        page: live_id!(menubar_page),
+    },
+    CommandSpec {
+        title: "Navigation Menu",
+        section: "Navigation",
+        shortcut: "G",
+        page: live_id!(navigation_menu_page),
     },
     CommandSpec {
         title: "Progress",

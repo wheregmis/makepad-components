@@ -23,110 +23,70 @@ script_mod! {
 
             ShadHr{}
 
-            context_menu_preview_section := View{
+            context_menu_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
-                spacing: 12.0
 
-                context_menu_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    context_menu_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        context_menu_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        context_menu_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    context_menu_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        context_menu_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        context_menu_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                context_menu_preview_panel := mod.widgets.ShadPanel{
-                    context_menu_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                            preview_content +: {
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            ShadSectionHeader{ text: "Basic" }
+                                ShadSectionHeader{ text: "Basic" }
 
-                            context_menu_basic := ShadContextMenu{
-                                labels: ["Open" "Duplicate" "Share" "Delete"]
+                                context_menu_basic := ShadContextMenu{
+                                    labels: ["Open" "Duplicate" "Share" "Delete"]
 
-                                RoundedView{
-                                    width: 360
-                                    height: Fit
-                                    flow: Down
-                                    spacing: 6.0
-                                    padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
-                                    draw_bg +: {
-                                        color: (shad_theme.color_secondary)
-                                        border_size: 1.0
-                                        border_radius: (shad_theme.radius)
-                                        border_color: (shad_theme.color_outline_border)
+                                    RoundedView{
+                                        width: 360
+                                        height: Fit
+                                        flow: Down
+                                        spacing: 6.0
+                                        padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
+                                        draw_bg +: {
+                                            color: (shad_theme.color_secondary)
+                                            border_size: 1.0
+                                            border_radius: (shad_theme.radius)
+                                            border_color: (shad_theme.color_outline_border)
+                                        }
+
+                                        ShadLabel{text: "Project brief.md"}
+                                        ShadFieldDescription{text: "Right click this card to open the menu."}
                                     }
+                                }
 
-                                    ShadLabel{text: "Project brief.md"}
-                                    ShadFieldDescription{text: "Right click this card to open the menu."}
+                                context_menu_status := ShadFieldDescription{
+                                    text: "No action selected yet."
                                 }
                             }
 
-                            context_menu_status := ShadFieldDescription{
-                                text: "No action selected yet."
-                            }
-
-                            mod.widgets.GalleryActionFlow{
-                                body +: {
-                                    mod.widgets.GalleryActionFlowStep{text: "1. Compose the trigger area as the child of ShadContextMenu; the component owns the popup internals."}
-                                    mod.widgets.GalleryActionFlowStep{text: "2. Read selected(actions) from ShadContextMenuRef to get the chosen item index."}
-                                    mod.widgets.GalleryActionFlowStep{text: "3. Translate that index into domain actions like Open, Duplicate, Share, or Delete inside the page/controller."}
-                                    mod.widgets.GalleryActionFlowStep{text: "4. Update visible state, status text, or execute commands without touching popup menu internals."}
+                            action_flow +: {
+                                visible: true
+                                mod.widgets.GalleryActionFlow{
+                                    body +: {
+                                        mod.widgets.GalleryActionFlowStep{text: "1. Compose the trigger area as the child of ShadContextMenu; the component owns the popup internals."}
+                                        mod.widgets.GalleryActionFlowStep{text: "2. Read selected(actions) from ShadContextMenuRef to get the chosen item index."}
+                                        mod.widgets.GalleryActionFlowStep{text: "3. Translate that index into domain actions like Open, Duplicate, Share, or Delete inside the page/controller."}
+                                        mod.widgets.GalleryActionFlowStep{text: "4. Update visible state, status text, or execute commands without touching popup menu internals."}
+                                    }
                                 }
                             }
                         }
 
                         code_page +: {
                             body +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            GalleryCodeSnippet{
-                                code_view +: { text: #(CONTEXT_MENU_PREVIEW_CODE) }
-                            }
+                                code_snippet +: {
+                                    code: #(CONTEXT_MENU_PREVIEW_CODE)
+                                }
                             }
                         }
                     }

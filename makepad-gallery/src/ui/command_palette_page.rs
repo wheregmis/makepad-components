@@ -23,110 +23,71 @@ script_mod! {
 
             ShadHr{}
 
-            command_palette_preview_section := View{
+            command_palette_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
-                spacing: 12.0
 
-                command_palette_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    command_palette_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        command_palette_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        command_palette_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    command_palette_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        command_palette_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        command_palette_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                command_palette_preview_panel := mod.widgets.ShadPanel{
-                    command_palette_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 16.0
-
-                            ShadSectionHeader{ text: "Open the palette" }
-
-                            View{
+                            preview_content +: {
                                 width: Fill
                                 height: Fit
                                 flow: Down
-                                spacing: 12.0
+                                spacing: 16.0
 
-                                RoundedView{
+                                ShadSectionHeader{ text: "Open the palette" }
+
+                                View{
                                     width: Fill
                                     height: Fit
                                     flow: Down
-                                    spacing: 10.0
-                                    padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
-                                    draw_bg +: {
-                                        color: (shad_theme.color_secondary)
-                                        border_size: 1.0
-                                        border_radius: (shad_theme.radius)
-                                        border_color: (shad_theme.color_outline_border)
-                                    }
+                                    spacing: 12.0
 
-                                    ShadLabel{text: "Use the global launcher to jump between components faster."}
-                                    ShadFieldDescription{text: "The same overlay opens from this button or from the keyboard shortcut."}
-
-                                    View{
-                                        width: Fit
+                                    RoundedView{
+                                        width: Fill
                                         height: Fit
-                                        flow: Right
-                                        spacing: 8.0
-                                        align: Align{y: 0.5}
+                                        flow: Down
+                                        spacing: 10.0
+                                        padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
+                                        draw_bg +: {
+                                            color: (shad_theme.color_secondary)
+                                            border_size: 1.0
+                                            border_radius: (shad_theme.radius)
+                                            border_color: (shad_theme.color_outline_border)
+                                        }
 
-                                        open_command_palette_btn := ShadButton{text: "Open Command Palette"}
+                                        ShadLabel{text: "Use the global launcher to jump between components faster."}
+                                        ShadFieldDescription{text: "The same overlay opens from this button or from the keyboard shortcut."}
 
-                                        ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
-                                        ShadKbdSeparator{}
-                                        ShadKbd{ label := ShadKbdLabel{text: "K"} }
+                                        View{
+                                            width: Fit
+                                            height: Fit
+                                            flow: Right
+                                            spacing: 8.0
+                                            align: Align{y: 0.5}
 
-                                        ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
-                                        ShadKbdSeparator{}
-                                        ShadKbd{ label := ShadKbdLabel{text: "K"} }
+                                            open_command_palette_btn := ShadButton{text: "Open Command Palette"}
+
+                                            ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
+                                            ShadKbdSeparator{}
+                                            ShadKbd{ label := ShadKbdLabel{text: "K"} }
+
+                                            ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
+                                            ShadKbdSeparator{}
+                                            ShadKbd{ label := ShadKbdLabel{text: "K"} }
+                                        }
                                     }
-                                }
 
-                                ShadFieldDescription{
-                                    text: "Expected behavior: search filters live, Up/Down changes selection, Enter opens the highlighted page, and Escape dismisses the modal."
-                                }
+                                    ShadFieldDescription{
+                                        text: "Expected behavior: search filters live, Up/Down changes selection, Enter opens the highlighted page, and Escape dismisses the modal."
+                                    }
 
+                                }
+                            }
+
+                            action_flow +: {
+                                visible: true
                                 mod.widgets.GalleryActionFlow{
                                     body +: {
                                         mod.widgets.GalleryActionFlowStep{text: "1. This page does not open the shared palette directly; it emits GalleryCommandPalettePageAction::OpenRequested."}
@@ -140,14 +101,14 @@ script_mod! {
 
                         code_page +: {
                             body +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            GalleryCodeSnippet{
-                                code_view +: { text: #(COMMAND_PALETTE_PREVIEW_CODE) }
-                            }
+                                code_snippet +: {
+                                    code: #(COMMAND_PALETTE_PREVIEW_CODE)
+                                }
                             }
                         }
                     }

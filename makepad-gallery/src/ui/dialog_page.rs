@@ -23,145 +23,106 @@ script_mod! {
 
             ShadHr{}
 
-            dialog_preview_section := View{
+            dialog_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
 
-                dialog_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    dialog_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        dialog_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        dialog_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    dialog_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        dialog_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        dialog_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                dialog_preview_panel := mod.widgets.ShadPanel{
-                    dialog_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 24.0
-
-                            ShadSectionHeader{ text: "Generic" }
-
-                            open_dialog_btn := mod.widgets.ShadButton{
-                                text: "Open dialog"
-                            }
-
-                            View{
+                            preview_content +: {
                                 width: Fill
-                                height: 280
-                                default_dialog := ShadDialog{
+                                height: Fit
+                                flow: Down
+                                spacing: 24.0
+
+                                ShadSectionHeader{ text: "Generic" }
+
+                                open_dialog_btn := mod.widgets.ShadButton{
+                                    text: "Open dialog"
+                                }
+
+                                View{
                                     width: Fill
-                                    height: Fill
-                                    open: false
-                                    overlay +: {
-                                        content +: {
-                                            body +: {
-                                                title_label := ShadAlertTitle{
-                                                    text: "Dialog title"
-                                                }
-                                                desc_label := ShadAlertDescription{
-                                                    text: "This is a generic dialog. Put any content in the body. Close via the button below or click the backdrop / press Escape."
-                                                }
-                                                close_btn := mod.widgets.ShadButton{
-                                                    text: "Close"
+                                    height: 280
+                                    default_dialog := ShadDialog{
+                                        width: Fill
+                                        height: Fill
+                                        open: false
+                                        overlay +: {
+                                            content +: {
+                                                body +: {
+                                                    title_label := ShadAlertTitle{
+                                                        text: "Dialog title"
+                                                    }
+                                                    desc_label := ShadAlertDescription{
+                                                        text: "This is a generic dialog. Put any content in the body. Close via the button below or click the backdrop / press Escape."
+                                                    }
+                                                    close_btn := mod.widgets.ShadButton{
+                                                        text: "Close"
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            }
 
-                            ShadSectionHeader{ text: "Alert" }
+                                ShadSectionHeader{ text: "Alert" }
 
-                            open_default_btn := mod.widgets.ShadButton{
-                                text: "Open alert dialog"
-                            }
+                                open_default_btn := mod.widgets.ShadButton{
+                                    text: "Open alert dialog"
+                                }
 
-                            View{
-                                width: Fill
-                                height: 280
-                                alert_default_dialog := ShadDialogAlert{
+                                View{
                                     width: Fill
-                                    height: Fill
-                                    open: false
+                                    height: 280
+                                    alert_default_dialog := ShadDialogAlert{
+                                        width: Fill
+                                        height: Fill
+                                        open: false
+                                    }
+                                }
+
+                                ShadSectionHeader{ text: "Destructive" }
+
+                                open_destructive_btn := mod.widgets.ShadButtonDestructive{
+                                    text: "Open destructive dialog"
+                                }
+
+                                View{
+                                    width: Fill
+                                    height: 280
+                                    destructive_dialog := ShadDialogAlertDestructive{
+                                        width: Fill
+                                        height: Fill
+                                        open: false
+                                    }
                                 }
                             }
 
-                            ShadSectionHeader{ text: "Destructive" }
-
-                            open_destructive_btn := mod.widgets.ShadButtonDestructive{
-                                text: "Open destructive dialog"
-                            }
-
-                            View{
-                                width: Fill
-                                height: 280
-                                destructive_dialog := ShadDialogAlertDestructive{
-                                    width: Fill
-                                    height: Fill
-                                    open: false
-                                }
-                            }
-
-                            mod.widgets.GalleryActionFlow{
-                                body +: {
-                                    mod.widgets.GalleryActionFlowStep{text: "1. Grab a ShadDialogRef for the specific dialog instance your page owns."}
-                                    mod.widgets.GalleryActionFlowStep{text: "2. Call open(cx) or close(cx) from page buttons, command handlers, or async completions."}
-                                    mod.widgets.GalleryActionFlowStep{text: "3. Listen to opened(actions) and closed(actions) when the rest of the page reacts to the dialog lifecycle."}
-                                    mod.widgets.GalleryActionFlowStep{text: "4. Backdrop dismissal, Escape, and internal close controls remain inside the component, so the shell does not need to know those ids."}
+                            action_flow +: {
+                                visible: true
+                                mod.widgets.GalleryActionFlow{
+                                    body +: {
+                                        mod.widgets.GalleryActionFlowStep{text: "1. Grab a ShadDialogRef for the specific dialog instance your page owns."}
+                                        mod.widgets.GalleryActionFlowStep{text: "2. Call open(cx) or close(cx) from page buttons, command handlers, or async completions."}
+                                        mod.widgets.GalleryActionFlowStep{text: "3. Listen to opened(actions) and closed(actions) when the rest of the page reacts to the dialog lifecycle."}
+                                        mod.widgets.GalleryActionFlowStep{text: "4. Backdrop dismissal, Escape, and internal close controls remain inside the component, so the shell does not need to know those ids."}
+                                    }
                                 }
                             }
                         }
 
                         code_page +: {
                             body +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            GalleryCodeSnippet{
-                                code_view +: { text: #(DIALOG_PREVIEW_CODE) }
-                            }
+                                code_snippet +: {
+                                    code: #(DIALOG_PREVIEW_CODE)
+                                }
                             }
                         }
                     }

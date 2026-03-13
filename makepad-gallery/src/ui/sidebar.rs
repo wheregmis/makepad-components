@@ -41,6 +41,8 @@ script_mod! {
             sidebar_dialog := ShadSidebarItem{text: "Dialog"}
             sidebar_input := ShadSidebarItem{text: "Input"}
             sidebar_input_otp := ShadSidebarItem{text: "Input OTP"}
+            sidebar_menubar := ShadSidebarItem{text: "Menubar"}
+            sidebar_navigation_menu := ShadSidebarItem{text: "Navigation Menu"}
             sidebar_pagination := ShadSidebarItem{text: "Pagination"}
             sidebar_popover := ShadSidebarItem{text: "Popover"}
             sidebar_radio_group := ShadSidebarItem{text: "Radio Group"}

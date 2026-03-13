@@ -22,99 +22,59 @@ script_mod! {
 
             ShadHr{}
 
-            switch_preview_section := View{
+            switch_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
-                spacing: 12.0
 
-                switch_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    switch_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        switch_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        switch_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    switch_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        switch_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        switch_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                switch_preview_panel := mod.widgets.ShadPanel{
-                    switch_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
-
-                            ShadSectionHeader{ text: "Default" }
-
-                            View{
+                            preview_content +: {
                                 width: Fill
                                 height: Fit
                                 flow: Down
                                 spacing: 12.0
 
-                                email_alerts_switch := ShadSwitch{text: "Enable notifications"}
-                                ShadSwitch{text: "Dark mode"}
-                                ShadSwitch{text: "Use cellular data"}
+                                ShadSectionHeader{ text: "Default" }
+
+                                View{
+                                    width: Fill
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 12.0
+
+                                    email_alerts_switch := ShadSwitch{text: "Enable notifications"}
+                                    ShadSwitch{text: "Dark mode"}
+                                    ShadSwitch{text: "Use cellular data"}
+                                }
+
+                                ShadHr{}
+
+                                ShadSectionHeader{ text: "Inline with label" }
+
+                                View{
+                                    width: Fill
+                                    height: Fit
+                                    flow: Right
+                                    spacing: 24.0
+                                    align: Align{y: 0.5}
+
+                                    ShadSwitch{text: "Email alerts"}
+                                    ShadSwitch{text: "SMS alerts"}
+                                }
+
+                                ShadHr{}
                             }
 
-                            ShadHr{}
-
-                            ShadSectionHeader{ text: "Inline with label" }
-
-                            View{
-                                width: Fill
-                                height: Fit
-                                flow: Right
-                                spacing: 24.0
-                                align: Align{y: 0.5}
-
-                                ShadSwitch{text: "Email alerts"}
-                                ShadSwitch{text: "SMS alerts"}
-                            }
-
-                            ShadHr{}
-
-                            mod.widgets.GalleryActionFlow{
-                                body +: {
-                                    mod.widgets.GalleryActionFlowStep{text: "1. ShadSwitch is styled like a switch, but the runtime ref is the same boolean check-box/toggle family."}
-                                    mod.widgets.GalleryActionFlowStep{text: "2. Read changes with view.check_box(cx, ids!(email_alerts_switch)).changed(actions)."}
-                                    mod.widgets.GalleryActionFlowStep{text: "3. Store that boolean in page state or preferences, not in the app shell."}
-                                    mod.widgets.GalleryActionFlowStep{text: "4. Restore the switch from external state with set_active(cx, bool), and inspect active(cx) when reconciling state."}
+                            action_flow +: {
+                                visible: true
+                                mod.widgets.GalleryActionFlow{
+                                    body +: {
+                                        mod.widgets.GalleryActionFlowStep{text: "1. ShadSwitch is styled like a switch, but the runtime ref is the same boolean check-box/toggle family."}
+                                        mod.widgets.GalleryActionFlowStep{text: "2. Read changes with view.check_box(cx, ids!(email_alerts_switch)).changed(actions)."}
+                                        mod.widgets.GalleryActionFlowStep{text: "3. Store that boolean in page state or preferences, not in the app shell."}
+                                        mod.widgets.GalleryActionFlowStep{text: "4. Restore the switch from external state with set_active(cx, bool), and inspect active(cx) when reconciling state."}
+                                    }
                                 }
                             }
                         }
@@ -126,8 +86,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(SWITCH_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(SWITCH_PREVIEW_CODE)
                                 }
                             }
                         }

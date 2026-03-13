@@ -26,98 +26,58 @@ script_mod! {
 
             ShadHr{}
 
-            input_otp_preview_section := View{
+            input_otp_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
-                spacing: 12.0
 
-                input_otp_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    input_otp_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        input_otp_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        input_otp_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    input_otp_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        input_otp_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        input_otp_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                input_otp_preview_panel := mod.widgets.ShadPanel{
-                    input_otp_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
-
-                            ShadSectionHeader{ text: "Verification code" }
-
-                            View{
-                                width: Fit
+                            preview_content +: {
+                                width: Fill
                                 height: Fit
                                 flow: Down
-                                spacing: 8.0
+                                spacing: 12.0
 
-                                ShadLabel{text: "Enter the 6-digit code"}
-                                otp_demo := ShadInputOtp{}
-                                otp_status := ShadFieldDescription{
-                                    text: "Waiting for input."
+                                ShadSectionHeader{ text: "Verification code" }
+
+                                View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 8.0
+
+                                    ShadLabel{text: "Enter the 6-digit code"}
+                                    otp_demo := ShadInputOtp{}
+                                    otp_status := ShadFieldDescription{
+                                        text: "Waiting for input."
+                                    }
                                 }
                             }
 
-                            mod.widgets.GalleryActionFlow{
-                                body +: {
-                                    mod.widgets.GalleryActionFlowStep{text: "1. Use changed(actions) for partial entry so the page can update validation or helper text as the user types."}
-                                    mod.widgets.GalleryActionFlowStep{text: "2. Use completed(actions) when the full code is available and the feature should verify or submit it."}
-                                    mod.widgets.GalleryActionFlowStep{text: "3. value() lets the page rebuild visible state after reload or redraw without waiting for a new action."}
-                                    mod.widgets.GalleryActionFlowStep{text: "4. Numeric filtering and paste handling stay inside the component, so the page only reacts to semantic values."}
+                            action_flow +: {
+                                visible: true
+                                mod.widgets.GalleryActionFlow{
+                                    body +: {
+                                        mod.widgets.GalleryActionFlowStep{text: "1. Use changed(actions) for partial entry so the page can update validation or helper text as the user types."}
+                                        mod.widgets.GalleryActionFlowStep{text: "2. Use completed(actions) when the full code is available and the feature should verify or submit it."}
+                                        mod.widgets.GalleryActionFlowStep{text: "3. value() lets the page rebuild visible state after reload or redraw without waiting for a new action."}
+                                        mod.widgets.GalleryActionFlowStep{text: "4. Numeric filtering and paste handling stay inside the component, so the page only reacts to semantic values."}
+                                    }
                                 }
                             }
                         }
 
                         code_page +: {
                             body +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            GalleryCodeSnippet{
-                                code_view +: { text: #(INPUT_OTP_PREVIEW_CODE) }
-                            }
+                                code_snippet +: {
+                                    code: #(INPUT_OTP_PREVIEW_CODE)
+                                }
                             }
                         }
                     }

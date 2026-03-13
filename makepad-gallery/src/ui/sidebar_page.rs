@@ -22,99 +22,59 @@ script_mod! {
 
             ShadHr{}
 
-            sidebar_preview_section := View{
+            sidebar_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
-                spacing: 12.0
 
-                sidebar_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    sidebar_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        sidebar_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        sidebar_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    sidebar_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        sidebar_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        sidebar_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                sidebar_preview_panel := mod.widgets.ShadPanel{
-                    sidebar_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
-
-                            View{
+                            preview_content +: {
                                 width: Fill
                                 height: Fit
-                                flow: Right
+                                flow: Down
                                 spacing: 12.0
-                                align: Align{y: 0.0}
-
-                                ShadSidebar{
-                                    width: 300
-                                    height: 320
-                                    ShadLabel{
-                                        text: "Acme Inc"
-                                        draw_text.text_style.font_size: 12
-                                    }
-                                    ShadSidebarSectionLabel{text: "Platform"}
-                                    ShadSidebarItem{text: "Playground"}
-                                    ShadSidebarItem{text: "History"}
-                                    ShadSidebarItem{text: "Settings"}
-                                }
 
                                 View{
                                     width: Fill
-                                    height: 320
-                                    draw_bg.color: #0000
-                                    draw_bg.border_size: 1.0
-                                    draw_bg.border_color: (shad_theme.color_outline_border)
-                                    draw_bg.border_radius: (shad_theme.radius)
+                                    height: Fit
+                                    flow: Right
+                                    spacing: 12.0
+                                    align: Align{y: 0.0}
+
+                                    ShadSidebar{
+                                        width: 300
+                                        height: 320
+                                        ShadLabel{
+                                            text: "Acme Inc"
+                                            draw_text.text_style.font_size: 12
+                                        }
+                                        ShadSidebarSectionLabel{text: "Platform"}
+                                        ShadSidebarItem{text: "Playground"}
+                                        ShadSidebarItem{text: "History"}
+                                        ShadSidebarItem{text: "Settings"}
+                                    }
+
+                                    View{
+                                        width: Fill
+                                        height: 320
+                                        draw_bg.color: #0000
+                                        draw_bg.border_size: 1.0
+                                        draw_bg.border_color: (shad_theme.color_outline_border)
+                                        draw_bg.border_radius: (shad_theme.radius)
+                                    }
                                 }
                             }
 
-                            mod.widgets.GalleryActionFlow{
-                                body +: {
-                                    mod.widgets.GalleryActionFlowStep{text: "1. Treat each ShadSidebarItem like a named button action with sidebar styling."}
-                                    mod.widgets.GalleryActionFlowStep{text: "2. Read clicks with ui.button(cx, ids!(nav_playground)).clicked(actions), then route or swap the selected page."}
-                                    mod.widgets.GalleryActionFlowStep{text: "3. Keep the active route in page or app state, not inside the sidebar primitive."}
-                                    mod.widgets.GalleryActionFlowStep{text: "4. Render the active item from that route state so sidebar, router, and content stay in sync."}
+                            action_flow +: {
+                                visible: true
+                                mod.widgets.GalleryActionFlow{
+                                    body +: {
+                                        mod.widgets.GalleryActionFlowStep{text: "1. Treat each ShadSidebarItem like a named button action with sidebar styling."}
+                                        mod.widgets.GalleryActionFlowStep{text: "2. Read clicks with ui.button(cx, ids!(nav_playground)).clicked(actions), then route or swap the selected page."}
+                                        mod.widgets.GalleryActionFlowStep{text: "3. Keep the active route in page or app state, not inside the sidebar primitive."}
+                                        mod.widgets.GalleryActionFlowStep{text: "4. Render the active item from that route state so sidebar, router, and content stay in sync."}
+                                    }
                                 }
                             }
                         }
@@ -126,8 +86,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(SIDEBAR_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(SIDEBAR_PREVIEW_CODE)
                                 }
                             }
                         }

@@ -4,31 +4,27 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.GalleryCodeSnippet = SolidView{
+    mod.widgets.GalleryCodeSnippetBase = #(GalleryCodeSnippet::register_widget(vm))
+
+    mod.widgets.GalleryCodeSnippet = set_type_default() do mod.widgets.GalleryCodeSnippetBase{
         width: Fill
         height: Fit
-        padding: Inset{top: 12, right: 12, bottom: 12, left: 12}
-        draw_bg +: {
-            color: (shad_theme.color_muted)
-            border_radius: (shad_theme.radius)
-        }
+        code: ""
 
-        code_view := CodeView{
-            text: ""
-            editor +: {
-                width: Fill
-                height: Fit
-                pad_left_top: vec2(0.0, 0.0)
-                empty_page_at_end: false
-                show_gutter: false
-                draw_bg +: {
-                    color: #0000
-                }
-                draw_text +: {
-                    text_style: theme.font_code{
-                        font_size: theme.font_size_code
-                        line_spacing: theme.font_longform_line_spacing
-                    }
+        container := SolidView{
+            width: Fill
+            height: Fit
+            padding: Inset{top: 12, right: 12, bottom: 12, left: 12}
+            draw_bg +: {
+                color: (shad_theme.color_muted)
+                border_radius: (shad_theme.radius)
+            }
+
+            code_view := CodeView{
+                text: ""
+                editor +: {
+                    width: Fill
+                    height: Fit
                 }
             }
         }
@@ -104,50 +100,27 @@ script_mod! {
         height: Fit
         flow: Down
 
-        tabs_row := View{
-            visible: false
-            height: 0
-            width: Fit
-            flow: Right
-            spacing: 20.0
-            margin: Inset{top: 4, bottom: 12}
-
-            demo_tab_group := View{
-                width: Fit
-                height: Fit
-                flow: Down
-                spacing: 6.0
-
-                demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                demo_indicator := SolidView{
-                    width: Fill
-                    height: 2
-                    draw_bg.color: (shad_theme.color_primary)
-                }
-            }
-
-            code_tab_group := View{
-                width: Fit
-                height: Fit
-                flow: Down
-                spacing: 6.0
-
-                code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                code_indicator := SolidView{
-                    width: Fill
-                    height: 2
-                    visible: false
-                    draw_bg.color: (shad_theme.color_primary)
-                }
-            }
-        }
-
         preview_panel := mod.widgets.ShadPanel{
             preview_flip := mod.widgets.GalleryPreviewStackNavigation{
                 width: Fill
                 height: Fit
+
+                root_view +: {
+                    preview_content := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+                    }
+
+                    action_flow := View{
+                        visible: false
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 12.0
+                    }
+                }
 
                 code_page +: {
                     body +: {
@@ -156,5 +129,41 @@ script_mod! {
                 }
             }
         }
+    }
+}
+
+#[derive(Script, Widget)]
+pub struct GalleryCodeSnippet {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+    #[live]
+    code: ArcStringMut,
+}
+
+impl ScriptHook for GalleryCodeSnippet {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| {
+            self.view
+                .widget(cx, ids!(container.code_view))
+                .set_text(cx, self.code.as_ref());
+        });
+    }
+}
+
+impl Widget for GalleryCodeSnippet {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
     }
 }

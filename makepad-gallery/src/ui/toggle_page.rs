@@ -22,129 +22,89 @@ script_mod! {
 
             ShadHr{}
 
-            toggle_preview_section := View{
+            toggle_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
-                spacing: 12.0
 
-                toggle_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    toggle_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        toggle_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        toggle_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    toggle_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        toggle_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        toggle_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                toggle_preview_panel := mod.widgets.ShadPanel{
-                    toggle_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
-
-                            ShadSectionHeader{ text: "Standalone toggles" }
-                            View{
-                                width: Fit
-                                height: Fit
-                                flow: Right
-                                spacing: 8.0
-
-                                ShadToggle{text: "Bold"}
-                                ShadToggle{text: "Italic" active: true}
-                                ShadToggle{text: "Underline"}
-                            }
-
-                            ShadHr{}
-
-                            ShadSectionHeader{ text: "Toggle group" }
-                            ShadToggleGroup{
-                                ShadToggleGroupItem{text: "Left"}
-                                ShadToggleGroupItem{text: "Center" active: true}
-                                ShadToggleGroupItem{text: "Right"}
-                            }
-
-                            ShadHr{}
-
-                            ShadSectionHeader{ text: "Sizes" }
-                            View{
-                                width: Fit
+                            preview_content +: {
+                                width: Fill
                                 height: Fit
                                 flow: Down
                                 spacing: 12.0
 
-                                ShadToggleGroup{
-                                    ShadToggleGroupItemSm{text: "Sm"}
-                                    ShadToggleGroupItemSm{text: "Active" active: true}
+                                ShadSectionHeader{ text: "Standalone toggles" }
+                                View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Right
+                                    spacing: 8.0
+
+                                    ShadToggle{text: "Bold"}
+                                    ShadToggle{text: "Italic" active: true}
+                                    ShadToggle{text: "Underline"}
                                 }
 
+                                ShadHr{}
+
+                                ShadSectionHeader{ text: "Toggle group" }
                                 ShadToggleGroup{
-                                    ShadToggleGroupItem{text: "Default"}
-                                    ShadToggleGroupItem{text: "Active" active: true}
+                                    ShadToggleGroupItem{text: "Left"}
+                                    ShadToggleGroupItem{text: "Center" active: true}
+                                    ShadToggleGroupItem{text: "Right"}
                                 }
 
-                                ShadToggleGroup{
-                                    ShadToggleGroupItemLg{text: "Large"}
-                                    ShadToggleGroupItemLg{text: "Active" active: true}
+                                ShadHr{}
+
+                                ShadSectionHeader{ text: "Sizes" }
+                                View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 12.0
+
+                                    ShadToggleGroup{
+                                        ShadToggleGroupItemSm{text: "Sm"}
+                                        ShadToggleGroupItemSm{text: "Active" active: true}
+                                    }
+
+                                    ShadToggleGroup{
+                                        ShadToggleGroupItem{text: "Default"}
+                                        ShadToggleGroupItem{text: "Active" active: true}
+                                    }
+
+                                    ShadToggleGroup{
+                                        ShadToggleGroupItemLg{text: "Large"}
+                                        ShadToggleGroupItemLg{text: "Active" active: true}
+                                    }
                                 }
                             }
 
-                            mod.widgets.GalleryActionFlow{
-                                body +: {
-                                    mod.widgets.GalleryActionFlowStep{text: "1. Treat pressed and selected values as page/controller state, especially for grouped toggles."}
-                                    mod.widgets.GalleryActionFlowStep{text: "2. On user click, update that state in the page rather than trying to manage each toggle from the app shell."}
-                                    mod.widgets.GalleryActionFlowStep{text: "3. Re-render the matching toggle or toggle-group item with active: true from the current state."}
-                                    mod.widgets.GalleryActionFlowStep{text: "4. This is the same controller pattern used by the Tabs page: local state in the page, visuals derived from that state."}
+                            action_flow +: {
+                                visible: true
+                                mod.widgets.GalleryActionFlow{
+                                    body +: {
+                                        mod.widgets.GalleryActionFlowStep{text: "1. Treat pressed and selected values as page/controller state, especially for grouped toggles."}
+                                        mod.widgets.GalleryActionFlowStep{text: "2. On user click, update that state in the page rather than trying to manage each toggle from the app shell."}
+                                        mod.widgets.GalleryActionFlowStep{text: "3. Re-render the matching toggle or toggle-group item with active: true from the current state."}
+                                        mod.widgets.GalleryActionFlowStep{text: "4. This is the same controller pattern used by the Tabs page: local state in the page, visuals derived from that state."}
+                                    }
                                 }
                             }
                         }
 
                         code_page +: {
                             body +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            GalleryCodeSnippet{
-                                code_view +: { text: #(TOGGLE_PREVIEW_CODE) }
-                            }
+                                code_snippet +: {
+                                    code: #(TOGGLE_PREVIEW_CODE)
+                                }
                             }
                         }
                     }

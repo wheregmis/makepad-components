@@ -189,6 +189,69 @@ pub const CONTEXT_MENU_PREVIEW_CODE: &str = r#"ShadContextMenu{
 // }"#;
 pub const KBD_PREVIEW_CODE: &str = "View{\n    width: Fit\n    height: Fit\n    flow: Down\n    spacing: 12.0\n    View{\n        flow: Right\n        spacing: 6.0\n        align: Align{y: 0.5}\n        ShadKbd{ label := ShadKbdLabel{text: \"Cmd\"} }\n        ShadKbd{ label := ShadKbdLabel{text: \"Shift\"} }\n        ShadKbd{ label := ShadKbdLabel{text: \"Option\"} }\n        ShadKbd{ label := ShadKbdLabel{text: \"Ctrl\"} }\n    }\n    View{\n        flow: Right\n        spacing: 6.0\n        align: Align{y: 0.5}\n        ShadKbd{ label := ShadKbdLabel{text: \"Ctrl\"} }\n        ShadKbdSeparator{}\n        ShadKbd{ label := ShadKbdLabel{text: \"B\"} }\n    }\n}";
 pub const LABEL_PREVIEW_CODE: &str = "mod.widgets.ShadLabel{ text: \"Your email address\" }";
+pub const MENUBAR_PREVIEW_CODE: &str = r#"app_menubar := ShadMenubar{
+    file_menu := ShadMenubarMenu{
+        trigger := ShadMenubarTrigger{text: "File"}
+        content: ShadMenubarContent{
+            file_new_btn := ShadMenubarItem{text: "New file"}
+            file_open_btn := ShadMenubarItem{text: "Open recent"}
+            ShadMenubarSeparator{}
+            file_share_btn := ShadMenubarItem{text: "Share"}
+        }
+    }
+
+    edit_menu := ShadMenubarMenu{
+        trigger := ShadMenubarTrigger{text: "Edit"}
+        content: ShadMenubarContent{
+            edit_undo_btn := ShadMenubarItem{text: "Undo"}
+            edit_redo_btn := ShadMenubarItem{text: "Redo"}
+        }
+    }
+}
+
+// Controller example (Rust):
+// let file_menu = self.view.shad_popover(cx, ids!(file_menu));
+// let file_content = file_menu.content_widget();
+//
+// if file_content.button(cx, ids!(file_new_btn)).clicked(actions) {
+//     file_menu.close(cx);
+//     self.status = "Selected File -> New file".to_string();
+// }"#;
+pub const NAVIGATION_MENU_PREVIEW_CODE: &str = r#"site_nav := ShadNavigationMenu{
+    navigation_list := ShadNavigationMenuList{
+        products_menu := ShadNavigationMenuItem{
+            trigger := ShadNavigationMenuTrigger{text: "Products"}
+            content: ShadNavigationMenuContent{
+                products_trial_btn := ShadButton{text: "Start trial"}
+                products_sdk_btn := ShadButtonGhost{
+                    width: Fill
+                    align: Align{x: 0.0, y: 0.5}
+                    text: "SDKs"
+                }
+            }
+        }
+
+        resources_menu := ShadNavigationMenuItem{
+            trigger := ShadNavigationMenuTrigger{text: "Resources"}
+            content: ShadNavigationMenuContent{
+                guides_btn := ShadButtonGhost{
+                    width: Fill
+                    align: Align{x: 0.0, y: 0.5}
+                    text: "Guides"
+                }
+            }
+        }
+    }
+}
+
+// Controller example (Rust):
+// let products = self.view.shad_popover(cx, ids!(products_menu));
+// let content = products.content_widget();
+//
+// if content.button(cx, ids!(products_sdk_btn)).clicked(actions) {
+//     products.close(cx);
+//     self.selected_destination = "SDKs".to_string();
+// }"#;
 pub const PROGRESS_PREVIEW_CODE: &str = "View{\n    width: Fill\n    height: Fit\n    flow: Down\n    spacing: 12.0\n    ShadProgress33{}\n    ShadProgress66{}\n    ShadProgressFull{}\n    ShadProgressIndeterminate{}\n}";
 pub const SLIDER_PREVIEW_CODE: &str = r#"View{
     width: Fill
@@ -269,10 +332,6 @@ mod.widgets.ShadDialogAlertDestructive{ open: false }
 // if dialog.closed(actions) {
 //     log!("Dialog closed");
 // }"#;
-#[allow(dead_code)]
-pub const EMPTY_PREVIEW_CODE: &str = "ShadEmpty{\n    ShadEmptyIconContainer{ ShadEmptyIcon{text: \"📁\"} }\n    ShadEmptyContent{\n        ShadEmptyTitle{text: \"No files yet\"}\n        ShadEmptyDescription{text: \"Upload or create a file to get started.\"}\n        ShadEmptyAction{ ShadButton{text: \"Upload file\"} }\n    }\n}";
-#[allow(dead_code)]
-pub const FIELD_PREVIEW_CODE: &str = "ShadField{\n    ShadFieldLabel{text: \"Email\"}\n    TextInput{empty_text: \"you@example.com\"}\n    ShadFieldDescription{text: \"We'll never share your email.\"}\n}";
 pub const INPUT_PREVIEW_CODE: &str = r#"ShadField{
     ShadFieldLabel{text: "Email"}
     email_input := ShadInput{empty_text: "you@example.com"}

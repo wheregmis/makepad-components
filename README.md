@@ -14,6 +14,8 @@ This workspace contains:
 - **Accordion**: a composable accordion item widget with open/close state and script-call support (`set_is_open`, `is_open`).
 - **Alerts**: shadcn-inspired alert layouts with default and destructive variants.
 - **Dialog**: modal with variants — generic (custom body), alert (title + Cancel/Confirm), destructive; `set_open(bool)` / `is_open()` API.
+- **Menubar**: compact application menu primitives built on `ShadPopover`, with styled triggers, menu surfaces, separators, and item rows.
+- **Navigation Menu**: wide flyout navigation primitives for docs/marketing headers, also built on `ShadPopover` for anchored open/close behavior.
 - **Pagination**: stateful page navigator with numbered slots, previous/next controls, compact ellipsis ranges, and `changed(actions)` / `set_page(...)` helpers.
 - **Popover**: anchored overlay with configurable side/alignment, auto-flip when space is tight, outside-click dismissal, and popup-content access through `content_widget()`.
 - **Theme tokens**: centralized `shad_theme` color + radius tokens in script space, with built-in `light` and `dark` variants.
@@ -160,8 +162,8 @@ script_mod! {
 - [x] Input OTP
 - [x] Kbd
 - [x] Label
-- [ ] Menubar
-- [ ] Navigation Menu
+- [x] Menubar
+- [x] Navigation Menu
 - [x] Pagination
 - [x] Popover
 - [x] Progress
@@ -231,6 +233,32 @@ script_mod! {
 - `ShadFieldMessage`
 
 Use `ShadField` as a layout wrapper around `ShadInput` or another form control. Validation/state stays in app code.
+
+### Menubar (`makepad-components/src/menubar.rs`)
+
+- `ShadMenubar`
+- `ShadMenubarMenu`
+- `ShadMenubarTrigger`
+- `ShadMenubarContent`
+- `ShadMenubarLabel`
+- `ShadMenubarHint`
+- `ShadMenubarItem`
+- `ShadMenubarSeparator`
+
+`ShadMenubarMenu` reuses `ShadPopover` under the hood. Query or close a menu with the normal popover widget ref helpers after an item click.
+
+### Navigation Menu (`makepad-components/src/navigation_menu.rs`)
+
+- `ShadNavigationMenu`
+- `ShadNavigationMenuList`
+- `ShadNavigationMenuItem`
+- `ShadNavigationMenuTrigger`
+- `ShadNavigationMenuContent`
+- `ShadNavigationMenuSectionLabel`
+- `ShadNavigationMenuCallout`
+- `ShadNavigationMenuPanel`
+
+`ShadNavigationMenuItem` also reuses `ShadPopover`, but defaults to a wider content surface for grouped links, feature callouts, and site navigation flyouts.
 
 ### Separator (`makepad-components/src/hr.rs`)
 

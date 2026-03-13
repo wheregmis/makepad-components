@@ -22,89 +22,47 @@ script_mod! {
 
             ShadHr{}
 
-            kbd_preview_section := View{
+            kbd_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
 
-                kbd_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    kbd_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        kbd_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        kbd_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    kbd_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        kbd_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        kbd_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                kbd_preview_panel := mod.widgets.ShadPanel{
-                    kbd_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
-
-                            ShadSectionHeader{ text: "Modifier keys" }
-
-                            View{
-                                width: Fit
+                            preview_content +: {
+                                width: Fill
                                 height: Fit
-                                flow: Right
-                                spacing: 6.0
-                                align: Align{y: 0.5}
+                                flow: Down
+                                spacing: 12.0
 
-                                ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
-                                ShadKbd{ label := ShadKbdLabel{text: "Shift"} }
-                                ShadKbd{ label := ShadKbdLabel{text: "Option"} }
-                                ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
-                            }
+                                ShadSectionHeader{ text: "Modifier keys" }
 
-                            ShadSectionHeader{ text: "Shortcut" }
+                                View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Right
+                                    spacing: 6.0
+                                    align: Align{y: 0.5}
 
-                            View{
-                                width: Fit
-                                height: Fit
-                                flow: Right
-                                spacing: 6.0
-                                align: Align{y: 0.5}
+                                    ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
+                                    ShadKbd{ label := ShadKbdLabel{text: "Shift"} }
+                                    ShadKbd{ label := ShadKbdLabel{text: "Option"} }
+                                    ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
+                                }
 
-                                ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
-                                ShadKbdSeparator{}
-                                ShadKbd{ label := ShadKbdLabel{text: "B"} }
+                                ShadSectionHeader{ text: "Shortcut" }
+
+                                View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Right
+                                    spacing: 6.0
+                                    align: Align{y: 0.5}
+
+                                    ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
+                                    ShadKbdSeparator{}
+                                    ShadKbd{ label := ShadKbdLabel{text: "B"} }
+                                }
                             }
                         }
 
@@ -115,8 +73,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(KBD_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(KBD_PREVIEW_CODE)
                                 }
                             }
                         }

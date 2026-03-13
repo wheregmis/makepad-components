@@ -19,79 +19,39 @@ script_mod! {
 
             ShadHr{}
 
-            badge_preview_section := View{
+            badge_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
 
-                badge_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    badge_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        badge_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-                        badge_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    badge_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        badge_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-                        badge_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                badge_preview_panel := mod.widgets.ShadPanel{
-                    badge_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
-
-                            ShadSectionHeader{ text: "Variants" }
-
-                            View{
+                            preview_content +: {
                                 width: Fill
                                 height: Fit
-                                flow: Right
+                                flow: Down
                                 spacing: 12.0
 
-                                ShadBadge{
-                                    label := ShadBadgeLabel{text: "Default"}
-                                }
-                                ShadBadgeSecondary{
-                                    label := ShadBadgeSecondaryLabel{text: "Secondary"}
-                                }
-                                ShadBadgeDestructive{
-                                    label := ShadBadgeDestructiveLabel{text: "Destructive"}
-                                }
-                                ShadBadgeOutline{
-                                    label := ShadBadgeOutlineLabel{text: "Outline"}
+                                ShadSectionHeader{ text: "Variants" }
+
+                                View{
+                                    width: Fill
+                                    height: Fit
+                                    flow: Right
+                                    spacing: 12.0
+
+                                    ShadBadge{
+                                        label := ShadBadgeLabel{text: "Default"}
+                                    }
+                                    ShadBadgeSecondary{
+                                        label := ShadBadgeSecondaryLabel{text: "Secondary"}
+                                    }
+                                    ShadBadgeDestructive{
+                                        label := ShadBadgeDestructiveLabel{text: "Destructive"}
+                                    }
+                                    ShadBadgeOutline{
+                                        label := ShadBadgeOutlineLabel{text: "Outline"}
+                                    }
                                 }
                             }
                         }
@@ -103,8 +63,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(BADGE_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(BADGE_PREVIEW_CODE)
                                 }
                             }
                         }

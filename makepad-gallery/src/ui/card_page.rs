@@ -19,76 +19,36 @@ script_mod! {
 
             ShadHr{}
 
-            card_preview_section := View{
+            card_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
 
-                card_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    card_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        card_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-                        card_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    card_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        card_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-                        card_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                card_preview_panel := mod.widgets.ShadPanel{
-                    card_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 16.0
+                            preview_content +: {
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 16.0
 
-                            ShadSectionHeader{ text: "Default" }
+                                ShadSectionHeader{ text: "Default" }
 
-                            mod.widgets.ShadCard{
-                                header := mod.widgets.ShadCardHeader{
-                                    title := mod.widgets.ShadCardTitle{text: "Card title"}
-                                    description := mod.widgets.ShadCardDescription{text: "Card description goes here."}
-                                }
-                                content := mod.widgets.ShadCardContent{
-                                    ShadLabel{
-                                        text: "Card content area. Put any widgets here."
-                                        draw_text.text_style.font_size: 14
+                                mod.widgets.ShadCard{
+                                    header := mod.widgets.ShadCardHeader{
+                                        title := mod.widgets.ShadCardTitle{text: "Card title"}
+                                        description := mod.widgets.ShadCardDescription{text: "Card description goes here."}
                                     }
-                                }
-                                footer := mod.widgets.ShadCardFooter{
-                                    mod.widgets.ShadButton{text: "Cancel"}
-                                    mod.widgets.ShadButton{text: "Save"}
+                                    content := mod.widgets.ShadCardContent{
+                                        ShadLabel{
+                                            text: "Card content area. Put any widgets here."
+                                            draw_text.text_style.font_size: 14
+                                        }
+                                    }
+                                    footer := mod.widgets.ShadCardFooter{
+                                        mod.widgets.ShadButton{text: "Cancel"}
+                                        mod.widgets.ShadButton{text: "Save"}
+                                    }
                                 }
                             }
                         }
@@ -100,8 +60,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(CARD_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(CARD_PREVIEW_CODE)
                                 }
                             }
                         }

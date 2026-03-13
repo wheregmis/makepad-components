@@ -22,100 +22,60 @@ script_mod! {
 
             ShadHr{}
 
-            checkbox_preview_section := View{
+            checkbox_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
-                spacing: 12.0
 
-                checkbox_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    checkbox_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        checkbox_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        checkbox_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    checkbox_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        checkbox_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        checkbox_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                checkbox_preview_panel := mod.widgets.ShadPanel{
-                    checkbox_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
-
-                            ShadSectionHeader{ text: "Default" }
-
-                            View{
+                            preview_content +: {
                                 width: Fill
                                 height: Fit
                                 flow: Down
                                 spacing: 12.0
 
-                                ShadCheckbox{label: "Accept terms and conditions"}
-                                ShadCheckbox{label: "Pre-checked option" checked: true}
-                                ShadCheckbox{label: "Subscribe to newsletter"}
+                                ShadSectionHeader{ text: "Default" }
+
+                                View{
+                                    width: Fill
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 12.0
+
+                                    ShadCheckbox{label: "Accept terms and conditions"}
+                                    ShadCheckbox{label: "Pre-checked option" checked: true}
+                                    ShadCheckbox{label: "Subscribe to newsletter"}
+                                }
+
+                                ShadHr{}
+
+                                ShadSectionHeader{ text: "In a form row" }
+
+                                View{
+                                    width: Fill
+                                    height: Fit
+                                    flow: Right
+                                    spacing: 24.0
+                                    align: Align{y: 0.5}
+
+                                    ShadCheckbox{label: "Option A"}
+                                    ShadCheckbox{label: "Option B" checked: true}
+                                    ShadCheckbox{label: "Option C"}
+                                }
+
+                                ShadHr{}
                             }
 
-                            ShadHr{}
-
-                            ShadSectionHeader{ text: "In a form row" }
-
-                            View{
-                                width: Fill
-                                height: Fit
-                                flow: Right
-                                spacing: 24.0
-                                align: Align{y: 0.5}
-
-                                ShadCheckbox{label: "Option A"}
-                                ShadCheckbox{label: "Option B" checked: true}
-                                ShadCheckbox{label: "Option C"}
-                            }
-
-                            ShadHr{}
-
-                            mod.widgets.GalleryActionFlow{
-                                body +: {
-                                    mod.widgets.GalleryActionFlowStep{text: "1. Keep each checked value in page or form state, even when the visual checkbox looks self-contained."}
-                                    mod.widgets.GalleryActionFlowStep{text: "2. Read changed(actions) from ShadCheckboxRef to capture the user's latest choice."}
-                                    mod.widgets.GalleryActionFlowStep{text: "3. Call set_checked(cx, checked, animator::Animate::No) when loading saved data or resetting a form."}
-                                    mod.widgets.GalleryActionFlowStep{text: "4. Use is_checked() when submitting or validating without waiting for a fresh action event."}
+                            action_flow +: {
+                                visible: true
+                                mod.widgets.GalleryActionFlow{
+                                    body +: {
+                                        mod.widgets.GalleryActionFlowStep{text: "1. Keep each checked value in page or form state, even when the visual checkbox looks self-contained."}
+                                        mod.widgets.GalleryActionFlowStep{text: "2. Read changed(actions) from ShadCheckboxRef to capture the user's latest choice."}
+                                        mod.widgets.GalleryActionFlowStep{text: "3. Call set_checked(cx, checked, animator::Animate::No) when loading saved data or resetting a form."}
+                                        mod.widgets.GalleryActionFlowStep{text: "4. Use is_checked() when submitting or validating without waiting for a fresh action event."}
+                                    }
                                 }
                             }
                         }
@@ -127,8 +87,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(CHECKBOX_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(CHECKBOX_PREVIEW_CODE)
                                 }
                             }
                         }

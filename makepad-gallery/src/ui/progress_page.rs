@@ -22,71 +22,29 @@ script_mod! {
 
             ShadHr{}
 
-            progress_preview_section := View{
+            progress_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
 
-                progress_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    progress_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        progress_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        progress_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    progress_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        progress_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        progress_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                progress_preview_panel := mod.widgets.ShadPanel{
-                    progress_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                            preview_content +: {
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            ShadSectionHeader{ text: "Determinate" }
+                                ShadSectionHeader{ text: "Determinate" }
 
-                            ShadProgress33{}
-                            ShadProgress66{}
-                            ShadProgressFull{}
+                                ShadProgress33{}
+                                ShadProgress66{}
+                                ShadProgressFull{}
 
-                            ShadSectionHeader{ text: "Indeterminate (animated)" }
+                                ShadSectionHeader{ text: "Indeterminate (animated)" }
 
-                            ShadProgressIndeterminate{}
+                                ShadProgressIndeterminate{}
+                            }
                         }
 
                         code_page +: {
@@ -96,8 +54,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(PROGRESS_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(PROGRESS_PREVIEW_CODE)
                                 }
                             }
                         }

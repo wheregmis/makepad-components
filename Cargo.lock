@@ -241,7 +241,6 @@ source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce511
 [[package]]
 name = "makepad-code-editor"
 version = "2.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-widgets",
 ]

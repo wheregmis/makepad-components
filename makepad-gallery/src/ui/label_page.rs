@@ -22,66 +22,23 @@ script_mod! {
 
             ShadHr{}
 
-            label_preview_section := View{
+            label_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
-                spacing: 12.0
 
-                label_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    label_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        label_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        label_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    label_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        label_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        label_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                label_preview_panel := mod.widgets.ShadPanel{
-                    label_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                            preview_content +: {
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            ShadSectionHeader{ text: "Default Label" }
+                                ShadSectionHeader{ text: "Default Label" }
 
-                            ShadLabel{ text: "Your email address" }
+                                ShadLabel{ text: "Your email address" }
+                            }
                         }
 
                         code_page +: {
@@ -91,8 +48,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(LABEL_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(LABEL_PREVIEW_CODE)
                                 }
                             }
                         }

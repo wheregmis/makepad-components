@@ -40,6 +40,8 @@ pub use input_otp::{
 };
 pub mod kbd;
 pub mod label;
+pub mod menubar;
+pub mod navigation_menu;
 pub mod pagination;
 pub mod panel;
 pub use pagination::{
@@ -94,9 +96,11 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::input::script_mod(vm);
     crate::input_otp::script_mod(vm);
     crate::label::script_mod(vm);
+    crate::popover::script_mod(vm);
+    crate::menubar::script_mod(vm);
+    crate::navigation_menu::script_mod(vm);
     crate::panel::script_mod(vm);
     crate::pagination::script_mod(vm);
-    crate::popover::script_mod(vm);
     crate::progress::script_mod(vm);
     crate::radio_group::script_mod(vm);
     crate::resizable::script_mod(vm);

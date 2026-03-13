@@ -5,23 +5,6 @@ script_mod! {
     use mod.draw.KeyCode
     use mod.widgets.*
 
-    let GalleryPageStackView = StackNavigationView{
-        full_screen: false
-        draw_bg +: {
-            color: instance(shad_theme.color_background)
-        }
-        header +: {
-            visible: false
-            height: 0
-        }
-        body +: {
-            width: Fill
-            height: Fill
-            flow: Overlay
-            margin: Inset{top: 0, right: 0, bottom: 0, left: 0}
-        }
-    }
-
     mod.widgets.GalleryContentFlip = RouterWidget{
         width: Fill
         height: Fill
@@ -98,6 +81,14 @@ script_mod! {
         input_otp_page := RouterRoute{
             route_pattern: "/input-otp"
             mod.widgets.GalleryInputOtpPage{}
+        }
+        menubar_page := RouterRoute{
+            route_pattern: "/menubar"
+            mod.widgets.GalleryMenubarPage{}
+        }
+        navigation_menu_page := RouterRoute{
+            route_pattern: "/navigation-menu"
+            mod.widgets.GalleryNavigationMenuPage{}
         }
         pagination_page := RouterRoute{
             route_pattern: "/pagination"

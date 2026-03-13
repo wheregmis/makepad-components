@@ -19,79 +19,39 @@ script_mod! {
 
             ShadHr{}
 
-            breadcrumb_preview_section := View{
+            breadcrumb_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
 
-                breadcrumb_tabs_row := View{
-                    width: Fit
-                    visible: false
-                    height: 0
-                    flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
-
-                    breadcrumb_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        breadcrumb_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-                        breadcrumb_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    breadcrumb_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        breadcrumb_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-                        breadcrumb_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                breadcrumb_preview_panel := mod.widgets.ShadPanel{
-                    breadcrumb_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
+                            preview_content +: {
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                spacing: 12.0
 
-                            ShadSectionHeader{ text: "Default" }
-                            ShadBreadcrumb{
-                                ShadBreadcrumbLink{ text: "Home" }
-                                ShadBreadcrumbSeparator{}
-                                ShadBreadcrumbLink{ text: "Components" }
-                                ShadBreadcrumbSeparator{}
-                                ShadBreadcrumbPage{ text: "Breadcrumb" }
-                            }
+                                ShadSectionHeader{ text: "Default" }
+                                ShadBreadcrumb{
+                                    ShadBreadcrumbLink{ text: "Home" }
+                                    ShadBreadcrumbSeparator{}
+                                    ShadBreadcrumbLink{ text: "Components" }
+                                    ShadBreadcrumbSeparator{}
+                                    ShadBreadcrumbPage{ text: "Breadcrumb" }
+                                }
 
-                            ShadHr{}
-                            ShadSectionHeader{ text: "Collapsed / Ellipsis" }
-                            ShadBreadcrumb{
-                                ShadBreadcrumbLink{ text: "Home" }
-                                ShadBreadcrumbSeparator{}
-                                ShadBreadcrumbEllipsis{}
-                                ShadBreadcrumbSeparator{}
-                                ShadBreadcrumbLink{ text: "Components" }
-                                ShadBreadcrumbSeparator{}
-                                ShadBreadcrumbPage{ text: "Breadcrumb" }
+                                ShadHr{}
+                                ShadSectionHeader{ text: "Collapsed / Ellipsis" }
+                                ShadBreadcrumb{
+                                    ShadBreadcrumbLink{ text: "Home" }
+                                    ShadBreadcrumbSeparator{}
+                                    ShadBreadcrumbEllipsis{}
+                                    ShadBreadcrumbSeparator{}
+                                    ShadBreadcrumbLink{ text: "Components" }
+                                    ShadBreadcrumbSeparator{}
+                                    ShadBreadcrumbPage{ text: "Breadcrumb" }
+                                }
                             }
                         }
 
@@ -102,8 +62,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(BREADCRUMB_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(BREADCRUMB_PREVIEW_CODE)
                                 }
                             }
                         }

@@ -20,6 +20,8 @@ pub mod input_otp_page;
 pub mod input_page;
 pub mod kbd_page;
 pub mod label_page;
+pub mod menubar_page;
+pub mod navigation_menu_page;
 pub mod pagination_page;
 pub mod popover_page;
 pub mod progress_page;
@@ -64,6 +66,8 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::dialog_page::script_mod(vm);
     crate::ui::input_page::script_mod(vm);
     crate::ui::input_otp_page::script_mod(vm);
+    crate::ui::menubar_page::script_mod(vm);
+    crate::ui::navigation_menu_page::script_mod(vm);
     crate::ui::pagination_page::script_mod(vm);
     crate::ui::popover_page::script_mod(vm);
 

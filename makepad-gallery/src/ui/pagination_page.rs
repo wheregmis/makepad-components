@@ -23,72 +23,73 @@ script_mod! {
 
             ShadHr{}
 
-            pagination_preview_section := View{
+            pagination_preview_section := mod.widgets.GalleryPreviewSection{
                 width: Fill
                 height: Fit
-                flow: Down
 
-                pagination_preview_panel := mod.widgets.ShadPanel{
-                    pagination_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
+                preview_panel +: {
+                    preview_flip +: {
                         root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 16.0
-
-                            ShadSectionHeader{ text: "Controlled pagination" }
-
-                            pagination_demo := ShadPagination{
-                                current_page: 5
-                                page_count: 12
-                            }
-
-                            View{
-                                width: Fit
+                            preview_content +: {
+                                width: Fill
                                 height: Fit
-                                flow: Right
-                                spacing: 8.0
+                                flow: Down
+                                spacing: 16.0
 
-                                prev_external_btn := ShadButtonOutline{
-                                    text: "Previous"
+                                ShadSectionHeader{ text: "Controlled pagination" }
+
+                                pagination_demo := ShadPagination{
+                                    current_page: 5
+                                    page_count: 12
                                 }
 
-                                next_external_btn := ShadButtonOutline{
-                                    text: "Next"
+                                View{
+                                    width: Fit
+                                    height: Fit
+                                    flow: Right
+                                    spacing: 8.0
+
+                                    prev_external_btn := ShadButtonOutline{
+                                        text: "Previous"
+                                    }
+
+                                    next_external_btn := ShadButtonOutline{
+                                        text: "Next"
+                                    }
+
+                                    jump_last_btn := ShadButtonGhost{
+                                        text: "Jump to last"
+                                    }
                                 }
 
-                                jump_last_btn := ShadButtonGhost{
-                                    text: "Jump to last"
+                                pagination_status := ShadFieldDescription{
+                                    text: "Current page: 5 of 12"
+                                }
+
+                                ShadHr{}
+
+                                ShadSectionHeader{ text: "Compact range" }
+
+                                pagination_compact := ShadPagination{
+                                    current_page: 21
+                                    page_count: 42
+                                    max_visible_pages: 5
+                                }
+
+                                pagination_compact_status := ShadFieldDescription{
+                                    text: "Current page: 21 of 42"
                                 }
                             }
 
-                            pagination_status := ShadFieldDescription{
-                                text: "Current page: 5 of 12"
-                            }
-
-                            ShadHr{}
-
-                            ShadSectionHeader{ text: "Compact range" }
-
-                            pagination_compact := ShadPagination{
-                                current_page: 21
-                                page_count: 42
-                                max_visible_pages: 5
-                            }
-
-                            pagination_compact_status := ShadFieldDescription{
-                                text: "Current page: 21 of 42"
-                            }
-
-                            mod.widgets.GalleryActionFlow{
-                                body +: {
-                                    mod.widgets.GalleryActionFlowStep{text: "1. Treat the current page as app or page state. `ShadPagination` only emits page changes, it does not own your data source."}
-                                    mod.widgets.GalleryActionFlowStep{text: "2. Listen to `changed(actions)` when a user clicks a number, Previous, or Next."}
-                                    mod.widgets.GalleryActionFlowStep{text: "3. Use `set_page(cx, ...)`, `next(cx)`, or `prev(cx)` when external buttons or keyboard shortcuts should drive the control."}
-                                    mod.widgets.GalleryActionFlowStep{text: "4. Recompute the visible rows or fetch the next slice from your backend using the selected page."}
+                            action_flow +: {
+                                visible: true
+                                mod.widgets.GalleryActionFlow{
+                                    body +: {
+                                        mod.widgets.GalleryActionFlowStep{text: "1. Treat the current page as app or page state. `ShadPagination` only emits page changes, it does not own your data source."}
+                                        mod.widgets.GalleryActionFlowStep{text: "2. Listen to `changed(actions)` when a user clicks a number, Previous, or Next."}
+                                        mod.widgets.GalleryActionFlowStep{text: "3. Use `set_page(cx, ...)`, `next(cx)`, or `prev(cx)` when external buttons or keyboard shortcuts should drive the control."}
+                                        mod.widgets.GalleryActionFlowStep{text: "4. Recompute the visible rows or fetch the next slice from your backend using the selected page."}
+                                    }
                                 }
                             }
                         }
@@ -100,8 +101,8 @@ script_mod! {
                                 flow: Down
                                 spacing: 12.0
 
-                                GalleryCodeSnippet{
-                                    code_view +: { text: #(PAGINATION_PREVIEW_CODE) }
+                                code_snippet +: {
+                                    code: #(PAGINATION_PREVIEW_CODE)
                                 }
                             }
                         }
