@@ -17,6 +17,9 @@ script_mod! {
 
             color_muted: #18181b
             color_muted_foreground: #a1a1aa
+            color_disabled: #27272a
+            color_disabled_foreground: #a1a1aa
+            color_disabled_border: #3f3f46
 
             color_destructive: #dc2626
             color_destructive_hover: #b91c1c
@@ -53,6 +56,9 @@ script_mod! {
 
             color_muted: #f4f4f5
             color_muted_foreground: #71717a
+            color_disabled: #e4e4e7
+            color_disabled_foreground: #71717a
+            color_disabled_border: #d4d4d8
 
             color_destructive: #dc2626
             color_destructive_hover: #b91c1c

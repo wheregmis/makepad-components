@@ -29,6 +29,7 @@ script_mod! {
             color_hover: (shad_theme.color_secondary)
             color_down: (shad_theme.color_secondary_hover)
             color_focus: (shad_theme.color_secondary)
+            color_disabled: (shad_theme.color_disabled)
             border_size: 0.0
             border_radius: (shad_theme.radius)
             border_color: #0000
@@ -39,6 +40,7 @@ script_mod! {
             color_hover: (shad_theme.color_primary)
             color_down: (shad_theme.color_primary)
             color_focus: (shad_theme.color_primary)
+            color_disabled: (shad_theme.color_disabled_foreground)
             text_style.font_size: 11
         }
     }

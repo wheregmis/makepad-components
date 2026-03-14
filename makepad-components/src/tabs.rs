@@ -36,12 +36,14 @@ script_mod! {
             color: #0000
             color_hover: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_ghost_down)
+            color_disabled: (shad_theme.color_disabled)
         }
 
         draw_text +: {
             color: (shad_theme.color_muted_foreground)
             color_hover: (shad_theme.color_primary)
             color_down: (shad_theme.color_primary)
+            color_disabled: (shad_theme.color_disabled_foreground)
             text_style.font_size: 11.0
         }
     }

@@ -29,6 +29,7 @@ script_mod! {
             color_hover: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_ghost_down)
             color_focus: (shad_theme.color_ghost_hover)
+            color_disabled: (shad_theme.color_disabled)
             border_size: 0.0
             border_radius: 0.0
             border_color: #0000
@@ -37,6 +38,7 @@ script_mod! {
         draw_text.color_hover: (shad_theme.color_primary)
         draw_text.color_down: (shad_theme.color_primary)
         draw_text.color_focus: (shad_theme.color_primary)
+        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
         draw_text.text_style.font_size: 11
     }
 

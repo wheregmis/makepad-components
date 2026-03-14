@@ -94,34 +94,12 @@ script_mod! {
                         spacing: 8.0
                         margin: Inset{top: 8}
 
-                        cancel := ButtonFlat{
+                        cancel := ShadButtonOutline{
                             text: "Cancel"
-                            height: 36
-                            padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-                            draw_bg +: {
-                                color: #0000
-                                color_hover: (shad_theme.color_ghost_hover)
-                                color_down: (shad_theme.color_ghost_down)
-                                border_size: 1.0
-                                border_radius: (shad_theme.radius)
-                                border_color: (shad_theme.color_outline_border)
-                            }
-                            draw_text.color: (shad_theme.color_primary)
-                            draw_text.text_style.font_size: 11
                         }
 
-                        confirm := ButtonFlat{
+                        confirm := ShadButton{
                             text: "Continue"
-                            height: 36
-                            padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-                            draw_bg +: {
-                                color: (shad_theme.color_primary_foreground)
-                                color_hover: (shad_theme.color_secondary)
-                                border_size: 0.0
-                                border_radius: (shad_theme.radius)
-                            }
-                            draw_text.color: (shad_theme.color_primary)
-                            draw_text.text_style.font_size: 11
                         }
                     }
                 }
@@ -178,34 +156,12 @@ script_mod! {
                         spacing: 8.0
                         margin: Inset{top: 8}
 
-                        cancel := ButtonFlat{
+                        cancel := ShadButtonOutline{
                             text: "Cancel"
-                            height: 36
-                            padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-                            draw_bg +: {
-                                color: #0000
-                                color_hover: (shad_theme.color_ghost_hover)
-                                color_down: (shad_theme.color_ghost_down)
-                                border_size: 1.0
-                                border_radius: (shad_theme.radius)
-                                border_color: (shad_theme.color_outline_border)
-                            }
-                            draw_text.color: (shad_theme.color_primary)
-                            draw_text.text_style.font_size: 11
                         }
 
-                        confirm := ButtonFlat{
+                        confirm := ShadButtonDestructive{
                             text: "Delete"
-                            height: 36
-                            padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-                            draw_bg +: {
-                                color: (shad_theme.color_destructive)
-                                color_hover: (shad_theme.color_destructive_hover)
-                                border_size: 0.0
-                                border_radius: (shad_theme.radius)
-                            }
-                            draw_text.color: (shad_theme.color_destructive_foreground)
-                            draw_text.text_style.font_size: 11
                         }
                     }
                 }
