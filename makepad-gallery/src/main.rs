@@ -75,14 +75,13 @@ impl App {
     }
 
     fn sync_mobile_sidebar_button(&self, cx: &mut Cx) {
-        self.ui.button(cx, ids!(mobile_sidebar_button)).set_text(
-            cx,
-            if self.is_small_screen && self.sidebar_open {
-                "X"
-            } else {
-                "☰"
-            },
-        );
+        let show_close = self.is_small_screen && self.sidebar_open;
+        self.ui
+            .button(cx, ids!(mobile_sidebar_menu_button))
+            .set_visible(cx, !show_close);
+        self.ui
+            .button(cx, ids!(mobile_sidebar_close_button))
+            .set_visible(cx, show_close);
     }
 
     fn sync_theme_toggle_labels(&self, cx: &mut Cx) {
@@ -187,11 +186,15 @@ impl MatchEvent for App {
         {
             self.set_current_page(cx, page);
         }
-        if self
-            .ui
-            .button(cx, ids!(mobile_sidebar_button))
-            .clicked(actions)
-            && self.is_small_screen
+        if self.is_small_screen
+            && (self
+                .ui
+                .button(cx, ids!(mobile_sidebar_menu_button))
+                .clicked(actions)
+                || self
+                    .ui
+                    .button(cx, ids!(mobile_sidebar_close_button))
+                    .clicked(actions))
         {
             self.sidebar_open = !self.sidebar_open;
             self.apply_responsive_visibility(cx);

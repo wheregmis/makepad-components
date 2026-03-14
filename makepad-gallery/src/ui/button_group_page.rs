@@ -37,7 +37,20 @@ gallery_static_page! {
             ShadButtonGroup{
                 ShadButtonGroupItem{text: "Snooze"}
                 ShadButtonGroupSeparator{}
-                ShadButtonGroupItemIcon{text: "⋯"}
+                IconButtonMoreHorizontal{
+                    width: 36
+                    height: 36
+                    draw_bg +: {
+                        color: #0000
+                        color_hover: (shad_theme.color_ghost_hover)
+                        color_down: (shad_theme.color_ghost_down)
+                        color_focus: (shad_theme.color_ghost_hover)
+                        border_size: 0.0
+                        border_radius: 0.0
+                        border_color: #0000
+                    }
+                    draw_icon.color: (shad_theme.color_primary)
+                }
             }
         }
 

@@ -105,6 +105,7 @@ script_mod! {
         side_offset: 6.0
         viewport_padding: 10.0
         can_dismiss: true
+        open_on_hover: true
 
         trigger := mod.widgets.ShadMenubarTrigger{
             text: "Menu"

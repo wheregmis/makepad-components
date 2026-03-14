@@ -23,6 +23,9 @@ script_mod! {
         width: Fit
         height: Fit
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+        label_walk +: {
+            margin: theme.mspace_h_1{left: 18.0}
+        }
 
         draw_bg +: {
             size: 16.0

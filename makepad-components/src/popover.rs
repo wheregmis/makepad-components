@@ -34,6 +34,7 @@ script_mod! {
         side_offset: 8.0
         viewport_padding: 12.0
         can_dismiss: true
+        open_on_hover: false
 
         draw_bg +: {
             pixel: fn() {
@@ -85,6 +86,8 @@ pub struct ShadPopover {
     viewport_padding: f64,
     #[live(true)]
     can_dismiss: bool,
+    #[live(false)]
+    open_on_hover: bool,
 
     #[live]
     draw_bg: DrawQuad,
@@ -213,6 +216,71 @@ impl ShadPopover {
         pos
     }
 
+    fn hover_bridge_rect(&self, trigger_rect: Rect, content_rect: Rect) -> Option<Rect> {
+        let padding = 12.0;
+        let trigger_right = trigger_rect.pos.x + trigger_rect.size.x;
+        let trigger_bottom = trigger_rect.pos.y + trigger_rect.size.y;
+        let content_right = content_rect.pos.x + content_rect.size.x;
+        let content_bottom = content_rect.pos.y + content_rect.size.y;
+
+        if content_rect.pos.y >= trigger_bottom {
+            let height = content_rect.pos.y - trigger_bottom;
+            if height > 0.0 {
+                return Some(Rect {
+                    pos: dvec2(trigger_rect.pos.x - padding, trigger_bottom),
+                    size: dvec2(trigger_rect.size.x + padding * 2.0, height),
+                });
+            }
+        }
+
+        if trigger_rect.pos.y >= content_bottom {
+            let height = trigger_rect.pos.y - content_bottom;
+            if height > 0.0 {
+                return Some(Rect {
+                    pos: dvec2(trigger_rect.pos.x - padding, content_bottom),
+                    size: dvec2(trigger_rect.size.x + padding * 2.0, height),
+                });
+            }
+        }
+
+        if content_rect.pos.x >= trigger_right {
+            let width = content_rect.pos.x - trigger_right;
+            if width > 0.0 {
+                return Some(Rect {
+                    pos: dvec2(trigger_right, trigger_rect.pos.y - padding),
+                    size: dvec2(width, trigger_rect.size.y + padding * 2.0),
+                });
+            }
+        }
+
+        if trigger_rect.pos.x >= content_right {
+            let width = trigger_rect.pos.x - content_right;
+            if width > 0.0 {
+                return Some(Rect {
+                    pos: dvec2(content_right, trigger_rect.pos.y - padding),
+                    size: dvec2(width, trigger_rect.size.y + padding * 2.0),
+                });
+            }
+        }
+
+        None
+    }
+
+    fn hover_zone_contains_abs(&self, cx: &Cx, abs: Vec2d) -> bool {
+        let trigger_rect = self.trigger_rect(cx);
+        if trigger_rect.contains(abs) {
+            return true;
+        }
+
+        let content_rect = self.popup_content.area().rect(cx);
+        if content_rect.contains(abs) {
+            return true;
+        }
+
+        self.hover_bridge_rect(trigger_rect, content_rect)
+            .is_some_and(|bridge| bridge.contains(abs))
+    }
+
     fn emit_open_state(&self, cx: &mut Cx, open: bool) {
         emit_widget_action(
             cx,
@@ -290,9 +358,16 @@ impl Widget for ShadPopover {
         };
 
         match event.hits(cx, trigger_area) {
+            Hit::FingerHoverIn(fe) | Hit::FingerHoverOver(fe)
+                if self.open_on_hover && fe.device.has_hovers() =>
+            {
+                self.open(cx);
+            }
             Hit::FingerUp(fe) if fe.is_primary_hit() => {
-                self.set_open(cx, !self.open);
-                return;
+                if !self.open_on_hover || !fe.device.has_hovers() {
+                    self.set_open(cx, !self.open);
+                    return;
+                }
             }
             Hit::KeyDown(ke) if matches!(ke.key_code, KeyCode::ReturnKey | KeyCode::Space) => {
                 self.set_open(cx, !self.open);
@@ -320,6 +395,28 @@ impl Widget for ShadPopover {
         }
 
         let overlay_hit = event.hits(cx, self.draw_bg.area());
+        if self.open_on_hover {
+            match overlay_hit {
+                Hit::FingerHoverIn(fe) | Hit::FingerHoverOver(fe)
+                    if fe.device.has_hovers() && !self.hover_zone_contains_abs(cx, fe.abs) =>
+                {
+                    self.close(cx);
+                    return;
+                }
+                Hit::FingerMove(fe)
+                    if fe.device.has_hovers() && !self.hover_zone_contains_abs(cx, fe.abs) =>
+                {
+                    self.close(cx);
+                    return;
+                }
+                Hit::FingerHoverOut(_) => {
+                    self.close(cx);
+                    return;
+                }
+                _ => {}
+            }
+        }
+
         if self.can_dismiss {
             if let Hit::FingerUp(fe) = overlay_hit {
                 let content_rect = self.popup_content.area().rect(cx);

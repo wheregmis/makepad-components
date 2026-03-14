@@ -294,7 +294,7 @@ The `Shad*Chart` script types style Makepad's built-in chart widgets. Use the un
 - `ShadMenubarItem`
 - `ShadMenubarSeparator`
 
-`ShadMenubarMenu` reuses `ShadPopover` under the hood. Query or close a menu with the normal popover widget ref helpers after an item click.
+`ShadMenubarMenu` reuses `ShadPopover` under the hood. Menus open on hover, sibling menus close as the pointer moves across the menubar, and you can still query or close a menu with the normal popover widget ref helpers after an item click.
 
 ### Navigation Menu (`makepad-components/src/navigation_menu.rs`)
 
@@ -307,7 +307,7 @@ The `Shad*Chart` script types style Makepad's built-in chart widgets. Use the un
 - `ShadNavigationMenuCallout`
 - `ShadNavigationMenuPanel`
 
-`ShadNavigationMenuItem` also reuses `ShadPopover`, but defaults to a wider content surface for grouped links, feature callouts, and site navigation flyouts.
+`ShadNavigationMenuItem` also reuses `ShadPopover`, but defaults to a wider content surface for grouped links, feature callouts, and site navigation flyouts. Navigation flyouts open on hover and close sibling menus as the pointer moves across the trigger row.
 
 ### Table (`makepad-components/src/table.rs`)
 

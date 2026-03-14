@@ -11,13 +11,13 @@ script_mod! {
         height: 20
         animate: true
         animation_fps: 30.0
+        shimmer_speed: 2.0
 
         draw_bg +: {
             color: (shad_theme.color_secondary)
             border_radius: (shad_theme.radius)
             border_size: 0.0
             border_color: #0000
-            shimmer_speed: uniform(2.0)
 
             pixel: fn() {
                 let sdf = Sdf2d.viewport(self.pos * self.rect_size)
@@ -62,8 +62,6 @@ pub struct ShadSkeleton {
     area: Area,
     #[rust]
     phase: f32,
-    #[rust]
-    shimmer_speed: f32,
     #[redraw]
     #[live]
     draw_bg: DrawQuad,
@@ -71,6 +69,8 @@ pub struct ShadSkeleton {
     animate: bool,
     #[live(30.0)]
     animation_fps: f64,
+    #[live(2.0)]
+    shimmer_speed: f32,
     #[walk]
     walk: Walk,
     #[layout]
@@ -86,24 +86,6 @@ impl ShadSkeleton {
         self.draw_bg.pad1 = self.phase;
     }
 
-    fn sync_live_draw_props(&mut self, vm: &mut ScriptVm, value: ScriptValue) {
-        let Some(obj) = value.as_object() else {
-            return;
-        };
-        let draw_bg = vm.bx.heap.value(obj, id!(draw_bg).into(), NoTrap);
-        let Some(draw_bg_obj) = draw_bg.as_object() else {
-            return;
-        };
-        if let Some(shimmer_speed) = vm
-            .bx
-            .heap
-            .value(draw_bg_obj, id!(shimmer_speed).into(), NoTrap)
-            .as_f64()
-        {
-            self.shimmer_speed = shimmer_speed as f32;
-        }
-    }
-
     fn advance(&mut self, delta: f64) {
         self.phase = advance_phase(self.phase, delta, self.shimmer_speed as f64);
         self.sync_phase_to_shader();
@@ -113,12 +95,11 @@ impl ShadSkeleton {
 impl ScriptHook for ShadSkeleton {
     fn on_after_apply(
         &mut self,
-        vm: &mut ScriptVm,
+        _vm: &mut ScriptVm,
         _apply: &Apply,
         _scope: &mut Scope,
-        value: ScriptValue,
+        _value: ScriptValue,
     ) {
-        self.sync_live_draw_props(vm, value);
         self.sync_phase_to_shader();
     }
 }

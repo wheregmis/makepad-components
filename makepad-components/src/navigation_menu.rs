@@ -99,6 +99,7 @@ script_mod! {
         side_offset: 8.0
         viewport_padding: 16.0
         can_dismiss: true
+        open_on_hover: true
 
         trigger := mod.widgets.ShadNavigationMenuTrigger{
             text: "Overview"

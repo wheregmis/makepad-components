@@ -37,6 +37,14 @@ script_mod! {
         draw_icon.svg: crate_resource("self://resources/icons/chevron-down.svg")
     }
 
+    mod.widgets.IconMenu = mod.widgets.MakepadIconBase{
+        draw_icon.svg: crate_resource("self://resources/icons/menu.svg")
+    }
+
+    mod.widgets.IconMoreHorizontal = mod.widgets.MakepadIconBase{
+        draw_icon.svg: crate_resource("self://resources/icons/more-horizontal.svg")
+    }
+
     mod.widgets.IconCommand = mod.widgets.MakepadIconBase{
         draw_icon.svg: crate_resource("self://resources/icons/command.svg")
     }
@@ -68,5 +76,15 @@ script_mod! {
     mod.widgets.IconButtonChevronRight = mod.widgets.ButtonFlatIcon{
         icon_walk: Walk{width: 14, height: 14}
         draw_icon.svg: crate_resource("self://resources/icons/chevron-right.svg")
+    }
+
+    mod.widgets.IconButtonMenu = mod.widgets.ButtonFlatIcon{
+        icon_walk: Walk{width: 14, height: 14}
+        draw_icon.svg: crate_resource("self://resources/icons/menu.svg")
+    }
+
+    mod.widgets.IconButtonMoreHorizontal = mod.widgets.ButtonFlatIcon{
+        icon_walk: Walk{width: 14, height: 14}
+        draw_icon.svg: crate_resource("self://resources/icons/more-horizontal.svg")
     }
 }

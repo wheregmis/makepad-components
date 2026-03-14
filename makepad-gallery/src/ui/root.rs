@@ -55,12 +55,41 @@ macro_rules! define_gallery_root {
                 spacing: 12.0
                 draw_bg.color: (shad_theme.color_background)
 
-                mobile_sidebar_button := ShadButtonGhost{
+                mobile_sidebar_toggle := View{
                     width: 36
                     height: 36
-                    padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-                    text: "☰"
-                    draw_text.text_style.font_size: 16
+                    flow: Overlay
+
+                    mobile_sidebar_menu_button := IconButtonMenu{
+                        width: 36
+                        height: 36
+                        draw_bg +: {
+                            color: #0000
+                            color_hover: (shad_theme.color_ghost_hover)
+                            color_down: (shad_theme.color_ghost_down)
+                            color_focus: (shad_theme.color_ghost_hover)
+                            border_size: 0.0
+                            border_radius: (shad_theme.radius)
+                            border_color: #0000
+                        }
+                        draw_icon.color: (shad_theme.color_primary)
+                    }
+
+                    mobile_sidebar_close_button := IconButtonX{
+                        visible: false
+                        width: 36
+                        height: 36
+                        draw_bg +: {
+                            color: #0000
+                            color_hover: (shad_theme.color_ghost_hover)
+                            color_down: (shad_theme.color_ghost_down)
+                            color_focus: (shad_theme.color_ghost_hover)
+                            border_size: 0.0
+                            border_radius: (shad_theme.radius)
+                            border_color: #0000
+                        }
+                        draw_icon.color: (shad_theme.color_primary)
+                    }
                 }
 
                 mobile_page_label := ShadLabel{

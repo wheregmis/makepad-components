@@ -149,7 +149,7 @@ pub struct ShadCalendar {
     #[rust]
     visible_month: u8,
     #[rust]
-    today: ShadDate,
+    today: Option<ShadDate>,
     #[rust]
     hovered_target: Option<CalendarTarget>,
 
@@ -160,10 +160,13 @@ pub struct ShadCalendar {
 
 impl ScriptHook for ShadCalendar {
     fn on_after_new(&mut self, _vm: &mut ScriptVm) {
-        let today = ShadDate::today_utc();
-        self.today = today;
-        self.visible_year = today.year;
-        self.visible_month = today.month;
+        self.today = ShadDate::try_today_utc();
+        let (year, month) = self
+            .today
+            .map(|date| (date.year, date.month))
+            .unwrap_or_else(ShadDate::fallback_visible_month);
+        self.visible_year = year;
+        self.visible_month = month;
     }
 
     fn on_after_apply(
@@ -503,7 +506,7 @@ impl Widget for ShadCalendar {
                 size: dvec2(layout.cell_width, layout.cell_height),
             };
             let is_selected = self.value_date == Some(cell.date);
-            let is_today = self.today == cell.date;
+            let is_today = self.today == Some(cell.date);
             let is_hovered = self.hovered_target == Some(CalendarTarget::Cell(index));
 
             self.draw_cell_bg.color = if is_selected {

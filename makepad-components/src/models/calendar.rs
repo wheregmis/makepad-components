@@ -1,3 +1,4 @@
+#[cfg(not(target_arch = "wasm32"))]
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -34,13 +35,38 @@ impl ShadDate {
         format!("{:04}-{:02}-{:02}", self.year, self.month, self.day)
     }
 
+    pub fn try_today_utc() -> Option<Self> {
+        #[cfg(target_arch = "wasm32")]
+        {
+            None
+        }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let days_since_epoch = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map(|duration| (duration.as_secs() / 86_400) as i64)
+                .ok()?;
+            let (year, month, day) = civil_from_days(days_since_epoch);
+            Some(Self { year, month, day })
+        }
+    }
+
     pub fn today_utc() -> Self {
-        let days_since_epoch = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|duration| (duration.as_secs() / 86_400) as i64)
-            .unwrap_or(0);
-        let (year, month, day) = civil_from_days(days_since_epoch);
-        Self { year, month, day }
+        Self::try_today_utc().unwrap_or_else(Self::fallback_visible_date)
+    }
+
+    pub fn fallback_visible_date() -> Self {
+        Self {
+            year: 2000,
+            month: 1,
+            day: 1,
+        }
+    }
+
+    pub fn fallback_visible_month() -> (i32, u8) {
+        let date = Self::fallback_visible_date();
+        (date.year, date.month)
     }
 }
 
@@ -78,6 +104,7 @@ pub fn weekday_from_civil(year: i32, month: u8, day: u8) -> u8 {
     ((h + 6) % 7) as u8
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 pub fn civil_from_days(days: i64) -> (i32, u8, u8) {
     let z = days + 719_468;
     let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
@@ -123,5 +150,10 @@ mod tests {
     #[test]
     fn computes_weekday_with_sunday_zero() {
         assert_eq!(weekday_from_civil(2026, 3, 13), 5);
+    }
+
+    #[test]
+    fn fallback_visible_date_is_stable() {
+        assert_eq!(ShadDate::fallback_visible_date().format_iso(), "2000-01-01");
     }
 }

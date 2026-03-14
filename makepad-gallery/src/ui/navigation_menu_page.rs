@@ -93,7 +93,7 @@ gallery_stateful_page_shell! {
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. Use `ShadNavigationMenuList` for the visible trigger row, then place one `ShadNavigationMenuItem` per flyout."}
+        mod.widgets.GalleryActionFlowStep{text: "1. Use `ShadNavigationMenuList` for the visible trigger row, then place one hover-open `ShadNavigationMenuItem` per flyout."}
         mod.widgets.GalleryActionFlowStep{text: "2. The wider `ShadNavigationMenuContent` surface is meant for grouped links, feature callouts, and multi-column summaries."}
         mod.widgets.GalleryActionFlowStep{text: "3. Because each item reuses `ShadPopover`, you can query `open_changed(actions)` and close the flyout after a button or link fires."}
         mod.widgets.GalleryActionFlowStep{text: "4. Keep route changes in app code. These primitives own layout and popup presentation, not browser/history behavior."}
@@ -130,6 +130,15 @@ impl GalleryNavigationMenuPage {
         self.view
             .label(cx, ids!(navigation_open_status))
             .set_text(cx, text);
+    }
+
+    fn close_other_menu(&self, cx: &mut Cx, opened_menu: LiveId) {
+        if opened_menu != live_id!(products_menu) {
+            self.view.shad_popover(cx, ids!(products_menu)).close(cx);
+        }
+        if opened_menu != live_id!(resources_menu) {
+            self.view.shad_popover(cx, ids!(resources_menu)).close(cx);
+        }
     }
 }
 
@@ -194,6 +203,16 @@ impl Widget for GalleryNavigationMenuPage {
                 return;
             }
 
+            if matches!(products.open_changed(actions), Some(true)) {
+                self.close_other_menu(cx, live_id!(products_menu));
+                self.sync_open_status(cx);
+                return;
+            }
+            if matches!(resources.open_changed(actions), Some(true)) {
+                self.close_other_menu(cx, live_id!(resources_menu));
+                self.sync_open_status(cx);
+                return;
+            }
             if products.open_changed(actions).is_some() || resources.open_changed(actions).is_some()
             {
                 self.sync_open_status(cx);

@@ -53,7 +53,7 @@ gallery_stateful_page_shell! {
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. `ShadMenubar` is the horizontal shell; each `ShadMenubarMenu` is an anchored popover with menubar styling."}
+        mod.widgets.GalleryActionFlowStep{text: "1. `ShadMenubar` is the horizontal shell; each `ShadMenubarMenu` is a hover-open anchored popover with menubar styling."}
         mod.widgets.GalleryActionFlowStep{text: "2. Put `ShadMenubarItem` buttons inside `content`, then reach them through `content_widget()` from the menu ref."}
         mod.widgets.GalleryActionFlowStep{text: "3. Close the menu explicitly after handling an item click so selection and dismissal stay in sync with app state."}
         mod.widgets.GalleryActionFlowStep{text: "4. Keep command execution in page or app code. The menubar primitives handle layout and popup presentation, not document actions."}
@@ -71,6 +71,18 @@ pub struct GalleryMenubarPage {
 impl GalleryMenubarPage {
     fn set_status(&self, cx: &mut Cx, text: &str) {
         self.view.label(cx, ids!(menubar_status)).set_text(cx, text);
+    }
+
+    fn close_other_menus(&self, cx: &mut Cx, opened_menu: LiveId) {
+        if opened_menu != live_id!(file_menu) {
+            self.view.shad_popover(cx, ids!(file_menu)).close(cx);
+        }
+        if opened_menu != live_id!(edit_menu) {
+            self.view.shad_popover(cx, ids!(edit_menu)).close(cx);
+        }
+        if opened_menu != live_id!(view_menu) {
+            self.view.shad_popover(cx, ids!(view_menu)).close(cx);
+        }
     }
 }
 
@@ -146,6 +158,19 @@ impl Widget for GalleryMenubarPage {
             {
                 view_menu.close(cx);
                 self.set_status(cx, "Selected View -> Enter zen mode");
+                return;
+            }
+
+            if matches!(file_menu.open_changed(actions), Some(true)) {
+                self.close_other_menus(cx, live_id!(file_menu));
+                return;
+            }
+            if matches!(edit_menu.open_changed(actions), Some(true)) {
+                self.close_other_menus(cx, live_id!(edit_menu));
+                return;
+            }
+            if matches!(view_menu.open_changed(actions), Some(true)) {
+                self.close_other_menus(cx, live_id!(view_menu));
                 return;
             }
         }
