@@ -382,6 +382,7 @@ impl ShadAccordionItemRef {
     }
 
     pub fn animation_progress(&self, actions: &Actions) -> Option<f64> {
-        self.borrow().and_then(|inner| inner.animation_progress(actions))
+        self.borrow()
+            .and_then(|inner| inner.animation_progress(actions))
     }
 }

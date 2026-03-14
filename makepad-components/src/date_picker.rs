@@ -1,7 +1,7 @@
 use crate::calendar::ShadCalendarWidgetRefExt;
+use crate::calendar::ShadDate;
 use crate::internal::actions::{emit_widget_action, widget_action_map};
 use crate::internal::script_args::{bool_arg, string_arg};
-use crate::calendar::ShadDate;
 use crate::popover::ShadPopoverWidgetExt;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;

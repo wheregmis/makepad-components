@@ -620,7 +620,9 @@ impl Widget for ShadSonner {
         }
 
         cx.begin_turtle(walk, self.layout);
-        let step = self.overlay.draw_walk(cx, scope, Walk::new(Size::fill(), Size::fill()));
+        let step = self
+            .overlay
+            .draw_walk(cx, scope, Walk::new(Size::fill(), Size::fill()));
         cx.end_turtle();
         step
     }

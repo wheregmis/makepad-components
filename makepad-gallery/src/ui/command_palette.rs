@@ -265,12 +265,14 @@ impl GalleryCommandPalette {
             return;
         }
 
-        self.overlay.portal_list(cx, ids!(results)).smooth_scroll_to(
-            cx,
-            self.active_index,
-            RESULTS_SCROLL_SPEED,
-            Some(RESULTS_MAX_ITEMS_TO_SHOW),
-        );
+        self.overlay
+            .portal_list(cx, ids!(results))
+            .smooth_scroll_to(
+                cx,
+                self.active_index,
+                RESULTS_SCROLL_SPEED,
+                Some(RESULTS_MAX_ITEMS_TO_SHOW),
+            );
     }
 
     pub fn open(&mut self, cx: &mut Cx) {
@@ -353,7 +355,8 @@ impl GalleryCommandPalette {
             item.widget(cx, ids!(header)).set_visible(cx, show_header);
             item.label(cx, ids!(header)).set_text(cx, command.section);
             item.button(cx, ids!(button)).set_text(cx, command.title);
-            item.label(cx, ids!(shortcut)).set_text(cx, command.shortcut);
+            item.label(cx, ids!(shortcut))
+                .set_text(cx, command.shortcut);
 
             let background = if item_id == self.active_index {
                 self.active_row_color

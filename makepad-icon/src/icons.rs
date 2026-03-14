@@ -64,26 +64,31 @@ script_mod! {
     // Icon-button types: ButtonFlatIcon with SVG pre-bound.
     // Callers apply draw_bg / draw_icon.color styling on top.
     mod.widgets.IconButtonX = mod.widgets.ButtonFlatIcon{
+        aria_label: "Close"
         icon_walk: Walk{width: 14, height: 14}
         draw_icon.svg: crate_resource("self://resources/icons/x.svg")
     }
 
     mod.widgets.IconButtonChevronLeft = mod.widgets.ButtonFlatIcon{
+        aria_label: "Previous"
         icon_walk: Walk{width: 14, height: 14}
         draw_icon.svg: crate_resource("self://resources/icons/chevron-left.svg")
     }
 
     mod.widgets.IconButtonChevronRight = mod.widgets.ButtonFlatIcon{
+        aria_label: "Next"
         icon_walk: Walk{width: 14, height: 14}
         draw_icon.svg: crate_resource("self://resources/icons/chevron-right.svg")
     }
 
     mod.widgets.IconButtonMenu = mod.widgets.ButtonFlatIcon{
+        aria_label: "Menu"
         icon_walk: Walk{width: 14, height: 14}
         draw_icon.svg: crate_resource("self://resources/icons/menu.svg")
     }
 
     mod.widgets.IconButtonMoreHorizontal = mod.widgets.ButtonFlatIcon{
+        aria_label: "More options"
         icon_walk: Walk{width: 14, height: 14}
         draw_icon.svg: crate_resource("self://resources/icons/more-horizontal.svg")
     }

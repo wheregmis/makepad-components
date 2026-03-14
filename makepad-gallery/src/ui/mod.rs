@@ -3,11 +3,11 @@ use makepad_components::makepad_widgets::*;
 pub mod catalog;
 pub mod command_palette;
 mod page_macros;
+mod registry;
 pub mod root;
 pub mod sidebar;
 pub mod snippets;
 pub mod themed_widgets;
-mod registry;
 
 use crate::ui::registry::gallery_page_entries;
 
