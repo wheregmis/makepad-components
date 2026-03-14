@@ -202,40 +202,28 @@ impl Widget for ShadCheckbox {
         match event.hits(cx, self.area) {
             Hit::KeyDown(ke) => {
                 if let KeyCode::Space | KeyCode::ReturnKey = ke.key_code {
-                    self.checked = !self.checked;
-                    self.animator_toggle(
-                        cx,
-                        self.checked,
-                        animator::Animate::Yes,
-                        ids!(checked.on),
-                        ids!(checked.off),
-                    );
-                    cx.widget_action_with_data(
-                        &self.action_data,
-                        uid,
-                        ShadCheckboxAction::Changed(self.checked),
-                    );
-                    self.area.redraw(cx);
+                    let checked = !self.checked;
+                    if self.sync_checked_state(cx, checked, animator::Animate::Yes) {
+                        cx.widget_action_with_data(
+                            &self.action_data,
+                            uid,
+                            ShadCheckboxAction::Changed(checked),
+                        );
+                    }
                 }
             }
             Hit::FingerDown(_) => {
                 if self.grab_key_focus {
                     cx.set_key_focus(self.area);
                 }
-                self.checked = !self.checked;
-                self.animator_toggle(
-                    cx,
-                    self.checked,
-                    animator::Animate::Yes,
-                    ids!(checked.on),
-                    ids!(checked.off),
-                );
-                cx.widget_action_with_data(
-                    &self.action_data,
-                    uid,
-                    ShadCheckboxAction::Changed(self.checked),
-                );
-                self.area.redraw(cx);
+                let checked = !self.checked;
+                if self.sync_checked_state(cx, checked, animator::Animate::Yes) {
+                    cx.widget_action_with_data(
+                        &self.action_data,
+                        uid,
+                        ShadCheckboxAction::Changed(checked),
+                    );
+                }
             }
             Hit::KeyFocus(_) => {
                 self.animator_play(cx, ids!(focus.on));
@@ -290,10 +278,24 @@ impl Widget for ShadCheckbox {
 }
 
 impl ShadCheckbox {
-    pub fn set_checked(&mut self, cx: &mut Cx, checked: bool, animate: animator::Animate) {
+    fn sync_checked_state(
+        &mut self,
+        cx: &mut Cx,
+        checked: bool,
+        animate: animator::Animate,
+    ) -> bool {
+        if self.checked == checked {
+            return false;
+        }
+
         self.checked = checked;
         self.animator_toggle(cx, checked, animate, ids!(checked.on), ids!(checked.off));
         self.area.redraw(cx);
+        true
+    }
+
+    pub fn set_checked(&mut self, cx: &mut Cx, checked: bool, animate: animator::Animate) {
+        self.sync_checked_state(cx, checked, animate);
     }
 
     pub fn is_checked(&self) -> bool {

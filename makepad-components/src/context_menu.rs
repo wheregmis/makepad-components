@@ -71,7 +71,7 @@ struct PopupMenuGlobal {
 
 #[derive(Clone, Debug, Default)]
 pub enum ShadContextMenuAction {
-    Select(usize),
+    Changed(usize),
     #[default]
     None,
 }
@@ -138,9 +138,9 @@ impl ShadContextMenu {
         cx.sweep_unlock(self.view.area());
     }
 
-    pub fn selected(&self, actions: &Actions) -> Option<usize> {
+    pub fn changed(&self, actions: &Actions) -> Option<usize> {
         if let Some(item) = actions.find_widget_action(self.widget_uid()) {
-            if let ShadContextMenuAction::Select(index) = item.cast() {
+            if let ShadContextMenuAction::Changed(index) = item.cast() {
                 return Some(index);
             }
         }
@@ -169,7 +169,7 @@ impl Widget for ShadContextMenu {
                         cx.widget_action_with_data(
                             &self.action_data,
                             uid,
-                            ShadContextMenuAction::Select(index),
+                            ShadContextMenuAction::Changed(index),
                         );
                         close = true;
                     }
@@ -229,7 +229,7 @@ impl Widget for ShadContextMenu {
 }
 
 impl ShadContextMenuRef {
-    pub fn selected(&self, actions: &Actions) -> Option<usize> {
-        self.borrow().and_then(|inner| inner.selected(actions))
+    pub fn changed(&self, actions: &Actions) -> Option<usize> {
+        self.borrow().and_then(|inner| inner.changed(actions))
     }
 }

@@ -1,85 +1,60 @@
 use makepad_components::makepad_widgets::*;
 
-pub mod accordion_page;
-pub mod alert_page;
-pub mod aspect_ratio_page;
-pub mod avatar_page;
-pub mod badge_page;
-pub mod breadcrumb_page;
-pub mod button_group_page;
-pub mod button_page;
-pub mod card_page;
-pub mod carousel_page;
-pub mod checkbox_page;
-pub mod collapsible_page;
+pub mod catalog;
 pub mod command_palette;
-pub mod command_palette_page;
-pub mod context_menu_page;
-pub mod dialog_page;
-pub mod input_otp_page;
-pub mod input_page;
-pub mod kbd_page;
-pub mod label_page;
-pub mod progress_page;
-pub mod radio_group_page;
-pub mod resizable_page;
+mod page_macros;
 pub mod root;
-pub mod scroll_area_page;
-pub mod select_page;
-pub mod separator_page;
-pub mod sheet_page;
 pub mod sidebar;
-pub mod sidebar_page;
-pub mod skeleton_page;
-pub mod slider_page;
 pub mod snippets;
-pub mod sonner_page;
-pub mod spinner_page;
-pub mod switch_page;
-pub mod tabs_page;
-pub mod textarea_page;
 pub mod themed_widgets;
-pub mod toggle_page;
+mod registry;
+
+use crate::ui::registry::gallery_page_entries;
+
+macro_rules! declare_gallery_page_modules {
+    ($(
+        {
+            title: $title:literal,
+            route: $route:literal,
+            page: $page:ident,
+            widget: $widget:ident,
+            sidebar_id: $sidebar_id:ident,
+            sidebar_label: $sidebar_label:literal,
+            section: $section:literal,
+            shortcut: $shortcut:literal,
+            snippet: $snippet:ident,
+            $(transition: $transition:ident,)?
+        }
+    )*) => {
+        $(pub mod $page;)*
+    };
+}
+
+gallery_page_entries!(declare_gallery_page_modules);
 
 pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::themed_widgets::script_mod(vm);
     crate::ui::sidebar::script_mod(vm);
     crate::ui::command_palette::script_mod(vm);
-    crate::ui::command_palette_page::script_mod(vm);
-    crate::ui::accordion_page::script_mod(vm);
-    crate::ui::alert_page::script_mod(vm);
-    crate::ui::aspect_ratio_page::script_mod(vm);
-    crate::ui::avatar_page::script_mod(vm);
-    crate::ui::badge_page::script_mod(vm);
-    crate::ui::breadcrumb_page::script_mod(vm);
-    crate::ui::button_page::script_mod(vm);
-    crate::ui::button_group_page::script_mod(vm);
-    crate::ui::card_page::script_mod(vm);
-    crate::ui::carousel_page::script_mod(vm);
-    crate::ui::checkbox_page::script_mod(vm);
-    crate::ui::collapsible_page::script_mod(vm);
-    crate::ui::context_menu_page::script_mod(vm);
-    crate::ui::dialog_page::script_mod(vm);
-    crate::ui::input_page::script_mod(vm);
-    crate::ui::input_otp_page::script_mod(vm);
+    macro_rules! register_gallery_pages {
+        ($(
+            {
+                title: $title:literal,
+                route: $route:literal,
+                page: $page:ident,
+                widget: $widget:ident,
+                sidebar_id: $sidebar_id:ident,
+                sidebar_label: $sidebar_label:literal,
+                section: $section:literal,
+                shortcut: $shortcut:literal,
+                snippet: $snippet:ident,
+                $(transition: $transition:ident,)?
+            }
+        )*) => {
+            $(crate::ui::$page::script_mod(vm);)*
+        };
+    }
 
-    crate::ui::radio_group_page::script_mod(vm);
-    crate::ui::resizable_page::script_mod(vm);
-    crate::ui::scroll_area_page::script_mod(vm);
-    crate::ui::select_page::script_mod(vm);
-    crate::ui::separator_page::script_mod(vm);
-    crate::ui::sheet_page::script_mod(vm);
-    crate::ui::skeleton_page::script_mod(vm);
-    crate::ui::switch_page::script_mod(vm);
-    crate::ui::tabs_page::script_mod(vm);
-    crate::ui::textarea_page::script_mod(vm);
-    crate::ui::toggle_page::script_mod(vm);
-    crate::ui::kbd_page::script_mod(vm);
-    crate::ui::label_page::script_mod(vm);
-    crate::ui::progress_page::script_mod(vm);
-    crate::ui::sidebar_page::script_mod(vm);
-    crate::ui::slider_page::script_mod(vm);
-    crate::ui::sonner_page::script_mod(vm);
-    crate::ui::spinner_page::script_mod(vm);
+    gallery_page_entries!(register_gallery_pages);
     crate::ui::root::script_mod(vm);
 }

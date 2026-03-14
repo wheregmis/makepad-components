@@ -7,5 +7,6 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 makepad-widgets = { workspace = true }
+makepad-code-editor = { workspace = true }
 makepad-components = { workspace = true }
 makepad-router = { workspace = true }

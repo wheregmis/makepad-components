@@ -1,3 +1,5 @@
+use crate::internal::actions::{emit_widget_action, widget_action_map};
+use crate::internal::script_args::bool_arg;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -143,9 +145,8 @@ script_mod! {
 pub enum ShadCollapsibleAction {
     #[default]
     None,
-    Opening,
-    Closing,
-    Animating(f64),
+    OpenChanged(bool),
+    AnimationProgress(f64),
 }
 
 #[derive(Script, Widget, Animator)]
@@ -217,15 +218,11 @@ impl Widget for ShadCollapsible {
         method: LiveId,
         args: ScriptValue,
     ) -> ScriptAsyncResult {
-        if method == live_id!(set_is_open) {
-            if let Some(args_obj) = args.as_object() {
-                let trap = vm.bx.threads.cur().trap.pass();
-                let value = vm.bx.heap.vec_value(args_obj, 0, trap);
-                if let Some(is_open) = value.as_bool() {
-                    vm.with_cx_mut(|cx| {
-                        self.set_is_open(cx, is_open, animator::Animate::No);
-                    });
-                }
+        if method == live_id!(set_open) {
+            if let Some(is_open) = bool_arg(vm, args) {
+                vm.with_cx_mut(|cx| {
+                    self.set_open(cx, is_open, animator::Animate::No);
+                });
             }
             return ScriptAsyncResult::Return(NIL);
         }
@@ -240,10 +237,11 @@ impl Widget for ShadCollapsible {
         let uid = self.widget_uid();
 
         if self.animator_handle_event(cx, event).must_redraw() {
-            cx.widget_action_with_data(
+            emit_widget_action(
+                cx,
                 &self.action_data,
                 uid,
-                ShadCollapsibleAction::Animating(self.active),
+                ShadCollapsibleAction::AnimationProgress(self.active),
             );
             self.area.redraw(cx);
         }
@@ -254,25 +252,16 @@ impl Widget for ShadCollapsible {
 
         match event.hits(cx, self.header_area) {
             Hit::FingerDown(_) => {
-                if self.animator_in_state(cx, ids!(active.on)) {
-                    self.is_open = false;
-                    self.animator_play(cx, ids!(active.off));
-                    cx.widget_action_with_data(
+                let next_is_open = !self.animator_in_state(cx, ids!(active.on));
+                if self.sync_open_state(cx, next_is_open, animator::Animate::Yes) {
+                    emit_widget_action(
+                        cx,
                         &self.action_data,
                         uid,
-                        ShadCollapsibleAction::Closing,
-                    );
-                } else {
-                    self.is_open = true;
-                    self.animator_play(cx, ids!(active.on));
-                    cx.widget_action_with_data(
-                        &self.action_data,
-                        uid,
-                        ShadCollapsibleAction::Opening,
+                        ShadCollapsibleAction::OpenChanged(next_is_open),
                     );
                 }
                 self.animator_play(cx, ids!(hover.on));
-                self.area.redraw(cx);
             }
             Hit::FingerHoverIn(_) => {
                 cx.set_cursor(MouseCursor::Hand);
@@ -341,52 +330,50 @@ impl Widget for ShadCollapsible {
 }
 
 impl ShadCollapsible {
-    pub fn set_is_open(&mut self, cx: &mut Cx, is_open: bool, animate: animator::Animate) {
+    fn sync_open_state(&mut self, cx: &mut Cx, is_open: bool, animate: animator::Animate) -> bool {
+        if self.is_open == is_open {
+            return false;
+        }
+
         self.is_open = is_open;
         self.animator_toggle(cx, is_open, animate, ids!(active.on), ids!(active.off));
         self.area.redraw(cx);
+        true
+    }
+
+    pub fn set_open(&mut self, cx: &mut Cx, is_open: bool, animate: animator::Animate) {
+        self.sync_open_state(cx, is_open, animate);
     }
 
     pub fn is_open(&self, cx: &Cx) -> bool {
         self.animator_in_state(cx, ids!(active.on))
     }
 
-    pub fn opening(&self, actions: &Actions) -> bool {
-        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
-            matches!(
-                item.cast::<ShadCollapsibleAction>(),
-                ShadCollapsibleAction::Opening
-            )
-        } else {
-            false
-        }
-    }
-
-    pub fn closing(&self, actions: &Actions) -> bool {
-        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
-            matches!(
-                item.cast::<ShadCollapsibleAction>(),
-                ShadCollapsibleAction::Closing
-            )
-        } else {
-            false
-        }
-    }
-
-    pub fn animating(&self, actions: &Actions) -> Option<f64> {
-        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
-            if let ShadCollapsibleAction::Animating(v) = item.cast() {
-                return Some(v);
+    pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
+        widget_action_map::<ShadCollapsibleAction, _, _>(actions, self.widget_uid(), |action| {
+            if let ShadCollapsibleAction::OpenChanged(open) = action {
+                Some(open)
+            } else {
+                None
             }
-        }
-        None
+        })
+    }
+
+    pub fn animation_progress(&self, actions: &Actions) -> Option<f64> {
+        widget_action_map::<ShadCollapsibleAction, _, _>(actions, self.widget_uid(), |action| {
+            if let ShadCollapsibleAction::AnimationProgress(value) = action {
+                Some(value)
+            } else {
+                None
+            }
+        })
     }
 }
 
 impl ShadCollapsibleRef {
-    pub fn set_is_open(&self, cx: &mut Cx, is_open: bool, animate: animator::Animate) {
+    pub fn set_open(&self, cx: &mut Cx, is_open: bool, animate: animator::Animate) {
         if let Some(mut inner) = self.borrow_mut() {
-            inner.set_is_open(cx, is_open, animate);
+            inner.set_open(cx, is_open, animate);
         }
     }
 
@@ -394,27 +381,11 @@ impl ShadCollapsibleRef {
         self.borrow().is_some_and(|inner| inner.is_open(cx))
     }
 
-    pub fn opening(&self, actions: &Actions) -> bool {
-        if let Some(inner) = self.borrow() {
-            inner.opening(actions)
-        } else {
-            false
-        }
+    pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
+        self.borrow().and_then(|inner| inner.open_changed(actions))
     }
 
-    pub fn closing(&self, actions: &Actions) -> bool {
-        if let Some(inner) = self.borrow() {
-            inner.closing(actions)
-        } else {
-            false
-        }
-    }
-
-    pub fn animating(&self, actions: &Actions) -> Option<f64> {
-        if let Some(inner) = self.borrow() {
-            inner.animating(actions)
-        } else {
-            None
-        }
+    pub fn animation_progress(&self, actions: &Actions) -> Option<f64> {
+        self.borrow().and_then(|inner| inner.animation_progress(actions))
     }
 }

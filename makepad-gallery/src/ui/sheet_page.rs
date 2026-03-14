@@ -1,122 +1,49 @@
-use crate::ui::snippets::SHEET_PREVIEW_CODE;
+use crate::ui::page_macros::gallery_stateful_page_shell;
 use makepad_components::makepad_widgets::*;
+use makepad_components::sheet::ShadSheetWidgetExt;
 
-script_mod! {
-    use mod.prelude.widgets.*
-    use mod.widgets.*
-
-    mod.widgets.GallerySheetPage = SolidView{
-        width: Fill
-        height: Fill
+gallery_stateful_page_shell! {
+    root: ShadScrollArea,
+    shell: {
         draw_bg.color: (shad_theme.color_background)
         flow: Overlay
-
-        ShadScrollArea{
-            ShadPageTitle{
-                text: "Sheet"
-            }
-
-            ShadPageSubtitle{
-                text: "Modal sheet overlays for contextual editing and supporting flows."
-            }
-
-            ShadSeparator{}
-
-            sheet_preview_section := View{
+    },
+    widget: GallerySheetPage,
+    page: sheet_page,
+    title: "Sheet",
+    subtitle: "Modal sheet overlays for contextual editing and supporting flows. Use ShadSheetRef::open/close plus `open_changed(actions)` for page-level control.",
+    divider: { ShadSeparator{} },
+    preview_spacing: 12.0,
+    preview: {
+        ShadPanel{
+            View{
                 width: Fill
                 height: Fit
                 flow: Down
+                spacing: 12.0
 
-                sheet_tabs_row := View{
+                ShadSectionHeader{ text: "Sides" }
+                View{
                     width: Fit
                     height: Fit
                     flow: Right
-                    spacing: 20.0
-                    margin: Inset{top: 4, bottom: 12}
+                    spacing: 12.0
 
-                    sheet_demo_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        sheet_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                        sheet_demo_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-
-                    sheet_code_tab_group := View{
-                        width: Fit
-                        height: Fit
-                        flow: Down
-                        spacing: 6.0
-
-                        sheet_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                        sheet_code_indicator := SolidView{
-                            width: Fill
-                            height: 2
-                            visible: false
-                            draw_bg.color: (shad_theme.color_primary)
-                        }
-                    }
-                }
-
-                sheet_preview_panel := mod.widgets.ShadPanel{
-                    sheet_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                        width: Fill
-                        height: Fit
-
-                        root_view +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
-
-                            ShadPanel{
-                                View{
-                                    width: Fill
-                                    height: Fit
-                                    flow: Down
-                                    spacing: 12.0
-
-                                    ShadSectionHeader{ text: "Sides" }
-                                    View{
-                                        width: Fit
-                                        height: Fit
-                                        flow: Right
-                                        spacing: 12.0
-
-                                        open_right_sheet_btn := ShadButton{text: "Right"}
-                                        open_left_sheet_btn := ShadButtonOutline{text: "Left"}
-                                        open_top_sheet_btn := ShadButtonOutline{text: "Top"}
-                                        open_bottom_sheet_btn := ShadButtonOutline{text: "Bottom"}
-                                    }
-                                }
-                            }
-                        }
-
-                        code_page +: {
-                            body +: {
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            spacing: 12.0
-
-                            GalleryCodeSnippet{
-                                code: #(SHEET_PREVIEW_CODE)
-                            }
-                            }
-                        }
-                    }
+                    open_right_sheet_btn := ShadButton{text: "Right"}
+                    open_left_sheet_btn := ShadButtonOutline{text: "Left"}
+                    open_top_sheet_btn := ShadButtonOutline{text: "Top"}
+                    open_bottom_sheet_btn := ShadButtonOutline{text: "Bottom"}
                 }
             }
         }
-
+    },
+    action_flow: {
+        mod.widgets.GalleryActionFlowStep{text: "1. Keep one ShadSheetRef per sheet variant the page controls, such as right, left, top, or bottom."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Trigger open(cx) and close(cx) from page buttons or row actions instead of reaching into the sheet internals."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Listen to `open_changed(actions)` if the surrounding page needs to react to visibility changes."}
+        mod.widgets.GalleryActionFlowStep{text: "4. Internal dismiss controls and backdrop behavior remain inside the sheet component."}
+    },
+    after_root: {
         right_sheet := ShadSheet{
             side: "right"
             sheet_size: 360.0
@@ -206,5 +133,75 @@ script_mod! {
                 }
             }
         }
+    },
+}
+
+#[derive(Script, ScriptHook, Widget)]
+pub struct GallerySheetPage {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl GallerySheetPage {
+    fn set_sheet_open(&mut self, cx: &mut Cx, path: &[LiveId], open: bool) {
+        let sheet = self.view.shad_sheet(cx, path);
+        if open {
+            sheet.open(cx);
+        } else {
+            sheet.close(cx);
+        }
+    }
+}
+
+impl Widget for GallerySheetPage {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+
+        if let Event::Actions(actions) = event {
+            if self
+                .view
+                .button(cx, ids!(open_right_sheet_btn))
+                .clicked(actions)
+            {
+                self.set_sheet_open(cx, ids!(right_sheet), true);
+            }
+            if self
+                .view
+                .button(cx, ids!(open_left_sheet_btn))
+                .clicked(actions)
+            {
+                self.set_sheet_open(cx, ids!(left_sheet), true);
+            }
+            if self
+                .view
+                .button(cx, ids!(open_top_sheet_btn))
+                .clicked(actions)
+            {
+                self.set_sheet_open(cx, ids!(top_sheet), true);
+            }
+            if self
+                .view
+                .button(cx, ids!(open_bottom_sheet_btn))
+                .clicked(actions)
+            {
+                self.set_sheet_open(cx, ids!(bottom_sheet), true);
+            }
+            for (path, button) in [
+                (ids!(right_sheet), ids!(close_right_sheet_btn)),
+                (ids!(left_sheet), ids!(close_left_sheet_btn)),
+                (ids!(top_sheet), ids!(close_top_sheet_btn)),
+                (ids!(bottom_sheet), ids!(close_bottom_sheet_btn)),
+            ] {
+                if self.view.button(cx, button).clicked(actions) {
+                    self.set_sheet_open(cx, path, false);
+                }
+            }
+        }
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
     }
 }

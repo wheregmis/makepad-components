@@ -5,7 +5,7 @@ version = 4
 [[package]]
 name = "ab_glyph_rasterizer"
 version = "0.1.8"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "aho-corasick"
@@ -55,7 +55,7 @@ checksum = "5e764a1d40d510daf35e07be9eb06e75770908c27d411ee6c92109c9840eaaf7"
 [[package]]
 name = "bitflags"
 version = "2.10.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "bitflags"
@@ -66,12 +66,12 @@ checksum = "843867be96c8daad0d758b57df9392b6d8d271134fce549de6ce169ff98a92af"
 [[package]]
 name = "bytemuck"
 version = "1.25.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "byteorder"
 version = "1.5.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "cfg-if"
@@ -140,7 +140,7 @@ checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
 [[package]]
 name = "fxhash"
 version = "0.2.1"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "byteorder",
 ]
@@ -228,7 +228,7 @@ dependencies = [
 [[package]]
 name = "makepad-apple-sys"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-objc-sys",
 ]
@@ -236,7 +236,14 @@ dependencies = [
 [[package]]
 name = "makepad-byteorder-lite"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
+
+[[package]]
+name = "makepad-code-editor"
+version = "2.0.0"
+dependencies = [
+ "makepad-widgets",
+]
 
 [[package]]
 name = "makepad-components"
@@ -249,7 +256,7 @@ dependencies = [
 [[package]]
 name = "makepad-derive-wasm-bridge"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-micro-proc-macro",
 ]
@@ -257,7 +264,7 @@ dependencies = [
 [[package]]
 name = "makepad-derive-widget"
 version = "2.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-live-id",
  "makepad-micro-proc-macro",
@@ -266,7 +273,7 @@ dependencies = [
 [[package]]
 name = "makepad-draw"
 version = "2.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "ab_glyph_rasterizer",
  "fxhash",
@@ -287,7 +294,7 @@ dependencies = [
 [[package]]
 name = "makepad-error-log"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-micro-serde",
 ]
@@ -295,22 +302,23 @@ dependencies = [
 [[package]]
 name = "makepad-filesystem-watcher"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "makepad-futures"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "makepad-futures-legacy"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "makepad-gallery"
 version = "1.0.0"
 dependencies = [
+ "makepad-code-editor",
  "makepad-components",
  "makepad-router",
  "makepad-widgets",
@@ -319,7 +327,7 @@ dependencies = [
 [[package]]
 name = "makepad-html"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-live-id",
 ]
@@ -340,7 +348,7 @@ checksum = "9775cbec5fa0647500c3e5de7c850280a88335d1d2d770e5aa2332b801ba7064"
 [[package]]
 name = "makepad-latex-math"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "ttf-parser",
 ]
@@ -348,7 +356,7 @@ dependencies = [
 [[package]]
 name = "makepad-live-id"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-live-id-macros",
 ]
@@ -356,7 +364,7 @@ dependencies = [
 [[package]]
 name = "makepad-live-id-macros"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-micro-proc-macro",
 ]
@@ -364,7 +372,7 @@ dependencies = [
 [[package]]
 name = "makepad-live-reload-core"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-filesystem-watcher",
 ]
@@ -372,7 +380,7 @@ dependencies = [
 [[package]]
 name = "makepad-math"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-micro-serde",
 ]
@@ -380,12 +388,12 @@ dependencies = [
 [[package]]
 name = "makepad-micro-proc-macro"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "makepad-micro-serde"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-live-id",
  "makepad-micro-serde-derive",
@@ -394,7 +402,7 @@ dependencies = [
 [[package]]
 name = "makepad-micro-serde-derive"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-micro-proc-macro",
 ]
@@ -402,7 +410,7 @@ dependencies = [
 [[package]]
 name = "makepad-network"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-apple-sys",
  "makepad-futures-legacy",
@@ -415,12 +423,12 @@ dependencies = [
 [[package]]
 name = "makepad-objc-sys"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "makepad-platform"
 version = "2.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "ash",
  "bitflags 2.10.0",
@@ -455,7 +463,7 @@ dependencies = [
 [[package]]
 name = "makepad-regex"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "makepad-router"
@@ -491,7 +499,7 @@ dependencies = [
 [[package]]
 name = "makepad-script"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-error-log",
  "makepad-html",
@@ -505,7 +513,7 @@ dependencies = [
 [[package]]
 name = "makepad-script-derive"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-micro-proc-macro",
 ]
@@ -513,7 +521,7 @@ dependencies = [
 [[package]]
 name = "makepad-script-std"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-network",
  "makepad-script",
@@ -522,12 +530,12 @@ dependencies = [
 [[package]]
 name = "makepad-shared-bytes"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "makepad-studio-protocol"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "bitflags 2.10.0",
  "makepad-error-log",
@@ -539,7 +547,7 @@ dependencies = [
 [[package]]
 name = "makepad-svg"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-html",
  "makepad-live-id",
@@ -548,7 +556,7 @@ dependencies = [
 [[package]]
 name = "makepad-wasm-bridge"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-derive-wasm-bridge",
  "makepad-live-id",
@@ -557,7 +565,7 @@ dependencies = [
 [[package]]
 name = "makepad-webp"
 version = "0.2.4"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-byteorder-lite",
 ]
@@ -565,7 +573,7 @@ dependencies = [
 [[package]]
 name = "makepad-widgets"
 version = "2.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-derive-widget",
  "makepad-draw",
@@ -579,12 +587,12 @@ dependencies = [
 [[package]]
 name = "makepad-zune-core"
 version = "0.5.1"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "makepad-zune-inflate"
 version = "0.2.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "simd-adler32",
 ]
@@ -592,7 +600,7 @@ dependencies = [
 [[package]]
 name = "makepad-zune-jpeg"
 version = "0.5.12"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-zune-core",
 ]
@@ -600,7 +608,7 @@ dependencies = [
 [[package]]
 name = "makepad-zune-png"
 version = "0.5.1"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "makepad-zune-core",
  "makepad-zune-inflate",
@@ -609,7 +617,7 @@ dependencies = [
 [[package]]
 name = "memchr"
 version = "2.7.6"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "memchr"
@@ -732,7 +740,7 @@ dependencies = [
 [[package]]
 name = "pulldown-cmark"
 version = "0.12.2"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "bitflags 2.10.0",
  "memchr 2.7.6",
@@ -802,7 +810,7 @@ checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 [[package]]
 name = "rustybuzz"
 version = "0.18.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "bitflags 2.10.0",
  "bytemuck",
@@ -824,12 +832,12 @@ checksum = "e1cf6437eb19a8f4a6cc0f7dca544973b0b78843adbfeb3683d1a94a0024a294"
 [[package]]
 name = "sdfer"
 version = "0.2.1"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "simd-adler32"
 version = "0.3.8"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "smallvec"
@@ -840,7 +848,7 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 [[package]]
 name = "smallvec"
 version = "1.15.1"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "spirv"
@@ -885,27 +893,27 @@ dependencies = [
 [[package]]
 name = "ttf-parser"
 version = "0.24.1"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "unicase"
 version = "2.9.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "unicode-bidi"
 version = "0.3.18"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "unicode-bidi-mirroring"
 version = "0.3.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "unicode-ccc"
 version = "0.3.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "unicode-ident"
@@ -916,17 +924,17 @@ checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
 [[package]]
 name = "unicode-linebreak"
 version = "0.1.5"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "unicode-properties"
 version = "0.1.4"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "unicode-script"
 version = "0.5.8"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "unicode-segmentation"
@@ -937,7 +945,7 @@ checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
 [[package]]
 name = "unicode-segmentation"
 version = "1.12.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "unicode-width"
@@ -948,7 +956,7 @@ checksum = "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
 [[package]]
 name = "wayland-backend"
 version = "0.3.12"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "downcast-rs",
  "libc",
@@ -960,7 +968,7 @@ dependencies = [
 [[package]]
 name = "wayland-client"
 version = "0.31.12"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "bitflags 2.11.0",
  "libc",
@@ -970,7 +978,7 @@ dependencies = [
 [[package]]
 name = "wayland-egl"
 version = "0.32.9"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "wayland-backend",
  "wayland-sys",
@@ -979,7 +987,7 @@ dependencies = [
 [[package]]
 name = "wayland-protocols"
 version = "0.32.10"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "bitflags 2.11.0",
  "wayland-backend",
@@ -989,7 +997,7 @@ dependencies = [
 [[package]]
 name = "wayland-sys"
 version = "0.31.8"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "log",
  "pkg-config",
@@ -998,7 +1006,7 @@ dependencies = [
 [[package]]
 name = "windows"
 version = "0.62.2"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "windows-collections",
  "windows-core",
@@ -1008,7 +1016,7 @@ dependencies = [
 [[package]]
 name = "windows-collections"
 version = "0.3.2"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "windows-core",
 ]
@@ -1016,7 +1024,7 @@ dependencies = [
 [[package]]
 name = "windows-core"
 version = "0.62.2"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "windows-link 0.2.1 (git+https://github.com/wheregmis/makepad.git?branch=web_url)",
  "windows-result",
@@ -1026,7 +1034,7 @@ dependencies = [
 [[package]]
 name = "windows-future"
 version = "0.3.2"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "windows-core",
 ]
@@ -1040,12 +1048,12 @@ checksum = "f0805222e57f7521d6a62e36fa9163bc891acd422f971defe97d64e70d0a4fe5"
 [[package]]
 name = "windows-link"
 version = "0.2.1"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 
 [[package]]
 name = "windows-result"
 version = "0.4.1"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "windows-link 0.2.1 (git+https://github.com/wheregmis/makepad.git?branch=web_url)",
 ]
@@ -1053,7 +1061,7 @@ dependencies = [
 [[package]]
 name = "windows-strings"
 version = "0.5.1"
-source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#b5832848c48aeac415f9a6c46f18782298657c13"
+source = "git+https://github.com/wheregmis/makepad.git?branch=web_url#9f55cce5118c5ab3fd77da3113a464dbe2214cf2"
 dependencies = [
  "windows-link 0.2.1 (git+https://github.com/wheregmis/makepad.git?branch=web_url)",
 ]

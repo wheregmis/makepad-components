@@ -1,96 +1,16 @@
-use crate::ui::snippets::LABEL_PREVIEW_CODE;
+use crate::ui::page_macros::gallery_static_page;
 use makepad_components::makepad_widgets::*;
 
-script_mod! {
-    use mod.prelude.widgets.*
-    use mod.widgets.*
+gallery_static_page! {
+    widget: GalleryLabelPage,
+    page: label_page,
+    title: "Label",
+    subtitle: "Shadcn-inspired accessible label associated with controls.",
+    divider: { ShadHr{} },
+    preview_spacing: 12.0,
+    preview: {
+        ShadSectionHeader{ text: "Default Label" }
 
-    mod.widgets.GalleryLabelPage = ShadScrollYView{
-        ShadPageTitle{
-            text: "Label"
-        }
-
-        ShadPageSubtitle{
-            text: "Shadcn-inspired accessible label associated with controls."
-        }
-
-        ShadHr{}
-
-        label_preview_section := View{
-            width: Fill
-            height: Fit
-            flow: Down
-            spacing: 12.0
-
-            label_tabs_row := View{
-                width: Fit
-                height: Fit
-                flow: Right
-                spacing: 20.0
-                margin: Inset{top: 4, bottom: 12}
-
-                label_demo_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    label_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                    label_demo_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-
-                label_code_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    label_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                    label_code_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        visible: false
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-            }
-
-            label_preview_panel := mod.widgets.ShadPanel{
-                label_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                    width: Fill
-                    height: Fit
-
-                    root_view +: {
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 12.0
-
-                        ShadSectionHeader{ text: "Default Label" }
-
-                        ShadLabel{ text: "Your email address" }
-                    }
-
-                    code_page +: {
-                        body +: {
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 12.0
-
-                        GalleryCodeSnippet{
-                            code: #(LABEL_PREVIEW_CODE)
-                        }
-                        }
-                    }
-                }
-            }
-        }
-    }
+        ShadLabel{ text: "Your email address" }
+    },
 }

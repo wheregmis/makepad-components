@@ -1,3 +1,4 @@
+use crate::models::carousel::{next_index, normalize_index, prev_index};
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -197,6 +198,13 @@ script_mod! {
 const SLIDE_IDS: &[LiveId] = &[live_id!(slide_0), live_id!(slide_1), live_id!(slide_2)];
 
 #[derive(Clone, Debug, Default)]
+pub enum ShadCarouselAction {
+    Changed(usize),
+    #[default]
+    None,
+}
+
+#[derive(Clone, Debug, Default)]
 pub enum ShadCarouselDotsAction {
     #[default]
     None,
@@ -214,6 +222,8 @@ pub struct ShadCarouselDots {
 
     #[rust]
     area: Area,
+    #[rust]
+    active_index: usize,
     #[redraw]
     #[live]
     draw_bg: DrawQuad,
@@ -232,6 +242,11 @@ impl ShadCarouselDots {
     const DOTS_W: f32 = 40.0;
 
     pub fn set_active(&mut self, cx: &mut Cx, index: usize) {
+        if self.active_index == index {
+            return;
+        }
+
+        self.active_index = index;
         match index {
             0 => self.animator_play(cx, ids!(active.on_0)),
             1 => self.animator_play(cx, ids!(active.on_1)),
@@ -272,7 +287,6 @@ impl Widget for ShadCarouselDots {
                         self.widget_uid(),
                         ShadCarouselDotsAction::Clicked(i),
                     );
-                    self.area.redraw(cx);
                 }
             }
         }
@@ -295,25 +309,98 @@ pub struct ShadCarousel {
     view: View,
     #[rust]
     current: usize,
+    #[rust]
+    synced_current: Option<usize>,
+    #[action_data]
+    #[rust]
+    action_data: WidgetActionData,
 }
 
 impl ShadCarousel {
-    fn go_to(&mut self, cx: &mut Cx, index: usize) {
-        if index < SLIDE_IDS.len() {
-            self.current = index;
-            if let Some(mut pf) = self
-                .view
-                .widget_flood(cx, ids!(carousel_flip))
-                .borrow_mut::<PageFlip>()
-            {
-                pf.set_active_page(cx, SLIDE_IDS[index]);
+    fn sync_visual_state(&mut self, cx: &mut Cx) {
+        if self.synced_current == Some(self.current) {
+            return;
+        }
+
+        if let Some(mut page_flip) = self
+            .view
+            .widget_flood(cx, ids!(carousel_flip))
+            .borrow_mut::<PageFlip>()
+        {
+            page_flip.set_active_page(cx, SLIDE_IDS[self.current]);
+        }
+        if let Some(mut dots) = self
+            .view
+            .widget_flood(cx, ids!(dots))
+            .borrow_mut::<ShadCarouselDots>()
+        {
+            dots.set_active(cx, self.current);
+        }
+
+        self.synced_current = Some(self.current);
+    }
+
+    fn set_current(&mut self, cx: &mut Cx, index: usize, emit_action: bool) {
+        let Some(index) = normalize_index(index, SLIDE_IDS.len()) else {
+            return;
+        };
+
+        if self.current == index {
+            return;
+        }
+
+        self.current = index;
+        self.synced_current = None;
+        self.sync_visual_state(cx);
+        self.view.redraw(cx);
+
+        if emit_action {
+            cx.widget_action_with_data(
+                &self.action_data,
+                self.widget_uid(),
+                ShadCarouselAction::Changed(index),
+            );
+        }
+    }
+
+    pub fn go_to(&mut self, cx: &mut Cx, index: usize) {
+        self.set_current(cx, index, true);
+    }
+
+    pub fn next(&mut self, cx: &mut Cx) {
+        let next = next_index(self.current, SLIDE_IDS.len());
+        self.go_to(cx, next);
+    }
+
+    pub fn prev(&mut self, cx: &mut Cx) {
+        let next = prev_index(self.current, SLIDE_IDS.len());
+        self.go_to(cx, next);
+    }
+
+    pub fn current(&self) -> usize {
+        self.current
+    }
+
+    pub fn changed(&self, actions: &Actions) -> Option<usize> {
+        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
+            if let ShadCarouselAction::Changed(index) = item.cast() {
+                return Some(index);
             }
-            if let Some(mut dots) = self
-                .view
-                .widget_flood(cx, ids!(dots))
-                .borrow_mut::<ShadCarouselDots>()
-            {
-                dots.set_active(cx, index);
+        }
+        None
+    }
+
+    fn handle_component_actions(&mut self, cx: &mut Cx, actions: &Actions) {
+        if self.view.button(cx, ids!(prev_btn)).clicked(actions) {
+            self.prev(cx);
+        }
+        if self.view.button(cx, ids!(next_btn)).clicked(actions) {
+            self.next(cx);
+        }
+        let dots_uid = self.view.widget_flood(cx, ids!(dots)).widget_uid();
+        if let Some(item) = actions.find_widget_action(dots_uid) {
+            if let ShadCarouselDotsAction::Clicked(index) = item.cast() {
+                self.go_to(cx, index);
             }
         }
     }
@@ -322,43 +409,41 @@ impl ShadCarousel {
 impl Widget for ShadCarousel {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
         self.view.handle_event(cx, event, scope);
+        if let Event::Actions(actions) = event {
+            self.handle_component_actions(cx, actions);
+        }
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
-        if let Some(mut dots) = self
-            .view
-            .widget_flood(cx, ids!(dots))
-            .borrow_mut::<ShadCarouselDots>()
-        {
-            dots.set_active(cx, self.current);
-        }
+        self.sync_visual_state(cx);
         self.view.draw_walk(cx, scope, walk)
     }
 }
 
-impl MatchEvent for ShadCarousel {
-    fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
-        if self.view.button(cx, ids!(prev_btn)).clicked(actions) {
-            let next = if self.current == 0 {
-                SLIDE_IDS.len() - 1
-            } else {
-                self.current - 1
-            };
-            self.go_to(cx, next);
+impl ShadCarouselRef {
+    pub fn next(&self, cx: &mut Cx) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.next(cx);
         }
-        if self.view.button(cx, ids!(next_btn)).clicked(actions) {
-            let next = if self.current + 1 >= SLIDE_IDS.len() {
-                0
-            } else {
-                self.current + 1
-            };
-            self.go_to(cx, next);
+    }
+
+    pub fn prev(&self, cx: &mut Cx) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.prev(cx);
         }
-        let dots_uid = self.view.widget_flood(cx, ids!(dots)).widget_uid();
-        if let Some(item) = actions.find_widget_action(dots_uid) {
-            if let ShadCarouselDotsAction::Clicked(i) = item.cast() {
-                self.go_to(cx, i);
-            }
+    }
+
+    pub fn go_to(&self, cx: &mut Cx, index: usize) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.go_to(cx, index);
         }
+    }
+
+    pub fn current(&self) -> Option<usize> {
+        self.borrow().map(|inner| inner.current())
+    }
+
+    pub fn changed(&self, actions: &Actions) -> Option<usize> {
+        self.borrow().and_then(|inner| inner.changed(actions))
     }
 }

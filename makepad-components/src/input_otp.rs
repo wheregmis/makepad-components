@@ -1,3 +1,5 @@
+use crate::internal::script_args::string_arg;
+use crate::models::input_otp::{sanitize as sanitize_otp, visible_cells as clamped_visible_cells};
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -143,6 +145,12 @@ pub struct ShadInputOtp {
 
     #[rust]
     last_completed: Option<String>,
+    #[rust]
+    synced_controller_value: String,
+    #[rust]
+    synced_slots_value: String,
+    #[rust]
+    synced_visible_cells: usize,
 
     #[action_data]
     #[rust]
@@ -171,15 +179,11 @@ impl ShadInputOtp {
     }
 
     fn visible_cells(&self) -> usize {
-        self.cell_count.clamp(1, MAX_OTP_SLOTS as u32) as usize
+        clamped_visible_cells(self.cell_count, MAX_OTP_SLOTS)
     }
 
     fn sanitize(&self, value: &str) -> String {
-        value
-            .chars()
-            .filter(|c| c.is_ascii_digit())
-            .take(self.visible_cells())
-            .collect()
+        sanitize_otp(value, self.visible_cells())
     }
 
     fn slot_ref(&self, cx: &Cx, index: usize) -> ViewRef {
@@ -205,8 +209,12 @@ impl ShadInputOtp {
     }
 
     fn sync_slots(&mut self, cx: &mut Cx) {
-        let chars: Vec<char> = self.value.chars().collect();
         let visible_cells = self.visible_cells();
+        if self.synced_slots_value == self.value && self.synced_visible_cells == visible_cells {
+            return;
+        }
+
+        let mut chars = self.value.chars();
 
         for index in 0..MAX_OTP_SLOTS {
             let slot = self.slot_ref(cx, index);
@@ -216,9 +224,12 @@ impl ShadInputOtp {
                 continue;
             }
 
-            let digit = chars.get(index).map(|c| c.to_string()).unwrap_or_default();
+            let digit = chars.next().map(|c| c.to_string()).unwrap_or_default();
             self.set_slot_label(cx, index, &digit);
         }
+
+        self.synced_slots_value.clone_from(&self.value);
+        self.synced_visible_cells = visible_cells;
     }
 
     fn emit_completed_if_needed(&mut self, cx: &mut Cx) {
@@ -236,11 +247,16 @@ impl ShadInputOtp {
         }
     }
 
-    fn sync_controller(&self, cx: &mut Cx) {
+    fn sync_controller(&mut self, cx: &mut Cx) {
+        if self.synced_controller_value == self.value {
+            return;
+        }
+
         self.controller_ref(cx).set_text(cx, &self.value);
+        self.synced_controller_value.clone_from(&self.value);
     }
 
-    fn set_value(&mut self, cx: &mut Cx, next: String) {
+    pub fn set_value(&mut self, cx: &mut Cx, next: String) {
         let sanitized = self.sanitize(&next);
         if sanitized != self.value {
             self.value = sanitized.clone();
@@ -279,6 +295,27 @@ impl ShadInputOtp {
 }
 
 impl Widget for ShadInputOtp {
+    fn script_call(
+        &mut self,
+        vm: &mut ScriptVm,
+        method: LiveId,
+        args: ScriptValue,
+    ) -> ScriptAsyncResult {
+        if method == live_id!(set_value) {
+            if let Some(next) = string_arg(vm, args) {
+                vm.with_cx_mut(|cx| self.set_value(cx, next));
+            }
+            return ScriptAsyncResult::Return(NIL);
+        }
+        if method == live_id!(value) {
+            if let Some(value) = ScriptValue::from_inline_string(&self.value) {
+                return ScriptAsyncResult::Return(value);
+            }
+            return ScriptAsyncResult::Return(vm.bx.heap.new_string_from_str(&self.value).into());
+        }
+        ScriptAsyncResult::MethodNotFound
+    }
+
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
         self.view.handle_event(cx, event, scope);
 
@@ -288,8 +325,6 @@ impl Widget for ShadInputOtp {
                 self.set_value(cx, text);
             }
         }
-
-        self.sync_slots(cx);
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
@@ -300,6 +335,12 @@ impl Widget for ShadInputOtp {
 }
 
 impl ShadInputOtpRef {
+    pub fn set_value(&self, cx: &mut Cx, value: impl Into<String>) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.set_value(cx, value.into());
+        }
+    }
+
     pub fn changed(&self, actions: &Actions) -> Option<String> {
         self.borrow().and_then(|inner| inner.changed(actions))
     }

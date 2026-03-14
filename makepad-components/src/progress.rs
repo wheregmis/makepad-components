@@ -1,3 +1,4 @@
+use crate::animation::{advance_phase, AnimationStep, AnimationTicker};
 use makepad_widgets::*;
 
 script_mod! {
@@ -46,9 +47,13 @@ script_mod! {
     mod.widgets.ShadProgress66 = mod.widgets.ShadProgressBase{ draw_bg +: { progress: instance(0.66) } }
     mod.widgets.ShadProgressFull = mod.widgets.ShadProgressBase{ draw_bg +: { progress: instance(1.0) } }
 
-    mod.widgets.ShadProgressIndeterminate = mod.widgets.RoundedView{
+    mod.widgets.ShadProgressIndeterminateBase = #(ShadProgressIndeterminate::register_widget(vm))
+    mod.widgets.ShadProgressIndeterminate = set_type_default() do mod.widgets.ShadProgressIndeterminateBase{
         width: Fill
         height: 8
+        animate: true
+        animation_fps: 30.0
+        sweep_duration: 1.5
 
         draw_bg +: {
             color: (shad_theme.color_secondary)
@@ -57,40 +62,109 @@ script_mod! {
             border_size: 0.0
             border_color: #0000
             bar_width: uniform(0.4)
-            sweep_duration: uniform(1.5)
 
             pixel: fn() {
                 let sdf = Sdf2d.viewport(self.pos * self.rect_size)
-                let r = max(1.0, self.border_radius)
-                let bw = self.rect_size.x * self.bar_width
-                let phase = fract(self.draw_pass.time / self.sweep_duration)
-                let start_x = (self.rect_size.x - bw) * phase
+                let radius = max(1.0, self.border_radius)
+                let bar_width = self.rect_size.x * clamp(self.bar_width, 0.01, 1.0)
+                let start_x = -bar_width + (self.rect_size.x + bar_width) * fract(self.pad1)
 
-                sdf.box(0.0, 0.0, self.rect_size.x, self.rect_size.y, r)
+                sdf.box(0.0, 0.0, self.rect_size.x, self.rect_size.y, radius)
                 sdf.fill_keep(self.color)
 
-                sdf.box(start_x, 0.0, bw, self.rect_size.y, r)
+                sdf.box(start_x, 0.0, bar_width, self.rect_size.y, radius)
                 sdf.intersect()
                 sdf.fill_keep(self.color_fill)
 
                 if self.border_size > 0.0 {
-                    sdf.box(0.0, 0.0, self.rect_size.x, self.rect_size.y, r)
+                    sdf.box(0.0, 0.0, self.rect_size.x, self.rect_size.y, radius)
                     sdf.stroke(self.border_color, self.border_size)
                 }
 
                 return sdf.result
             }
         }
+    }
+}
 
-        animator: Animator{
-            time: {
-                default: @on
-                on: AnimatorState{
-                    redraw: true
-                    from: {all: Loop {duration: 100.0, end: 1000000000.0}}
-                    apply: {}
-                }
+#[derive(Script, Widget)]
+pub struct ShadProgressIndeterminate {
+    #[uid]
+    uid: WidgetUid,
+    #[source]
+    source: ScriptObjectRef,
+    #[rust]
+    ticker: AnimationTicker,
+    #[rust]
+    area: Area,
+    #[rust]
+    phase: f32,
+    #[redraw]
+    #[live]
+    draw_bg: DrawQuad,
+    #[live(true)]
+    animate: bool,
+    #[live(30.0)]
+    animation_fps: f64,
+    #[live(1.5)]
+    sweep_duration: f32,
+    #[walk]
+    walk: Walk,
+    #[layout]
+    layout: Layout,
+}
+
+impl ShadProgressIndeterminate {
+    fn is_animating(&self) -> bool {
+        self.animate && self.animation_fps > 0.0 && self.sweep_duration > 0.0001
+    }
+
+    fn sync_phase_to_shader(&mut self) {
+        self.draw_bg.pad1 = self.phase;
+    }
+
+    fn advance(&mut self, delta: f64) {
+        let cycles_per_second = 1.0 / self.sweep_duration.max(0.0001) as f64;
+        self.phase = advance_phase(self.phase, delta, cycles_per_second);
+        self.sync_phase_to_shader();
+    }
+}
+
+impl ScriptHook for ShadProgressIndeterminate {
+    fn on_after_apply(
+        &mut self,
+        _vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        self.sync_phase_to_shader();
+    }
+}
+
+impl Widget for ShadProgressIndeterminate {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, _scope: &mut Scope) {
+        let animate = self.is_animating() && self.area.is_valid(cx);
+        match self
+            .ticker
+            .handle_event(cx, event, animate, self.animation_fps)
+        {
+            AnimationStep::Redraw { delta } => {
+                self.advance(delta);
+                self.area.redraw(cx);
             }
+            AnimationStep::Stop | AnimationStep::Idle => {}
         }
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, _scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.ticker.ensure_started(cx, self.is_animating());
+        self.sync_phase_to_shader();
+
+        cx.begin_turtle(walk, self.layout);
+        let rect = cx.turtle().rect();
+        self.draw_bg.draw_abs(cx, rect);
+        cx.end_turtle_with_area(&mut self.area);
+        DrawStep::done()
     }
 }

@@ -11,9 +11,17 @@ This workspace contains:
 
 - **Buttons**: shadcn-inspired variants (`default`, `destructive`, `outline`, `secondary`, `ghost`, `link`) plus size presets.
 - **Aspect Ratio**: ratio-constrained container for media/content layouts (`ShadAspectRatio`).
-- **Accordion**: a composable accordion item widget with open/close state and script-call support (`set_is_open`, `is_open`).
+- **Accordion**: a composable accordion item widget with open-state and animation helpers (`set_open`, `is_open`, `open_changed`, `animation_progress`).
 - **Alerts**: shadcn-inspired alert layouts with default and destructive variants.
-- **Dialog**: modal with variants — generic (custom body), alert (title + Cancel/Confirm), destructive; `set_open(bool)` / `is_open()` API.
+- **Dialog**: modal with variants — generic (custom body), alert (title + Cancel/Confirm), destructive; `set_open(bool)` / `is_open()` plus `open_changed(actions)`.
+- **Menubar**: compact application menu primitives built on `ShadPopover`, with styled triggers, menu surfaces, separators, and item rows.
+- **Navigation Menu**: wide flyout navigation primitives for docs/marketing headers, also built on `ShadPopover` for anchored open/close behavior.
+- **Pagination**: stateful page navigator with numbered slots, previous/next controls, compact ellipsis ranges, and `changed(actions)` / `set_page(...)` helpers.
+- **Calendar**: single-date calendar widget with controlled month navigation and `set_value(...)` / `value()` / `changed(actions)` helpers.
+- **Date Picker**: field-like calendar picker composed from `ShadPopover` + `ShadCalendar`, with `set_value(...)`, `clear()`, `set_open(...)`, and `open_changed(actions)`.
+- **Chart**: themed wrappers over Makepad's line, area, and bar chart widgets that accept typed Rust `DataPoint` series.
+- **Table**: styled app-owned table shell with typed row click / selection actions and external row/header control.
+- **Popover**: anchored overlay with configurable side/alignment, auto-flip when space is tight, outside-click dismissal, popup-content access through `content_widget()`, and `open_changed(actions)`.
 - **Theme tokens**: centralized `shad_theme` color + radius tokens in script space, with built-in `light` and `dark` variants.
 - **Icons**: SVG-based icon widgets (`IconCheck`, `IconX`, `IconSearch`).
 - **Kbd**: keyboard shortcut key caps (`ShadKbd`, `ShadKbdLabel`, `ShadKbdSeparator`) for displaying shortcuts (e.g. ⌘ ⇧ ⌥ ⌃ or Ctrl + B).
@@ -38,6 +46,7 @@ This workspace contains:
 - **File placement**:
   - New reusable components belong under `makepad-components/src/*.rs` and should be registered from `makepad_components::script_mod(vm)` into the `mod.widgets.*` namespace.
   - Gallery-only layout and helper widgets belong under `makepad-gallery/src/ui/*.rs` (for example `themed_widgets.rs`) and are registered from the gallery UI module.
+  - `makepad-gallery/src/ui/catalog.rs` is the gallery metadata source of truth for sidebar labels, command-palette entries, route ids/paths, and snippet keys. `root.rs` stays as the explicit router adapter.
 
 ## Prerequisites
 
@@ -95,6 +104,15 @@ impl App {
 }
 ```
 
+Import runtime helpers from the stable module surface:
+
+```rust
+use makepad_components::prelude::*;
+use makepad_components::calendar::ShadDate;
+use makepad_components::dialog::ShadDialogWidgetExt;
+use makepad_components::table::ShadTableWidgetExt;
+```
+
 Use components in `script_mod!`:
 
 ```rust
@@ -112,14 +130,9 @@ script_mod! {
                     ShadButton{text: "Default"}
                     ShadButtonOutline{text: "Outline"}
 
-                    Accordion{
-                        item_one := AccordionItem{
-                            header: View{
-                                flow: Right
-                                title := Label{text: "Section 1"}
-                                View{width: Fill, height: Fit}
-                                fold_button := FoldButton{}
-                            }
+                    ShadAccordion{
+                        item_one := ShadAccordionItem{
+                            title: "Section 1"
                             body: View{
                                 Label{text: "Accordion content"}
                             }
@@ -131,6 +144,12 @@ script_mod! {
     }
 }
 ```
+
+## Migration Notes
+
+- Use `makepad_components::prelude` for shared Makepad types, then import component-specific refs/actions/widget-ext traits from their module paths such as `makepad_components::dialog::*` or `makepad_components::table::*`.
+- Overlay widgets expose `open_changed(actions) -> Option<bool>` as the lifecycle helper.
+- Expandable widgets expose `open_changed(actions)` and `animation_progress(actions)` as the lifecycle helpers.
 
 ## Available Components
 
@@ -144,24 +163,24 @@ script_mod! {
 - [x] Breadcrumb
 - [x] Button
 - [x] Button Group
-- [ ] Calendar
+- [x] Calendar
 - [x] Card
 - [x] Carousel
-- [ ] Chart
+- [x] Chart
 - [x] Checkbox
 - [x] Collapsible
 - [x] Command
 - [x] Context Menu
-- [ ] Date Picker
+- [x] Date Picker
 - [x] Dialog
 - [x] Input & Field
 - [x] Input OTP
 - [x] Kbd
 - [x] Label
-- [ ] Menubar
-- [ ] Navigation Menu
-- [ ] Pagination
-- [ ] Popover
+- [x] Menubar
+- [x] Navigation Menu
+- [x] Pagination
+- [x] Popover
 - [x] Progress
 - [x] Radio Group
 - [x] Resizable
@@ -175,7 +194,7 @@ script_mod! {
 - [x] Sonner
 - [x] Spinner
 - [x] Switch
-- [ ] Table
+- [x] Table
 - [x] Tabs
 - [x] Textarea
 - [x] Toggle & Toggle Group
@@ -200,13 +219,14 @@ script_mod! {
 
 ### Accordion (`makepad-components/src/accordion.rs`)
 
-- `Accordion` (container `View` preset)
-- `AccordionItem` (custom widget)
+- `ShadAccordion` (container `View` preset)
+- `ShadAccordionItem` (custom widget)
 
-`AccordionItem` supports:
+`ShadAccordionItem` supports:
 - `is_open` live field
-- script calls: `set_is_open(bool)` and `is_open() -> bool`
-- `on_toggle` callback hook
+- script calls: `set_open(bool)` and `is_open() -> bool`
+- `open_changed(actions) -> Option<bool>`
+- `animation_progress(actions) -> Option<f64>`
 
 ### Alerts (`makepad-components/src/alert.rs`)
 
@@ -229,6 +249,77 @@ script_mod! {
 - `ShadFieldMessage`
 
 Use `ShadField` as a layout wrapper around `ShadInput` or another form control. Validation/state stays in app code.
+
+### Calendar (`makepad-components/src/calendar.rs`)
+
+- `ShadCalendar`
+- `ShadDate`
+
+`ShadCalendar` supports:
+- `set_value(cx, Option<ShadDate>)`
+- `clear(cx)`
+- `value() -> Option<ShadDate>`
+- `set_month(cx, year, month)` plus `prev_month(cx)` / `next_month(cx)`
+- `changed(actions) -> Option<ShadDate>`
+
+### Chart (`makepad-components/src/chart.rs`)
+
+- `ShadLineChart`
+- `ShadAreaChart`
+- `ShadBarChart`
+- `DataPoint`
+
+The `Shad*Chart` script types style Makepad's built-in chart widgets. Use the underlying Rust widget types (`LineChart`, `AreaChart`, `BarChart`) to push `Vec<DataPoint>` datasets with `set_data(...)`.
+
+### Date Picker (`makepad-components/src/date_picker.rs`)
+
+- `ShadDatePicker`
+
+`ShadDatePicker` supports:
+- `set_value(cx, Option<ShadDate>)`
+- `clear(cx)`
+- `value() -> Option<ShadDate>`
+- `set_open(cx, bool)` / `is_open() -> bool`
+- `changed(actions) -> Option<ShadDate>`
+- `open_changed(actions) -> Option<bool>`
+
+### Menubar (`makepad-components/src/menubar.rs`)
+
+- `ShadMenubar`
+- `ShadMenubarMenu`
+- `ShadMenubarTrigger`
+- `ShadMenubarContent`
+- `ShadMenubarLabel`
+- `ShadMenubarHint`
+- `ShadMenubarItem`
+- `ShadMenubarSeparator`
+
+`ShadMenubarMenu` reuses `ShadPopover` under the hood. Menus open on hover, sibling menus close as the pointer moves across the menubar, and you can still query or close a menu with the normal popover widget ref helpers after an item click.
+
+### Navigation Menu (`makepad-components/src/navigation_menu.rs`)
+
+- `ShadNavigationMenu`
+- `ShadNavigationMenuList`
+- `ShadNavigationMenuItem`
+- `ShadNavigationMenuTrigger`
+- `ShadNavigationMenuContent`
+- `ShadNavigationMenuSectionLabel`
+- `ShadNavigationMenuCallout`
+- `ShadNavigationMenuPanel`
+
+`ShadNavigationMenuItem` also reuses `ShadPopover`, but defaults to a wider content surface for grouped links, feature callouts, and site navigation flyouts. Navigation flyouts open on hover and close sibling menus as the pointer moves across the trigger row.
+
+### Table (`makepad-components/src/table.rs`)
+
+- `ShadTable`
+
+`ShadTable` supports:
+- `set_headers(cx, Vec<String>)`
+- `set_rows(cx, Vec<Vec<String>>)`
+- `set_selected_row(cx, Option<usize>)`
+- `selected_row() -> Option<usize>`
+- `row_clicked(actions) -> Option<usize>`
+- `selection_changed(actions) -> Option<usize>`
 
 ### Separator (`makepad-components/src/hr.rs`)
 
@@ -268,6 +359,7 @@ Single-select, non-searchable dropdown built on the popup menu stack.
 Props: `open` (bool). For generic: put content in `overlay +: { content +: { body +: { ... } } }`. For alert variants: customize `title_label`, `description_label` in the template.
 
 Script API: `set_open(bool)` and `is_open() -> bool`.
+Action API: `open_changed(actions) -> Option<bool>`.
 
 ### Progress (`makepad-components/src/progress.rs`)
 
@@ -299,6 +391,7 @@ This wave ships the canonical styling primitives; pair them with `PageFlip` or a
 - `ShadSheetDescription`
 
 Props: `open` (bool). Script API: `set_open(bool)` and `is_open() -> bool`.
+Action API: `open_changed(actions) -> Option<bool>`.
 
 ### Resizable (`makepad-components/src/resizable.rs`)
 
@@ -313,6 +406,7 @@ Thin wrapper over Makepad `Splitter` for two-pane layouts.
 - `ShadToastDescription` — optional description (uses `ShadAlertDescription` styling)
 
 Use: `ShadToast{ title := ShadToastTitle{text: "Event created"} }` or add `description := ShadToastDescription{text: "..."}`.
+Action API: `open_changed(actions) -> Option<bool>`.
 
 ### Spinner (`makepad-components/src/spinner.rs`)
 

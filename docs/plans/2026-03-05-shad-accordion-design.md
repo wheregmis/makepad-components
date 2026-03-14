@@ -32,7 +32,7 @@ pub enum ShadAccordionItemAction {
 }
 ```
 
-Callers: `item.opening(actions)`, `item.closing(actions)`, `item.animating(actions)`
+Callers: `item.open_changed(actions)`, `item.animation_progress(actions)`
 
 ### DSL Usage
 

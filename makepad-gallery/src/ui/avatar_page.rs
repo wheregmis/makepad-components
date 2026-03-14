@@ -1,135 +1,50 @@
-use crate::ui::snippets::AVATAR_PREVIEW_CODE;
+use crate::ui::page_macros::gallery_static_page;
 use makepad_components::makepad_widgets::*;
 
-script_mod! {
-    use mod.prelude.widgets.*
-    use mod.widgets.*
+gallery_static_page! {
+    widget: GalleryAvatarPage,
+    page: avatar_page,
+    title: "Avatar",
+    subtitle: "Avatar components with badges and fallback variants from makepad-components.",
+    divider: { ShadHr{} },
+    preview_spacing: 12.0,
+    preview: {
+        ShadSectionHeader{ text: "Sizes" }
 
-    mod.widgets.GalleryAvatarPage = ShadScrollYView{
-        ShadPageTitle{
-            text: "Avatar"
-        }
-
-        ShadPageSubtitle{
-            text: "Shadcn-inspired avatar components from makepad-components library"
-        }
-
-        ShadHr{}
-
-        avatar_preview_section := View{
+        View{
             width: Fill
             height: Fit
-            flow: Down
+            flow: Right
+            spacing: 16.0
 
-            avatar_tabs_row := View{
-                width: Fit
-                height: Fit
-                flow: Right
-                spacing: 20.0
-                margin: Inset{top: 4, bottom: 12}
-
-                avatar_demo_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    avatar_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                    avatar_demo_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-
-                avatar_code_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    avatar_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                    avatar_code_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        visible: false
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
+            ShadAvatarSm{
+                fallback := ShadAvatarFallback{text: "SM"}
             }
-
-            avatar_preview_panel := mod.widgets.ShadPanel{
-                avatar_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                    width: Fill
-                    height: Fit
-
-                    root_view +: {
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 12.0
-
-                ShadSectionHeader{ text: "Sizes" }
-
-                View{
-                    width: Fill
-                    height: Fit
-                    flow: Right
-                    align: Align{y: 0.5}
-                    spacing: 12.0
-
-                    ShadAvatarSm{
-                        fallback := ShadAvatarFallback{text: "SM"}
-                    }
-
-                    ShadAvatar{
-                        fallback := ShadAvatarFallback{text: "CN"}
-                    }
-
-                    ShadAvatarLg{
-                        fallback := ShadAvatarFallback{text: "LG"}
-                    }
-                }
-
-                ShadSectionHeader{ text: "Fallback Variants" }
-
-                View{
-                    width: Fill
-                    height: Fit
-                    flow: Right
-                    align: Align{y: 0.5}
-                    spacing: 12.0
-
-                    ShadAvatar{
-                        fallback := ShadAvatarFallback{text: "JD"}
-                    }
-
-                    ShadAvatar{
-                        fallback := ShadAvatarFallback{text: "AB"}
-                    }
-
-                    ShadAvatar{
-                        fallback := ShadAvatarFallback{text: "?"}
-                    }
-                }
-                    }
-
-                    code_page +: {
-                        body +: {
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 12.0
-
-                        GalleryCodeSnippet{
-                            code: #(AVATAR_PREVIEW_CODE)
-                        }
-                        }
-                    }
-                }
+            ShadAvatar{
+                fallback := ShadAvatarFallback{text: "CN"}
+            }
+            ShadAvatarLg{
+                fallback := ShadAvatarFallback{text: "LG"}
             }
         }
-    }
+
+        ShadSectionHeader{ text: "Fallback Variants" }
+
+        View{
+            width: Fill
+            height: Fit
+            flow: Right
+            spacing: 16.0
+
+            ShadAvatar{
+                fallback := ShadAvatarFallback{text: "JD"}
+            }
+            ShadAvatar{
+                fallback := ShadAvatarFallback{text: "AB"}
+            }
+            ShadAvatar{
+                fallback := ShadAvatarFallback{text: "?"}
+            }
+        }
+    },
 }

@@ -1,117 +1,34 @@
-use crate::ui::snippets::BADGE_PREVIEW_CODE;
+use crate::ui::page_macros::gallery_static_page;
 use makepad_components::makepad_widgets::*;
 
-script_mod! {
-    use mod.prelude.widgets.*
-    use mod.widgets.*
+gallery_static_page! {
+    widget: GalleryBadgePage,
+    page: badge_page,
+    title: "Badge",
+    subtitle: "Badge variants showcasing label, secondary, destructive, and outline styles.",
+    divider: { ShadHr{} },
+    preview_spacing: 12.0,
+    preview: {
+        ShadSectionHeader{ text: "Variants" }
 
-    mod.widgets.GalleryBadgePage = ShadScrollYView{
-        ShadPageTitle{
-            text: "Badge"
-        }
-
-        ShadPageSubtitle{
-            text: "Shadcn-inspired badge components from makepad-components library"
-        }
-
-        ShadHr{}
-
-        badge_preview_section := View{
+        View{
             width: Fill
             height: Fit
-            flow: Down
+            flow: Right
+            spacing: 12.0
 
-            badge_tabs_row := View{
-                width: Fit
-                height: Fit
-                flow: Right
-                spacing: 20.0
-                margin: Inset{top: 4, bottom: 12}
-
-                badge_demo_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    badge_demo_tab := mod.widgets.ShadPreviewTab{text: "DEMO"}
-
-                    badge_demo_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
-
-                badge_code_tab_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 6.0
-
-                    badge_code_tab := mod.widgets.ShadPreviewTab{text: "CODE"}
-
-                    badge_code_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        visible: false
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
-                }
+            ShadBadge{
+                label := ShadBadgeLabel{text: "Default"}
             }
-
-            badge_preview_panel := mod.widgets.ShadPanel{
-                badge_preview_flip := mod.widgets.GalleryPreviewStackNavigation{
-                    width: Fill
-                    height: Fit
-
-                    root_view +: {
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 12.0
-
-                ShadSectionHeader{ text: "Variants" }
-
-                View{
-                    width: Fill
-                    height: Fit
-                    flow: Right
-                    align: Align{y: 0.5}
-                    spacing: 8.0
-
-                    ShadBadge{
-                        label := ShadBadgeLabel{text: "Default"}
-                    }
-
-                    ShadBadgeSecondary{
-                        label := ShadBadgeSecondaryLabel{text: "Secondary"}
-                    }
-
-                    ShadBadgeDestructive{
-                        label := ShadBadgeDestructiveLabel{text: "Destructive"}
-                    }
-
-                    ShadBadgeOutline{
-                        label := ShadBadgeOutlineLabel{text: "Outline"}
-                    }
-                }
-                    }
-
-                    code_page +: {
-                        body +: {
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 12.0
-
-                        GalleryCodeSnippet{
-                            code: #(BADGE_PREVIEW_CODE)
-                        }
-                        }
-                    }
-                }
+            ShadBadgeSecondary{
+                label := ShadBadgeSecondaryLabel{text: "Secondary"}
+            }
+            ShadBadgeDestructive{
+                label := ShadBadgeDestructiveLabel{text: "Destructive"}
+            }
+            ShadBadgeOutline{
+                label := ShadBadgeOutlineLabel{text: "Outline"}
             }
         }
-    }
+    },
 }

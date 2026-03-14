@@ -334,7 +334,7 @@ impl Widget for ShadAccordionItem {
 }
 
 impl ShadAccordionItem {
-    pub fn set_is_open(&mut self, cx: &mut Cx, is_open: bool, animate: Animate) {
+    pub fn set_open(&mut self, cx: &mut Cx, is_open: bool, animate: Animate) {
         self.animator_toggle(cx, is_open, animate, ids!(active.on), ids!(active.off));
     }
 
@@ -360,9 +360,9 @@ impl ShadAccordionItem {
 }
 
 impl ShadAccordionItemRef {
-    pub fn set_is_open(&self, cx: &mut Cx, is_open: bool, animate: Animate) {
+    pub fn set_open(&self, cx: &mut Cx, is_open: bool, animate: Animate) {
         if let Some(mut inner) = self.borrow_mut() {
-            inner.set_is_open(cx, is_open, animate);
+            inner.set_open(cx, is_open, animate);
         }
     }
 
@@ -370,20 +370,13 @@ impl ShadAccordionItemRef {
         self.borrow().map_or(true, |inner| inner.is_open(cx))
     }
 
-    pub fn opening(&self, actions: &Actions) -> bool {
-        if let Some(inner) = self.borrow() {
-            inner.opening(actions)
-        } else {
-            false
-        }
+    pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
+        self.borrow().and_then(|inner| inner.open_changed(actions))
     }
 
-    pub fn closing(&self, actions: &Actions) -> bool {
-        if let Some(inner) = self.borrow() {
-            inner.closing(actions)
-        } else {
-            false
-        }
+    pub fn animation_progress(&self, actions: &Actions) -> Option<f64> {
+        self.borrow()
+            .and_then(|inner| inner.animation_progress(actions))
     }
 }
 ```

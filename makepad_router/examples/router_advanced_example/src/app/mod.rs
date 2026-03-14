@@ -176,12 +176,6 @@ script_mod! {
 }
 
 impl App {
-    fn run(vm: &mut ScriptVm) -> Self {
-        makepad_widgets::script_mod(vm);
-        makepad_router::script_mod(vm);
-        App::from_script_mod(vm, self::script_mod)
-    }
-
     fn install_guards_if_needed(&mut self, router: &makepad_router::RouterWidgetRef) {
         if self.guards_installed {
             return;
@@ -503,6 +497,12 @@ impl MatchEvent for App {
 }
 
 impl AppMain for App {
+    fn script_mod(vm: &mut ScriptVm) -> ScriptValue {
+        makepad_widgets::script_mod(vm);
+        makepad_router::script_mod(vm);
+        self::script_mod(vm)
+    }
+
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
         self.match_event(cx, event);
         self.ui.handle_event(cx, event, &mut Scope::empty());
