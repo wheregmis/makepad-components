@@ -162,15 +162,20 @@ pub struct ShadTableHeaderView {
 }
 
 impl ShadTableHeaderView {
+    // Optimization: avoid repeated allocation in render loop by taking slices and cloning only when data changes
     pub fn set_header_data(
         &mut self,
         cx: &mut Cx,
-        headers: Vec<String>,
-        widths: Vec<f64>,
+        headers: &[String],
+        widths: &[f64],
         total_width: f64,
     ) {
-        self.headers = headers;
-        self.widths = widths;
+        if self.headers != headers {
+            self.headers = headers.to_vec();
+        }
+        if self.widths != widths {
+            self.widths = widths.to_vec();
+        }
         self.walk.width = Size::Fixed(total_width);
         self.area.redraw(cx);
     }
@@ -250,19 +255,25 @@ pub struct ShadTableRowView {
 }
 
 impl ShadTableRowView {
+    // Optimization: avoid repeated allocation in render loop by taking slices and cloning only when data changes
+    #[allow(clippy::too_many_arguments)]
     pub fn set_row_data(
         &mut self,
         cx: &mut Cx,
         row_index: usize,
-        cells: Vec<String>,
-        widths: Vec<f64>,
+        cells: &[String],
+        widths: &[f64],
         total_width: f64,
         selected: bool,
         striped: bool,
     ) {
         self.row_index = row_index;
-        self.cells = cells;
-        self.widths = widths;
+        if self.cells != cells {
+            self.cells = cells.to_vec();
+        }
+        if self.widths != widths {
+            self.widths = widths.to_vec();
+        }
         self.selected = selected;
         self.striped = striped;
         self.walk.width = Size::Fixed(total_width);
@@ -411,12 +422,7 @@ impl ShadTable {
             .widget_flood(cx, ids!(table_view.scroll.content.header))
             .borrow_mut::<ShadTableHeaderView>()
         {
-            header.set_header_data(
-                cx,
-                self.headers.clone(),
-                self.resolved_widths.clone(),
-                self.total_width,
-            );
+            header.set_header_data(cx, &self.headers, &self.resolved_widths, self.total_width);
         }
 
         let mut content = self.view.view(cx, ids!(table_view.scroll.content));
@@ -426,7 +432,11 @@ impl ShadTable {
     }
 
     fn empty_fill_rows(list: &PortalList, cx: &Cx2d, used_rows: usize) -> usize {
-        table_empty_fill_rows(list.area().rect(cx).size.y.max(0.0), TABLE_ROW_HEIGHT, used_rows)
+        table_empty_fill_rows(
+            list.area().rect(cx).size.y.max(0.0),
+            TABLE_ROW_HEIGHT,
+            used_rows,
+        )
     }
 
     fn draw_rows(&mut self, cx: &mut Cx2d, list: &mut PortalList) {
@@ -468,8 +478,8 @@ impl ShadTable {
                 row_view.set_row_data(
                     cx,
                     item_id,
-                    row.clone(),
-                    self.resolved_widths.clone(),
+                    row,
+                    &self.resolved_widths,
                     self.total_width,
                     self.selected_row == Some(item_id),
                     item_id & 1 == 1,
@@ -564,7 +574,7 @@ impl Widget for ShadTable {
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
             if let Some(mut list) = step.as_portal_list().borrow_mut() {
-                self.draw_rows(cx, &mut *list);
+                self.draw_rows(cx, &mut list);
             }
         }
         DrawStep::done()
