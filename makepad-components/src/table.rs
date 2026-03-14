@@ -426,7 +426,11 @@ impl ShadTable {
     }
 
     fn empty_fill_rows(list: &PortalList, cx: &Cx2d, used_rows: usize) -> usize {
-        table_empty_fill_rows(list.area().rect(cx).size.y.max(0.0), TABLE_ROW_HEIGHT, used_rows)
+        table_empty_fill_rows(
+            list.area().rect(cx).size.y.max(0.0),
+            TABLE_ROW_HEIGHT,
+            used_rows,
+        )
     }
 
     fn draw_rows(&mut self, cx: &mut Cx2d, list: &mut PortalList) {

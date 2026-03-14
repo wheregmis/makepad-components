@@ -14,7 +14,6 @@ pub mod prelude {
 pub mod accordion;
 pub mod alert;
 mod animation;
-pub mod dialog;
 pub mod aspect_ratio;
 pub mod avatar;
 pub mod badge;
@@ -29,6 +28,7 @@ pub mod checkbox;
 pub mod collapsible;
 pub mod context_menu;
 pub mod date_picker;
+pub mod dialog;
 pub mod hr;
 pub mod input;
 pub mod input_otp;
