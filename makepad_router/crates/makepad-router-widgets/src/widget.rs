@@ -333,6 +333,47 @@ impl RouterWidget {
         self.caches.child_router_scan_widget_count = 0;
         Ok(())
     }
+
+    fn begin_overlay_layout(&mut self, cx: &mut Cx2d, walk: Walk) {
+        let active_route = self.active_route;
+        if let Some(route_widget) = self.routes.widgets.get_mut(&active_route) {
+            if self
+                .draw_state
+                .begin_with(cx, &(), |cx, _| route_widget.walk(cx))
+            {
+                let mut layout = self.layout;
+                layout.flow = Flow::Overlay;
+                layout.clip_x = true;
+                layout.clip_y = true;
+                cx.begin_turtle(walk, layout);
+            }
+        } else {
+            let mut layout = self.layout;
+            layout.flow = Flow::Overlay;
+            layout.clip_x = true;
+            layout.clip_y = true;
+            cx.begin_turtle(walk, layout);
+        }
+    }
+
+    fn draw_active_routes(&mut self, cx: &mut Cx2d, scope: &mut Scope) -> DrawStep {
+        let active_route = self.active_route;
+        if self.transition_rt.state.is_some() {
+            let rect = cx.turtle().inner_rect();
+            self.draw_routes_with_transition(cx, scope, rect);
+            self.draw_debug_inspector(cx, rect);
+        } else if let Some(route_widget) = self.routes.widgets.get_mut(&active_route) {
+            if let Some(route_walk) = self.draw_state.get() {
+                route_widget.draw_walk(cx, scope, route_walk)?;
+            }
+            let rect = cx.turtle().inner_rect();
+            self.draw_debug_inspector(cx, rect);
+        } else {
+            let rect = cx.turtle().inner_rect();
+            self.draw_debug_inspector(cx, rect);
+        }
+        DrawStep::done()
+    }
 }
 
 impl WidgetNode for RouterWidget {
@@ -411,41 +452,8 @@ impl Widget for RouterWidget {
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
-        let active_route = self.active_route;
-        if let Some(route_widget) = self.routes.widgets.get_mut(&active_route) {
-            if self
-                .draw_state
-                .begin_with(cx, &(), |cx, _| route_widget.walk(cx))
-            {
-                let mut layout = self.layout;
-                layout.flow = Flow::Overlay;
-                layout.clip_x = true;
-                layout.clip_y = true;
-                cx.begin_turtle(walk, layout);
-            }
-        } else {
-            let mut layout = self.layout;
-            layout.flow = Flow::Overlay;
-            layout.clip_x = true;
-            layout.clip_y = true;
-            cx.begin_turtle(walk, layout);
-        }
-
-        if self.transition_rt.state.is_some() {
-            let rect = cx.turtle().inner_rect();
-            self.draw_routes_with_transition(cx, scope, rect);
-            self.draw_debug_inspector(cx, rect);
-        } else if let Some(route_widget) = self.routes.widgets.get_mut(&active_route) {
-            if let Some(route_walk) = self.draw_state.get() {
-                route_widget.draw_walk(cx, scope, route_walk)?;
-            }
-            let rect = cx.turtle().inner_rect();
-            self.draw_debug_inspector(cx, rect);
-        } else {
-            let rect = cx.turtle().inner_rect();
-            self.draw_debug_inspector(cx, rect);
-        }
-
+        self.begin_overlay_layout(cx, walk);
+        self.draw_active_routes(cx, scope)?;
         cx.end_turtle_with_area(&mut self.area);
         DrawStep::done()
     }

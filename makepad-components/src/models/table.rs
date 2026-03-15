@@ -24,7 +24,11 @@ pub fn empty_fill_rows(viewport_height: f64, row_height: f64, used_rows: usize) 
 ///
 /// Returns `Some(local_index)` when `global_row` is inside the window that starts at
 /// `window_start` and spans `window_len` rows; otherwise returns `None`.
-pub fn virtual_window_index(global_row: usize, window_start: usize, window_len: usize) -> Option<usize> {
+pub fn virtual_window_index(
+    global_row: usize,
+    window_start: usize,
+    window_len: usize,
+) -> Option<usize> {
     let local = global_row.checked_sub(window_start)?;
     (local < window_len).then_some(local)
 }
