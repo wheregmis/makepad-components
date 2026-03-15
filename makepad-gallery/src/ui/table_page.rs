@@ -6,7 +6,7 @@ gallery_stateful_page_shell! {
     widget: GalleryTablePage,
     page: table_page,
     title: "Table",
-    subtitle: "A reusable app-owned table shell with a styled header, scrollable rows, and typed row-selection events. Keep rows in page state and push them into the table whenever filters, sorting, or tabs change.",
+    subtitle: "A reusable app-owned table shell with a styled header, scrollable rows, typed row-selection events, and virtual row-window APIs for huge datasets.",
     divider: { ShadHr{} },
     preview_spacing: 16.0,
     preview: {
@@ -22,6 +22,18 @@ gallery_stateful_page_shell! {
 
             table_ops_btn := ShadButtonOutline{
                 text: "Ops queue"
+            }
+
+            table_virtual_btn := ShadButtonSecondary{
+                text: "Virtualized 10k"
+            }
+
+            table_prev_btn := ShadButtonGhost{
+                text: "Prev window"
+            }
+
+            table_next_btn := ShadButtonGhost{
+                text: "Next window"
             }
 
             table_clear_btn := ShadButtonGhost{
@@ -40,10 +52,10 @@ gallery_stateful_page_shell! {
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. Keep headers and rows in app state, then call `set_headers(cx, ...)` and `set_rows(cx, ...)` when the dataset changes."}
+        mod.widgets.GalleryActionFlowStep{text: "1. For regular datasets, keep headers and rows in app state, then call `set_headers(cx, ...)` and `set_rows(cx, ...)` when data changes."}
         mod.widgets.GalleryActionFlowStep{text: "2. Listen to `row_clicked(actions)` or `selection_changed(actions)` when surrounding details panes need to react."}
         mod.widgets.GalleryActionFlowStep{text: "3. Use `set_selected_row(cx, ...)` when other controls should move the current selection."}
-        mod.widgets.GalleryActionFlowStep{text: "4. Sorting, filtering, and pagination stay in app code; this table only renders the rows you provide."}
+        mod.widgets.GalleryActionFlowStep{text: "4. For huge data, call `set_virtual_total_rows(cx, ...)` and then `set_virtual_window(cx, start, rows)` to render only a loaded window."}
     },
 }
 
@@ -57,6 +69,10 @@ pub struct GalleryTablePage {
     dataset_index: usize,
     #[rust]
     current_rows: Vec<Vec<String>>,
+    #[rust]
+    virtual_mode: bool,
+    #[rust]
+    virtual_start: usize,
 }
 
 impl ScriptHook for GalleryTablePage {
@@ -75,7 +91,24 @@ impl ScriptHook for GalleryTablePage {
 }
 
 impl GalleryTablePage {
+    const VIRTUAL_TOTAL: usize = 10_000;
+    const VIRTUAL_WINDOW_SIZE: usize = 32;
+
+    fn make_virtual_rows(start: usize, count: usize) -> Vec<Vec<String>> {
+        (start..start.saturating_add(count))
+            .map(|index| {
+                row(
+                    &format!("JOB-{index:05}"),
+                    if index & 1 == 0 { "Batch" } else { "Realtime" },
+                    if index % 3 == 0 { "Remote" } else { "Toronto" },
+                    if index % 5 == 0 { "Investigating" } else { "Running" },
+                )
+            })
+            .collect()
+    }
+
     fn apply_dataset(&mut self, cx: &mut Cx) {
+        self.virtual_mode = false;
         let (title, headers, rows) = table_dataset(self.dataset_index);
         self.current_rows = rows.clone();
 
@@ -90,9 +123,50 @@ impl GalleryTablePage {
         self.view.redraw(cx);
     }
 
+    fn apply_virtual_dataset(&mut self, cx: &mut Cx) {
+        self.virtual_mode = true;
+        self.virtual_start = 0;
+        self.sync_virtual_window(cx);
+    }
+
+    fn sync_virtual_window(&mut self, cx: &mut Cx) {
+        let headers = vec![
+            "Task".to_string(),
+            "Queue".to_string(),
+            "Region".to_string(),
+            "Status".to_string(),
+        ];
+        let rows = Self::make_virtual_rows(self.virtual_start, Self::VIRTUAL_WINDOW_SIZE);
+        self.current_rows = rows.clone();
+
+        let table = self.view.shad_table(cx, ids!(table_demo));
+        table.set_headers(cx, headers);
+        table.set_virtual_total_rows(cx, Self::VIRTUAL_TOTAL);
+        table.set_virtual_window(cx, self.virtual_start, rows);
+        table.set_selected_row(cx, None);
+        let end = if self.current_rows.is_empty() {
+            self.virtual_start
+        } else {
+            self.virtual_start
+                .saturating_add(self.current_rows.len().saturating_sub(1))
+        };
+        self.view.label(cx, ids!(table_status)).set_text(
+            cx,
+            &format!(
+                "Showing virtual jobs {start}..{end} of {}. Selected row: none.",
+                Self::VIRTUAL_TOTAL,
+                start = self.virtual_start,
+                end = end
+            ),
+        );
+        self.view.redraw(cx);
+    }
+
     fn sync_status(&self, cx: &mut Cx, source: Option<usize>) {
         let table = self.view.shad_table(cx, ids!(table_demo));
-        let title = if self.dataset_index == 0 {
+        let title = if self.virtual_mode {
+            "virtual jobs"
+        } else if self.dataset_index == 0 {
             "team roster"
         } else {
             "ops queue"
@@ -130,6 +204,27 @@ impl Widget for GalleryTablePage {
             if self.view.button(cx, ids!(table_ops_btn)).clicked(actions) {
                 self.dataset_index = 1;
                 self.apply_dataset(cx);
+                return;
+            }
+            if self.view.button(cx, ids!(table_virtual_btn)).clicked(actions) {
+                self.apply_virtual_dataset(cx);
+                return;
+            }
+            if self.view.button(cx, ids!(table_prev_btn)).clicked(actions) {
+                if self.virtual_mode {
+                    self.virtual_start =
+                        self.virtual_start.saturating_sub(Self::VIRTUAL_WINDOW_SIZE);
+                    self.sync_virtual_window(cx);
+                }
+                return;
+            }
+            if self.view.button(cx, ids!(table_next_btn)).clicked(actions) {
+                if self.virtual_mode {
+                    let max_start = Self::VIRTUAL_TOTAL.saturating_sub(1);
+                    self.virtual_start =
+                        (self.virtual_start + Self::VIRTUAL_WINDOW_SIZE).min(max_start);
+                    self.sync_virtual_window(cx);
+                }
                 return;
             }
             if self.view.button(cx, ids!(table_clear_btn)).clicked(actions) {

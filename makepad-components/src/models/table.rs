@@ -20,9 +20,21 @@ pub fn empty_fill_rows(viewport_height: f64, row_height: f64, used_rows: usize) 
     visible_rows.saturating_sub(used_rows)
 }
 
+/// Maps a global row index into a local index within a virtualized row window.
+///
+/// Returns `Some(local_index)` when `global_row` is inside the window that starts at
+/// `window_start` and spans `window_len` rows; otherwise returns `None`.
+pub fn virtual_window_index(global_row: usize, window_start: usize, window_len: usize) -> Option<usize> {
+    let local = global_row.checked_sub(window_start)?;
+    (local < window_len).then_some(local)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{clamp_selected_row, default_widths, empty_fill_rows, resolved_column_count};
+    use super::{
+        clamp_selected_row, default_widths, empty_fill_rows, resolved_column_count,
+        virtual_window_index,
+    };
 
     #[test]
     fn resolves_column_count_from_rows() {
@@ -45,5 +57,19 @@ mod tests {
     #[test]
     fn computes_empty_fill_rows() {
         assert_eq!(empty_fill_rows(120.0, 40.0, 1), 2);
+    }
+
+    #[test]
+    fn maps_global_row_into_virtual_window() {
+        assert_eq!(virtual_window_index(100, 95, 10), Some(5));
+        assert_eq!(virtual_window_index(95, 95, 10), Some(0));
+        assert_eq!(virtual_window_index(104, 95, 10), Some(9));
+    }
+
+    #[test]
+    fn returns_none_for_rows_outside_virtual_window() {
+        assert_eq!(virtual_window_index(94, 95, 10), None);
+        assert_eq!(virtual_window_index(105, 95, 10), None);
+        assert_eq!(virtual_window_index(95, 95, 0), None);
     }
 }

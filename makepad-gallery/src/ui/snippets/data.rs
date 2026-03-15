@@ -28,6 +28,12 @@ pub const TABLE_PREVIEW_CODE: &str = r#"tasks_table := ShadTable{
 //     vec!["API-204".into(), "Maya".into(), "Investigating".into()],
 //     vec!["OBS-118".into(), "Noah".into(), "Scheduled".into()],
 // ]);
+// For huge datasets (virtualized window):
+// table.set_virtual_total_rows(cx, 10_000);
+// table.set_virtual_window(cx, 960, vec![
+//     vec!["JOB-00960".into(), "Batch".into(), "Running".into()],
+//     vec!["JOB-00961".into(), "Realtime".into(), "Running".into()],
+// ]);
 //
 // if let Some(row) = table.selection_changed(actions) {
 //     self.selected_task = Some(row);
