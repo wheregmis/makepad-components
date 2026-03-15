@@ -1,90 +1,48 @@
 use makepad_widgets::*;
 
-script_mod! {
-    use mod.prelude.widgets.*
-    use mod.widgets.*
+macro_rules! define_lucide_icons {
+    ($($icon_name:ident => $icon_path:literal,)*) => {
+        script_mod! {
+            use mod.prelude.widgets.*
+            use mod.widgets.*
 
-    mod.widgets.MakepadIconBase = mod.widgets.Icon{
-        icon_walk: Walk{width: 16, height: 16}
-        draw_icon.color: #d4d4d8
-    }
+            mod.widgets.MakepadIconBase = mod.widgets.Icon{
+                icon_walk: Walk{width: 16, height: 16}
+                draw_icon.color: #d4d4d8
+            }
 
-    mod.widgets.IconCheck = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/check.svg")
-    }
+            $(mod.widgets.$icon_name = mod.widgets.MakepadIconBase{
+                draw_icon.svg: crate_resource($icon_path)
+            })*
 
-    mod.widgets.IconX = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/x.svg")
-    }
+            // Icon-button types: ButtonFlatIcon with SVG pre-bound.
+            // Callers apply draw_bg / draw_icon.color styling on top.
+            mod.widgets.IconButtonX = mod.widgets.ButtonFlatIcon{
+                icon_walk: Walk{width: 14, height: 14}
+                draw_icon.svg: crate_resource("self://resources/icons/x.svg")
+            }
 
-    mod.widgets.IconSearch = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/search.svg")
-    }
+            mod.widgets.IconButtonChevronLeft = mod.widgets.ButtonFlatIcon{
+                icon_walk: Walk{width: 14, height: 14}
+                draw_icon.svg: crate_resource("self://resources/icons/chevron-left.svg")
+            }
 
-    mod.widgets.IconInfo = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/info.svg")
-    }
+            mod.widgets.IconButtonChevronRight = mod.widgets.ButtonFlatIcon{
+                icon_walk: Walk{width: 14, height: 14}
+                draw_icon.svg: crate_resource("self://resources/icons/chevron-right.svg")
+            }
 
-    mod.widgets.IconChevronLeft = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/chevron-left.svg")
-    }
+            mod.widgets.IconButtonMenu = mod.widgets.ButtonFlatIcon{
+                icon_walk: Walk{width: 14, height: 14}
+                draw_icon.svg: crate_resource("self://resources/icons/menu.svg")
+            }
 
-    mod.widgets.IconChevronRight = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/chevron-right.svg")
-    }
-
-    mod.widgets.IconChevronDown = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/chevron-down.svg")
-    }
-
-    mod.widgets.IconMenu = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/menu.svg")
-    }
-
-    mod.widgets.IconMoreHorizontal = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/more-horizontal.svg")
-    }
-
-    mod.widgets.IconCommand = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/command.svg")
-    }
-
-    mod.widgets.IconShift = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/shift.svg")
-    }
-
-    mod.widgets.IconOption = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/option.svg")
-    }
-
-    mod.widgets.IconControl = mod.widgets.MakepadIconBase{
-        draw_icon.svg: crate_resource("self://resources/icons/control.svg")
-    }
-
-    // Icon-button types: ButtonFlatIcon with SVG pre-bound.
-    // Callers apply draw_bg / draw_icon.color styling on top.
-    mod.widgets.IconButtonX = mod.widgets.ButtonFlatIcon{
-        icon_walk: Walk{width: 14, height: 14}
-        draw_icon.svg: crate_resource("self://resources/icons/x.svg")
-    }
-
-    mod.widgets.IconButtonChevronLeft = mod.widgets.ButtonFlatIcon{
-        icon_walk: Walk{width: 14, height: 14}
-        draw_icon.svg: crate_resource("self://resources/icons/chevron-left.svg")
-    }
-
-    mod.widgets.IconButtonChevronRight = mod.widgets.ButtonFlatIcon{
-        icon_walk: Walk{width: 14, height: 14}
-        draw_icon.svg: crate_resource("self://resources/icons/chevron-right.svg")
-    }
-
-    mod.widgets.IconButtonMenu = mod.widgets.ButtonFlatIcon{
-        icon_walk: Walk{width: 14, height: 14}
-        draw_icon.svg: crate_resource("self://resources/icons/menu.svg")
-    }
-
-    mod.widgets.IconButtonMoreHorizontal = mod.widgets.ButtonFlatIcon{
-        icon_walk: Walk{width: 14, height: 14}
-        draw_icon.svg: crate_resource("self://resources/icons/more-horizontal.svg")
-    }
+            mod.widgets.IconButtonMoreHorizontal = mod.widgets.ButtonFlatIcon{
+                icon_walk: Walk{width: 14, height: 14}
+                draw_icon.svg: crate_resource("self://resources/icons/more-horizontal.svg")
+            }
+        }
+    };
 }
+
+include!("lucide_icon_bindings.rs");
