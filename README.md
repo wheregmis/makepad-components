@@ -899,18 +899,17 @@ script_mod! {
 }
 ```
 
-`makepad-icon` now uses generated bindings from `makepad-icon/src/lucide_icon_bindings.rs`.
+`makepad-icon` now generates icon bindings at build time via `makepad-icon/build.rs`.
 Every SVG under `makepad-icon/resources/icons/*.svg` is exported as `Icon<PascalCaseName>`.
 For example:
 - `check.svg` → `IconCheck`
 - `arrow-left-right.svg` → `IconArrowLeftRight`
 
-To sync all Lucide assets and regenerate bindings:
+To sync all Lucide assets:
 
 ```bash
 cd makepad-icon
 python3 scripts/download_lucide_icons.py --clean
-python3 scripts/generate_lucide_bindings.py
 ```
 
 ## Gallery App

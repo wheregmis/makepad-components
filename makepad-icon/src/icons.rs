@@ -47,4 +47,5 @@ macro_rules! define_lucide_icons {
     };
 }
 
-include!("lucide_icon_bindings.rs");
+// Generated at build time by makepad-icon/build.rs.
+include!(concat!(env!("OUT_DIR"), "/lucide_icon_bindings.rs"));
