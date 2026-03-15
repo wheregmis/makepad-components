@@ -1,5 +1,7 @@
 use makepad_widgets::*;
 
+// Expands to a script_mod with one icon widget per Lucide SVG binding.
+// Input format: IconTypeName => "self://resources/icons/name.svg"
 macro_rules! define_lucide_icons {
     ($($icon_name:ident => $icon_path:literal,)*) => {
         script_mod! {

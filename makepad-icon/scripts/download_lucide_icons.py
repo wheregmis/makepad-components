@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import shutil
 import tempfile
+import urllib.error
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -18,7 +19,18 @@ def download_icons(output_dir: Path, clean: bool) -> int:
 
     with tempfile.TemporaryDirectory(prefix="lucide-icons-") as temp_dir:
         archive_path = Path(temp_dir) / "lucide-main.zip"
-        urllib.request.urlretrieve(ARCHIVE_URL, archive_path)
+        try:
+            urllib.request.urlretrieve(ARCHIVE_URL, archive_path)
+        except urllib.error.HTTPError as error:
+            raise RuntimeError(
+                f"Failed to download Lucide icons from {ARCHIVE_URL}: "
+                f"HTTP {error.code} {error.reason}"
+            ) from error
+        except urllib.error.URLError as error:
+            reason = getattr(error, "reason", error)
+            raise RuntimeError(
+                f"Failed to download Lucide icons from {ARCHIVE_URL}: Network error: {reason}"
+            ) from error
 
         count = 0
         with zipfile.ZipFile(archive_path) as archive:
@@ -28,7 +40,10 @@ def download_icons(output_dir: Path, clean: bool) -> int:
                 if member.startswith("lucide-main/icons/") and member.endswith(".svg")
             )
             if not icon_members:
-                raise RuntimeError("No Lucide icons found in downloaded archive.")
+                raise RuntimeError(
+                    "No Lucide icons found in downloaded archive. "
+                    "Expected files matching pattern 'lucide-main/icons/*.svg'."
+                )
 
             for index, member in enumerate(icon_members, start=1):
                 destination = output_dir / Path(member).name
