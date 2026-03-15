@@ -1,7 +1,7 @@
 use crate::internal::actions::widget_action_map;
 use crate::models::table::{
-    clamp_selected_row, default_widths, empty_fill_rows as table_empty_fill_rows,
-    resolved_column_count, virtual_window_index,
+    clamp_selected_row, empty_fill_rows as table_empty_fill_rows, resolved_column_count,
+    virtual_window_index,
 };
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
@@ -132,6 +132,16 @@ fn replace_vec_contents_if_changed<T: Clone + PartialEq>(dst: &mut Vec<T>, src: 
 fn replace_vec_contents<T: Clone>(dst: &mut Vec<T>, src: &[T]) {
     dst.clear();
     dst.extend_from_slice(src);
+}
+
+fn sync_default_widths(widths: &mut Vec<f64>, column_count: usize, default_width: f64) {
+    if widths.len() == column_count {
+        return;
+    }
+    // Optimization: virtual-window updates call sync_layout often, but the column count is usually
+    // stable. Resizing only when the count changes avoids allocating a brand-new width Vec each
+    // update (`vec![..]`), reducing heap churn while scrolling large tables.
+    widths.resize(column_count, default_width);
 }
 
 #[derive(Clone, Debug, Default)]
@@ -479,16 +489,14 @@ impl ShadTable {
         }
     }
 
-    fn compute_widths(&self) -> Vec<f64> {
-        default_widths(
-            resolved_column_count(&self.headers, &self.rows_data),
-            DEFAULT_COLUMN_WIDTH,
-        )
-    }
-
     fn sync_layout(&mut self, cx: &mut Cx) {
-        self.resolved_widths = self.compute_widths();
-        self.total_width = self.resolved_widths.iter().sum::<f64>() + 24.0;
+        let column_count = resolved_column_count(&self.headers, &self.rows_data);
+        sync_default_widths(
+            &mut self.resolved_widths,
+            column_count,
+            DEFAULT_COLUMN_WIDTH,
+        );
+        self.total_width = (column_count as f64 * DEFAULT_COLUMN_WIDTH) + 24.0;
         self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
 
         self.view
@@ -809,7 +817,7 @@ fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
 
 #[cfg(test)]
 mod tests {
-    use super::{replace_vec_contents, replace_vec_contents_if_changed};
+    use super::{replace_vec_contents, replace_vec_contents_if_changed, sync_default_widths};
     use std::hint::black_box;
     use std::time::Instant;
 
@@ -870,5 +878,41 @@ mod tests {
         println!(
             "replace_vec_contents_if_changed benchmark: old={old_elapsed:?}, new={new_elapsed:?}"
         );
+    }
+
+    #[test]
+    fn sync_default_widths_reuses_allocation_for_stable_column_count() {
+        let mut widths = vec![160.0, 160.0, 160.0, 160.0];
+        let ptr_before = widths.as_ptr();
+        let capacity_before = widths.capacity();
+        sync_default_widths(&mut widths, 4, 160.0);
+        assert_eq!(widths.as_ptr(), ptr_before);
+        assert_eq!(widths.capacity(), capacity_before);
+    }
+
+    #[test]
+    fn sync_default_widths_performance_comparison() {
+        // Performance comparison helper: this prints timings for manual verification.
+        // It intentionally does not assert wall-clock durations to avoid flaky CI failures.
+        const BENCHMARK_ITERATIONS: usize = 100_000;
+        const COLUMN_COUNT: usize = 8;
+
+        let old_start = Instant::now();
+        let mut old = vec![160.0; COLUMN_COUNT];
+        for _ in 0..BENCHMARK_ITERATIONS {
+            old = vec![160.0; COLUMN_COUNT];
+            black_box(&old);
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        let mut optimized = vec![160.0; COLUMN_COUNT];
+        for _ in 0..BENCHMARK_ITERATIONS {
+            sync_default_widths(&mut optimized, COLUMN_COUNT, 160.0);
+            black_box(&optimized);
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!("sync_default_widths benchmark: old={old_elapsed:?}, new={new_elapsed:?}");
     }
 }

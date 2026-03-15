@@ -4,10 +4,6 @@ pub fn resolved_column_count(headers: &[String], rows: &[Vec<String>]) -> usize 
         .max(rows.iter().map(|row| row.len()).max().unwrap_or(0))
 }
 
-pub fn default_widths(column_count: usize, default_column_width: f64) -> Vec<f64> {
-    vec![default_column_width; column_count]
-}
-
 pub fn clamp_selected_row(selected_row: Option<usize>, row_count: usize) -> Option<usize> {
     selected_row.filter(|row| *row < row_count)
 }
@@ -35,10 +31,7 @@ pub fn virtual_window_index(
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        clamp_selected_row, default_widths, empty_fill_rows, resolved_column_count,
-        virtual_window_index,
-    };
+    use super::{clamp_selected_row, empty_fill_rows, resolved_column_count, virtual_window_index};
 
     #[test]
     fn resolves_column_count_from_rows() {
@@ -51,11 +44,6 @@ mod tests {
     fn clamps_selection_to_existing_rows() {
         assert_eq!(clamp_selected_row(Some(2), 2), None);
         assert_eq!(clamp_selected_row(Some(1), 2), Some(1));
-    }
-
-    #[test]
-    fn creates_default_widths() {
-        assert_eq!(default_widths(3, 160.0), vec![160.0, 160.0, 160.0]);
     }
 
     #[test]
