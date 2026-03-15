@@ -1,7 +1,7 @@
 use crate::internal::actions::widget_action_map;
 use crate::models::table::{
     clamp_selected_row, default_widths, empty_fill_rows as table_empty_fill_rows,
-    resolved_column_count,
+    resolved_column_count, virtual_window_index,
 };
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
@@ -65,6 +65,7 @@ script_mod! {
         caption: ""
         empty_message: "No rows available."
         selectable: true
+        virtual_total_rows: 0
         headers: ["Name" "Email" "Role"]
         rows: []
 
@@ -389,9 +390,13 @@ pub struct ShadTable {
     empty_message: ArcStringMut,
     #[live(true)]
     selectable: bool,
+    #[live]
+    virtual_total_rows: usize,
 
     #[rust]
     rows_data: Vec<Vec<String>>,
+    #[rust]
+    virtual_window_start: usize,
     #[rust]
     resolved_widths: Vec<f64>,
     #[rust]
@@ -415,12 +420,44 @@ impl ScriptHook for ShadTable {
         let rows = parse_rows(vm, self.rows);
         vm.with_cx_mut(|cx| {
             self.rows_data = rows;
+            if self.virtual_total_rows == 0 {
+                self.virtual_window_start = 0;
+            } else if self.virtual_window_start >= self.virtual_total_rows {
+                self.virtual_window_start = self.virtual_total_rows.saturating_sub(1);
+            }
             self.sync_layout(cx);
         });
     }
 }
 
 impl ShadTable {
+    fn draw_empty_row(&self, cx: &mut Cx2d, list: &mut PortalList, item_id: usize, label: &str) {
+        let mut item = list.item(cx, item_id, id!(Empty)).as_view();
+        item.label(cx, ids!(empty_label)).set_text(cx, label);
+        script_apply_eval!(cx, item, {
+            width: #(self.total_width)
+        });
+        item.draw_all(cx, &mut Scope::empty());
+    }
+
+    fn data_row_count(&self) -> usize {
+        if self.virtual_total_rows > 0 {
+            self.virtual_total_rows
+        } else {
+            self.rows_data.len()
+        }
+    }
+
+    fn row_for_index(&self, row_index: usize) -> Option<&[String]> {
+        if self.virtual_total_rows > 0 {
+            let local_index =
+                virtual_window_index(row_index, self.virtual_window_start, self.rows_data.len())?;
+            self.rows_data.get(local_index).map(Vec::as_slice)
+        } else {
+            self.rows_data.get(row_index).map(Vec::as_slice)
+        }
+    }
+
     fn compute_widths(&self) -> Vec<f64> {
         default_widths(
             resolved_column_count(&self.headers, &self.rows_data),
@@ -431,7 +468,7 @@ impl ShadTable {
     fn sync_layout(&mut self, cx: &mut Cx) {
         self.resolved_widths = self.compute_widths();
         self.total_width = self.resolved_widths.iter().sum::<f64>() + 24.0;
-        self.selected_row = clamp_selected_row(self.selected_row, self.rows_data.len());
+        self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
 
         self.view
             .label(cx, ids!(table_view.caption_label))
@@ -463,36 +500,31 @@ impl ShadTable {
     }
 
     fn draw_rows(&mut self, cx: &mut Cx2d, list: &mut PortalList) {
-        if self.rows_data.is_empty() {
+        if self.data_row_count() == 0 {
             let rows = Self::empty_fill_rows(list, cx, 0).max(1);
             list.set_item_range(cx, 0, rows);
             while let Some(item_id) = list.next_visible_item(cx) {
-                let mut item = list.item(cx, item_id, id!(Empty)).as_view();
                 let label = if item_id == 0 {
                     self.empty_message.as_ref()
                 } else {
                     ""
                 };
-                item.label(cx, ids!(empty_label)).set_text(cx, label);
-                script_apply_eval!(cx, item, {
-                    width: #(self.total_width)
-                });
-                item.draw_all(cx, &mut Scope::empty());
+                self.draw_empty_row(cx, list, item_id, label);
             }
             return;
         }
 
-        let empty_rows = Self::empty_fill_rows(list, cx, self.rows_data.len());
-        let item_count = self.rows_data.len() + empty_rows;
+        let row_count = self.data_row_count();
+        let empty_rows = Self::empty_fill_rows(list, cx, row_count);
+        let item_count = row_count + empty_rows;
         list.set_item_range(cx, 0, item_count);
         while let Some(item_id) = list.next_visible_item(cx) {
-            let Some(row) = self.rows_data.get(item_id) else {
-                let mut item = list.item(cx, item_id, id!(Empty)).as_view();
-                item.label(cx, ids!(empty_label)).set_text(cx, "");
-                script_apply_eval!(cx, item, {
-                    width: #(self.total_width)
-                });
-                item.draw_all(cx, &mut Scope::empty());
+            if item_id >= row_count {
+                self.draw_empty_row(cx, list, item_id, "");
+                continue;
+            }
+            let Some(row) = self.row_for_index(item_id) else {
+                self.draw_empty_row(cx, list, item_id, "");
                 continue;
             };
 
@@ -519,8 +551,56 @@ impl ShadTable {
     }
 
     pub fn set_rows(&mut self, cx: &mut Cx, rows: Vec<Vec<String>>) {
+        self.virtual_total_rows = 0;
+        self.virtual_window_start = 0;
         self.rows_data = rows;
-        self.selected_row = clamp_selected_row(self.selected_row, self.rows_data.len());
+        self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
+        self.sync_layout(cx);
+        self.view.redraw(cx);
+    }
+
+    pub fn set_virtual_total_rows(&mut self, cx: &mut Cx, total_rows: usize) {
+        if self.virtual_total_rows == total_rows {
+            return;
+        }
+        self.virtual_total_rows = total_rows;
+        self.rows_data.clear();
+        if total_rows == 0 {
+            self.virtual_window_start = 0;
+        } else if self.virtual_window_start >= total_rows {
+            self.virtual_window_start = total_rows.saturating_sub(1);
+        }
+        self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
+        self.sync_layout(cx);
+        self.view.redraw(cx);
+    }
+
+    pub fn set_virtual_window(&mut self, cx: &mut Cx, start_row: usize, rows: Vec<Vec<String>>) {
+        if self.virtual_total_rows == 0 {
+            self.set_rows(cx, rows);
+            return;
+        }
+        self.rows_data = rows;
+        let row_count = self.data_row_count();
+        let clamped_start = if row_count == 0 {
+            0
+        } else {
+            start_row.min(row_count.saturating_sub(1))
+        };
+        self.virtual_window_start = clamped_start;
+        let max_window_len = row_count.saturating_sub(clamped_start);
+        debug_assert!(
+            self.rows_data.len() <= max_window_len,
+            "set_virtual_window received {} rows but only {} fit into the declared virtual_total_rows={} from start_row={}",
+            self.rows_data.len(),
+            max_window_len,
+            self.virtual_total_rows,
+            clamped_start
+        );
+        if self.rows_data.len() > max_window_len {
+            self.rows_data.truncate(max_window_len);
+        }
+        self.selected_row = clamp_selected_row(self.selected_row, row_count);
         self.sync_layout(cx);
         self.view.redraw(cx);
     }
@@ -614,6 +694,18 @@ impl ShadTableRef {
     pub fn set_rows(&self, cx: &mut Cx, rows: Vec<Vec<String>>) {
         if let Some(mut inner) = self.borrow_mut() {
             inner.set_rows(cx, rows);
+        }
+    }
+
+    pub fn set_virtual_total_rows(&self, cx: &mut Cx, total_rows: usize) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.set_virtual_total_rows(cx, total_rows);
+        }
+    }
+
+    pub fn set_virtual_window(&self, cx: &mut Cx, start_row: usize, rows: Vec<Vec<String>>) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.set_virtual_window(cx, start_row, rows);
         }
     }
 
