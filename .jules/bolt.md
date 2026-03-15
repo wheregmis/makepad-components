@@ -14,3 +14,7 @@
 ## 2025-02-18 - Reusing existing fields and avoiding clones in Layout Sync Loops
 **Learning:** In layout sync loops that govern Makepad rendering (such as responding to side-changes in widgets like Sheets), making repeated allocations by calling `.to_string()` to cache states, or cloning `WidgetRef` parameters to pass to `script_apply_eval!`, causes needless heap churn and memory duplication. `script_apply_eval!` correctly borrows existing components.
 **Action:** When tracking string changes, use `String::clear()` and `String::push_str()` instead of reallocating with `.to_string()`. When updating widgets, directly pass `self.widget` to `script_apply_eval!` instead of making an implicit clone (`let mut widget = self.widget.clone()`).
+
+## 2026-03-15 - Reusing row buffers in virtualized table updates
+**Learning:** In `ShadTableRowView::set_row_data`, replacing row/cell vectors with `to_vec()` during scroll updates creates repeated heap allocations and deallocations in a hot UI path.
+**Action:** For virtualized row updates, prefer `clear()` + `extend_from_slice()` on existing `Vec` storage (after change detection) so visible row widgets reuse capacity instead of reallocating every swap.

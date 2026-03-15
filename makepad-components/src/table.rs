@@ -117,6 +117,23 @@ script_mod! {
 const DEFAULT_COLUMN_WIDTH: f64 = 160.0;
 const TABLE_ROW_HEIGHT: f64 = 40.0;
 
+fn replace_vec_contents_if_changed<T: Clone + PartialEq>(dst: &mut Vec<T>, src: &[T]) -> bool {
+    if dst.as_slice() == src {
+        return false;
+    }
+    // Optimization: avoid creating a brand new Vec on every visible-row data swap.
+    // Previously: `dst = src.to_vec()` allocated a fresh buffer and dropped the old one.
+    // Now: clear + extend reuses existing capacity, reducing allocator churn while scrolling.
+    dst.clear();
+    dst.extend_from_slice(src);
+    true
+}
+
+fn replace_vec_contents<T: Clone>(dst: &mut Vec<T>, src: &[T]) {
+    dst.clear();
+    dst.extend_from_slice(src);
+}
+
 #[derive(Clone, Debug, Default)]
 pub enum ShadTableRowAction {
     Clicked(usize),
@@ -275,16 +292,20 @@ impl ShadTableRowView {
         striped: bool,
     ) {
         let mut changed = false;
-        if self.row_index != row_index {
+        let row_changed = self.row_index != row_index;
+        if row_changed {
             self.row_index = row_index;
+            // Optimization: PortalList recycles row widgets for different row indices while scrolling.
+            // A changed row index means this widget now represents a different logical row, so its data
+            // must be refreshed anyway. Previously: we still compared `self.cells != cells` first,
+            // scanning the whole row before cloning.
+            // Now: for recycled rows, we skip that equality scan and just refresh the row buffer in-place.
+            replace_vec_contents(&mut self.cells, cells);
+            changed = true;
+        } else if replace_vec_contents_if_changed(&mut self.cells, cells) {
             changed = true;
         }
-        if self.cells != cells {
-            self.cells = cells.to_vec();
-            changed = true;
-        }
-        if self.widths != widths {
-            self.widths = widths.to_vec();
+        if replace_vec_contents_if_changed(&mut self.widths, widths) {
             changed = true;
         }
         if self.selected != selected {
@@ -784,4 +805,70 @@ fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
             size: dvec2(1.0, rect.size.y),
         },
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{replace_vec_contents, replace_vec_contents_if_changed};
+    use std::hint::black_box;
+    use std::time::Instant;
+
+    #[test]
+    fn replace_vec_contents_noop_when_equal() {
+        let mut dst = vec!["alpha".to_string(), "beta".to_string()];
+        assert!(!replace_vec_contents_if_changed(
+            &mut dst,
+            &["alpha".to_string(), "beta".to_string()]
+        ));
+    }
+
+    #[test]
+    fn replace_vec_contents_reuses_allocation() {
+        let mut dst = vec!["old".to_string(), "values".to_string()];
+        let baseline_capacity = dst.capacity();
+
+        assert!(replace_vec_contents_if_changed(
+            &mut dst,
+            &["new".to_string(), "row".to_string()]
+        ));
+        assert_eq!(dst, vec!["new".to_string(), "row".to_string()]);
+        assert_eq!(dst.capacity(), baseline_capacity);
+    }
+
+    #[test]
+    fn replace_vec_contents_performance_comparison() {
+        // Performance comparison helper: this prints timings for manual verification.
+        // It intentionally does not assert wall-clock durations to avoid flaky CI failures.
+        const BENCHMARK_ITERATIONS: usize = 50_000;
+        let source_a = vec!["A".to_string(), "B".to_string(), "C".to_string()];
+        let source_b = vec!["X".to_string(), "Y".to_string(), "Z".to_string()];
+
+        let mut old = source_b.clone();
+        let old_start = Instant::now();
+        for _ in 0..BENCHMARK_ITERATIONS {
+            // Previous row-change path: compare full row, then allocate a new Vec.
+            if old.as_slice() != source_a.as_slice() {
+                old = source_a.to_vec();
+            }
+            if old.as_slice() != source_b.as_slice() {
+                old = source_b.to_vec();
+            }
+            black_box(&old);
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let mut optimized = source_b.clone();
+        let new_start = Instant::now();
+        for _ in 0..BENCHMARK_ITERATIONS {
+            // Optimized row-change path: no row equality scan, reuse allocation.
+            replace_vec_contents(&mut optimized, &source_a);
+            replace_vec_contents(&mut optimized, &source_b);
+            black_box(&optimized);
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!(
+            "replace_vec_contents_if_changed benchmark: old={old_elapsed:?}, new={new_elapsed:?}"
+        );
+    }
 }
