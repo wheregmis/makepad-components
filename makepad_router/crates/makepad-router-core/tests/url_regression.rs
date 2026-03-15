@@ -26,6 +26,15 @@ fn router_url_normalizes_empty_and_missing_slash() {
 }
 
 #[test]
+fn parse_query_map_empty_returns_empty_map() {
+    let empty_map = HashMap::new();
+    assert_eq!(parse_query_map(""), empty_map);
+    assert_eq!(parse_query_map("?"), empty_map);
+    assert_eq!(parse_query_map("   "), empty_map);
+    assert_eq!(parse_query_map(" ? "), empty_map);
+}
+
+#[test]
 fn query_map_decodes_and_builds() {
     let map = parse_query_map("?q=hello+world&x=%2F&empty=&flag");
     let mut expected = HashMap::new();
