@@ -23,6 +23,7 @@ pub(crate) fn sync_modal_open_state(
     *is_synced_open = open;
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn set_modal_widget_open<T, F>(
     cx: &mut Cx,
     overlay: &mut WidgetRef,

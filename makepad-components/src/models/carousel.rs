@@ -7,9 +7,7 @@ pub fn normalize_index(index: usize, slide_count: usize) -> Option<usize> {
 }
 
 pub fn next_index(current: usize, slide_count: usize) -> usize {
-    if slide_count == 0 {
-        0
-    } else if current + 1 >= slide_count {
+    if slide_count == 0 || current + 1 >= slide_count {
         0
     } else {
         current + 1

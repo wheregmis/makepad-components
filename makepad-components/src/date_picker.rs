@@ -203,7 +203,7 @@ impl Widget for ShadDatePicker {
                 if let Some(inline) = ScriptValue::from_inline_string(&value) {
                     return ScriptAsyncResult::Return(inline);
                 }
-                return ScriptAsyncResult::Return(vm.bx.heap.new_string_from_str(&value).into());
+                return ScriptAsyncResult::Return(vm.bx.heap.new_string_from_str(&value));
             }
             return ScriptAsyncResult::Return(NIL);
         }

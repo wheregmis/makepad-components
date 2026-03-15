@@ -156,7 +156,9 @@ impl Widget for ShadContextMenu {
         if self.is_active && !self.popup_menu.is_nil() {
             let global = cx.global::<PopupMenuGlobal>().clone();
             let mut map = global.map.borrow_mut();
-            let menu = map.get_mut(&self.popup_menu).unwrap();
+            let Some(menu) = map.get_mut(&self.popup_menu) else {
+                return;
+            };
             let mut close = false;
             menu.handle_event_with(
                 cx,
@@ -214,7 +216,9 @@ impl Widget for ShadContextMenu {
         if self.is_active && !self.popup_menu.is_nil() {
             let global = cx.global::<PopupMenuGlobal>().clone();
             let mut map = global.map.borrow_mut();
-            let popup_menu = map.get_mut(&self.popup_menu).unwrap();
+            let Some(popup_menu) = map.get_mut(&self.popup_menu) else {
+                return DrawStep::done();
+            };
 
             popup_menu.begin(cx);
             for (i, item) in self.labels.iter().enumerate() {

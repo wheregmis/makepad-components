@@ -311,7 +311,7 @@ impl Widget for ShadInputOtp {
             if let Some(value) = ScriptValue::from_inline_string(&self.value) {
                 return ScriptAsyncResult::Return(value);
             }
-            return ScriptAsyncResult::Return(vm.bx.heap.new_string_from_str(&self.value).into());
+            return ScriptAsyncResult::Return(vm.bx.heap.new_string_from_str(&self.value));
         }
         ScriptAsyncResult::MethodNotFound
     }

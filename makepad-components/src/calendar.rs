@@ -418,7 +418,7 @@ impl Widget for ShadCalendar {
                 if let Some(inline) = ScriptValue::from_inline_string(&value) {
                     return ScriptAsyncResult::Return(inline);
                 }
-                return ScriptAsyncResult::Return(vm.bx.heap.new_string_from_str(&value).into());
+                return ScriptAsyncResult::Return(vm.bx.heap.new_string_from_str(&value));
             }
             return ScriptAsyncResult::Return(NIL);
         }
@@ -537,7 +537,7 @@ impl Widget for ShadCalendar {
             // Optimization: avoid repeated string allocations in UI draw_walk loops
             // Previously: allocated a new String using `cell.date.day.to_string()` on every frame
             // Now: reuse a static array of string literals representing days 1 to 31
-            let day_text = DAY_LABELS[(cell.date.day.max(1).min(31) - 1) as usize];
+            let day_text = DAY_LABELS[(cell.date.day.clamp(1, 31) - 1) as usize];
             let text_x = cell_rect.pos.x + cell_rect.size.x * 0.5
                 - if cell.date.day < 10 { 3.5 } else { 7.0 };
             let text_y = cell_rect.pos.y + cell_rect.size.y * 0.5 - 6.0;

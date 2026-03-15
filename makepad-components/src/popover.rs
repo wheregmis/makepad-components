@@ -138,20 +138,14 @@ impl ShadPopover {
 
     fn trigger_rect(&self, cx: &Cx) -> Rect {
         let trigger = self.view.widget(cx, ids!(trigger));
-        let rect = if trigger.is_empty() {
+        if trigger.is_empty() {
             self.view.area().rect(cx)
         } else {
             trigger.area().rect(cx)
-        };
-        rect
+        }
     }
 
-    fn resolve_side<'a>(
-        &'a self,
-        trigger_rect: Rect,
-        pass_size: Vec2d,
-        content_size: Vec2d,
-    ) -> &'a str {
+    fn resolve_side(&self, trigger_rect: Rect, pass_size: Vec2d, content_size: Vec2d) -> &str {
         let side = self.side.as_ref();
         let top_space = trigger_rect.pos.y - self.side_offset - self.viewport_padding;
         let bottom_space = pass_size.y

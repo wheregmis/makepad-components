@@ -43,10 +43,9 @@ fn icon_bindings(icons_dir: &Path) -> std::io::Result<String> {
             .and_then(OsStr::to_str)
             .unwrap_or_else(|| panic!("icon file stem must be valid UTF-8: {}", path.display()));
         if let Some(widget) = to_widget_name(stem) {
-            let file_name = path
-                .file_name()
-                .and_then(OsStr::to_str)
-                .unwrap_or_else(|| panic!("icon file name must be valid UTF-8: {}", path.display()));
+            let file_name = path.file_name().and_then(OsStr::to_str).unwrap_or_else(|| {
+                panic!("icon file name must be valid UTF-8: {}", path.display())
+            });
             output.push_str(&format!(
                 "    {widget} => \"{ICON_RESOURCE_PREFIX}{file_name}\",\n"
             ));
@@ -57,9 +56,8 @@ fn icon_bindings(icons_dir: &Path) -> std::io::Result<String> {
 }
 
 fn main() {
-    let manifest_dir = PathBuf::from(
-        std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"),
-    );
+    let manifest_dir =
+        PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"));
     let icons_dir = manifest_dir.join("resources").join("icons");
     let out_path = PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR not set"))
         .join(GENERATED_BINDINGS_FILE);

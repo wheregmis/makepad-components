@@ -108,7 +108,10 @@ fn generate_preview(entries: &[(String, String)]) -> String {
     }
 
     output.push_str("}\n");
-    output.push_str(&format!("const ICON_GALLERY_TOTAL: usize = {};\n", entries.len()));
+    output.push_str(&format!(
+        "const ICON_GALLERY_TOTAL: usize = {};\n",
+        entries.len()
+    ));
     output.push_str("const ICON_GALLERY_ROW_IDS: &[&str] = &[\n");
     for row_id in &row_ids {
         output.push_str(&format!("    \"{row_id}\",\n"));
@@ -129,9 +132,8 @@ fn generate_preview(entries: &[(String, String)]) -> String {
 }
 
 fn main() {
-    let manifest_dir = PathBuf::from(
-        std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"),
-    );
+    let manifest_dir =
+        PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set"));
     let icons_dir = manifest_dir
         .parent()
         .expect("makepad-gallery should have workspace root parent")
@@ -150,10 +152,11 @@ fn main() {
             out_path.display()
         )
     });
-    file.write_all(generated.as_bytes()).unwrap_or_else(|error| {
-        panic!(
-            "failed to write generated icon preview at {}: {error}",
-            out_path.display()
-        )
-    });
+    file.write_all(generated.as_bytes())
+        .unwrap_or_else(|error| {
+            panic!(
+                "failed to write generated icon preview at {}: {error}",
+                out_path.display()
+            )
+        });
 }
