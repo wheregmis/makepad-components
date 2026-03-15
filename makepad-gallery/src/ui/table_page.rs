@@ -113,6 +113,7 @@ impl GalleryTablePage {
         self.current_rows = rows.clone();
 
         let table = self.view.shad_table(cx, ids!(table_demo));
+        table.set_caption(cx, title.to_string());
         table.set_headers(cx, headers);
         table.set_rows(cx, rows);
         table.set_selected_row(cx, None);
@@ -125,11 +126,11 @@ impl GalleryTablePage {
 
     fn apply_virtual_dataset(&mut self, cx: &mut Cx) {
         self.virtual_mode = true;
-        self.virtual_start = 0;
-        self.sync_virtual_window(cx);
+        self.sync_virtual_window(cx, 0, true);
     }
 
-    fn sync_virtual_window(&mut self, cx: &mut Cx) {
+    fn sync_virtual_window(&mut self, cx: &mut Cx, start: usize, clear_selection: bool) {
+        self.virtual_start = start.min(Self::VIRTUAL_TOTAL.saturating_sub(1));
         let headers = vec![
             "Task".to_string(),
             "Queue".to_string(),
@@ -140,10 +141,13 @@ impl GalleryTablePage {
         self.current_rows = rows.clone();
 
         let table = self.view.shad_table(cx, ids!(table_demo));
+        table.set_caption(cx, "Virtualized 10k".to_string());
         table.set_headers(cx, headers);
         table.set_virtual_total_rows(cx, Self::VIRTUAL_TOTAL);
         table.set_virtual_window(cx, self.virtual_start, rows);
-        table.set_selected_row(cx, None);
+        if clear_selection {
+            table.set_selected_row(cx, None);
+        }
         let end = if self.current_rows.is_empty() {
             self.virtual_start
         } else {
@@ -162,6 +166,22 @@ impl GalleryTablePage {
         self.view.redraw(cx);
     }
 
+    fn selected_primary_cell(&self, selected_row: Option<usize>) -> String {
+        selected_row
+            .and_then(|index| {
+                let local_index = if self.virtual_mode {
+                    index.checked_sub(self.virtual_start)
+                } else {
+                    Some(index)
+                }?;
+                self.current_rows
+                    .get(local_index)
+                    .and_then(|row| row.first())
+                    .cloned()
+            })
+            .unwrap_or_else(|| "none".to_string())
+    }
+
     fn sync_status(&self, cx: &mut Cx, source: Option<usize>) {
         let table = self.view.shad_table(cx, ids!(table_demo));
         let title = if self.virtual_mode {
@@ -171,15 +191,7 @@ impl GalleryTablePage {
         } else {
             "ops queue"
         };
-        let selected_text = table
-            .selected_row()
-            .and_then(|index| {
-                self.current_rows
-                    .get(index)
-                    .and_then(|row| row.first())
-                    .cloned()
-            })
-            .unwrap_or_else(|| "none".to_string());
+        let selected_text = self.selected_primary_cell(table.selected_row());
         let prefix = if source.is_some() {
             "Clicked"
         } else {
@@ -212,18 +224,18 @@ impl Widget for GalleryTablePage {
             }
             if self.view.button(cx, ids!(table_prev_btn)).clicked(actions) {
                 if self.virtual_mode {
-                    self.virtual_start =
-                        self.virtual_start.saturating_sub(Self::VIRTUAL_WINDOW_SIZE);
-                    self.sync_virtual_window(cx);
+                    let start = self
+                        .virtual_start
+                        .saturating_sub(Self::VIRTUAL_WINDOW_SIZE);
+                    self.sync_virtual_window(cx, start, true);
                 }
                 return;
             }
             if self.view.button(cx, ids!(table_next_btn)).clicked(actions) {
                 if self.virtual_mode {
                     let max_start = Self::VIRTUAL_TOTAL.saturating_sub(1);
-                    self.virtual_start =
-                        (self.virtual_start + Self::VIRTUAL_WINDOW_SIZE).min(max_start);
-                    self.sync_virtual_window(cx);
+                    let start = (self.virtual_start + Self::VIRTUAL_WINDOW_SIZE).min(max_start);
+                    self.sync_virtual_window(cx, start, true);
                 }
                 return;
             }
@@ -236,6 +248,10 @@ impl Widget for GalleryTablePage {
             }
 
             let table = self.view.shad_table(cx, ids!(table_demo));
+            if let Some(start) = table.virtual_window_request(actions) {
+                self.sync_virtual_window(cx, start, false);
+                return;
+            }
             if let Some(index) = table.row_clicked(actions) {
                 self.sync_status(cx, Some(index));
             } else if table.selection_changed(actions).is_some() {

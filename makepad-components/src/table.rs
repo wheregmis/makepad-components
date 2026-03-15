@@ -95,11 +95,11 @@ script_mod! {
 
                     header := mod.widgets.ShadTableHeaderView{}
                     list := PortalList{
-                        width: Fit
+                        width: Fill
                         height: 208
                         flow: Down
                         max_pull_down: 0.0
-                        capture_overload: false
+                        capture_overload: true
                         grab_key_focus: false
                         auto_tail: false
                         selectable: false
@@ -145,6 +145,7 @@ pub enum ShadTableRowAction {
 pub enum ShadTableAction {
     RowClicked(usize),
     SelectionChanged(usize),
+    VirtualWindowRequest(usize),
     #[default]
     None,
 }
@@ -452,6 +453,8 @@ impl ScriptHook for ShadTable {
 }
 
 impl ShadTable {
+    const VIRTUAL_WINDOW_PRELOAD_MARGIN: usize = 8;
+
     fn draw_empty_row(&self, cx: &mut Cx2d, list: &mut PortalList, item_id: usize, label: &str) {
         let mut item = list.item(cx, item_id, id!(Empty)).as_view();
         item.label(cx, ids!(empty_label)).set_text(cx, label);
@@ -565,8 +568,50 @@ impl ShadTable {
         }
     }
 
+    fn maybe_request_virtual_window(&self, cx: &mut Cx, list: &PortalListRef) {
+        if self.virtual_total_rows == 0 || self.rows_data.is_empty() {
+            return;
+        }
+
+        let window_len = self.rows_data.len();
+        let first_visible = list.first_id();
+        let visible_rows = list.visible_items().max(1);
+        let window_end = self.virtual_window_start.saturating_add(window_len);
+
+        let needs_previous = first_visible
+            < self
+                .virtual_window_start
+                .saturating_add(Self::VIRTUAL_WINDOW_PRELOAD_MARGIN);
+        let needs_next = first_visible
+            .saturating_add(visible_rows)
+            .saturating_add(Self::VIRTUAL_WINDOW_PRELOAD_MARGIN)
+            >= window_end;
+
+        if !needs_previous && !needs_next {
+            return;
+        }
+
+        let max_start = self.virtual_total_rows.saturating_sub(window_len);
+        let requested_start = first_visible.min(max_start);
+        if requested_start == self.virtual_window_start {
+            return;
+        }
+
+        cx.widget_action_with_data(
+            &self.action_data,
+            self.widget_uid(),
+            ShadTableAction::VirtualWindowRequest(requested_start),
+        );
+    }
+
     pub fn set_headers(&mut self, cx: &mut Cx, headers: Vec<String>) {
         self.headers = headers;
+        self.sync_layout(cx);
+        self.view.redraw(cx);
+    }
+
+    pub fn set_caption(&mut self, cx: &mut Cx, caption: String) {
+        self.caption.set(&caption);
         self.sync_layout(cx);
         self.view.redraw(cx);
     }
@@ -664,6 +709,16 @@ impl ShadTable {
             }
         })
     }
+
+    pub fn virtual_window_request(&self, actions: &Actions) -> Option<usize> {
+        widget_action_map::<ShadTableAction, _, _>(actions, self.widget_uid(), |action| {
+            if let ShadTableAction::VirtualWindowRequest(start) = action {
+                Some(start)
+            } else {
+                None
+            }
+        })
+    }
 }
 
 impl Widget for ShadTable {
@@ -672,9 +727,27 @@ impl Widget for ShadTable {
         let list = self
             .view
             .portal_list(cx, ids!(table_view.scroll.content.list));
+        let list_widget = self
+            .view
+            .widget(cx, ids!(table_view.scroll.content.list));
         self.view.handle_event(cx, event, scope);
 
+        if let Event::Scroll(scroll_event) = event {
+            if list_widget.point_hits_area(cx, scroll_event.abs) {
+                scroll_event.handled_y.set(true);
+            }
+        }
+
         if let Event::Actions(actions) = event {
+            if matches!(
+                actions
+                    .find_widget_action(list.widget_uid())
+                    .map(|action| action.cast::<PortalListAction>()),
+                Some(PortalListAction::Scroll)
+            ) {
+                self.maybe_request_virtual_window(cx, &list);
+            }
+
             if !list.any_items_with_actions(actions) {
                 return;
             }
@@ -709,6 +782,12 @@ impl ShadTableRef {
     pub fn set_headers(&self, cx: &mut Cx, headers: Vec<String>) {
         if let Some(mut inner) = self.borrow_mut() {
             inner.set_headers(cx, headers);
+        }
+    }
+
+    pub fn set_caption(&self, cx: &mut Cx, caption: String) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.set_caption(cx, caption);
         }
     }
 
@@ -747,6 +826,11 @@ impl ShadTableRef {
     pub fn selection_changed(&self, actions: &Actions) -> Option<usize> {
         self.borrow()
             .and_then(|inner| inner.selection_changed(actions))
+    }
+
+    pub fn virtual_window_request(&self, actions: &Actions) -> Option<usize> {
+        self.borrow()
+            .and_then(|inner| inner.virtual_window_request(actions))
     }
 }
 
