@@ -7,6 +7,10 @@
 **Learning:** In Makepad code, `script_apply_eval!` is computationally expensive. If layout state is continuously applied via this macro inside `handle_event` or `draw_walk` (which happen on every frame or user interaction), it results in unnecessary macro evaluation overhead and CPU churn.
 **Action:** Always maintain a local state mirror of the properties governing the layout (like tracking a `.to_string()` for text, or `is_initialized` boolean flag). Check against this cached state before triggering `script_apply_eval!` to ensure the script updates are strictly event-driven.
 
+## 2025-02-19 - Replacing String allocations with static arrays in draw loops
+**Learning:** Calling `.to_string()` on numeric types like `u8` or `i32` within Makepad's `draw_walk` function causes an allocation on every frame, which severely hurts rendering performance.
+**Action:** When mapping bounded numeric ranges (like days of a month, 1-31) to strings for drawing text, use a pre-allocated array of `&'static str` literals and index into it, avoiding any runtime heap allocations.
+
 ## 2025-02-18 - Reusing existing fields and avoiding clones in Layout Sync Loops
 **Learning:** In layout sync loops that govern Makepad rendering (such as responding to side-changes in widgets like Sheets), making repeated allocations by calling `.to_string()` to cache states, or cloning `WidgetRef` parameters to pass to `script_apply_eval!`, causes needless heap churn and memory duplication. `script_apply_eval!` correctly borrows existing components.
 **Action:** When tracking string changes, use `String::clear()` and `String::push_str()` instead of reallocating with `.to_string()`. When updating widgets, directly pass `self.widget` to `script_apply_eval!` instead of making an implicit clone (`let mut widget = self.widget.clone()`).

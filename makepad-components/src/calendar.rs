@@ -62,6 +62,10 @@ const MONTH_LABELS: [&str; 12] = [
     "November",
     "December",
 ];
+const DAY_LABELS: [&str; 31] = [
+    "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17",
+    "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31",
+];
 
 #[derive(Clone, Debug, Default)]
 pub enum ShadCalendarAction {
@@ -530,12 +534,15 @@ impl Widget for ShadCalendar {
             } else {
                 self.color_muted_foreground
             };
-            let day_text = cell.date.day.to_string();
+            // Optimization: avoid repeated string allocations in UI draw_walk loops
+            // Previously: allocated a new String using `cell.date.day.to_string()` on every frame
+            // Now: reuse a static array of string literals representing days 1 to 31
+            let day_text = DAY_LABELS[(cell.date.day.max(1).min(31) - 1) as usize];
             let text_x = cell_rect.pos.x + cell_rect.size.x * 0.5
                 - if cell.date.day < 10 { 3.5 } else { 7.0 };
             let text_y = cell_rect.pos.y + cell_rect.size.y * 0.5 - 6.0;
             self.draw_day_text
-                .draw_abs(cx, dvec2(text_x, text_y), &day_text);
+                .draw_abs(cx, dvec2(text_x, text_y), day_text);
         }
 
         cx.end_turtle_with_area(&mut self.area);
