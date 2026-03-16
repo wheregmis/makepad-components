@@ -6,6 +6,7 @@ This workspace contains:
 - A component library crate (`makepad-components`)
 - A reusable icon crate (`makepad-icon`)
 - A runnable gallery app (`makepad-example-component-gallery`)
+- A standalone date-picker/table example (`makepad-example-date-picker-table`)
 
 ## What You Get
 
@@ -32,6 +33,7 @@ This workspace contains:
 ## Workspace Layout
 
 - `makepad-components/` → `makepad-components` library
+- `makepad-components/examples/date_picker_table_example/` → `makepad-example-date-picker-table` app
 - `makepad-icon/` → `makepad-icon` library
 - `makepad-gallery/` → `makepad-example-component-gallery` app
 - `.github/workflows/wasm-pages.yml` → GitHub Pages WASM build + deploy
@@ -83,6 +85,17 @@ Expected output directory:
 ```text
 target/makepad-wasm-app/release/makepad-example-component-gallery
 ```
+
+### 4) Run the standalone date-picker/table example
+
+```bash
+cargo run -p makepad-example-date-picker-table --release
+```
+
+This example is a small repro app that:
+- drives `ShadTable` from `ShadDatePicker` changes via `set_rows(cx, ...)`
+- shows row replacement for multiple fixed dates and clear/reset state
+- exercises the popover-over-table interaction path directly
 
 ## Using `makepad-components` in Your App
 
@@ -617,6 +630,10 @@ The `Shad*Chart` script types style Makepad's built-in chart widgets. Use the un
 - `set_open(cx, bool)` / `is_open() -> bool`
 - `changed(actions) -> Option<ShadDate>`
 - `open_changed(actions) -> Option<bool>`
+
+Standalone example:
+- `makepad-components/examples/date_picker_table_example`
+- Run with `cargo run -p makepad-example-date-picker-table --release`
 
 ### Menubar (`makepad-components/src/menubar.rs`)
 

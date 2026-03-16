@@ -1,0 +1,10 @@
+[package]
+name = "makepad-example-date-picker-table"
+version = "0.1.0"
+edition = "2021"
+description = "Standalone date picker + table example for makepad-components"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+makepad-widgets = { workspace = true }
+makepad-components = { workspace = true }

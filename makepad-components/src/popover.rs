@@ -1,5 +1,6 @@
 use crate::internal::actions::{emit_widget_action, first_widget_action};
 use crate::internal::script_args::bool_arg;
+use makepad_widgets::event::TouchState;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -275,6 +276,34 @@ impl ShadPopover {
             .is_some_and(|bridge| bridge.contains(abs))
     }
 
+    fn overlay_contains_abs(&self, cx: &Cx, abs: Vec2d) -> bool {
+        self.trigger_rect(cx).contains(abs) || self.popup_content.area().rect(cx).contains(abs)
+    }
+
+    fn reclaim_pointer_down_from_underlay(&self, cx: &mut Cx, event: &Event) {
+        match event {
+            Event::MouseDown(fe) => {
+                let handled_area = fe.handled.get();
+                if !handled_area.is_empty() && self.overlay_contains_abs(cx, fe.abs) {
+                    event.unhandle(cx, &handled_area);
+                }
+            }
+            Event::TouchUpdate(te) => {
+                for touch in &te.touches {
+                    if !matches!(touch.state, TouchState::Start) {
+                        continue;
+                    }
+                    let handled_area = touch.handled.get();
+                    if !handled_area.is_empty() && self.overlay_contains_abs(cx, touch.abs) {
+                        event.unhandle(cx, &handled_area);
+                        break;
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
     fn emit_open_state(&self, cx: &mut Cx, open: bool) {
         emit_widget_action(
             cx,
@@ -374,7 +403,15 @@ impl Widget for ShadPopover {
             return;
         }
 
+        // Popover bodies are drawn in an overlay draw list, but their widgets still live under
+        // the trigger in the normal tree. If a later sibling handled mouse/touch-down first,
+        // reclaim that hit here so the overlay body can capture and react to the interaction.
+        self.reclaim_pointer_down_from_underlay(cx, event);
         self.popup_content.handle_event(cx, event, scope);
+
+        // Consume overlay hits while open so pointer events do not fall through to widgets
+        // behind the popover when the popup body is rendered in the overlay draw list.
+        let overlay_hit = event.hits(cx, self.draw_bg.area());
 
         if let Event::KeyDown(ke) = event {
             if ke.key_code == KeyCode::Escape && self.can_dismiss {
@@ -387,8 +424,6 @@ impl Widget for ShadPopover {
             self.close(cx);
             return;
         }
-
-        let overlay_hit = event.hits(cx, self.draw_bg.area());
         if self.open_on_hover {
             match overlay_hit {
                 Hit::FingerHoverIn(fe) | Hit::FingerHoverOver(fe)

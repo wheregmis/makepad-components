@@ -3,8 +3,8 @@
 members = [
     "makepad-gallery",
     "makepad-components",
+    "makepad-components/examples/date_picker_table_example",
     "makepad-icon",
-    "vendor/makepad-code-editor",
     "makepad_router",
     "makepad_router/crates/makepad-router-core",
     "makepad_router/crates/makepad-router-widgets",
@@ -14,11 +14,11 @@ members = [
 resolver = "3"
 
 [workspace.dependencies]
-makepad-live-id = { git = "https://github.com/wheregmis/makepad.git", branch = "dev", version = "1.0.0" }
-makepad-micro-serde = { git = "https://github.com/wheregmis/makepad.git", branch = "dev", version = "1.0.0" }
-makepad-draw = { git = "https://github.com/wheregmis/makepad.git", branch = "dev", version = "2.0.0" }
-makepad-widgets = { git = "https://github.com/wheregmis/makepad.git", branch = "dev", version = "2.0.0" }
-makepad-code-editor = { path = "vendor/makepad-code-editor", version = "2.0.0" }
+makepad-live-id = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "1.0.0" }
+makepad-micro-serde = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "1.0.0" }
+makepad-draw = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "2.0.0" }
+makepad-widgets = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "2.0.0" }
+makepad-code-editor = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "2.0.0" }
 makepad-components = { path = "makepad-components", version = "1.0.0" }
 makepad-icon = { path = "makepad-icon", version = "1.0.0" }
 makepad-router = { path = "makepad_router", version = "1.0.0" }
