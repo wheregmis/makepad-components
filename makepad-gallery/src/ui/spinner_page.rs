@@ -38,7 +38,7 @@ gallery_static_page! {
                     spacing: 12.0
                     align: Align{x: 0.0, y: 0.5}
 
-                    RoundedView{
+                    ShadSurface{
                         width: Fit
                         height: Fit
                         flow: Right
@@ -53,7 +53,7 @@ gallery_static_page! {
                         }
 
                         ShadSpinnerSm{}
-                        Label{
+                        ShadLabel{
                             draw_text.color: (shad_theme.color_primary)
                             draw_text.text_style.font_size: 11
                             text: "Saving changes..."
@@ -61,7 +61,7 @@ gallery_static_page! {
                     }
                 }
 
-                RoundedView{
+                ShadSurfaceMuted{
                     width: Fill
                     height: Fit
                     flow: Right
@@ -69,8 +69,6 @@ gallery_static_page! {
                     align: Align{y: 0.5}
                     padding: Inset{left: 16, right: 16, top: 14, bottom: 14}
                     draw_bg +: {
-                        color: (shad_theme.color_muted)
-                        border_radius: (shad_theme.radius)
                         border_size: 1.0
                         border_color: (shad_theme.color_outline_border)
                     }
@@ -88,7 +86,7 @@ gallery_static_page! {
                     }
                 }
 
-                RoundedView{
+                ShadSurfaceMuted{
                     width: Fill
                     height: Fit
                     flow: Down
@@ -96,14 +94,12 @@ gallery_static_page! {
                     align: Align{x: 0.5}
                     padding: Inset{left: 20, right: 20, top: 20, bottom: 20}
                     draw_bg +: {
-                        color: (shad_theme.color_muted)
-                        border_radius: (shad_theme.radius)
                         border_size: 1.0
                         border_color: (shad_theme.color_outline_border)
                     }
 
                     ShadSpinnerLg{}
-                    Label{
+                    ShadLabel{
                         draw_text.color: (shad_theme.color_primary)
                         draw_text.text_style.font_size: 13
                         text: "Loading activity"

@@ -20,7 +20,7 @@ gallery_static_page! {
                 text: "ShadLabel works best as primary nearby copy inside cards, settings rows, and inline UI summaries where the text supports surrounding content without acting like a form caption."
             }
 
-            RoundedView{
+            ShadSurface{
                 width: Fill
                 height: Fit
                 flow: Down
@@ -29,7 +29,6 @@ gallery_static_page! {
                 draw_bg +: {
                     color: (shad_theme.color_secondary)
                     border_size: 1.0
-                    border_radius: (shad_theme.radius)
                     border_color: (shad_theme.color_outline_border)
                 }
 
@@ -52,7 +51,7 @@ gallery_static_page! {
                         spacing: 12.0
                         align: Align{y: 0.0}
 
-                        RoundedView{
+                        ShadSurface{
                             width: 248
                             height: Fit
                             flow: Down
@@ -61,7 +60,6 @@ gallery_static_page! {
                             draw_bg +: {
                                 color: (shad_theme.color_background)
                                 border_size: 1.0
-                                border_radius: (shad_theme.radius)
                                 border_color: (shad_theme.color_outline_border)
                             }
 
@@ -69,7 +67,7 @@ gallery_static_page! {
                             ShadFieldDescription{text: "Pro workspace with annual billing."}
                         }
 
-                        RoundedView{
+                        ShadSurface{
                             width: 248
                             height: Fit
                             flow: Down
@@ -78,7 +76,6 @@ gallery_static_page! {
                             draw_bg +: {
                                 color: (shad_theme.color_background)
                                 border_size: 1.0
-                                border_radius: (shad_theme.radius)
                                 border_color: (shad_theme.color_outline_border)
                             }
 
@@ -86,7 +83,7 @@ gallery_static_page! {
                             ShadFieldDescription{text: "Production API connected."}
                         }
 
-                        RoundedView{
+                        ShadSurface{
                             width: 248
                             height: Fit
                             flow: Down
@@ -95,7 +92,6 @@ gallery_static_page! {
                             draw_bg +: {
                                 color: (shad_theme.color_background)
                                 border_size: 1.0
-                                border_radius: (shad_theme.radius)
                                 border_color: (shad_theme.color_outline_border)
                             }
 

@@ -2,16 +2,16 @@ pub const ACCORDION_PREVIEW_CODE: &str = r#"mod.widgets.ShadAccordion{
     item_accessible := mod.widgets.ShadAccordionItem{
         title: "Is it accessible?"
         is_open: true
-        body: Label{text: "Yes. It adheres to expected keyboard interactions and semantic structure."}
+        body: mod.widgets.ShadLabel{text: "Yes. It adheres to expected keyboard interactions and semantic structure."}
     }
     item_styled := mod.widgets.ShadAccordionItem{
         title: "Is it styled with complex elements?"
         body: View{
             flow: Down
             spacing: 8
-            Label{text: "Yes. It supports rich content inside the body."}
-            Toggle{text: "Enable feature" selected: true}
-            CheckBox{text: "Accept terms" selected: true}
+            mod.widgets.ShadLabel{text: "Yes. It supports rich content inside the body."}
+            mod.widgets.ShadToggle{text: "Enable feature" selected: true}
+            mod.widgets.ShadCheckbox{label: "Accept terms" checked: true}
         }
     }
 }
@@ -63,13 +63,11 @@ View{
     }
 }"#;
 pub const BADGE_PREVIEW_CODE: &str = r#"// Put badges beside the content they annotate.
-RoundedView{
+mod.widgets.ShadSurfaceMuted{
     width: 320
     height: Fit
     padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
     draw_bg +: {
-        color: (shad_theme.color_muted)
-        border_radius: (shad_theme.radius)
         border_size: 1.0
         border_color: (shad_theme.color_outline_border)
     }
@@ -204,9 +202,9 @@ pub const COLLAPSIBLE_PREVIEW_CODE: &str = r#"mod.widgets.ShadCollapsible{
     body: View{
         flow: Down
         spacing: 6
-        Label{text: "Status: Shipped"}
-        Label{text: "Shipping Address: 123 Main St, New York, NY"}
-        Label{text: "Items: 2 × T-shirt, 1 × Hoodie"}
+        mod.widgets.ShadLabel{text: "Status: Shipped"}
+        mod.widgets.ShadLabel{text: "Shipping Address: 123 Main St, New York, NY"}
+        mod.widgets.ShadLabel{text: "Items: 2 × T-shirt, 1 × Hoodie"}
     }
 }
 

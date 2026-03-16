@@ -79,7 +79,7 @@ gallery_static_page! {
                             align: Align{y: 0.5}
 
                             ShadFieldDescription{text: "Seats in use"}
-                            Label{
+                            ShadLabel{
                                 draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 11
                                 text: "18 of 25"
@@ -93,7 +93,7 @@ gallery_static_page! {
                             align: Align{y: 0.5}
 
                             ShadFieldDescription{text: "Pending invites"}
-                            Label{
+                            ShadLabel{
                                 draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 11
                                 text: "3 awaiting acceptance"
@@ -107,7 +107,7 @@ gallery_static_page! {
                             align: Align{y: 0.5}
 
                             ShadFieldDescription{text: "Renewal"}
-                            Label{
+                            ShadLabel{
                                 draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 11
                                 text: "September 30"
@@ -138,7 +138,7 @@ gallery_static_page! {
                         align: Align{y: 0.5}
                         spacing: 12.0
 
-                        Label{
+                        ShadLabel{
                             width: Fill
                             draw_text.color: (shad_theme.color_primary)
                             draw_text.text_style.font_size: 22
@@ -167,7 +167,7 @@ gallery_static_page! {
                             align: Align{y: 0.5}
 
                             ShadFieldDescription{text: "Error rate"}
-                            Label{
+                            ShadLabel{
                                 draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 11
                                 text: "0.12%"
@@ -181,7 +181,7 @@ gallery_static_page! {
                             align: Align{y: 0.5}
 
                             ShadFieldDescription{text: "Region"}
-                            Label{
+                            ShadLabel{
                                 draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 11
                                 text: "North America"

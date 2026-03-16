@@ -15,7 +15,7 @@ gallery_stateful_page_shell! {
         context_menu_basic := ShadContextMenu{
             labels: ["Open" "Duplicate" "Share" "Delete"]
 
-            RoundedView{
+            ShadSurface{
                 width: 360
                 height: Fit
                 flow: Down
@@ -24,7 +24,6 @@ gallery_stateful_page_shell! {
                 draw_bg +: {
                     color: (shad_theme.color_secondary)
                     border_size: 1.0
-                    border_radius: (shad_theme.radius)
                     border_color: (shad_theme.color_outline_border)
                 }
 

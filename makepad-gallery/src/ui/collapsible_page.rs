@@ -19,7 +19,7 @@ gallery_static_page! {
                 flow: Down
                 spacing: 8.0
 
-                RoundedView{
+                ShadSurface{
                     width: Fill
                     height: Fit
                     flow: Right
@@ -41,7 +41,7 @@ gallery_static_page! {
                     }
                 }
 
-                RoundedView{
+                ShadSurface{
                     width: Fill
                     height: Fit
                     flow: Down
@@ -61,7 +61,7 @@ gallery_static_page! {
                     ShadSectionHeader{ text: "100 Market St, San Francisco" }
                 }
 
-                RoundedView{
+                ShadSurface{
                     width: Fill
                     height: Fit
                     flow: Down

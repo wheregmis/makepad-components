@@ -1,13 +1,11 @@
 pub const BREADCRUMB_PREVIEW_CODE: &str = r#"// Keep the breadcrumb close to the page title it describes.
-RoundedView{
+ShadSurfaceMuted{
     width: 360
     height: Fit
     flow: Down
     spacing: 10.0
     padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
     draw_bg +: {
-        color: (shad_theme.color_muted)
-        border_radius: (shad_theme.radius)
         border_size: 1.0
         border_color: (shad_theme.color_outline_border)
     }
@@ -26,7 +24,7 @@ RoundedView{
         flow: Down
         spacing: 4.0
 
-        Label{
+        mod.widgets.ShadLabel{
             draw_text.color: (shad_theme.color_primary)
             draw_text.text_style.font_size: 16
             text: "Billing Settings"

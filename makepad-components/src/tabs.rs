@@ -48,6 +48,12 @@ script_mod! {
         }
     }
 
+    mod.widgets.ShadTabsIndicator = SolidView{
+        width: Fill
+        height: 2
+        draw_bg.color: (shad_theme.color_primary)
+    }
+
     mod.widgets.ShadTabsContent = RoundedView{
         width: Fill
         height: Fit

@@ -20,7 +20,7 @@ gallery_static_page! {
                 text: "Skeletons should mimic the final layout geometry closely so loading states feel stable when the real content replaces them."
             }
 
-            RoundedView{
+            ShadSurface{
                 width: Fill
                 height: Fit
                 flow: Down
@@ -29,7 +29,6 @@ gallery_static_page! {
                 draw_bg +: {
                     color: (shad_theme.color_secondary)
                     border_size: 1.0
-                    border_radius: (shad_theme.radius)
                     border_color: (shad_theme.color_outline_border)
                 }
 
@@ -88,7 +87,7 @@ gallery_static_page! {
                         text: "For cards or detail panes, keep the same block rhythm the final content will use so the page does not jump when data resolves."
                     }
 
-                    RoundedView{
+                    ShadSurface{
                         width: Fill
                         height: Fit
                         flow: Down
@@ -97,7 +96,6 @@ gallery_static_page! {
                         draw_bg +: {
                             color: (shad_theme.color_background)
                             border_size: 1.0
-                            border_radius: (shad_theme.radius)
                             border_color: (shad_theme.color_outline_border)
                         }
 

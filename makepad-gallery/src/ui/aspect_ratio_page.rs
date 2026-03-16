@@ -18,7 +18,7 @@ gallery_static_page! {
             spacing: 6.0
 
             ShadFieldDescription{text: "ShadAspectRatio owns the frame dimensions. Give it a width or height and a ratio, then let the child fill that frame."}
-            ShadFieldDescription{text: "For media, wrap the child in a clipped rounded container and let the Image use an explicit fit mode. ImageFit.Biggest gives you a cover-style crop."}
+            ShadFieldDescription{text: "For media, wrap the child in a clipped rounded container and let ShadImage use an explicit fit mode. ImageFit.Biggest gives you a cover-style crop."}
             ShadFieldDescription{text: "Bound larger demos with a deliberate width. A fill-width hero technically works, but it overwhelms the page and weakens the component story."}
         }
 
@@ -37,20 +37,16 @@ gallery_static_page! {
                 width: 720
                 ratio: 1.7777777778
 
-                RoundedView{
+                ShadMediaFrame{
                     width: Fill
                     height: Fill
-                    flow: Overlay
-                    clip_x: true
-                    clip_y: true
                     draw_bg +: {
                         color: (shad_theme.color_secondary)
-                        border_radius: (shad_theme.radius)
                         border_size: 1.0
                         border_color: (shad_theme.color_outline_border)
                     }
 
-                    Image{
+                    ShadImage{
                         width: Fill
                         height: Fill
                         fit: ImageFit.Biggest
@@ -88,20 +84,16 @@ gallery_static_page! {
                     width: 180
                     ratio: 1.0
 
-                    RoundedView{
+                    ShadMediaFrame{
                         width: Fill
                         height: Fill
-                        flow: Overlay
-                        clip_x: true
-                        clip_y: true
                         draw_bg +: {
                             color: (shad_theme.color_secondary)
-                            border_radius: (shad_theme.radius)
                             border_size: 1.0
                             border_color: (shad_theme.color_outline_border)
                         }
 
-                        Image{
+                        ShadImage{
                             width: Fill
                             height: Fill
                             fit: ImageFit.Biggest
@@ -127,20 +119,16 @@ gallery_static_page! {
                     width: 220
                     ratio: 1.3333333333
 
-                    RoundedView{
+                    ShadMediaFrame{
                         width: Fill
                         height: Fill
-                        flow: Overlay
-                        clip_x: true
-                        clip_y: true
                         draw_bg +: {
                             color: (shad_theme.color_secondary)
-                            border_radius: (shad_theme.radius)
                             border_size: 1.0
                             border_color: (shad_theme.color_outline_border)
                         }
 
-                        Image{
+                        ShadImage{
                             width: Fill
                             height: Fill
                             fit: ImageFit.Biggest
@@ -166,20 +154,16 @@ gallery_static_page! {
                     width: 132
                     ratio: 0.5625
 
-                    RoundedView{
+                    ShadMediaFrame{
                         width: Fill
                         height: Fill
-                        flow: Overlay
-                        clip_x: true
-                        clip_y: true
                         draw_bg +: {
                             color: (shad_theme.color_secondary)
-                            border_radius: (shad_theme.radius)
                             border_size: 1.0
                             border_color: (shad_theme.color_outline_border)
                         }
 
-                        Image{
+                        ShadImage{
                             width: Fill
                             height: Fill
                             fit: ImageFit.Biggest
@@ -214,7 +198,7 @@ gallery_static_page! {
     action_flow: {
         mod.widgets.GalleryActionFlowStep{text: "1. Choose the ratio shell first. The parent page decides whether the frame should be 16:9, 4:3, 1:1, or something custom."}
         mod.widgets.GalleryActionFlowStep{text: "2. Give ShadAspectRatio one controlling dimension. Width-driven layouts are the most common for media cards and gallery rows."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Put a clipped child container inside it, then let the Image fill that container with an explicit fit mode such as ImageFit.Biggest."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Put a clipped child container inside it, then let ShadImage fill that container with an explicit fit mode such as ImageFit.Biggest."}
         mod.widgets.GalleryActionFlowStep{text: "4. Add borders, badges, or overlays on the child container instead of baking those concerns into the aspect-ratio primitive itself."}
     },
 }

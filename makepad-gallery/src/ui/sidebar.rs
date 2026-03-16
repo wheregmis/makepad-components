@@ -30,14 +30,9 @@ macro_rules! define_gallery_sidebar {
                     draw_text.text_style.font_size: 13
                 }
 
-                sidebar_theme_toggle := ShadButtonOutline{
-                    width: Fill
-                    text: "Light mode"
-                }
-
                 ShadSidebarSectionLabel{text: "Catalog"}
 
-                ScrollYView{
+                ShadScrollYView{
                     width: Fill
                     height: Fill
                     flow: Down

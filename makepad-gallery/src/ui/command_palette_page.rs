@@ -18,7 +18,7 @@ gallery_stateful_page_shell! {
             flow: Down
             spacing: 12.0
 
-            RoundedView{
+            ShadSurface{
                 width: Fill
                 height: Fit
                 flow: Down
@@ -27,7 +27,6 @@ gallery_stateful_page_shell! {
                 draw_bg +: {
                     color: (shad_theme.color_secondary)
                     border_size: 1.0
-                    border_radius: (shad_theme.radius)
                     border_color: (shad_theme.color_outline_border)
                 }
 

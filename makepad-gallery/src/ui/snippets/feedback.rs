@@ -63,7 +63,7 @@ pub const SKELETON_PREVIEW_CODE: &str = r#"View{
         }
     }
 
-    RoundedView{
+    ShadSurface{
         width: Fill
         height: Fit
         flow: Down
@@ -112,14 +112,14 @@ pub const SPINNER_PREVIEW_CODE: &str = r#"View{
 
     ShadSpinnerSm{}
 
-    Label{
+    ShadLabel{
         draw_text.color: (shad_theme.color_primary)
         draw_text.text_style.font_size: 11
         text: "Saving changes..."
     }
 }
 
-RoundedView{
+ShadSurfaceMuted{
     width: Fill
     height: Fit
     flow: Right
@@ -127,8 +127,6 @@ RoundedView{
     align: Align{y: 0.5}
     padding: Inset{left: 16, right: 16, top: 14, bottom: 14}
     draw_bg +: {
-        color: (shad_theme.color_muted)
-        border_radius: (shad_theme.radius)
         border_size: 1.0
         border_color: (shad_theme.color_outline_border)
     }

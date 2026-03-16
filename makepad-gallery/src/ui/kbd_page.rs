@@ -20,7 +20,7 @@ gallery_static_page! {
                 text: "Use Kbd chips anywhere you need shortcut copy: menu rows, dialog footers, onboarding hints, or command overlays."
             }
 
-            RoundedView{
+            ShadSurface{
                 width: Fill
                 height: Fit
                 flow: Down
@@ -29,7 +29,6 @@ gallery_static_page! {
                 draw_bg +: {
                     color: (shad_theme.color_secondary)
                     border_size: 1.0
-                    border_radius: (shad_theme.radius)
                     border_color: (shad_theme.color_outline_border)
                 }
 

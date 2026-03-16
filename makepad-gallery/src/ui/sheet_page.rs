@@ -26,7 +26,7 @@ gallery_stateful_page_shell! {
                 text: "No sheet open. Compare right and left for wider in-context panels, and top and bottom for lighter supporting flows."
             }
 
-            RoundedView{
+            ShadSurface{
                 width: Fill
                 height: Fit
                 flow: Down
@@ -35,7 +35,6 @@ gallery_stateful_page_shell! {
                 draw_bg +: {
                     color: (shad_theme.color_secondary)
                     border_size: 1.0
-                    border_radius: (shad_theme.radius)
                     border_color: (shad_theme.color_outline_border)
                 }
 
@@ -68,7 +67,7 @@ gallery_stateful_page_shell! {
                         flow: Right
                         spacing: 12.0
 
-                        RoundedView{
+                        ShadSurface{
                             width: Fill
                             height: Fit
                             flow: Down
@@ -77,7 +76,6 @@ gallery_stateful_page_shell! {
                             draw_bg +: {
                                 color: (shad_theme.color_background)
                                 border_size: 1.0
-                                border_radius: (shad_theme.radius)
                                 border_color: (shad_theme.color_outline_border)
                             }
 
@@ -89,7 +87,7 @@ gallery_stateful_page_shell! {
                             open_right_sheet_btn := ShadButton{text: "Open editor"}
                         }
 
-                        RoundedView{
+                        ShadSurface{
                             width: Fill
                             height: Fit
                             flow: Down
@@ -98,7 +96,6 @@ gallery_stateful_page_shell! {
                             draw_bg +: {
                                 color: (shad_theme.color_background)
                                 border_size: 1.0
-                                border_radius: (shad_theme.radius)
                                 border_color: (shad_theme.color_outline_border)
                             }
 
@@ -117,7 +114,7 @@ gallery_stateful_page_shell! {
                         flow: Right
                         spacing: 12.0
 
-                        RoundedView{
+                        ShadSurface{
                             width: Fill
                             height: Fit
                             flow: Down
@@ -126,7 +123,6 @@ gallery_stateful_page_shell! {
                             draw_bg +: {
                                 color: (shad_theme.color_background)
                                 border_size: 1.0
-                                border_radius: (shad_theme.radius)
                                 border_color: (shad_theme.color_outline_border)
                             }
 
@@ -138,7 +134,7 @@ gallery_stateful_page_shell! {
                             open_top_sheet_btn := ShadButtonOutline{text: "Open filters"}
                         }
 
-                        RoundedView{
+                        ShadSurface{
                             width: Fill
                             height: Fit
                             flow: Down
@@ -147,7 +143,6 @@ gallery_stateful_page_shell! {
                             draw_bg +: {
                                 color: (shad_theme.color_background)
                                 border_size: 1.0
-                                border_radius: (shad_theme.radius)
                                 border_color: (shad_theme.color_outline_border)
                             }
 

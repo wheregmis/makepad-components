@@ -26,15 +26,13 @@ gallery_static_page! {
 
         ShadSectionHeader{ text: "Default Trail" }
 
-        RoundedView{
+        ShadSurfaceMuted{
             width: Fill
             height: Fit
             flow: Down
             spacing: 10.0
             padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
             draw_bg +: {
-                color: (shad_theme.color_muted)
-                border_radius: (shad_theme.radius)
                 border_size: 1.0
                 border_color: (shad_theme.color_outline_border)
             }
@@ -53,7 +51,7 @@ gallery_static_page! {
                 flow: Down
                 spacing: 4.0
 
-                Label{
+                ShadLabel{
                     draw_text.color: (shad_theme.color_primary)
                     draw_text.text_style.font_size: 16
                     text: "Billing Settings"
@@ -68,15 +66,13 @@ gallery_static_page! {
 
         ShadSectionHeader{ text: "Collapsed / Ellipsis" }
 
-        RoundedView{
+        ShadSurfaceMuted{
             width: Fill
             height: Fit
             flow: Down
             spacing: 10.0
             padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
             draw_bg +: {
-                color: (shad_theme.color_muted)
-                border_radius: (shad_theme.radius)
                 border_size: 1.0
                 border_color: (shad_theme.color_outline_border)
             }
@@ -97,7 +93,7 @@ gallery_static_page! {
                 flow: Down
                 spacing: 4.0
 
-                Label{
+                ShadLabel{
                     draw_text.color: (shad_theme.color_primary)
                     draw_text.text_style.font_size: 16
                     text: "Archived Invoice #2048"

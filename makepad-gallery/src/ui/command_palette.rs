@@ -15,7 +15,7 @@ script_mod! {
         height: Fit
         flow: Down
 
-        header := Label{
+        header := ShadSectionHeader{
             margin: Inset{left: 12, right: 12, top: 8, bottom: 4}
             visible: false
             draw_text.color: (shad_theme.color_muted_foreground)
@@ -23,7 +23,7 @@ script_mod! {
             text: "Section"
         }
 
-        row := RoundedView{
+        row := ShadSurface{
             width: Fill
             height: 44
             flow: Right
@@ -33,6 +33,7 @@ script_mod! {
             draw_bg +: {
                 color: #0000
                 border_radius: 10.0
+                border_size: 0.0
             }
 
             button := ShadButtonGhost{
@@ -50,7 +51,7 @@ script_mod! {
                 draw_text.text_style.font_size: 13
             }
 
-            shortcut := Label{
+            shortcut := ShadSectionHeader{
                 width: Fit
                 draw_text.color: (shad_theme.color_muted_foreground)
                 draw_text.text_style.font_size: 10
@@ -74,7 +75,7 @@ script_mod! {
                 width: 620
                 height: Fit
 
-                panel := RoundedView{
+                panel := ShadSurface{
                     width: Fill
                     height: Fit
                     flow: Down
@@ -88,7 +89,7 @@ script_mod! {
                         border_color: (shad_theme.color_outline_border)
                     }
 
-                    search_shell := RoundedView{
+                    search_shell := ShadSurface{
                         width: Fill
                         height: Fit
                         flow: Right
@@ -144,13 +145,13 @@ script_mod! {
                             spacing: 6.0
                             visible: false
 
-                            empty_title := Label{
+                            empty_title := ShadLabel{
                                 draw_text.color: (shad_theme.color_primary)
                                 draw_text.text_style.font_size: 13
                                 text: "No commands found"
                             }
 
-                            empty_copy := Label{
+                            empty_copy := ShadFieldDescription{
                                 draw_text.color: (shad_theme.color_muted_foreground)
                                 draw_text.text_style.font_size: 11
                                 text: "Try a different name like button, dialog, or input."
@@ -166,21 +167,21 @@ script_mod! {
                         margin: Inset{top: 4}
 
                         ShadKbd{ label := ShadKbdLabel{text: "Enter"} }
-                        Label{
+                        ShadSectionHeader{
                             draw_text.color: (shad_theme.color_muted_foreground)
                             draw_text.text_style.font_size: 10
                             text: "Open"
                         }
 
                         ShadKbd{ label := ShadKbdLabel{text: "Esc"} }
-                        Label{
+                        ShadSectionHeader{
                             draw_text.color: (shad_theme.color_muted_foreground)
                             draw_text.text_style.font_size: 10
                             text: "Close"
                         }
 
                         ShadKbd{ label := ShadKbdLabel{text: "Up/Down"} }
-                        Label{
+                        ShadSectionHeader{
                             draw_text.color: (shad_theme.color_muted_foreground)
                             draw_text.text_style.font_size: 10
                             text: "Move"

@@ -40,15 +40,13 @@ macro_rules! icon_gallery_page_generated {
                     text: "Showing all generated icons."
                 }
 
-                usage_card := RoundedView{
+                usage_card := ShadSurfaceMuted{
                     width: Fill
                     height: Fit
                     flow: Down
                     spacing: 8.0
                     padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
                     draw_bg +: {
-                        color: (shad_theme.color_muted)
-                        border_radius: (shad_theme.radius)
                         border_size: 1.0
                         border_color: (shad_theme.color_outline_border)
                     }

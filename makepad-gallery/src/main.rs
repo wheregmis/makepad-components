@@ -84,22 +84,11 @@ impl App {
             .set_visible(cx, show_close);
     }
 
-    fn sync_theme_toggle_labels(&self, cx: &mut Cx) {
-        let button_text = if self.is_light_theme {
-            "Dark mode"
-        } else {
-            "Light mode"
-        };
-        self.ui
-            .button(cx, ids!(sidebar_theme_toggle))
-            .set_text(cx, button_text);
-        self.ui
-            .button(cx, ids!(mobile_theme_toggle))
-            .set_text(cx, button_text);
-    }
-
     fn sync_page_metadata(&self, cx: &mut Cx) {
         if let Some(entry) = catalog::entry_for_page(self.current_page) {
+            self.ui
+                .label(cx, ids!(desktop_page_label))
+                .set_text(cx, entry.title);
             self.ui
                 .label(cx, ids!(mobile_page_label))
                 .set_text(cx, entry.title);
@@ -117,7 +106,6 @@ impl App {
                 value,
             );
         });
-        self.sync_theme_toggle_labels(cx);
         self.apply_responsive_visibility(cx);
         self.set_current_page(cx, self.current_page);
         self.ui.redraw(cx);
@@ -128,7 +116,15 @@ impl App {
         self.reload_ui_for_theme(cx);
     }
 
+    fn queue_theme_change(&mut self, cx: &mut Cx, is_light_theme: bool) {
+        self.pending_theme = Some(is_light_theme);
+        self.theme_reload_next_frame = cx.new_next_frame();
+    }
+
     fn apply_responsive_visibility(&mut self, cx: &mut Cx) {
+        self.ui
+            .view(cx, ids!(desktop_header))
+            .set_visible(cx, !self.is_small_screen);
         self.ui
             .view(cx, ids!(mobile_header))
             .set_visible(cx, self.is_small_screen);
@@ -172,6 +168,10 @@ pub struct App {
     is_light_theme: bool,
     #[rust]
     current_page: LiveId,
+    #[rust]
+    pending_theme: Option<bool>,
+    #[rust]
+    theme_reload_next_frame: NextFrame,
 }
 
 impl MatchEvent for App {
@@ -201,14 +201,14 @@ impl MatchEvent for App {
         }
         if self
             .ui
-            .button(cx, ids!(sidebar_theme_toggle))
+            .button(cx, ids!(desktop_theme_toggle))
             .clicked(actions)
             || self
                 .ui
                 .button(cx, ids!(mobile_theme_toggle))
                 .clicked(actions)
         {
-            self.set_theme(cx, !self.is_light_theme);
+            self.queue_theme_change(cx, !self.is_light_theme);
         }
 
         self.handle_sidebar_navigation(cx, actions);
@@ -233,9 +233,19 @@ impl AppMain for App {
                 self.sidebar_open = true;
                 self.current_page = catalog::default_page();
                 self.is_light_theme = false;
-                self.sync_theme_toggle_labels(cx);
+                self.pending_theme = None;
+                self.theme_reload_next_frame = NextFrame::default();
                 self.apply_responsive_visibility(cx);
                 self.set_current_page(cx, self.current_page);
+            }
+            Event::NextFrame(_) => {
+                if self.theme_reload_next_frame.is_event(event).is_some() {
+                    self.theme_reload_next_frame = NextFrame::default();
+                    if let Some(is_light_theme) = self.pending_theme.take() {
+                        self.set_theme(cx, is_light_theme);
+                        return;
+                    }
+                }
             }
             Event::MacosMenuCommand(command) => {
                 if *command == live_id!(command_palette_menu) {

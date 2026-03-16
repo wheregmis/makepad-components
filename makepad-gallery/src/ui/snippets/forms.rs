@@ -166,7 +166,7 @@ pub const LABEL_PREVIEW_CODE: &str = r#"View{
         flow: Right
         spacing: 12.0
 
-        RoundedView{
+        ShadSurface{
             width: 248
             height: Fit
             flow: Down
@@ -177,7 +177,7 @@ pub const LABEL_PREVIEW_CODE: &str = r#"View{
             ShadFieldDescription{text: "Pro workspace with annual billing."}
         }
 
-        RoundedView{
+        ShadSurface{
             width: 248
             height: Fit
             flow: Down

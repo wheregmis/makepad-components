@@ -20,11 +20,7 @@ gallery_stateful_page_shell! {
                     spacing: 4.0
 
                     tabs_overview_trigger := ShadTabsTrigger{text: "Overview"}
-                    tabs_overview_indicator := SolidView{
-                        width: Fill
-                        height: 2
-                        draw_bg.color: (shad_theme.color_primary)
-                    }
+                    tabs_overview_indicator := ShadTabsIndicator{}
                 }
 
                 usage_group := View{
@@ -34,11 +30,8 @@ gallery_stateful_page_shell! {
                     spacing: 4.0
 
                     tabs_usage_trigger := ShadTabsTrigger{text: "Usage"}
-                    tabs_usage_indicator := SolidView{
-                        width: Fill
-                        height: 2
+                    tabs_usage_indicator := ShadTabsIndicator{
                         visible: false
-                        draw_bg.color: (shad_theme.color_primary)
                     }
                 }
 
@@ -49,11 +42,8 @@ gallery_stateful_page_shell! {
                     spacing: 4.0
 
                     tabs_settings_trigger := ShadTabsTrigger{text: "Settings"}
-                    tabs_settings_indicator := SolidView{
-                        width: Fill
-                        height: 2
+                    tabs_settings_indicator := ShadTabsIndicator{
                         visible: false
-                        draw_bg.color: (shad_theme.color_primary)
                     }
                 }
             }

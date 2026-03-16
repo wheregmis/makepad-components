@@ -11,15 +11,13 @@ gallery_static_page! {
     preview: {
         ShadSectionHeader{ text: "In Context" }
 
-        RoundedView{
+        ShadSurfaceMuted{
             width: Fill
             height: Fit
             flow: Down
             spacing: 14.0
             padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
             draw_bg +: {
-                color: (shad_theme.color_muted)
-                border_radius: (shad_theme.radius)
                 border_size: 1.0
                 border_color: (shad_theme.color_outline_border)
             }
@@ -119,15 +117,13 @@ gallery_static_page! {
 
         ShadSectionHeader{ text: "Variants" }
 
-        RoundedView{
+        ShadSurfaceMuted{
             width: Fill
             height: Fit
             flow: Down
             spacing: 12.0
             padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
             draw_bg +: {
-                color: (shad_theme.color_muted)
-                border_radius: (shad_theme.radius)
                 border_size: 1.0
                 border_color: (shad_theme.color_outline_border)
             }

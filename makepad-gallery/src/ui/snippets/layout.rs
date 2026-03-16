@@ -3,19 +3,16 @@ ShadAspectRatio{
     width: 320
     ratio: 1.7777777778
 
-    RoundedView{
+    ShadMediaFrame{
         width: Fill
         height: Fill
-        clip_x: true
-        clip_y: true
         draw_bg +: {
             color: (shad_theme.color_secondary)
-            border_radius: (shad_theme.radius)
             border_size: 1.0
             border_color: (shad_theme.color_outline_border)
         }
 
-        Image{
+        ShadImage{
             width: Fill
             height: Fill
             fit: ImageFit.Biggest

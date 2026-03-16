@@ -11,13 +11,14 @@ script_mod! {
         height: Fit
         code: ""
 
-        container := SolidView{
+        container := ShadSurfaceMuted{
             width: Fill
             height: Fit
             padding: Inset{top: 12, right: 12, bottom: 12, left: 12}
             draw_bg +: {
                 color: (shad_theme.color_muted)
                 border_radius: (shad_theme.radius)
+                border_size: 0.0
             }
 
             code_view := CodeView{
@@ -34,15 +35,13 @@ script_mod! {
         width: Fill
     }
 
-    mod.widgets.GalleryActionFlow = RoundedView{
+    mod.widgets.GalleryActionFlow = ShadSurfaceMuted{
         width: Fill
         height: Fit
         flow: Down
         spacing: 8.0
         padding: Inset{top: 14, right: 14, bottom: 14, left: 14}
         draw_bg +: {
-            color: (shad_theme.color_muted)
-            border_radius: (shad_theme.radius)
             border_size: 1.0
             border_color: (shad_theme.color_outline_border)
         }

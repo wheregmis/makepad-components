@@ -1,7 +1,7 @@
 pub const CONTEXT_MENU_PREVIEW_CODE: &str = r#"ShadContextMenu{
     labels: ["Open" "Duplicate" "Share" "Delete"]
 
-    RoundedView{
+    ShadSurface{
         width: 360
         height: Fit
         flow: Down
@@ -10,7 +10,6 @@ pub const CONTEXT_MENU_PREVIEW_CODE: &str = r#"ShadContextMenu{
         draw_bg +: {
             color: (shad_theme.color_secondary)
             border_size: 1.0
-            border_radius: (shad_theme.radius)
             border_color: (shad_theme.color_outline_border)
         }
 

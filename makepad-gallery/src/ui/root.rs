@@ -28,6 +28,27 @@ macro_rules! define_gallery_root {
             use mod.draw.KeyCode
             use mod.widgets.*
 
+            mod.widgets.GalleryThemeToggle = ButtonFlatIcon{
+                width: 36
+                height: 36
+                icon_walk: Walk{width: 16, height: 16}
+                draw_icon.svg: crate_resource("self://resources/icons/sun-moon.svg")
+                draw_icon.color: (shad_theme.color_primary)
+
+                draw_bg +: {
+                    color: #0000
+                    color_hover: (shad_theme.color_ghost_hover)
+                    color_down: (shad_theme.color_ghost_down)
+                    color_focus: (shad_theme.color_ghost_hover)
+                    border_size: 1.0
+                    border_radius: (shad_theme.radius)
+                    border_color: (shad_theme.color_outline_border)
+                    border_color_hover: (shad_theme.color_outline_border_hover)
+                    border_color_down: (shad_theme.color_outline_border_down)
+                    border_color_focus: (shad_theme.color_outline_border_hover)
+                }
+            }
+
             mod.widgets.GalleryContentFlip = RouterWidget{
                 width: Fill
                 height: Fill
@@ -45,67 +66,124 @@ macro_rules! define_gallery_root {
                 )*
             }
 
+            mod.widgets.GalleryDesktopHeader = View{
+                width: Fill
+                height: Fit
+                flow: Down
+
+                header_bar := View{
+                    width: Fill
+                    height: Fit
+                    flow: Right
+                    align: Align{y: 0.5}
+                    padding: Inset{left: 24, right: 24, top: 16, bottom: 14}
+                    spacing: 16.0
+                    draw_bg.color: (shad_theme.color_background)
+
+                    desktop_header_meta := View{
+                        width: Fit
+                        height: Fit
+                        flow: Down
+                        spacing: 4.0
+
+                        desktop_header_caption := ShadSectionHeader{
+                            text: "Makepad Components Gallery"
+                        }
+
+                        desktop_page_label := ShadLabel{
+                            text: "Components"
+                            draw_text.text_style.font_size: 13
+                        }
+                    }
+
+                    View{
+                        width: Fill
+                        height: Fit
+                    }
+
+                    desktop_theme_toggle := mod.widgets.GalleryThemeToggle{}
+                }
+
+                ShadSeparator{}
+            }
+
             mod.widgets.GalleryMobileHeader = View{
                 width: Fill
                 height: Fit
                 visible: false
-                flow: Right
-                align: Align{y: 0.5}
-                padding: Inset{left: 16, right: 16, top: 12, bottom: 12}
-                spacing: 12.0
-                draw_bg.color: (shad_theme.color_background)
+                flow: Down
 
-                mobile_sidebar_toggle := View{
-                    width: 36
-                    height: 36
-                    flow: Overlay
-
-                    mobile_sidebar_menu_button := IconButtonMenu{
-                        width: 36
-                        height: 36
-                        draw_bg +: {
-                            color: #0000
-                            color_hover: (shad_theme.color_ghost_hover)
-                            color_down: (shad_theme.color_ghost_down)
-                            color_focus: (shad_theme.color_ghost_hover)
-                            border_size: 0.0
-                            border_radius: (shad_theme.radius)
-                            border_color: #0000
-                        }
-                        draw_icon.color: (shad_theme.color_primary)
-                    }
-
-                    mobile_sidebar_close_button := IconButtonX{
-                        visible: false
-                        width: 36
-                        height: 36
-                        draw_bg +: {
-                            color: #0000
-                            color_hover: (shad_theme.color_ghost_hover)
-                            color_down: (shad_theme.color_ghost_down)
-                            color_focus: (shad_theme.color_ghost_hover)
-                            border_size: 0.0
-                            border_radius: (shad_theme.radius)
-                            border_color: #0000
-                        }
-                        draw_icon.color: (shad_theme.color_primary)
-                    }
-                }
-
-                mobile_page_label := ShadLabel{
-                    text: "Components"
-                    draw_text.text_style.font_size: 11
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                }
-
-                View{
+                header_bar := View{
                     width: Fill
                     height: Fit
+                    flow: Right
+                    align: Align{y: 0.5}
+                    padding: Inset{left: 16, right: 16, top: 12, bottom: 12}
+                    spacing: 12.0
+                    draw_bg.color: (shad_theme.color_background)
+
+                    mobile_sidebar_toggle := View{
+                        width: 36
+                        height: 36
+                        flow: Overlay
+
+                        mobile_sidebar_menu_button := IconButtonMenu{
+                            width: 36
+                            height: 36
+                            draw_bg +: {
+                                color: #0000
+                                color_hover: (shad_theme.color_ghost_hover)
+                                color_down: (shad_theme.color_ghost_down)
+                                color_focus: (shad_theme.color_ghost_hover)
+                                border_size: 0.0
+                                border_radius: (shad_theme.radius)
+                                border_color: #0000
+                            }
+                            draw_icon.color: (shad_theme.color_primary)
+                        }
+
+                        mobile_sidebar_close_button := IconButtonX{
+                            visible: false
+                            width: 36
+                            height: 36
+                            draw_bg +: {
+                                color: #0000
+                                color_hover: (shad_theme.color_ghost_hover)
+                                color_down: (shad_theme.color_ghost_down)
+                                color_focus: (shad_theme.color_ghost_hover)
+                                border_size: 0.0
+                                border_radius: (shad_theme.radius)
+                                border_color: #0000
+                            }
+                            draw_icon.color: (shad_theme.color_primary)
+                        }
+                    }
+
+                    mobile_header_meta := View{
+                        width: Fit
+                        height: Fit
+                        flow: Down
+                        spacing: 2.0
+
+                        mobile_header_caption := ShadSectionHeader{
+                            text: "Gallery"
+                        }
+
+                        mobile_page_label := ShadLabel{
+                            text: "Components"
+                            draw_text.text_style.font_size: 12
+                        }
+                    }
+
+                    View{
+                        width: Fill
+                        height: Fit
+                    }
+
+                    mobile_theme_toggle := mod.widgets.GalleryThemeToggle{}
                 }
 
-                mobile_theme_toggle := ShadButtonOutline{
-                    text: "Light mode"
-                }
+                ShadSeparator{}
             }
 
             mod.widgets.GalleryMainContent = View{
@@ -113,6 +191,7 @@ macro_rules! define_gallery_root {
                 height: Fill
                 flow: Down
 
+                desktop_header := mod.widgets.GalleryDesktopHeader{}
                 mobile_header := mod.widgets.GalleryMobileHeader{}
                 content_flip := mod.widgets.GalleryContentFlip{}
             }
