@@ -113,13 +113,6 @@ pub struct GalleryIconGalleryPage {
 }
 
 impl GalleryIconGalleryPage {
-    fn default_entry_index() -> usize {
-        ICON_GALLERY_ENTRIES
-            .iter()
-            .position(|entry| entry.widget_name == "IconSearch")
-            .unwrap_or(0)
-    }
-
     fn normalize_query(query: &str) -> String {
         query.trim().to_ascii_lowercase()
     }
@@ -140,6 +133,26 @@ impl GalleryIconGalleryPage {
         format!(
             "{widget_name}{{\n    icon_walk: Walk{{width: 18, height: 18}}\n    draw_icon.color: (shad_theme.color_primary)\n}}\n"
         )
+    }
+
+    fn sync_empty_usage_preview(&self, cx: &mut Cx, query: &str) {
+        self.view
+            .label(cx, ids!(icon_usage_title))
+            .set_text(cx, "No matching icon");
+        self.view
+            .label(cx, ids!(icon_usage_description))
+            .set_text(
+                cx,
+                &format!(
+                    "No generated icon matched \"{query}\". Clear or broaden the search to restore the usage snippet."
+                ),
+            );
+        self.view
+            .widget(cx, ids!(icon_usage_snippet.container.code_view))
+            .set_text(
+                cx,
+                "// No icon snippet available while the current search has no matches.\n",
+            );
     }
 
     fn sync_usage_preview(&self, cx: &mut Cx, entry: &IconGalleryEntry) {
@@ -249,15 +262,21 @@ impl GalleryIconGalleryPage {
             changed = true;
         }
 
-        let target_entry_index = if query.is_empty() {
-            Self::default_entry_index()
-        } else {
-            first_match_index.unwrap_or(Self::default_entry_index())
-        };
-        if self.usage_entry_cache != Some(target_entry_index) {
-            self.usage_entry_cache = Some(target_entry_index);
-            self.sync_usage_preview(cx, &ICON_GALLERY_ENTRIES[target_entry_index]);
-            changed = true;
+        match first_match_index {
+            Some(target_entry_index) => {
+                if self.usage_entry_cache != Some(target_entry_index) {
+                    self.usage_entry_cache = Some(target_entry_index);
+                    self.sync_usage_preview(cx, &ICON_GALLERY_ENTRIES[target_entry_index]);
+                    changed = true;
+                }
+            }
+            None => {
+                if self.usage_entry_cache.is_some() || !query.is_empty() {
+                    self.usage_entry_cache = None;
+                    self.sync_empty_usage_preview(cx, &display_query);
+                    changed = true;
+                }
+            }
         }
 
         if changed {
