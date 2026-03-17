@@ -93,6 +93,53 @@ impl App {
                 .label(cx, ids!(mobile_page_label))
                 .set_text(cx, entry.title);
         }
+        self.sync_sidebar_selection(cx);
+    }
+
+    fn sync_sidebar_selection(&self, cx: &mut Cx) {
+        fn theme_color(cx: &mut Cx, key: LiveId) -> Option<Vec4f> {
+            cx.with_vm(|vm| {
+                let mod_obj = vm.module(id!(mod));
+                let widgets = vm.bx.heap.value(mod_obj, id!(widgets).into(), NoTrap);
+                let widgets_obj = widgets.as_object()?;
+                let theme = vm
+                    .bx
+                    .heap
+                    .value(widgets_obj, id!(shad_theme).into(), NoTrap);
+                let theme_obj = theme.as_object()?;
+                vm.bx
+                    .heap
+                    .value(theme_obj, key.into(), NoTrap)
+                    .as_color()
+                    .map(Vec4f::from_u32)
+            })
+        }
+
+        let active_bg = theme_color(cx, id!(color_secondary_hover)).unwrap_or(Vec4f::all(0.0));
+        let active_bg_down = theme_color(cx, id!(color_secondary_down)).unwrap_or(active_bg);
+        let active_text = theme_color(cx, id!(color_primary)).unwrap_or(Vec4f::all(1.0));
+        let inactive_bg_hover = theme_color(cx, id!(color_ghost_hover)).unwrap_or(Vec4f::all(0.0));
+        let inactive_bg_down = theme_color(cx, id!(color_ghost_down)).unwrap_or(active_bg_down);
+        let inactive_text = theme_color(cx, id!(color_muted_foreground)).unwrap_or(Vec4f::all(1.0));
+
+        for entry in catalog::entries() {
+            let is_active = entry.page == self.current_page;
+            let mut item = self.ui.button(cx, &[entry.sidebar_id]);
+            script_apply_eval!(cx, item, {
+                draw_bg +: {
+                    color: #(if is_active { active_bg } else { Vec4f::all(0.0) })
+                    color_hover: #(if is_active { active_bg } else { inactive_bg_hover })
+                    color_down: #(if is_active { active_bg_down } else { inactive_bg_down })
+                    color_focus: #(if is_active { active_bg } else { Vec4f::all(0.0) })
+                }
+                draw_text +: {
+                    color: #(if is_active { active_text } else { inactive_text })
+                    color_hover: #(active_text)
+                    color_down: #(active_text)
+                    color_focus: #(if is_active { active_text } else { inactive_text })
+                }
+            });
+        }
     }
 
     fn reload_ui_for_theme(&mut self, cx: &mut Cx) {
