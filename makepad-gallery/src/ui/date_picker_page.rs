@@ -32,12 +32,12 @@ gallery_stateful_page_shell! {
             }
 
             date_picker_clear_btn := ShadButtonGhost{
-                text: "Clear"
+                text: "Clear date"
             }
         }
 
         date_picker_status := ShadFieldDescription{
-            text: "Selected: 2026-03-13. Picker is closed."
+            text: "Selected date: 2026-03-13. Picker is closed."
         }
     },
     action_flow: {
@@ -48,7 +48,7 @@ gallery_stateful_page_shell! {
     },
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct GalleryDatePickerPage {
     #[source]
     source: ScriptObjectRef,
@@ -57,17 +57,33 @@ pub struct GalleryDatePickerPage {
 }
 
 impl GalleryDatePickerPage {
-    fn sync_status(&self, cx: &mut Cx) {
+    fn sync_ui(&self, cx: &mut Cx) {
         let picker = self.view.shad_date_picker(cx, ids!(date_picker_demo));
         let selected = picker
             .value()
             .map(|value| value.format_iso())
-            .unwrap_or_else(|| "None".to_string());
+            .map(|value| format!("Selected date: {value}."))
+            .unwrap_or_else(|| "No date selected.".to_string());
         let open_state = if picker.is_open() { "open" } else { "closed" };
+        self.view
+            .button(cx, ids!(date_picker_clear_btn))
+            .set_enabled(cx, picker.value().is_some());
         self.view.label(cx, ids!(date_picker_status)).set_text(
             cx,
-            &format!("Selected: {selected}. Picker is {open_state}."),
+            &format!("{selected} Picker is {open_state}."),
         );
+    }
+}
+
+impl ScriptHook for GalleryDatePickerPage {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| self.sync_ui(cx));
     }
 }
 
@@ -84,7 +100,7 @@ impl Widget for GalleryDatePickerPage {
                 .clicked(actions)
             {
                 picker.set_open(cx, true);
-                self.sync_status(cx);
+                self.sync_ui(cx);
                 return;
             }
             if self
@@ -100,7 +116,7 @@ impl Widget for GalleryDatePickerPage {
                         day: 1,
                     }),
                 );
-                self.sync_status(cx);
+                self.sync_ui(cx);
                 return;
             }
             if self
@@ -109,12 +125,12 @@ impl Widget for GalleryDatePickerPage {
                 .clicked(actions)
             {
                 picker.clear(cx);
-                self.sync_status(cx);
+                self.sync_ui(cx);
                 return;
             }
 
             if picker.changed(actions).is_some() || picker.open_changed(actions).is_some() {
-                self.sync_status(cx);
+                self.sync_ui(cx);
             }
         }
     }
