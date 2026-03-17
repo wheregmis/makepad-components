@@ -49,6 +49,20 @@ macro_rules! define_gallery_root {
                 }
             }
 
+            mod.widgets.GalleryCommandPaletteHeaderTrigger = View{
+                width: Fit
+                height: Fit
+                flow: Right
+                align: Align{y: 0.5}
+                spacing: 8.0
+
+                desktop_command_palette_trigger := ShadButtonOutline{text: "Search components"}
+
+                ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
+                ShadKbdSeparator{}
+                ShadKbd{ label := ShadKbdLabel{text: "K"} }
+            }
+
             mod.widgets.GalleryContentFlip = RouterWidget{
                 width: Fill
                 height: Fill
@@ -95,6 +109,8 @@ macro_rules! define_gallery_root {
                             draw_text.text_style.font_size: 13
                         }
                     }
+
+                    mod.widgets.GalleryCommandPaletteHeaderTrigger{}
 
                     View{
                         width: Fill
@@ -173,6 +189,10 @@ macro_rules! define_gallery_root {
                             text: "Components"
                             draw_text.text_style.font_size: 12
                         }
+                    }
+
+                    mobile_command_palette_trigger := ShadButtonGhost{
+                        text: "Search"
                     }
 
                     View{

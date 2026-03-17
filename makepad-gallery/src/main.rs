@@ -210,6 +210,17 @@ impl MatchEvent for App {
         {
             self.queue_theme_change(cx, !self.is_light_theme);
         }
+        if self
+            .ui
+            .button(cx, ids!(desktop_command_palette_trigger))
+            .clicked(actions)
+            || self
+                .ui
+                .button(cx, ids!(mobile_command_palette_trigger))
+                .clicked(actions)
+        {
+            self.open_command_palette(cx);
+        }
 
         self.handle_sidebar_navigation(cx, actions);
         if self
