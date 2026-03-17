@@ -63,6 +63,8 @@ pub struct ShadDatePicker {
 
     #[rust]
     value_date: Option<ShadDate>,
+    #[rust]
+    trigger_text_cache: String,
 
     #[action_data]
     #[rust]
@@ -100,15 +102,32 @@ impl ShadDatePicker {
         }
     }
 
-    fn sync_to_children(&mut self, cx: &mut Cx) {
+    fn sync_trigger_text(&mut self, cx: &mut Cx) {
+        let next_text = self.format_value();
+        if self.trigger_text_cache == next_text {
+            return;
+        }
         self.view
             .button(cx, ids!(popover.trigger))
-            .set_text(cx, &self.format_value());
+            .set_text(cx, &next_text);
+        self.trigger_text_cache = next_text;
+    }
+
+    fn sync_popover_open(&self, cx: &mut Cx) {
         let popover = self.view.shad_popover(cx, ids!(popover));
         popover.set_open(cx, self.open);
+    }
+
+    fn sync_calendar_value(&self, cx: &mut Cx) {
         if let Some(calendar) = self.calendar_ref(cx) {
             calendar.set_value(cx, self.value_date);
         }
+    }
+
+    fn sync_to_children(&mut self, cx: &mut Cx) {
+        self.sync_trigger_text(cx);
+        self.sync_popover_open(cx);
+        self.sync_calendar_value(cx);
     }
 
     fn emit_open_state(&self, cx: &mut Cx, open: bool) {
@@ -125,7 +144,8 @@ impl ShadDatePicker {
             return;
         }
         self.value_date = value;
-        self.sync_to_children(cx);
+        self.sync_trigger_text(cx);
+        self.sync_calendar_value(cx);
         if let Some(value) = value {
             emit_widget_action(
                 cx,
@@ -138,7 +158,8 @@ impl ShadDatePicker {
 
     pub fn clear(&mut self, cx: &mut Cx) {
         if self.value_date.take().is_some() {
-            self.sync_to_children(cx);
+            self.sync_trigger_text(cx);
+            self.sync_calendar_value(cx);
         }
     }
 
@@ -151,7 +172,7 @@ impl ShadDatePicker {
             return;
         }
         self.open = open;
-        self.sync_to_children(cx);
+        self.sync_popover_open(cx);
         self.emit_open_state(cx, open);
     }
 

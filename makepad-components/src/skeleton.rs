@@ -82,6 +82,14 @@ impl ShadSkeleton {
         self.animate && self.animation_fps > 0.0 && self.shimmer_speed > 0.0001
     }
 
+    fn is_area_visible(&self, cx: &Cx) -> bool {
+        if !self.area.is_valid(cx) {
+            return false;
+        }
+        let clipped = self.area.clipped_rect(cx);
+        clipped.size.x > 0.0 && clipped.size.y > 0.0
+    }
+
     fn sync_phase_to_shader(&mut self) {
         self.draw_bg.pad1 = self.phase;
     }
@@ -106,7 +114,7 @@ impl ScriptHook for ShadSkeleton {
 
 impl Widget for ShadSkeleton {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, _scope: &mut Scope) {
-        let animate = self.is_animating() && self.area.is_valid(cx);
+        let animate = self.is_animating() && self.is_area_visible(cx);
         match self
             .ticker
             .handle_event(cx, event, animate, self.animation_fps)
@@ -120,7 +128,8 @@ impl Widget for ShadSkeleton {
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, _scope: &mut Scope, walk: Walk) -> DrawStep {
-        self.ticker.ensure_started(cx, self.is_animating());
+        let should_tick = self.is_animating() && cx.walk_turtle_would_be_visible(walk);
+        self.ticker.ensure_started(cx, should_tick);
         self.sync_phase_to_shader();
 
         cx.begin_turtle(walk, self.layout);

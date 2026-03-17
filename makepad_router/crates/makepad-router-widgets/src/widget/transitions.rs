@@ -292,18 +292,24 @@ impl RouterWidget {
             pos: effect.abs_pos,
             size: rect.size,
         });
-        if force_redraw {
+        let should_draw_contents = if force_redraw {
             draw_list.begin_always(cx);
-        } else if draw_list.begin(cx, walk).is_not_redrawing() {
-            cx.walk_turtle(walk);
-            return;
-        }
+            true
+        } else {
+            !draw_list.begin(cx, walk).is_not_redrawing()
+        };
 
         let draw_list_id = draw_list.id();
         {
             let dl = &mut cx.cx.cx.draw_lists[draw_list_id];
             dl.draw_list_uniforms.view_shift = vec2(0.0, 0.0);
             dl.draw_list_uniforms.view_transform = effect.view_transform;
+        }
+
+        if !should_draw_contents {
+            // Reused draw-lists still need walk advancement and transform updates each frame.
+            cx.walk_turtle(walk);
+            return;
         }
 
         if let Some(widget) = route_widgets.get_mut(&route_id) {

@@ -1,7 +1,6 @@
 use makepad_widgets::popup_menu::{PopupMenu, PopupMenuAction};
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
-use std::{cell::RefCell, rc::Rc};
 
 script_mod! {
     use mod.prelude.widgets.*
@@ -64,11 +63,6 @@ script_mod! {
     }
 }
 
-#[derive(Default, Clone)]
-struct PopupMenuGlobal {
-    map: Rc<RefCell<ComponentMap<ScriptValue, PopupMenu>>>,
-}
-
 #[derive(Clone, Debug, Default)]
 pub enum ShadContextMenuAction {
     Changed(usize),
@@ -87,6 +81,8 @@ pub struct ShadContextMenu {
     labels: Vec<String>,
     #[live]
     popup_menu: ScriptValue,
+    #[rust]
+    popup_menu_state: Option<PopupMenu>,
 
     #[rust]
     is_active: bool,
@@ -107,19 +103,10 @@ impl ScriptHook for ShadContextMenu {
         _obj: ScriptValue,
     ) {
         if self.popup_menu.is_nil() {
+            self.popup_menu_state = None;
             return;
         }
-        vm.with_cx_mut(|cx| {
-            let global = cx.global::<PopupMenuGlobal>().clone();
-            let Ok(mut map) = global.map.try_borrow_mut() else {
-                return;
-            };
-
-            let popup_menu_val = self.popup_menu;
-            map.get_or_insert(cx, popup_menu_val, |cx| {
-                cx.with_vm(|vm| PopupMenu::script_from_value(vm, popup_menu_val))
-            });
-        });
+        self.popup_menu_state = Some(PopupMenu::script_from_value(vm, self.popup_menu));
     }
 }
 
@@ -154,12 +141,11 @@ impl Widget for ShadContextMenu {
         let uid = self.widget_uid();
 
         if self.is_active && !self.popup_menu.is_nil() {
-            let global = cx.global::<PopupMenuGlobal>().clone();
-            let mut map = global.map.borrow_mut();
-            let Some(menu) = map.get_mut(&self.popup_menu) else {
+            let mut close = false;
+            let mut close_for_outside_click = false;
+            let Some(menu) = self.popup_menu_state.as_mut() else {
                 return;
             };
-            let mut close = false;
             menu.handle_event_with(
                 cx,
                 event,
@@ -178,24 +164,18 @@ impl Widget for ShadContextMenu {
                     _ => (),
                 },
             );
-            if close {
-                self.close(cx);
+            if let Event::MouseDown(e) = event {
+                close_for_outside_click = !menu.menu_contains_pos(cx, e.abs)
+                    && !self.view.area().rect(cx).contains(e.abs);
             }
 
-            match event {
-                Event::MouseDown(e) => {
-                    if !menu.menu_contains_pos(cx, e.abs)
-                        && !self.view.area().rect(cx).contains(e.abs)
-                    {
-                        self.close(cx);
-                        return;
-                    }
-                }
-                Event::BackPressed { .. } => {
-                    self.close(cx);
-                    return;
-                }
-                _ => {}
+            if close || close_for_outside_click {
+                self.close(cx);
+                return;
+            }
+            if let Event::BackPressed { .. } = event {
+                self.close(cx);
+                return;
             }
         }
 
@@ -214,9 +194,7 @@ impl Widget for ShadContextMenu {
         self.view.draw_walk(cx, scope, walk)?;
 
         if self.is_active && !self.popup_menu.is_nil() {
-            let global = cx.global::<PopupMenuGlobal>().clone();
-            let mut map = global.map.borrow_mut();
-            let Some(popup_menu) = map.get_mut(&self.popup_menu) else {
+            let Some(popup_menu) = self.popup_menu_state.as_mut() else {
                 return DrawStep::done();
             };
 

@@ -20,7 +20,7 @@ impl RouterWidget {
                 state.from_route,
                 rect,
                 from_effect,
-                true,
+                false,
             );
 
             let to_effect =
@@ -33,7 +33,7 @@ impl RouterWidget {
                 state.to_route,
                 rect,
                 to_effect,
-                true,
+                false,
             );
         } else {
             let effect = Self::compute_effect(

@@ -5,6 +5,7 @@ use crate::models::table::{
 };
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
+use std::sync::Arc;
 
 script_mod! {
     use mod.prelude.widgets.*
@@ -47,7 +48,7 @@ script_mod! {
     }
 
     mod.widgets.ShadTableEmptyRow = View{
-        width: Fit
+        width: Fill
         height: 40
         flow: Right
         align: Align{x: 0.0, y: 0.5}
@@ -117,21 +118,12 @@ script_mod! {
 const DEFAULT_COLUMN_WIDTH: f64 = 160.0;
 const TABLE_ROW_HEIGHT: f64 = 40.0;
 
-fn replace_vec_contents_if_changed<T: Clone + PartialEq>(dst: &mut Vec<T>, src: &[T]) -> bool {
-    if dst.as_slice() == src {
+fn replace_arc_slice_if_changed<T>(dst: &mut Arc<[T]>, src: &Arc<[T]>) -> bool {
+    if Arc::ptr_eq(dst, src) {
         return false;
     }
-    // Optimization: avoid creating a brand new Vec on every visible-row data swap.
-    // Previously: `dst = src.to_vec()` allocated a fresh buffer and dropped the old one.
-    // Now: clear + extend reuses existing capacity, reducing allocator churn while scrolling.
-    dst.clear();
-    dst.extend_from_slice(src);
+    *dst = Arc::clone(src);
     true
-}
-
-fn replace_vec_contents<T: Clone>(dst: &mut Vec<T>, src: &[T]) {
-    dst.clear();
-    dst.extend_from_slice(src);
 }
 
 /// Ensures the table width buffer tracks the current column count while reusing allocations.
@@ -288,9 +280,9 @@ pub struct ShadTableRowView {
     #[rust]
     row_index: usize,
     #[rust]
-    cells: Vec<String>,
+    cells: Arc<[String]>,
     #[rust]
-    widths: Vec<f64>,
+    widths: Arc<[f64]>,
     #[rust]
     selected: bool,
     #[rust]
@@ -308,27 +300,21 @@ impl ShadTableRowView {
         &mut self,
         cx: &mut Cx,
         row_index: usize,
-        cells: &[String],
-        widths: &[f64],
+        cells: &Arc<[String]>,
+        widths: &Arc<[f64]>,
         total_width: f64,
         selected: bool,
         striped: bool,
     ) {
         let mut changed = false;
-        let row_changed = self.row_index != row_index;
-        if row_changed {
+        if self.row_index != row_index {
             self.row_index = row_index;
-            // Optimization: PortalList recycles row widgets for different row indices while scrolling.
-            // A changed row index means this widget now represents a different logical row, so its data
-            // must be refreshed anyway. Previously: we still compared `self.cells != cells` first,
-            // scanning the whole row before cloning.
-            // Now: for recycled rows, we skip that equality scan and just refresh the row buffer in-place.
-            replace_vec_contents(&mut self.cells, cells);
-            changed = true;
-        } else if replace_vec_contents_if_changed(&mut self.cells, cells) {
             changed = true;
         }
-        if replace_vec_contents_if_changed(&mut self.widths, widths) {
+        if replace_arc_slice_if_changed(&mut self.cells, cells) {
+            changed = true;
+        }
+        if replace_arc_slice_if_changed(&mut self.widths, widths) {
             changed = true;
         }
         if self.selected != selected {
@@ -438,11 +424,13 @@ pub struct ShadTable {
     virtual_total_rows: usize,
 
     #[rust]
-    rows_data: Vec<Vec<String>>,
+    rows_data: Vec<Arc<[String]>>,
     #[rust]
     virtual_window_start: usize,
     #[rust]
     resolved_widths: Vec<f64>,
+    #[rust]
+    resolved_widths_shared: Arc<[f64]>,
     #[rust]
     total_width: f64,
     #[rust]
@@ -478,11 +466,8 @@ impl ShadTable {
     const VIRTUAL_WINDOW_PRELOAD_MARGIN: usize = 8;
 
     fn draw_empty_row(&self, cx: &mut Cx2d, list: &mut PortalList, item_id: usize, label: &str) {
-        let mut item = list.item(cx, item_id, id!(Empty)).as_view();
+        let item = list.item(cx, item_id, id!(Empty)).as_view();
         item.label(cx, ids!(empty_label)).set_text(cx, label);
-        script_apply_eval!(cx, item, {
-            width: #(self.total_width)
-        });
         item.draw_all(cx, &mut Scope::empty());
     }
 
@@ -494,13 +479,13 @@ impl ShadTable {
         }
     }
 
-    fn row_for_index(&self, row_index: usize) -> Option<&[String]> {
+    fn row_for_index(&self, row_index: usize) -> Option<&Arc<[String]>> {
         if self.virtual_total_rows > 0 {
             let local_index =
                 virtual_window_index(row_index, self.virtual_window_start, self.rows_data.len())?;
-            self.rows_data.get(local_index).map(Vec::as_slice)
+            self.rows_data.get(local_index)
         } else {
-            self.rows_data.get(row_index).map(Vec::as_slice)
+            self.rows_data.get(row_index)
         }
     }
 
@@ -512,6 +497,9 @@ impl ShadTable {
             DEFAULT_COLUMN_WIDTH,
         );
         self.total_width = self.resolved_widths.iter().sum::<f64>() + 24.0;
+        if self.resolved_widths_shared.as_ref() != self.resolved_widths.as_slice() {
+            self.resolved_widths_shared = Arc::from(self.resolved_widths.as_slice());
+        }
         self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
 
         self.view
@@ -561,6 +549,7 @@ impl ShadTable {
         let row_count = self.data_row_count();
         let empty_rows = Self::empty_fill_rows(list, cx, row_count);
         let item_count = row_count + empty_rows;
+        let shared_widths = &self.resolved_widths_shared;
         list.set_item_range(cx, 0, item_count);
         while let Some(item_id) = list.next_visible_item(cx) {
             if item_id >= row_count {
@@ -578,7 +567,7 @@ impl ShadTable {
                     cx,
                     item_id,
                     row,
-                    &self.resolved_widths,
+                    shared_widths,
                     self.total_width,
                     self.selected_row == Some(item_id),
                     item_id & 1 == 1,
@@ -639,7 +628,7 @@ impl ShadTable {
     pub fn set_rows(&mut self, cx: &mut Cx, rows: Vec<Vec<String>>) {
         self.virtual_total_rows = 0;
         self.virtual_window_start = 0;
-        self.rows_data = rows;
+        self.rows_data = into_arc_rows(rows);
         self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
         self.sync_layout(cx);
         self.view.redraw(cx);
@@ -666,7 +655,7 @@ impl ShadTable {
             self.set_rows(cx, rows);
             return;
         }
-        self.rows_data = rows;
+        self.rows_data = into_arc_rows(rows);
         let row_count = self.data_row_count();
         let clamped_start = if row_count == 0 {
             0
@@ -852,7 +841,11 @@ impl ShadTableRef {
     }
 }
 
-fn parse_rows(vm: &mut ScriptVm, value: ScriptValue) -> Vec<Vec<String>> {
+fn into_arc_rows(rows: Vec<Vec<String>>) -> Vec<Arc<[String]>> {
+    rows.into_iter().map(Arc::<[String]>::from).collect()
+}
+
+fn parse_rows(vm: &mut ScriptVm, value: ScriptValue) -> Vec<Arc<[String]>> {
     let Some(obj) = value.as_object() else {
         return Vec::new();
     };
@@ -871,7 +864,7 @@ fn parse_rows(vm: &mut ScriptVm, value: ScriptValue) -> Vec<Vec<String>> {
                     row.push(value);
                 }
             });
-            rows.push(row);
+            rows.push(Arc::from(row));
         }
     });
     rows
@@ -911,66 +904,63 @@ fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
 
 #[cfg(test)]
 mod tests {
-    use super::{replace_vec_contents, replace_vec_contents_if_changed, sync_default_widths};
+    use super::{replace_arc_slice_if_changed, sync_default_widths};
     use std::hint::black_box;
+    use std::sync::Arc;
     use std::time::Instant;
 
     #[test]
-    fn replace_vec_contents_noop_when_equal() {
-        let mut dst = vec!["alpha".to_string(), "beta".to_string()];
-        assert!(!replace_vec_contents_if_changed(
-            &mut dst,
-            &["alpha".to_string(), "beta".to_string()]
-        ));
+    fn replace_arc_slice_noop_when_identical() {
+        let row: Arc<[String]> = Arc::from(vec!["alpha".to_string(), "beta".to_string()]);
+        let mut dst = Arc::clone(&row);
+        assert!(!replace_arc_slice_if_changed(&mut dst, &row));
+        assert!(Arc::ptr_eq(&dst, &row));
     }
 
     #[test]
-    fn replace_vec_contents_reuses_allocation() {
-        let mut dst = vec!["old".to_string(), "values".to_string()];
-        let baseline_capacity = dst.capacity();
-
-        assert!(replace_vec_contents_if_changed(
-            &mut dst,
-            &["new".to_string(), "row".to_string()]
-        ));
-        assert_eq!(dst, vec!["new".to_string(), "row".to_string()]);
-        assert_eq!(dst.capacity(), baseline_capacity);
+    fn replace_arc_slice_switches_reference() {
+        let mut dst: Arc<[String]> = Arc::from(vec!["old".to_string(), "values".to_string()]);
+        let src: Arc<[String]> = Arc::from(vec!["new".to_string(), "row".to_string()]);
+        assert!(replace_arc_slice_if_changed(&mut dst, &src));
+        assert!(Arc::ptr_eq(&dst, &src));
     }
 
     #[test]
-    fn replace_vec_contents_performance_comparison() {
+    fn replace_arc_slice_performance_comparison() {
         // Performance comparison helper: this prints timings for manual verification.
         // It intentionally does not assert wall-clock durations to avoid flaky CI failures.
         const BENCHMARK_ITERATIONS: usize = 50_000;
-        let source_a = vec!["A".to_string(), "B".to_string(), "C".to_string()];
-        let source_b = vec!["X".to_string(), "Y".to_string(), "Z".to_string()];
+        let source_a: Arc<[String]> =
+            Arc::from(vec!["A".to_string(), "B".to_string(), "C".to_string()]);
+        let source_b: Arc<[String]> =
+            Arc::from(vec!["X".to_string(), "Y".to_string(), "Z".to_string()]);
 
-        let mut old = source_b.clone();
+        let mut old = Arc::clone(&source_b);
         let old_start = Instant::now();
         for _ in 0..BENCHMARK_ITERATIONS {
-            // Previous row-change path: compare full row, then allocate a new Vec.
-            if old.as_slice() != source_a.as_slice() {
-                old = source_a.to_vec();
+            // Previous row-change path: compare full row, then clone all strings.
+            if old.as_ref() != source_a.as_ref() {
+                old = Arc::from(source_a.as_ref().to_vec());
             }
-            if old.as_slice() != source_b.as_slice() {
-                old = source_b.to_vec();
+            if old.as_ref() != source_b.as_ref() {
+                old = Arc::from(source_b.as_ref().to_vec());
             }
             black_box(&old);
         }
         let old_elapsed = old_start.elapsed();
 
-        let mut optimized = source_b.clone();
+        let mut optimized = Arc::clone(&source_b);
         let new_start = Instant::now();
         for _ in 0..BENCHMARK_ITERATIONS {
-            // Optimized row-change path: no row equality scan, reuse allocation.
-            replace_vec_contents(&mut optimized, &source_a);
-            replace_vec_contents(&mut optimized, &source_b);
+            // Optimized row-change path: pointer swaps only.
+            replace_arc_slice_if_changed(&mut optimized, &source_a);
+            replace_arc_slice_if_changed(&mut optimized, &source_b);
             black_box(&optimized);
         }
         let new_elapsed = new_start.elapsed();
 
         println!(
-            "replace_vec_contents_if_changed benchmark: old={old_elapsed:?}, new={new_elapsed:?}"
+            "replace_arc_slice_if_changed benchmark: old={old_elapsed:?}, new={new_elapsed:?}"
         );
     }
 

@@ -1,7 +1,10 @@
-pub fn resolved_column_count(headers: &[String], rows: &[Vec<String>]) -> usize {
+pub fn resolved_column_count<R>(headers: &[String], rows: &[R]) -> usize
+where
+    R: AsRef<[String]>,
+{
     headers
         .len()
-        .max(rows.iter().map(|row| row.len()).max().unwrap_or(0))
+        .max(rows.iter().map(|row| row.as_ref().len()).max().unwrap_or(0))
 }
 
 pub fn clamp_selected_row(selected_row: Option<usize>, row_count: usize) -> Option<usize> {

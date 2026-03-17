@@ -10,6 +10,7 @@ use crate::{
 };
 use makepad_draw::draw_list_2d::DrawListExt;
 use makepad_widgets::*;
+use std::collections::HashSet;
 
 mod actions;
 mod api;
@@ -257,6 +258,8 @@ pub struct RouterWidget {
     #[rust]
     child_routers: ComponentMap<LiveId, RouterWidgetRef>,
     #[rust]
+    child_router_scan_misses: HashSet<LiveId>,
+    #[rust]
     routes: RouterRouteMaps,
     #[rust]
     callbacks: RouterCallbacks,
@@ -330,7 +333,6 @@ impl RouterWidget {
         self.caches.nested_prefix_cache_epoch = 0;
         self.caches.nested_prefix_cache_path.clear();
         self.caches.nested_prefix_cache_result = None;
-        self.caches.child_router_scan_widget_count = 0;
         Ok(())
     }
 
@@ -373,6 +375,14 @@ impl RouterWidget {
             self.draw_debug_inspector(cx, rect);
         }
         DrawStep::done()
+    }
+
+    fn handle_active_route_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        if let Some(active) = self.routes.widgets.get_mut(&self.active_route) {
+            let actions = cx.capture_actions(|cx| active.handle_event(cx, event, scope));
+            self.handle_descendant_router_actions(cx, &actions);
+            cx.extend_actions(actions);
+        }
     }
 }
 
@@ -417,11 +427,7 @@ impl Widget for RouterWidget {
         }
 
         if event.requires_visibility() {
-            if let Some(active) = self.routes.widgets.get_mut(&self.active_route) {
-                let actions = cx.capture_actions(|cx| active.handle_event(cx, event, scope));
-                self.handle_descendant_router_actions(cx, &actions);
-                cx.extend_actions(actions);
-            }
+            self.handle_active_route_event(cx, event, scope);
 
             // Keep a short pointer-only grace window for the previous route so pressed/hover state
             // can settle after route swaps without exposing hidden routes to keyboard/focus traffic.
@@ -435,9 +441,8 @@ impl Widget for RouterWidget {
                 }
             }
         } else {
-            for (_route_id, route) in self.routes.widgets.iter() {
-                route.handle_event(cx, event, scope);
-            }
+            // Keep hidden pages cold for non-visibility events; dispatch only to the active page.
+            self.handle_active_route_event(cx, event, scope);
         }
 
         if self.pointer_cleanup.budget > 0 {

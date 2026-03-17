@@ -421,15 +421,20 @@ impl ShadSonner {
         }
     }
 
-    fn sync_overlay_open_state(&mut self, cx: &mut Cx) {
-        let open = self.global_is_open(cx);
+    fn sync_overlay_open_state(&mut self, cx: &mut Cx) -> bool {
+        let global = cx.global::<SonnerGlobal>().clone();
+        let (host_uid, open) = {
+            let state = global.state.borrow();
+            (state.host_uid, !state.toasts.is_empty())
+        };
+        let is_host = host_uid == Some(self.widget_uid());
         self.open = open;
-        if !self.is_global_host(cx) {
+        if !is_host {
             self.is_synced_open = open;
-            return;
+            return false;
         }
         if self.is_synced_open == open {
-            return;
+            return true;
         }
 
         if let Some(mut popup) = self.overlay.borrow_mut::<PopupNotification>() {
@@ -441,6 +446,7 @@ impl ShadSonner {
         }
 
         self.is_synced_open = open;
+        true
     }
 
     fn sync_toast_visibility(&mut self, cx: &mut Cx) {
@@ -597,16 +603,18 @@ impl Widget for ShadSonner {
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
         self.register_global_host(cx);
-        self.sync_overlay_open_state(cx);
+        let is_host = self.sync_overlay_open_state(cx);
 
-        if self.is_global_host(cx) && self.global_is_open(cx) {
-            self.overlay.handle_event(cx, event, scope);
-            if let Event::Actions(actions) = event {
-                for index in 0..MAX_VISIBLE_TOASTS {
-                    if button_clicked(&self.overlay, cx, Self::close_button_path(index), actions) {
-                        self.remove_visible_toast(cx, index);
-                        break;
-                    }
+        if !is_host || !self.open {
+            return;
+        }
+
+        self.overlay.handle_event(cx, event, scope);
+        if let Event::Actions(actions) = event {
+            for index in 0..MAX_VISIBLE_TOASTS {
+                if button_clicked(&self.overlay, cx, Self::close_button_path(index), actions) {
+                    self.remove_visible_toast(cx, index);
+                    break;
                 }
             }
         }
@@ -614,8 +622,8 @@ impl Widget for ShadSonner {
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         self.register_global_host(cx);
-        self.sync_overlay_open_state(cx);
-        if !self.is_global_host(cx) || !self.global_is_open(cx) {
+        let is_host = self.sync_overlay_open_state(cx);
+        if !is_host || !self.open {
             return DrawStep::done();
         }
 

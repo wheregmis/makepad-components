@@ -186,6 +186,8 @@ pub struct ShadCollapsible {
     is_open: bool,
     #[live]
     active: f64,
+    #[rust]
+    last_progress_bucket: Option<i16>,
 
     #[layout]
     layout: Layout,
@@ -237,16 +239,20 @@ impl Widget for ShadCollapsible {
         let uid = self.widget_uid();
 
         if self.animator_handle_event(cx, event).must_redraw() {
-            emit_widget_action(
-                cx,
-                &self.action_data,
-                uid,
-                ShadCollapsibleAction::AnimationProgress(self.active),
-            );
+            let bucket = (self.active * 20.0).round() as i16;
+            if self.last_progress_bucket != Some(bucket) {
+                self.last_progress_bucket = Some(bucket);
+                emit_widget_action(
+                    cx,
+                    &self.action_data,
+                    uid,
+                    ShadCollapsibleAction::AnimationProgress(self.active),
+                );
+            }
             self.area.redraw(cx);
         }
 
-        if self.active > 0.0 {
+        if self.is_open && self.active > 0.0 {
             self.body.handle_event(cx, event, scope);
         }
 
@@ -336,6 +342,7 @@ impl ShadCollapsible {
         }
 
         self.is_open = is_open;
+        self.last_progress_bucket = None;
         self.animator_toggle(cx, is_open, animate, ids!(active.on), ids!(active.off));
         self.area.redraw(cx);
         true

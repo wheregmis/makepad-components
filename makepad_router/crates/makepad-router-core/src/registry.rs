@@ -95,17 +95,31 @@ impl RouteRegistry {
             priority,
         };
 
+        let mut requires_full_rebuild = false;
+        if let Some(existing_pos) = self.by_pattern.iter().position(|e| e.route_id == route_id) {
+            self.by_pattern.remove(existing_pos);
+            requires_full_rebuild = true;
+        }
+
         self.by_id.insert(route_id, entry.clone());
 
-        // Insert in sorted order by priority (lower priority value = higher priority)
-        // Find insertion point
+        // Insert in sorted order by priority (lower value = higher priority)
         let pos = self
             .by_pattern
             .iter()
             .position(|e| e.priority > priority)
             .unwrap_or(self.by_pattern.len());
-        self.by_pattern.insert(pos, entry);
-        self.rebuild_indices();
+        if pos == self.by_pattern.len() {
+            self.by_pattern.push(entry);
+            if requires_full_rebuild {
+                self.rebuild_indices();
+            } else {
+                self.index_last_pattern_entry();
+            }
+        } else {
+            self.by_pattern.insert(pos, entry);
+            self.rebuild_indices();
+        }
         Ok(())
     }
 
@@ -218,6 +232,76 @@ impl RouteRegistry {
         self.by_id.get(&route_id).and_then(|e| e.pattern.as_ref())
     }
 
+    fn index_pattern_entry(entry: &RouteEntry) -> Option<RouteEntryMeta> {
+        let pattern = entry.pattern.as_ref()?;
+
+        let segment_count = pattern.segments.len();
+        let has_wildcard = pattern.segments.iter().any(|s| {
+            matches!(
+                s,
+                RouteSegment::WildcardSingle | RouteSegment::WildcardMulti
+            )
+        });
+        let first_static_segment = match pattern.segments.first() {
+            Some(RouteSegment::Static(first)) => Some(first.clone()),
+            _ => None,
+        };
+
+        let mut meta = RouteEntryMeta {
+            first_static_segment,
+            segment_count,
+            has_wildcard,
+            exact_static_path: None,
+        };
+
+        if pattern
+            .segments
+            .iter()
+            .all(|s| matches!(s, RouteSegment::Static(_)))
+        {
+            let mut path = String::new();
+            path.push('/');
+            for (seg_i, segment) in pattern.segments.iter().enumerate() {
+                if seg_i > 0 {
+                    path.push('/');
+                }
+                if let RouteSegment::Static(v) = segment {
+                    path.push_str(v);
+                }
+            }
+            meta.exact_static_path = Some(path);
+        }
+
+        Some(meta)
+    }
+
+    fn index_last_pattern_entry(&mut self) {
+        let idx = self.by_pattern.len().saturating_sub(1);
+        let Some(entry) = self.by_pattern.get(idx) else {
+            return;
+        };
+        let Some(meta) = Self::index_pattern_entry(entry) else {
+            return;
+        };
+
+        if let Some(path) = meta.exact_static_path.as_ref() {
+            self.exact_static
+                .entry(path.clone())
+                .or_insert(entry.route_id);
+        }
+
+        match meta.first_static_segment.as_ref() {
+            Some(first) => self
+                .by_first_segment
+                .entry(first.clone())
+                .or_default()
+                .push(idx),
+            None if meta.has_wildcard => self.fallback_wildcard.push(idx),
+            None => self.fallback_dynamic.push(idx),
+        }
+        self.metas.push(meta);
+    }
+
     fn rebuild_indices(&mut self) {
         self.exact_static.clear();
         self.by_first_segment.clear();
@@ -225,55 +309,23 @@ impl RouteRegistry {
         self.fallback_wildcard.clear();
         self.metas.clear();
 
+        self.by_pattern.sort_by_key(|entry| entry.priority);
         for (idx, entry) in self.by_pattern.iter().enumerate() {
-            let Some(pattern) = entry.pattern.as_ref() else {
+            let Some(meta) = Self::index_pattern_entry(entry) else {
                 continue;
             };
-
-            let segment_count = pattern.segments.len();
-            let has_wildcard = pattern.segments.iter().any(|s| {
-                matches!(
-                    s,
-                    RouteSegment::WildcardSingle | RouteSegment::WildcardMulti
-                )
-            });
-            let first_static_segment = match pattern.segments.first() {
-                Some(RouteSegment::Static(first)) => Some(first.clone()),
-                _ => None,
-            };
-            let mut meta = RouteEntryMeta {
-                first_static_segment: first_static_segment.clone(),
-                segment_count,
-                has_wildcard,
-                exact_static_path: None,
-            };
-
-            // Build exact static lookup.
-            if pattern
-                .segments
-                .iter()
-                .all(|s| matches!(s, RouteSegment::Static(_)))
-            {
-                let mut path = String::new();
-                path.push('/');
-                for (seg_i, segment) in pattern.segments.iter().enumerate() {
-                    if seg_i > 0 {
-                        path.push('/');
-                    }
-                    if let RouteSegment::Static(v) = segment {
-                        path.push_str(v);
-                    }
-                }
-                meta.exact_static_path = Some(path.clone());
-                self.exact_static.entry(path).or_insert(entry.route_id);
+            if let Some(path) = meta.exact_static_path.as_ref() {
+                self.exact_static
+                    .entry(path.clone())
+                    .or_insert(entry.route_id);
             }
-
-            // Index by first segment (if static).
-            match first_static_segment {
-                Some(first) => {
-                    self.by_first_segment.entry(first).or_default().push(idx);
-                }
-                None if has_wildcard => self.fallback_wildcard.push(idx),
+            match meta.first_static_segment.as_ref() {
+                Some(first) => self
+                    .by_first_segment
+                    .entry(first.clone())
+                    .or_default()
+                    .push(idx),
+                None if meta.has_wildcard => self.fallback_wildcard.push(idx),
                 None => self.fallback_dynamic.push(idx),
             }
             self.metas.push(meta);
@@ -415,5 +467,23 @@ mod tests {
 
         let route = registry.resolve_path("/user/123/posts").unwrap();
         assert_eq!(route.id, live_id!(user_wildcard));
+    }
+
+    #[test]
+    fn test_route_registry_re_register_route_id_replaces_pattern() {
+        let mut registry = RouteRegistry::new();
+        registry
+            .register_pattern("/first", live_id!(shared_route))
+            .unwrap();
+        registry
+            .register_pattern("/second", live_id!(shared_route))
+            .unwrap();
+
+        assert_eq!(registry.by_pattern.len(), 1);
+        assert!(registry.resolve_path("/first").is_none());
+        assert_eq!(
+            registry.resolve_path("/second").map(|route| route.id),
+            Some(live_id!(shared_route))
+        );
     }
 }

@@ -1,6 +1,7 @@
 use crate::pattern::{RouteParams, RoutePatternRef};
 use crate::route::Route;
 use makepad_widgets::*;
+use std::collections::HashSet;
 // Nested router discovery and child router registration.
 
 use super::{RouterWidget, RouterWidgetRef, RouterWidgetWidgetRefExt};
@@ -79,22 +80,36 @@ impl RouterWidget {
         if !self.nested_enabled() {
             return;
         }
+        let widget_count = self.routes.widgets.len();
+        if self.caches.child_router_scan_epoch != self.caches.route_registry_epoch {
+            self.child_router_scan_misses.clear();
+        }
         if self.caches.child_router_scan_epoch == self.caches.route_registry_epoch
-            && self.caches.child_router_scan_widget_count == self.routes.widgets.len()
+            && self.caches.child_router_scan_widget_count == widget_count
         {
             return;
         }
+        let route_ids: HashSet<LiveId> = self.routes.widgets.keys().copied().collect();
+        self.child_routers
+            .retain(|route_id, _| route_ids.contains(route_id));
+        self.child_router_scan_misses
+            .retain(|route_id| route_ids.contains(route_id));
         for (route_id, route_widget) in self.routes.widgets.iter() {
             if self.child_routers.contains_key(route_id) {
+                continue;
+            }
+            if self.child_router_scan_misses.contains(route_id) {
                 continue;
             }
 
             if let Some(child_router) = Self::find_first_child_router(route_widget) {
                 self.child_routers.insert(*route_id, child_router);
+            } else {
+                self.child_router_scan_misses.insert(*route_id);
             }
         }
         self.caches.child_router_scan_epoch = self.caches.route_registry_epoch;
-        self.caches.child_router_scan_widget_count = self.routes.widgets.len();
+        self.caches.child_router_scan_widget_count = widget_count;
     }
 
     fn find_first_child_router(widget: &WidgetRef) -> Option<RouterWidgetRef> {
@@ -102,14 +117,14 @@ impl RouterWidget {
             return Some(widget.as_router_widget());
         }
 
-        let mut children = Vec::new();
-        widget.children(&mut |_id, child| children.push(child));
-        for child in children {
-            if let Some(found) = Self::find_first_child_router(&child) {
-                return Some(found);
+        let mut found = None;
+        widget.children(&mut |_id, child| {
+            if found.is_some() {
+                return;
             }
-        }
-        None
+            found = Self::find_first_child_router(&child);
+        });
+        found
     }
 
     /// Navigate to a nested route.

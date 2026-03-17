@@ -117,6 +117,20 @@ pub struct ShadPagination {
     #[rust]
     slot_pages: [usize; MAX_PAGE_BUTTONS],
     #[rust]
+    slot_visible: [bool; MAX_PAGE_BUTTONS],
+    #[rust]
+    slot_active: [bool; MAX_PAGE_BUTTONS],
+    #[rust]
+    prev_disabled: bool,
+    #[rust]
+    next_disabled: bool,
+    #[rust]
+    show_left_ellipsis: bool,
+    #[rust]
+    show_right_ellipsis: bool,
+    #[rust]
+    view_synced: bool,
+    #[rust]
     theme_style: PaginationThemeStyle,
 
     #[action_data]
@@ -133,6 +147,7 @@ impl ScriptHook for ShadPagination {
         _value: ScriptValue,
     ) {
         self.theme_style = Self::resolve_theme_style(vm);
+        self.view_synced = false;
         vm.with_cx_mut(|cx| {
             self.normalize_state();
             self.sync_view(cx);
@@ -244,9 +259,8 @@ impl ShadPagination {
         )
     }
 
-    fn apply_page_button_style(&self, cx: &mut Cx, index: usize, is_active: bool) {
+    fn apply_page_button_style(&self, cx: &mut Cx, button: &mut ButtonRef, is_active: bool) {
         let style = self.theme_style;
-        let mut button = self.page_button_ref(cx, index);
         if is_active {
             script_apply_eval!(cx, button, {
                 draw_bg +: {
@@ -293,34 +307,63 @@ impl ShadPagination {
     }
 
     fn sync_view(&mut self, cx: &mut Cx) {
+        let force = !self.view_synced;
         let current_page = self.page();
         let page_count = normalized_page_count(self.page_count);
         let window = self.compute_pages();
 
-        self.view
-            .button(cx, ids!(prev_btn))
-            .set_disabled(cx, current_page <= 1);
-        self.view
-            .button(cx, ids!(next_btn))
-            .set_disabled(cx, current_page >= page_count);
+        let prev_disabled = current_page <= 1;
+        if force || self.prev_disabled != prev_disabled {
+            self.view
+                .button(cx, ids!(prev_btn))
+                .set_disabled(cx, prev_disabled);
+            self.prev_disabled = prev_disabled;
+        }
+        let next_disabled = current_page >= page_count;
+        if force || self.next_disabled != next_disabled {
+            self.view
+                .button(cx, ids!(next_btn))
+                .set_disabled(cx, next_disabled);
+            self.next_disabled = next_disabled;
+        }
 
-        self.ellipsis_ref(cx, true)
-            .set_visible(cx, window.show_left_ellipsis);
-        self.ellipsis_ref(cx, false)
-            .set_visible(cx, window.show_right_ellipsis);
+        if force || self.show_left_ellipsis != window.show_left_ellipsis {
+            self.ellipsis_ref(cx, true)
+                .set_visible(cx, window.show_left_ellipsis);
+            self.show_left_ellipsis = window.show_left_ellipsis;
+        }
+        if force || self.show_right_ellipsis != window.show_right_ellipsis {
+            self.ellipsis_ref(cx, false)
+                .set_visible(cx, window.show_right_ellipsis);
+            self.show_right_ellipsis = window.show_right_ellipsis;
+        }
 
         for index in 0..MAX_PAGE_BUTTONS {
-            let button = self.page_button_ref(cx, index);
-            if let Some(page) = window.pages.get(index).copied() {
+            let mut button = self.page_button_ref(cx, index);
+            let page = window.pages.get(index).copied().unwrap_or(0);
+            let is_visible = page > 0;
+
+            if force || self.slot_visible[index] != is_visible {
+                button.set_visible(cx, is_visible);
+                self.slot_visible[index] = is_visible;
+            }
+
+            if is_visible {
+                if force || self.slot_pages[index] != page {
+                    button.set_text(cx, &page.to_string());
+                }
                 self.slot_pages[index] = page;
-                button.set_visible(cx, true);
-                button.set_text(cx, &page.to_string());
-                self.apply_page_button_style(cx, index, page == current_page);
+                let is_active = page == current_page;
+                if force || self.slot_active[index] != is_active {
+                    self.apply_page_button_style(cx, &mut button, is_active);
+                    self.slot_active[index] = is_active;
+                }
             } else {
                 self.slot_pages[index] = 0;
-                button.set_visible(cx, false);
+                self.slot_active[index] = false;
             }
         }
+        self.view_synced = true;
     }
 
     fn set_page_internal(&mut self, cx: &mut Cx, page: usize, emit_action: bool) {

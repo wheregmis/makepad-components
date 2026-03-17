@@ -4,6 +4,7 @@ use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
 const MAX_OTP_SLOTS: usize = 6;
+const EMPTY_SLOT_DIGIT: u8 = 0;
 
 script_mod! {
     use mod.prelude.widgets.*
@@ -151,6 +152,10 @@ pub struct ShadInputOtp {
     synced_slots_value: String,
     #[rust]
     synced_visible_cells: usize,
+    #[rust]
+    slot_visible_cache: [bool; MAX_OTP_SLOTS],
+    #[rust]
+    slot_digit_cache: [u8; MAX_OTP_SLOTS],
 
     #[action_data]
     #[rust]
@@ -174,6 +179,22 @@ impl ScriptHook for ShadInputOtp {
 }
 
 impl ShadInputOtp {
+    fn slot_digit_text(digit: u8) -> &'static str {
+        match digit {
+            b'0' => "0",
+            b'1' => "1",
+            b'2' => "2",
+            b'3' => "3",
+            b'4' => "4",
+            b'5' => "5",
+            b'6' => "6",
+            b'7' => "7",
+            b'8' => "8",
+            b'9' => "9",
+            _ => "",
+        }
+    }
+
     fn controller_ref(&self, cx: &Cx) -> TextInputRef {
         self.view.text_input(cx, ids!(controller))
     }
@@ -214,18 +235,28 @@ impl ShadInputOtp {
             return;
         }
 
-        let mut chars = self.value.chars();
+        let digits = self.value.as_bytes();
 
         for index in 0..MAX_OTP_SLOTS {
             let slot = self.slot_ref(cx, index);
             let is_visible = index < visible_cells;
-            slot.set_visible(cx, is_visible);
+            if self.slot_visible_cache[index] != is_visible {
+                slot.set_visible(cx, is_visible);
+                self.slot_visible_cache[index] = is_visible;
+            }
             if !is_visible {
+                if self.slot_digit_cache[index] != EMPTY_SLOT_DIGIT {
+                    self.set_slot_label(cx, index, "");
+                    self.slot_digit_cache[index] = EMPTY_SLOT_DIGIT;
+                }
                 continue;
             }
 
-            let digit = chars.next().map(|c| c.to_string()).unwrap_or_default();
-            self.set_slot_label(cx, index, &digit);
+            let next_digit = digits.get(index).copied().unwrap_or(EMPTY_SLOT_DIGIT);
+            if self.slot_digit_cache[index] != next_digit {
+                self.set_slot_label(cx, index, Self::slot_digit_text(next_digit));
+                self.slot_digit_cache[index] = next_digit;
+            }
         }
 
         self.synced_slots_value.clone_from(&self.value);

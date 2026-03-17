@@ -184,6 +184,21 @@ impl ImageCacheImpl for ShadAvatarImage {
 }
 
 impl ShadAvatarImage {
+    fn apply_async_result(&mut self, cx: &mut Cx, image_path: &Path, result: AsyncLoadResult) {
+        match result {
+            AsyncLoadResult::Loading(w, h) => {
+                self.async_image_size = Some((w, h));
+                self.async_image_path = Some(image_path.to_path_buf());
+                self.redraw(cx);
+            }
+            AsyncLoadResult::Loaded => {
+                self.async_image_size = None;
+                self.async_image_path = None;
+                self.redraw(cx);
+            }
+        }
+    }
+
     fn load_image_from_data_async(
         &mut self,
         cx: &mut Cx,
@@ -192,16 +207,7 @@ impl ShadAvatarImage {
     ) -> Result<(), ImageError> {
         self.lazy_create_image_cache(cx);
         if let Ok(result) = self.load_image_from_data_async_impl(cx, image_path, data, 0) {
-            match result {
-                AsyncLoadResult::Loading(w, h) => {
-                    self.async_image_size = Some((w, h));
-                    self.async_image_path = Some(image_path.into());
-                    self.redraw(cx);
-                }
-                AsyncLoadResult::Loaded => {
-                    self.redraw(cx);
-                }
-            }
+            self.apply_async_result(cx, image_path, result);
         }
         Ok(())
     }
@@ -215,10 +221,27 @@ impl ShadAvatarImage {
             return;
         };
         let handle = handle_ref.as_handle();
+        cx.load_script_resource(handle);
+        let path = {
+            let resources = cx.script_data.resources.resources.borrow();
+            resources
+                .iter()
+                .find(|r| r.handle == handle)
+                .map(|r| PathBuf::from(&r.abs_path))
+                .unwrap_or_else(|| PathBuf::from("avatar_image_resource"))
+        };
+        self.lazy_create_image_cache(cx);
+
+        // For regular files this avoids cloning the already-cached resource bytes into a fresh Vec.
+        if let Ok(result) = self.load_image_file_by_path_async_impl(cx, &path, 0) {
+            self.src_loaded = true;
+            self.apply_async_result(cx, &path, result);
+            return;
+        }
+
         let data = if let Some(data) = cx.get_resource(handle) {
             data
         } else {
-            cx.load_script_resource(handle);
             match cx.get_resource(handle) {
                 Some(data) => data,
                 None => {
@@ -237,15 +260,6 @@ impl ShadAvatarImage {
             }
         };
         self.src_loaded = true;
-        self.lazy_create_image_cache(cx);
-        let path = {
-            let resources = cx.script_data.resources.resources.borrow();
-            resources
-                .iter()
-                .find(|r| r.handle == handle)
-                .map(|r| PathBuf::from(&r.abs_path))
-                .unwrap_or_else(|| PathBuf::from("avatar_image_resource"))
-        };
         let _ = self.load_image_from_data_async(cx, &path, Arc::new((*data).clone()));
     }
 

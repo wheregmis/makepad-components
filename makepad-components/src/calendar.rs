@@ -158,6 +158,12 @@ pub struct ShadCalendar {
     hovered_target: Option<CalendarTarget>,
     #[rust]
     month_title_cache: String,
+    #[rust]
+    month_cells_cache: Vec<CalendarCell>,
+    #[rust]
+    month_cells_cached_year: i32,
+    #[rust]
+    month_cells_cached_month: u8,
 
     #[action_data]
     #[rust]
@@ -174,6 +180,7 @@ impl ScriptHook for ShadCalendar {
         self.visible_year = year;
         self.visible_month = month;
         self.update_month_title_cache();
+        self.ensure_month_grid_cache();
     }
 
     fn on_after_apply(
@@ -191,6 +198,7 @@ impl ScriptHook for ShadCalendar {
                 self.visible_month = date.month;
                 self.update_month_title_cache();
             }
+            self.ensure_month_grid_cache();
             self.area.redraw(cx);
         });
     }
@@ -248,13 +256,21 @@ impl ShadCalendar {
         );
     }
 
-    fn month_grid(&self) -> Vec<CalendarCell> {
+    fn ensure_month_grid_cache(&mut self) {
+        if self.month_cells_cached_year == self.visible_year
+            && self.month_cells_cached_month == self.visible_month
+            && self.month_cells_cache.len() == 42
+        {
+            return;
+        }
+
         let first_weekday = weekday_from_civil(self.visible_year, self.visible_month, 1) as usize;
         let current_days = days_in_month(self.visible_year, self.visible_month) as usize;
         let (prev_year, prev_month) = shift_month(self.visible_year, self.visible_month, -1);
         let prev_days = days_in_month(prev_year, prev_month) as usize;
         let (next_year, next_month) = shift_month(self.visible_year, self.visible_month, 1);
-        let mut cells = Vec::with_capacity(42);
+        self.month_cells_cache.clear();
+        self.month_cells_cache.reserve(42);
 
         for index in 0..42 {
             let cell = if index < first_weekday {
@@ -288,9 +304,10 @@ impl ShadCalendar {
                     in_month: false,
                 }
             };
-            cells.push(cell);
+            self.month_cells_cache.push(cell);
         }
-        cells
+        self.month_cells_cached_year = self.visible_year;
+        self.month_cells_cached_month = self.visible_month;
     }
 
     fn target_from_abs(&self, cx: &Cx, abs: DVec2) -> Option<CalendarTarget> {
@@ -353,6 +370,7 @@ impl ShadCalendar {
             self.visible_year = date.year;
             self.visible_month = date.month;
             self.update_month_title_cache();
+            self.ensure_month_grid_cache();
             cx.widget_action_with_data(
                 &self.action_data,
                 self.widget_uid(),
@@ -380,6 +398,7 @@ impl ShadCalendar {
         self.visible_year = year;
         self.visible_month = clamped_month;
         self.update_month_title_cache();
+        self.ensure_month_grid_cache();
         self.area.redraw(cx);
     }
 
@@ -440,14 +459,18 @@ impl Widget for ShadCalendar {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, _scope: &mut Scope) {
         match event.hits(cx, self.area) {
             Hit::FingerHoverIn(fh) => {
-                cx.set_cursor(MouseCursor::Hand);
-                self.set_hovered_target(cx, self.target_from_abs(cx, fh.abs));
-            }
-            Hit::FingerMove(fm) => {
-                if self.target_from_abs(cx, fm.abs).is_some() {
+                let target = self.target_from_abs(cx, fh.abs);
+                if target.is_some() {
                     cx.set_cursor(MouseCursor::Hand);
                 }
-                self.set_hovered_target(cx, self.target_from_abs(cx, fm.abs));
+                self.set_hovered_target(cx, target);
+            }
+            Hit::FingerMove(fm) => {
+                let target = self.target_from_abs(cx, fm.abs);
+                if target.is_some() {
+                    cx.set_cursor(MouseCursor::Hand);
+                }
+                self.set_hovered_target(cx, target);
             }
             Hit::FingerHoverOut(_) => self.set_hovered_target(cx, None),
             Hit::FingerUp(fe) if fe.is_primary_hit() => {
@@ -456,7 +479,8 @@ impl Widget for ShadCalendar {
                         CalendarTarget::Prev => self.prev_month(cx),
                         CalendarTarget::Next => self.next_month(cx),
                         CalendarTarget::Cell(index) => {
-                            if let Some(cell) = self.month_grid().get(index).copied() {
+                            self.ensure_month_grid_cache();
+                            if let Some(cell) = self.month_cells_cache.get(index).copied() {
                                 self.set_value(cx, Some(cell.date));
                             }
                         }
@@ -471,7 +495,7 @@ impl Widget for ShadCalendar {
         cx.begin_turtle(walk, self.layout);
         let rect = cx.turtle().rect();
         let layout = self.layout_info(rect);
-        let cells = self.month_grid();
+        self.ensure_month_grid_cache();
 
         self.draw_bg.color = self.color_background;
         self.draw_bg.draw_abs(cx, rect);
@@ -511,7 +535,8 @@ impl Widget for ShadCalendar {
                 .draw_abs(cx, dvec2(label_x, layout.weekday_y), label);
         }
 
-        for (index, cell) in cells.iter().enumerate() {
+        for index in 0..self.month_cells_cache.len() {
+            let cell = self.month_cells_cache[index];
             let row = index / 7;
             let col = index % 7;
             let cell_rect = Rect {

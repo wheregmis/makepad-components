@@ -168,10 +168,9 @@ impl ShadPopover {
         }
     }
 
-    fn compute_popup_pos(&self, cx: &Cx2d) -> Vec2d {
+    fn compute_popup_pos_with_content_size(&self, cx: &Cx2d, content_size: Vec2d) -> Vec2d {
         let trigger_rect = self.trigger_rect(cx);
         let pass_size = cx.current_pass_size();
-        let content_size = self.content_size;
         let side = self.resolve_side(trigger_rect, pass_size, content_size);
 
         let align = self.align.as_ref();
@@ -209,6 +208,10 @@ impl ShadPopover {
         pos.x = pos.x.clamp(self.viewport_padding, max_x);
         pos.y = pos.y.clamp(self.viewport_padding, max_y);
         pos
+    }
+
+    fn compute_popup_pos(&self, cx: &Cx2d) -> Vec2d {
+        self.compute_popup_pos_with_content_size(cx, self.content_size)
     }
 
     fn hover_bridge_rect(&self, trigger_rect: Rect, content_rect: Rect) -> Option<Rect> {
@@ -485,8 +488,13 @@ impl Widget for ShadPopover {
             && measured_rect.size.x > 0.0
             && measured_rect.size.y > 0.0
         {
+            let next_popup_pos = self.compute_popup_pos_with_content_size(cx, measured_rect.size);
             self.content_size = measured_rect.size;
-            self.redraw_overlay(cx);
+            let moved_x = (next_popup_pos.x - popup_pos.x).abs();
+            let moved_y = (next_popup_pos.y - popup_pos.y).abs();
+            if moved_x > 0.5 || moved_y > 0.5 {
+                self.redraw_overlay(cx);
+            }
         }
 
         DrawStep::done()
