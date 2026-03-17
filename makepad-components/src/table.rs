@@ -607,7 +607,11 @@ impl ShadTable {
         };
 
         if custom_row_mode {
-            sync_default_widths(&mut self.resolved_widths, column_count, DEFAULT_COLUMN_WIDTH);
+            sync_default_widths(
+                &mut self.resolved_widths,
+                column_count,
+                DEFAULT_COLUMN_WIDTH,
+            );
         } else if self.auto_fill_width && !self.rows_data.is_empty() && self.virtual_total_rows == 0
         {
             let content_widths = calculate_content_based_widths(&self.headers, &self.rows_data);
@@ -806,7 +810,8 @@ impl ShadTable {
                 self.draw_empty_row(cx, list, item_id, "");
                 continue;
             };
-            list.item(cx, item_id, template).draw_all(cx, &mut Scope::empty());
+            list.item(cx, item_id, template)
+                .draw_all(cx, &mut Scope::empty());
         }
     }
 

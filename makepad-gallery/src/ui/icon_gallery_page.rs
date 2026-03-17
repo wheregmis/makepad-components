@@ -162,7 +162,7 @@ impl GalleryIconGalleryPage {
         if query.is_empty() {
             format!("Showing all {ICON_GALLERY_TOTAL} generated icons.")
         } else if matches_count == 0 {
-            format!("No icons matched \"{query}\".")
+            format!("No icons matched \"{query}\". Press Esc to clear the search.")
         } else {
             format!(
                 "Showing {matches_count} of {ICON_GALLERY_TOTAL} icons for \"{query}\"."
@@ -330,6 +330,11 @@ impl Widget for GalleryIconGalleryPage {
             }
             if let Some((text, _modifiers)) = search_input.returned(actions) {
                 next_query = Some(text);
+            }
+            if search_input.escaped(actions) && !self.query.is_empty() {
+                search_input.set_text(cx, "");
+                search_input.set_key_focus(cx);
+                next_query = Some(String::new());
             }
             if self.view.button(cx, ids!(icon_search_btn)).clicked(actions) {
                 search_input.set_key_focus(cx);
