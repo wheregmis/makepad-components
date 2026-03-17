@@ -364,7 +364,10 @@ impl GalleryCommandPalette {
         }
         let results_changed = self.filtered_indices != self.filtered_indices_scratch;
         if results_changed {
-            std::mem::swap(&mut self.filtered_indices, &mut self.filtered_indices_scratch);
+            std::mem::swap(
+                &mut self.filtered_indices,
+                &mut self.filtered_indices_scratch,
+            );
             // PortalList reuses item widgets, so clear row-style cache when the backing list
             // changes to avoid carrying old active styles across recycled items.
             self.row_active_by_uid.clear();

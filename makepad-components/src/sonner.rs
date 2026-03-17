@@ -338,7 +338,10 @@ impl ShadSonner {
         let global = cx.global::<SonnerGlobal>().clone();
         let (host_overlay, visible_toasts) = {
             let state = global.state.borrow();
-            (state.host_overlay.clone(), Self::visible_toasts_snapshot(&state))
+            (
+                state.host_overlay.clone(),
+                Self::visible_toasts_snapshot(&state),
+            )
         };
 
         if let Some(overlay) = host_overlay {
