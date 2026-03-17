@@ -9,6 +9,7 @@ const RESULTS_MAX_ITEMS_TO_SHOW: usize = 8;
 struct CommandSearchTerm {
     title: String,
     section: String,
+    shortcut: String,
 }
 
 fn command_search_terms() -> &'static [CommandSearchTerm] {
@@ -20,10 +21,18 @@ fn command_search_terms() -> &'static [CommandSearchTerm] {
                 .map(|entry| CommandSearchTerm {
                     title: entry.title.to_ascii_lowercase(),
                     section: entry.section.to_ascii_lowercase(),
+                    shortcut: entry.shortcut.to_ascii_lowercase(),
                 })
                 .collect()
         })
         .as_slice()
+}
+
+fn matches_command_query(term: &CommandSearchTerm, query: &str) -> bool {
+    query.is_empty()
+        || term.title.contains(query)
+        || term.section.contains(query)
+        || term.shortcut.contains(query)
 }
 
 script_mod! {
@@ -132,7 +141,7 @@ script_mod! {
                         }
 
                         search_input := ShadInputBorderless{
-                            empty_text: "Type a command or search..."
+                            empty_text: "Search components, sections, or shortcut tags..."
                             draw_text.text_style.font_size: 14
                             draw_text.color_empty: (shad_theme.color_muted_foreground)
                         }
@@ -176,7 +185,7 @@ script_mod! {
                             empty_copy := ShadFieldDescription{
                                 draw_text.color: (shad_theme.color_muted_foreground)
                                 draw_text.text_style.font_size: 11
-                                text: "Try a different name like button, dialog, or input."
+                                text: "Try a component like button, a section like forms, or the shortcut tag shown in each row."
                             }
                         }
                     }
@@ -355,10 +364,7 @@ impl GalleryCommandPalette {
         self.filtered_indices_scratch.clear();
 
         for (index, _command) in catalog::entries().iter().enumerate() {
-            if query.is_empty()
-                || search_terms[index].title.contains(&query)
-                || search_terms[index].section.contains(&query)
-            {
+            if matches_command_query(&search_terms[index], &query) {
                 self.filtered_indices_scratch.push(index);
             }
         }
@@ -455,6 +461,25 @@ impl GalleryCommandPalette {
             );
             self.close(cx);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{matches_command_query, CommandSearchTerm};
+
+    #[test]
+    fn command_palette_query_matches_shortcut_tags() {
+        let term = CommandSearchTerm {
+            title: "command palette".to_string(),
+            section: "navigation".to_string(),
+            shortcut: "kb".to_string(),
+        };
+
+        assert!(matches_command_query(&term, "command"));
+        assert!(matches_command_query(&term, "navigation"));
+        assert!(matches_command_query(&term, "kb"));
+        assert!(!matches_command_query(&term, "dialog"));
     }
 }
 
