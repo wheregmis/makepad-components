@@ -66,6 +66,7 @@ script_mod! {
         caption: ""
         empty_message: "No rows available."
         selectable: true
+        auto_fill_width: true
         virtual_total_rows: 0
         headers: ["Name" "Email" "Role"]
         rows: []
@@ -116,7 +117,16 @@ script_mod! {
 }
 
 const DEFAULT_COLUMN_WIDTH: f64 = 160.0;
+const MIN_COLUMN_WIDTH: f64 = 80.0;
 const TABLE_ROW_HEIGHT: f64 = 40.0;
+const CHAR_WIDTH_FACTOR: f64 = 0.6;
+const HEADER_FONT_SIZE: f64 = 10.0;
+const CELL_FONT_SIZE: f64 = 11.0;
+const CELL_PADDING: f64 = 12.0;
+
+fn estimate_text_width(text: &str, font_size: f64) -> f64 {
+    text.len() as f64 * font_size * CHAR_WIDTH_FACTOR
+}
 
 fn replace_arc_slice_if_changed<T>(dst: &mut Arc<[T]>, src: &Arc<[T]>) -> bool {
     if Arc::ptr_eq(dst, src) {
@@ -138,14 +148,41 @@ fn sync_default_widths(widths: &mut Vec<f64>, column_count: usize, default_width
         }
         return;
     }
-    // Optimization: virtual-window updates call sync_layout often, but the column count is usually
-    // stable. Resizing only when the count changes avoids allocating a brand-new width Vec each
-    // update (`vec![..]`), reducing heap churn while scrolling large tables.
     let shrinking = previous_len > column_count;
     widths.resize(column_count, default_width);
     if shrinking && widths.iter().any(|width| *width != default_width) {
         widths.fill(default_width);
     }
+}
+
+fn calculate_content_based_widths(headers: &[String], rows_data: &[Arc<[String]>]) -> Vec<f64> {
+    let column_count = headers.len();
+    if column_count == 0 {
+        return vec![];
+    }
+
+    let mut max_char_counts: Vec<usize> = vec![0; column_count];
+
+    for (col_idx, header) in headers.iter().enumerate() {
+        max_char_counts[col_idx] = max_char_counts[col_idx].max(header.len());
+    }
+
+    for row in rows_data.iter() {
+        for (col_idx, cell) in row.iter().enumerate() {
+            if col_idx < column_count {
+                max_char_counts[col_idx] = max_char_counts[col_idx].max(cell.len());
+            }
+        }
+    }
+
+    max_char_counts
+        .iter()
+        .map(|&chars| {
+            let header_width = chars as f64 * HEADER_FONT_SIZE * CHAR_WIDTH_FACTOR + 24.0;
+            let cell_width = chars as f64 * CELL_FONT_SIZE * CHAR_WIDTH_FACTOR + 24.0;
+            header_width.max(cell_width).max(MIN_COLUMN_WIDTH)
+        })
+        .collect()
 }
 
 #[derive(Clone, Debug, Default)]
@@ -231,16 +268,21 @@ impl Widget for ShadTableHeaderView {
         self.draw_bg.draw_abs(cx, rect);
         draw_border(cx, &mut self.draw_bg, rect, self.border_color);
 
-        let mut x = rect.pos.x + 12.0;
+        let mut x = rect.pos.x;
         for (index, header) in self.headers.iter().enumerate() {
             let width = self
                 .widths
                 .get(index)
                 .copied()
                 .unwrap_or(DEFAULT_COLUMN_WIDTH);
+            let text_width = estimate_text_width(header, HEADER_FONT_SIZE);
+            let offset_x = (width - text_width) / 2.0;
             self.draw_text.color = self.text_color;
-            self.draw_text
-                .draw_abs(cx, dvec2(x, rect.pos.y + 12.0), header);
+            self.draw_text.draw_abs(
+                cx,
+                dvec2(x + offset_x.max(CELL_PADDING), rect.pos.y + 12.0),
+                header,
+            );
             x += width;
         }
 
@@ -385,16 +427,21 @@ impl Widget for ShadTableRowView {
         self.draw_bg.draw_abs(cx, rect);
         draw_border(cx, &mut self.draw_bg, rect, self.border_color);
 
-        let mut x = rect.pos.x + 12.0;
+        let mut x = rect.pos.x;
         for (index, cell) in self.cells.iter().enumerate() {
             let width = self
                 .widths
                 .get(index)
                 .copied()
                 .unwrap_or(DEFAULT_COLUMN_WIDTH);
+            let text_width = estimate_text_width(cell, CELL_FONT_SIZE);
+            let offset_x = (width - text_width) / 2.0;
             self.draw_text.color = self.text_color;
-            self.draw_text
-                .draw_abs(cx, dvec2(x, rect.pos.y + 14.0), cell);
+            self.draw_text.draw_abs(
+                cx,
+                dvec2(x + offset_x.max(CELL_PADDING), rect.pos.y + 14.0),
+                cell,
+            );
             x += width;
         }
 
@@ -420,6 +467,8 @@ pub struct ShadTable {
     empty_message: ArcStringMut,
     #[live(true)]
     selectable: bool,
+    #[live(true)]
+    auto_fill_width: bool,
     #[live]
     virtual_total_rows: usize,
 
@@ -500,11 +549,24 @@ impl ShadTable {
 
     fn sync_layout(&mut self, cx: &mut Cx) {
         let column_count = resolved_column_count(&self.headers, &self.rows_data);
-        sync_default_widths(
-            &mut self.resolved_widths,
-            column_count,
-            DEFAULT_COLUMN_WIDTH,
-        );
+
+        if self.auto_fill_width && !self.rows_data.is_empty() && self.virtual_total_rows == 0 {
+            let content_widths = calculate_content_based_widths(&self.headers, &self.rows_data);
+            if self.resolved_widths.len() != content_widths.len() {
+                self.resolved_widths = content_widths;
+            } else {
+                for (i, width) in content_widths.iter().enumerate() {
+                    self.resolved_widths[i] = *width;
+                }
+            }
+        } else {
+            sync_default_widths(
+                &mut self.resolved_widths,
+                column_count,
+                DEFAULT_COLUMN_WIDTH,
+            );
+        }
+
         self.total_width = self.resolved_widths.iter().sum::<f64>() + 24.0;
         if self.resolved_widths_shared.as_ref() != self.resolved_widths.as_slice() {
             self.resolved_widths_shared = Arc::from(self.resolved_widths.as_slice());
@@ -578,6 +640,57 @@ impl ShadTable {
                     row,
                     shared_widths,
                     self.total_width,
+                    self.selected_row == Some(item_id),
+                    item_id & 1 == 1,
+                );
+            }
+            item.draw_all(cx, &mut Scope::empty());
+        }
+    }
+
+    fn draw_rows_with_widths(
+        &mut self,
+        cx: &mut Cx2d,
+        list: &mut PortalList,
+        widths: &Arc<[f64]>,
+        total_width: f64,
+    ) {
+        if self.data_row_count() == 0 {
+            let rows = Self::empty_fill_rows(list, cx, 0).max(1);
+            list.set_item_range(cx, 0, rows);
+            while let Some(item_id) = list.next_visible_item(cx) {
+                let label = if item_id == 0 {
+                    self.empty_message.as_ref()
+                } else {
+                    ""
+                };
+                self.draw_empty_row(cx, list, item_id, label);
+            }
+            return;
+        }
+
+        let row_count = self.data_row_count();
+        let empty_rows = Self::empty_fill_rows(list, cx, row_count);
+        let item_count = row_count + empty_rows;
+        list.set_item_range(cx, 0, item_count);
+        while let Some(item_id) = list.next_visible_item(cx) {
+            if item_id >= row_count {
+                self.draw_empty_row(cx, list, item_id, "");
+                continue;
+            }
+            let Some(row) = self.row_for_index(item_id) else {
+                self.draw_empty_row(cx, list, item_id, "");
+                continue;
+            };
+
+            let item = list.item(cx, item_id, id!(Item));
+            if let Some(mut row_view) = item.borrow_mut::<ShadTableRowView>() {
+                row_view.set_row_data(
+                    cx,
+                    item_id,
+                    row,
+                    widths,
+                    total_width,
                     self.selected_row == Some(item_id),
                     item_id & 1 == 1,
                 );
@@ -788,9 +901,53 @@ impl Widget for ShadTable {
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
-        while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
-            if let Some(mut list) = step.as_portal_list().borrow_mut() {
-                self.draw_rows(cx, &mut list);
+        let auto_filled = if self.auto_fill_width && !self.resolved_widths.is_empty() {
+            let mut widths: Vec<f64> = self.resolved_widths.clone();
+            let calculated_width: f64 = widths.iter().sum::<f64>() + 24.0;
+
+            cx.begin_turtle(walk, self.layout);
+            let avail = cx.turtle().rect().size.x;
+            cx.end_turtle();
+
+            if avail > calculated_width && avail > 0.0 {
+                let extra_width = avail - calculated_width;
+                let extra_per_column = extra_width / widths.len() as f64;
+                for width in &mut widths {
+                    *width += extra_per_column;
+                }
+                let new_total = avail;
+                let shared_widths = Arc::from(widths.as_slice());
+
+                if let Some(mut header) = self
+                    .view
+                    .widget_flood(cx, ids!(table_view.scroll.content.header))
+                    .borrow_mut::<ShadTableHeaderView>()
+                {
+                    header.set_header_data(cx, &self.headers, &shared_widths, new_total);
+                }
+
+                let mut content = self.view.view(cx, ids!(table_view.scroll.content));
+                script_apply_eval!(cx, content, {
+                    width: #(new_total)
+                });
+
+                while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
+                    if let Some(mut list) = step.as_portal_list().borrow_mut() {
+                        self.draw_rows_with_widths(cx, &mut list, &shared_widths, new_total);
+                    }
+                }
+                return DrawStep::done();
+            }
+            false
+        } else {
+            false
+        };
+
+        if !auto_filled {
+            while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
+                if let Some(mut list) = step.as_portal_list().borrow_mut() {
+                    self.draw_rows(cx, &mut list);
+                }
             }
         }
         DrawStep::done()
