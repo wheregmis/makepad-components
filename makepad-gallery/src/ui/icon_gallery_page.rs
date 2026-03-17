@@ -258,10 +258,8 @@ impl GalleryIconGalleryPage {
         }
 
         if self.filtered_template_ids.as_ref() != self.filtered_template_ids_scratch.as_slice() {
-            self.filtered_template_ids = Arc::from(std::mem::take(
-                &mut self.filtered_template_ids_scratch,
-            ));
-            self.filtered_template_ids_scratch = Vec::with_capacity(self.template_live_ids.len());
+            self.filtered_template_ids =
+                Arc::from(self.filtered_template_ids_scratch.as_slice());
             self.view
                 .shad_table(cx, ids!(icon_table))
                 .set_custom_row_templates(cx, Arc::clone(&self.filtered_template_ids));
