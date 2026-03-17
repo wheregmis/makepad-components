@@ -186,6 +186,28 @@ fn calculate_content_based_widths(headers: &[String], rows_data: &[Arc<[String]>
         .collect()
 }
 
+fn sync_stretched_widths(
+    cache: &mut Vec<f64>,
+    base_widths: &[f64],
+    target_total_width: f64,
+) -> bool {
+    let base_total_width = base_widths.iter().sum::<f64>() + 24.0;
+    if target_total_width <= base_total_width || base_widths.is_empty() {
+        cache.clear();
+        return false;
+    }
+
+    if cache.len() != base_widths.len() {
+        cache.resize(base_widths.len(), 0.0);
+    }
+
+    let extra_per_column = (target_total_width - base_total_width) / base_widths.len() as f64;
+    for (dst, base) in cache.iter_mut().zip(base_widths.iter()) {
+        *dst = *base + extra_per_column;
+    }
+    true
+}
+
 #[derive(Clone, Debug, Default)]
 pub enum ShadTableRowAction {
     Clicked(usize),
@@ -493,6 +515,14 @@ pub struct ShadTable {
     resolved_widths: Vec<f64>,
     #[rust]
     resolved_widths_shared: Arc<[f64]>,
+    #[rust]
+    stretched_widths: Vec<f64>,
+    #[rust]
+    stretched_widths_shared: Arc<[f64]>,
+    #[rust]
+    stretched_widths_base: Arc<[f64]>,
+    #[rust]
+    stretched_total_width: f64,
     #[rust]
     total_width: f64,
     #[rust]
@@ -921,21 +951,27 @@ impl Widget for ShadTable {
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         let auto_filled = if self.auto_fill_width && !self.resolved_widths.is_empty() {
-            let mut widths: Vec<f64> = self.resolved_widths.clone();
-            let calculated_width: f64 = widths.iter().sum::<f64>() + 24.0;
+            let calculated_width = self.total_width;
 
             cx.begin_turtle(walk, self.layout);
             let avail = cx.turtle().rect().size.x;
             cx.end_turtle();
 
             if avail > calculated_width && avail > 0.0 {
-                let extra_width = avail - calculated_width;
-                let extra_per_column = extra_width / widths.len() as f64;
-                for width in &mut widths {
-                    *width += extra_per_column;
+                let refresh_cache = !Arc::ptr_eq(&self.stretched_widths_base, &self.resolved_widths_shared)
+                    || self.stretched_total_width != avail;
+                if refresh_cache
+                    && sync_stretched_widths(
+                        &mut self.stretched_widths,
+                        &self.resolved_widths,
+                        avail,
+                    )
+                {
+                    self.stretched_widths_shared = Arc::from(self.stretched_widths.as_slice());
+                    self.stretched_widths_base = Arc::clone(&self.resolved_widths_shared);
+                    self.stretched_total_width = avail;
                 }
-                let new_total = avail;
-                let shared_widths = Arc::from(widths.as_slice());
+                let shared_widths = Arc::clone(&self.stretched_widths_shared);
 
                 if let Some(mut header) = self
                     .view
@@ -946,19 +982,19 @@ impl Widget for ShadTable {
                         cx,
                         &self.headers,
                         &shared_widths,
-                        new_total,
+                        avail,
                         self.text_align,
                     );
                 }
 
                 let mut content = self.view.view(cx, ids!(table_view.scroll.content));
                 script_apply_eval!(cx, content, {
-                    width: #(new_total)
+                    width: #(avail)
                 });
 
                 while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
                     if let Some(mut list) = step.as_portal_list().borrow_mut() {
-                        self.draw_rows_with_widths(cx, &mut list, &shared_widths, new_total);
+                        self.draw_rows_with_widths(cx, &mut list, &shared_widths, avail);
                     }
                 }
                 return DrawStep::done();
@@ -1098,7 +1134,7 @@ fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
 
 #[cfg(test)]
 mod tests {
-    use super::{replace_arc_slice_if_changed, sync_default_widths};
+    use super::{replace_arc_slice_if_changed, sync_default_widths, sync_stretched_widths};
     use std::hint::black_box;
     use std::sync::Arc;
     use std::time::Instant;
@@ -1212,5 +1248,27 @@ mod tests {
         assert_eq!(widths.len(), 8);
         assert_eq!(widths.capacity(), capacity_before);
         assert!(widths.iter().all(|width| *width == 160.0));
+    }
+
+    #[test]
+    fn test_sync_stretched_widths_reuses_allocation() {
+        let base = vec![100.0, 120.0, 140.0];
+        let mut stretched = vec![0.0; 3];
+        let ptr_before = stretched.as_ptr();
+        let capacity_before = stretched.capacity();
+
+        assert!(sync_stretched_widths(&mut stretched, &base, 420.0));
+        assert_eq!(stretched.as_ptr(), ptr_before);
+        assert_eq!(stretched.capacity(), capacity_before);
+        assert_eq!(stretched, vec![112.0, 132.0, 152.0]);
+    }
+
+    #[test]
+    fn test_sync_stretched_widths_clears_cache_without_extra_space() {
+        let base = vec![100.0, 120.0, 140.0];
+        let mut stretched = vec![1.0, 2.0, 3.0];
+
+        assert!(!sync_stretched_widths(&mut stretched, &base, 384.0));
+        assert!(stretched.is_empty());
     }
 }
