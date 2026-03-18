@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::{router::RouterAction, url::RouterUrl};
 use makepad_widgets::*;
 
@@ -15,84 +17,129 @@ impl RouterWidget {
         self.sync_browser_url && cx.os_type().is_web()
     }
 
-    fn normalized_browser_base_path(base_path: &str) -> String {
+    fn normalized_browser_base_path_cow(base_path: &str) -> Cow<'_, str> {
         let trimmed = base_path.trim();
         if trimmed.is_empty() || trimmed == "/" {
-            return String::new();
+            return Cow::Borrowed("");
         }
 
-        let mut normalized = trimmed.to_string();
-        if !normalized.starts_with('/') {
-            normalized.insert(0, '/');
-        }
-        while normalized.len() > 1 && normalized.ends_with('/') {
-            normalized.pop();
+        let normalized_end = trimmed.trim_end_matches('/').len();
+        if normalized_end == 0 {
+            return Cow::Borrowed("");
         }
 
-        if normalized == "/" {
-            String::new()
+        // Optimization: browser base paths are typically already normalized.
+        // Borrowing avoids rebuilding the same String during every sync event.
+        if trimmed.starts_with('/') && normalized_end == trimmed.len() {
+            return Cow::Borrowed(trimmed);
+        }
+
+        let trimmed = &trimmed[..normalized_end];
+        let mut normalized = String::with_capacity(trimmed.len() + 1);
+        if !trimmed.starts_with('/') {
+            normalized.push('/');
+        }
+        normalized.push_str(trimmed);
+        Cow::Owned(normalized)
+    }
+
+    fn normalized_browser_base_path(base_path: &str) -> String {
+        Self::normalized_browser_base_path_cow(base_path).into_owned()
+    }
+
+    fn normalized_browser_path_cow(pathname: &str) -> Cow<'_, str> {
+        let trimmed = pathname.trim();
+        if trimmed.is_empty() {
+            return Cow::Borrowed("/");
+        }
+
+        // Optimization: most browser pathnames are already absolute, so borrow them directly.
+        if trimmed.starts_with('/') {
+            Cow::Borrowed(trimmed)
         } else {
-            normalized
+            let mut normalized = String::with_capacity(trimmed.len() + 1);
+            normalized.push('/');
+            normalized.push_str(trimmed);
+            Cow::Owned(normalized)
         }
     }
 
     fn normalized_browser_path(pathname: &str) -> String {
-        let trimmed = pathname.trim();
-        if trimmed.is_empty() {
-            "/".to_string()
-        } else if trimmed.starts_with('/') {
-            trimmed.to_string()
-        } else {
-            format!("/{}", trimmed)
-        }
+        Self::normalized_browser_path_cow(pathname).into_owned()
     }
 
     fn strip_browser_base_path(pathname: &str, base_path: &str) -> String {
-        let normalized_path = Self::normalized_browser_path(pathname);
-        let normalized_base = Self::normalized_browser_base_path(base_path);
+        let normalized_path = Self::normalized_browser_path_cow(pathname);
+        let normalized_base = Self::normalized_browser_base_path_cow(base_path);
 
         if normalized_base.is_empty() {
-            return normalized_path;
+            return normalized_path.into_owned();
         }
 
-        if normalized_path == normalized_base || normalized_path == format!("{}/", normalized_base)
+        let normalized_path_ref = normalized_path.as_ref();
+        let normalized_base_ref = normalized_base.as_ref();
+        if normalized_path_ref == normalized_base_ref
+            || normalized_path_ref
+                .strip_suffix('/')
+                .is_some_and(|path| path == normalized_base_ref)
         {
             return "/".to_string();
         }
 
-        if let Some(stripped) = normalized_path.strip_prefix(&(normalized_base.clone() + "/")) {
-            return format!("/{}", stripped.trim_start_matches('/'));
+        if normalized_path_ref.len() > normalized_base_ref.len()
+            && normalized_path_ref.starts_with(normalized_base_ref)
+            && normalized_path_ref.as_bytes()[normalized_base_ref.len()] == b'/'
+        {
+            let stripped = normalized_path_ref[normalized_base_ref.len()..].trim_start_matches('/');
+            if stripped.is_empty() {
+                return "/".to_string();
+            }
+
+            let mut normalized = String::with_capacity(stripped.len() + 1);
+            normalized.push('/');
+            normalized.push_str(stripped);
+            return normalized;
         }
 
-        normalized_path
+        normalized_path.into_owned()
     }
 
     fn prefix_clean_browser_base_path(route_url: &str, base_path: &str) -> String {
-        let normalized_base = Self::normalized_browser_base_path(base_path);
+        let normalized_base = Self::normalized_browser_base_path_cow(base_path);
         if normalized_base.is_empty() {
             return route_url.to_string();
         }
 
         let parsed = RouterUrl::parse(route_url);
-        let path = if parsed.path == "/" {
-            format!("{}/", normalized_base)
+        let mut out = String::with_capacity(
+            normalized_base.len() + parsed.path.len() + parsed.query.len() + parsed.hash.len() + 1,
+        );
+        out.push_str(normalized_base.as_ref());
+        if parsed.path == "/" {
+            out.push('/');
         } else {
-            format!("{}{}", normalized_base, parsed.path)
-        };
-
-        format!("{}{}{}", path, parsed.query, parsed.hash)
+            out.push_str(&parsed.path);
+        }
+        out.push_str(&parsed.query);
+        out.push_str(&parsed.hash);
+        out
     }
 
     fn prefix_hash_browser_base_path(route_url: &str, base_path: &str) -> String {
         let route_url = route_url.trim();
         let route_url = if route_url.is_empty() { "/" } else { route_url };
-        let normalized_base = Self::normalized_browser_base_path(base_path);
+        let normalized_base = Self::normalized_browser_base_path_cow(base_path);
 
+        let extra = if normalized_base.is_empty() { 2 } else { 3 };
+        let mut out = String::with_capacity(normalized_base.len() + route_url.len() + extra);
         if normalized_base.is_empty() {
-            format!("/#{}", route_url)
+            out.push_str("/#");
         } else {
-            format!("{}/#{}", normalized_base, route_url)
+            out.push_str(normalized_base.as_ref());
+            out.push_str("/#");
         }
+        out.push_str(route_url);
+        out
     }
 
     fn configured_browser_base_path(&self) -> String {
@@ -329,6 +376,60 @@ impl RouterWidget {
 #[cfg(test)]
 mod tests {
     use super::RouterWidget;
+    use std::hint::black_box;
+    use std::time::Instant;
+
+    fn old_strip_browser_base_path(pathname: &str, base_path: &str) -> String {
+        fn old_normalized_browser_base_path(base_path: &str) -> String {
+            let trimmed = base_path.trim();
+            if trimmed.is_empty() || trimmed == "/" {
+                return String::new();
+            }
+
+            let mut normalized = trimmed.to_string();
+            if !normalized.starts_with('/') {
+                normalized.insert(0, '/');
+            }
+            while normalized.len() > 1 && normalized.ends_with('/') {
+                normalized.pop();
+            }
+
+            if normalized == "/" {
+                String::new()
+            } else {
+                normalized
+            }
+        }
+
+        fn old_normalized_browser_path(pathname: &str) -> String {
+            let trimmed = pathname.trim();
+            if trimmed.is_empty() {
+                "/".to_string()
+            } else if trimmed.starts_with('/') {
+                trimmed.to_string()
+            } else {
+                format!("/{}", trimmed)
+            }
+        }
+
+        let normalized_path = old_normalized_browser_path(pathname);
+        let normalized_base = old_normalized_browser_base_path(base_path);
+
+        if normalized_base.is_empty() {
+            return normalized_path;
+        }
+
+        if normalized_path == normalized_base || normalized_path == format!("{}/", normalized_base)
+        {
+            return "/".to_string();
+        }
+
+        if let Some(stripped) = normalized_path.strip_prefix(&(normalized_base.clone() + "/")) {
+            return format!("/{}", stripped.trim_start_matches('/'));
+        }
+
+        normalized_path
+    }
 
     #[test]
     fn normalizes_browser_base_path() {
@@ -351,6 +452,17 @@ mod tests {
         );
         assert_eq!(
             RouterWidget::strip_browser_base_path("/makepad-components/", "/makepad-components"),
+            "/"
+        );
+        assert_eq!(
+            RouterWidget::strip_browser_base_path(
+                "/makepad-components//alert",
+                "/makepad-components"
+            ),
+            "/alert"
+        );
+        assert_eq!(
+            RouterWidget::strip_browser_base_path("/makepad-components///", "/makepad-components"),
             "/"
         );
     }
@@ -380,5 +492,28 @@ mod tests {
             RouterWidget::prefix_hash_browser_base_path("/alert", "/makepad-components"),
             "/makepad-components/#/alert"
         );
+    }
+
+    #[test]
+    fn strip_browser_base_path_performance_comparison() {
+        // Performance comparison helper: it exercises a real browser-sync hot path without
+        // asserting on absolute timings, which would be flaky in CI.
+        const BENCHMARK_ITERATIONS: usize = 200_000;
+        const PATHNAME: &str = "/makepad-components/examples/router/alert/details";
+        const BASE_PATH: &str = "/makepad-components";
+
+        let old_start = Instant::now();
+        for _ in 0..BENCHMARK_ITERATIONS {
+            black_box(old_strip_browser_base_path(PATHNAME, BASE_PATH));
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        for _ in 0..BENCHMARK_ITERATIONS {
+            black_box(RouterWidget::strip_browser_base_path(PATHNAME, BASE_PATH));
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!("strip_browser_base_path benchmark: old={old_elapsed:?}, new={new_elapsed:?}");
     }
 }
