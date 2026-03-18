@@ -5,32 +5,44 @@ gallery_static_page! {
     widget: GalleryInputPage,
     page: input_page,
     title: "Input",
-    subtitle: "Inputs are page-owned draft state: use TextInputRef methods for live changes, submit-on-return, and restoring text from external state.",
+    subtitle: "Inputs are page-owned draft state: keep a visible label, use placeholder text as a hint, and use TextInputRef methods for live changes or submit-on-return.",
     divider: { ShadHr{} },
     preview_spacing: 12.0,
     preview: {
-        ShadSectionHeader{ text: "Default" }
+        ShadSectionHeader{ text: "Field with persistent label" }
 
         View{
             width: 320
             height: Fit
+            flow: Down
+            spacing: 6.0
 
+            ShadFieldLabel{ text: "Email address" }
             ShadInput{
-                empty_text: "Email"
+                empty_text: "you@example.com"
+            }
+            ShadFieldDescription{
+                text: "Keep the label visible so the field purpose stays clear after someone starts typing."
             }
         }
 
         ShadHr{}
 
-        ShadSectionHeader{ text: "Disabled" }
+        ShadSectionHeader{ text: "Read only" }
 
         View{
             width: 320
             height: Fit
+            flow: Down
+            spacing: 6.0
 
+            ShadFieldLabel{ text: "Workspace slug" }
             ShadInput{
                 is_read_only: true
-                empty_text: "Read Only Value"
+                empty_text: "northwind-revamp"
+            }
+            ShadFieldDescription{
+                text: "Use a nearby label for read-only values too, so the locked field still reads clearly."
             }
         }
 
@@ -53,8 +65,18 @@ gallery_static_page! {
         View{
             width: 320
             height: Fit
+            flow: Down
+            spacing: 6.0
 
-            ShadInputWithIcon{}
+            ShadFieldLabel{ text: "Search components" }
+            ShadInputWithIcon{
+                input +: {
+                    empty_text: "Search components"
+                }
+            }
+            ShadFieldDescription{
+                text: "Leading icons help with recognition, but the visible label keeps the search scope explicit."
+            }
         }
     },
     action_flow: {
