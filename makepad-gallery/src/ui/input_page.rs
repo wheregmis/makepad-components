@@ -1,7 +1,7 @@
-use crate::ui::page_macros::gallery_static_page;
+use crate::ui::page_macros::gallery_stateful_page_shell;
 use makepad_components::makepad_widgets::*;
 
-gallery_static_page! {
+gallery_stateful_page_shell! {
     widget: GalleryInputPage,
     page: input_page,
     title: "Input",
@@ -37,9 +37,8 @@ gallery_static_page! {
             spacing: 6.0
 
             ShadFieldLabel{ text: "Workspace slug" }
-            ShadInput{
+            workspace_slug_input := ShadInput{
                 is_read_only: true
-                empty_text: "northwind-revamp"
             }
             ShadFieldDescription{
                 text: "Use a nearby label for read-only values too, so the locked field still reads clearly."
@@ -85,4 +84,34 @@ gallery_static_page! {
         mod.widgets.GalleryActionFlowStep{text: "3. Use returned(actions) when Enter should submit or confirm the current draft."}
         mod.widgets.GalleryActionFlowStep{text: "4. When external state changes, push it back into the field with set_text(cx, ...)."}
     },
+}
+
+#[derive(Script, Widget)]
+pub struct GalleryInputPage {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl ScriptHook for GalleryInputPage {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| {
+            self.view
+                .text_input(cx, ids!(workspace_slug_input))
+                .set_text(cx, "northwind-revamp");
+        });
+    }
+}
+
+impl Widget for GalleryInputPage {
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
+    }
 }
