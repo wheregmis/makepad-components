@@ -154,6 +154,18 @@ fn sync_default_widths(widths: &mut Vec<f64>, column_count: usize, default_width
     }
 }
 
+fn update_cached_width(cached_width: &mut f64, width: f64) -> bool {
+    if *cached_width == width {
+        return false;
+    }
+    *cached_width = width;
+    true
+}
+
+fn invalidate_cached_width(cached_width: &mut f64) {
+    *cached_width = f64::NAN;
+}
+
 fn calculate_content_based_widths(headers: &[String], rows_data: &[Arc<[String]>]) -> Vec<f64> {
     let column_count = headers.len();
     if column_count == 0 {
@@ -502,6 +514,8 @@ pub struct ShadTable {
     #[rust]
     stretched_avail_width: f64,
     #[rust]
+    applied_content_width: f64,
+    #[rust]
     total_width: f64,
     #[rust]
     selected_row: Option<usize>,
@@ -529,6 +543,10 @@ impl ScriptHook for ShadTable {
                 self.rows_data = rows;
                 self.rows_source = self.rows;
             }
+            // A live/script apply can restore `table_view.scroll.content` to its declared `Fit`
+            // width before `sync_layout` reapplies the computed fixed width. Invalidate the cache
+            // so same-width reapplies still run `script_apply_eval!` once after every apply pass.
+            invalidate_cached_width(&mut self.applied_content_width);
             if self.virtual_total_rows == 0 {
                 self.virtual_window_start = 0;
             } else if self.virtual_window_start >= self.virtual_total_rows {
@@ -598,6 +616,20 @@ impl ShadTable {
         Some((Arc::clone(&self.stretched_widths_shared), avail))
     }
 
+    fn sync_content_width(&mut self, cx: &mut Cx, width: f64) {
+        if !update_cached_width(&mut self.applied_content_width, width) {
+            return;
+        }
+
+        // Optimization: only re-run `script_apply_eval!` when the stretched content width
+        // actually changes. Previously the auto-fill draw path re-applied the same width every
+        // frame, which forced unnecessary script evaluation in a hot render loop.
+        let mut content = self.view.view(cx, ids!(table_view.scroll.content));
+        script_apply_eval!(cx, content, {
+            width: #(width)
+        });
+    }
+
     fn sync_layout(&mut self, cx: &mut Cx) {
         let custom_row_mode = self.has_custom_rows();
         let column_count = if custom_row_mode {
@@ -660,10 +692,7 @@ impl ShadTable {
             );
         }
 
-        let mut content = self.view.view(cx, ids!(table_view.scroll.content));
-        script_apply_eval!(cx, content, {
-            width: #(self.total_width)
-        });
+        self.sync_content_width(cx, self.total_width);
     }
 
     fn empty_fill_rows(list: &PortalList, cx: &Cx2d, used_rows: usize) -> usize {
@@ -1059,10 +1088,7 @@ impl Widget for ShadTable {
                     );
                 }
 
-                let mut content = self.view.view(cx, ids!(table_view.scroll.content));
-                script_apply_eval!(cx, content, {
-                    width: #(new_total)
-                });
+                self.sync_content_width(cx, new_total);
 
                 while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
                     if let Some(mut list) = step.as_portal_list().borrow_mut() {
@@ -1212,7 +1238,10 @@ fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
 
 #[cfg(test)]
 mod tests {
-    use super::{replace_arc_slice_if_changed, sync_default_widths};
+    use super::{
+        invalidate_cached_width, replace_arc_slice_if_changed, sync_default_widths,
+        update_cached_width,
+    };
     use std::hint::black_box;
     use std::sync::Arc;
     use std::time::Instant;
@@ -1326,5 +1355,53 @@ mod tests {
         assert_eq!(widths.len(), 8);
         assert_eq!(widths.capacity(), capacity_before);
         assert!(widths.iter().all(|width| *width == 160.0));
+    }
+
+    #[test]
+    fn content_width_cache_only_updates_on_change() {
+        let mut cached_width = 320.0;
+        assert!(!update_cached_width(&mut cached_width, 320.0));
+        assert_eq!(cached_width, 320.0);
+
+        assert!(update_cached_width(&mut cached_width, 512.0));
+        assert_eq!(cached_width, 512.0);
+    }
+
+    #[test]
+    fn content_width_cache_reapplies_after_invalidation() {
+        let mut cached_width = 320.0;
+        invalidate_cached_width(&mut cached_width);
+        assert!(update_cached_width(&mut cached_width, 320.0));
+        assert_eq!(cached_width, 320.0);
+    }
+
+    #[test]
+    fn content_width_cache_performance_comparison() {
+        // Performance comparison helper: in the common auto-fill case the content width is
+        // stable across frames, so the optimized path skips redundant update work entirely.
+        const BENCHMARK_ITERATIONS: usize = 1_000_000;
+
+        let old_start = Instant::now();
+        let mut old_updates = 0usize;
+        for _ in 0..BENCHMARK_ITERATIONS {
+            old_updates += 1;
+            black_box(old_updates);
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        let mut cached_width = 320.0;
+        let mut updates = 0usize;
+        for _ in 0..BENCHMARK_ITERATIONS {
+            updates += usize::from(update_cached_width(&mut cached_width, 320.0));
+            black_box(cached_width);
+        }
+        let new_elapsed = new_start.elapsed();
+
+        assert_eq!(old_updates, BENCHMARK_ITERATIONS);
+        assert_eq!(updates, 0);
+        println!(
+            "content width cache benchmark: old_updates={old_updates}, new_updates={updates}, old_loop={old_elapsed:?}, new_loop={new_elapsed:?}"
+        );
     }
 }
