@@ -93,7 +93,19 @@ impl App {
                 .label(cx, ids!(mobile_page_label))
                 .set_text(cx, entry.title);
         }
+        self.sync_sidebar_focus_behavior(cx);
         self.sync_sidebar_selection(cx);
+    }
+
+    fn sync_sidebar_focus_behavior(&self, cx: &mut Cx) {
+        let allow_sidebar_focus = !self.is_small_screen;
+
+        for entry in catalog::entries() {
+            let mut item = self.ui.button(cx, &[entry.sidebar_id]);
+            script_apply_eval!(cx, item, {
+                grab_key_focus: #(allow_sidebar_focus)
+            });
+        }
     }
 
     fn sync_sidebar_selection(&self, cx: &mut Cx) {
@@ -184,6 +196,7 @@ impl App {
             .view(cx, ids!(main_content))
             .set_visible(cx, !self.is_small_screen || !self.sidebar_open);
         self.sync_mobile_sidebar_button(cx);
+        self.sync_sidebar_focus_behavior(cx);
     }
 
     fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {
