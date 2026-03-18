@@ -23,7 +23,6 @@ script_mod! {
         height: 32
         padding: Inset{left: 10, right: 10}
         align: Align{x: 0.0, y: 0.5}
-        grab_key_focus: false
         reset_hover_on_click: true
         draw_bg +: {
             border_radius: (shad_theme.radius)

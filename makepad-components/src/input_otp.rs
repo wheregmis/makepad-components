@@ -290,11 +290,11 @@ impl ShadInputOtp {
     pub fn set_value(&mut self, cx: &mut Cx, next: String) {
         let sanitized = self.sanitize(&next);
         if sanitized != self.value {
-            self.value = sanitized.clone();
+            self.value = sanitized;
             cx.widget_action_with_data(
                 &self.action_data,
                 self.widget_uid(),
-                ShadInputOtpAction::Changed(sanitized),
+                ShadInputOtpAction::Changed(self.value.clone()),
             );
         }
         self.emit_completed_if_needed(cx);

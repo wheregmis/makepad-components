@@ -24,3 +24,12 @@
 ## 2026-03-18 – [Expose icon-only theme state]
 **Learning:** In the gallery shell, the theme switcher was an icon-only control with no adjacent state text, so users had to infer both the current theme and what the button would affect.
 **Action:** When this codebase uses compact icon toggles for global chrome actions, pair them with a short visible state label like `Dark theme` or `Light` instead of relying on the icon alone.
+## 2026-03-18 – [Shortcut hints must match real input support]
+**Learning:** The gallery shell already opens the command palette on both `Cmd+K` and `Ctrl+K`, but the header only advertised the macOS shortcut and the mobile trigger label was too generic.
+**Action:** When a shared launcher supports multiple modifier paths or ambiguous search scope, show the real cross-platform shortcut and name the target explicitly in the shell chrome.
+## 2026-03-18 – [Keep primary navigation keyboard reachable]
+**Learning:** In this codebase, `grab_key_focus: false` on shared sidebar items silently removes the main catalog navigation from the tab order, and transparent focus colors make the regression easy to miss.
+**Action:** For reusable nav controls, keep keyboard focus enabled by default and pair it with a visible focus state that matches hover or active treatment.
+## 2026-03-18 – [Gallery examples should not teach placeholder-only fields]
+**Learning:** In this repo, the gallery pages act as live documentation. When a preview uses only placeholder text, it quietly teaches an inaccessible pattern even if the code snippet beside it shows the correct labeled-field composition.
+**Action:** Keep the live preview aligned with `ShadFieldLabel` and helper text patterns whenever a gallery page demonstrates form inputs.

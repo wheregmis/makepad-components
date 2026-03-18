@@ -9,6 +9,7 @@
 use makepad_live_id::*;
 use makepad_micro_serde::*;
 use std::collections::HashMap;
+use std::fmt::Write;
 use std::ops::Deref;
 use std::sync::Arc;
 
@@ -120,6 +121,57 @@ pub enum RouteParamStore {
 }
 
 impl RoutePattern {
+    fn push_live_id_value(out: &mut String, value: LiveId) {
+        if value == LiveId::empty() {
+            out.push('0');
+        } else {
+            write!(out, "{:016x}", value.get_value())
+                .expect("writing into a String should be infallible");
+        }
+    }
+
+    fn push_formatted_path(
+        &self,
+        out: &mut String,
+        params: &RouteParams,
+        stop_before_wildcards: bool,
+    ) -> Option<()> {
+        for segment in &self.segments {
+            match segment {
+                RouteSegment::Static(segment) => {
+                    out.push('/');
+                    out.push_str(segment);
+                }
+                RouteSegment::Dynamic { key, .. } => {
+                    let value = match params.get(*key) {
+                        Some(value) => value,
+                        None if stop_before_wildcards => break,
+                        None => return None,
+                    };
+                    out.push('/');
+                    // Optimization: write directly into the output string instead of first
+                    // building a Vec<String> and joining it, which cloned every static segment.
+                    // Keep the non-interned fallback outside of LiveId::as_string's mutex to avoid
+                    // recursively formatting the same LiveId and deadlocking.
+                    value.as_string(|value_str| match value_str {
+                        Some(value_str) => out.push_str(value_str),
+                        None => Self::push_live_id_value(out, value),
+                    });
+                }
+                RouteSegment::WildcardSingle | RouteSegment::WildcardMulti => {
+                    if stop_before_wildcards {
+                        break;
+                    }
+                    return None;
+                }
+            }
+        }
+        if out.is_empty() {
+            out.push('/');
+        }
+        Some(())
+    }
+
     /// Parse a route pattern string (e.g., "/user/:id" or "/admin/*")
     pub fn parse(pattern: &str) -> Result<Self, String> {
         let pattern = pattern.trim();
@@ -277,43 +329,37 @@ impl RoutePattern {
 
     /// Format a concrete path (no wildcards) from this pattern and params.
     pub fn format_path(&self, params: &RouteParams) -> Option<String> {
-        let mut out: Vec<String> = Vec::with_capacity(self.segments.len());
-        for segment in &self.segments {
-            match segment {
-                RouteSegment::Static(s) => out.push(s.clone()),
-                RouteSegment::Dynamic { key, .. } => {
-                    let value = params.get(*key)?;
-                    out.push(value.to_string());
-                }
-                RouteSegment::WildcardSingle | RouteSegment::WildcardMulti => return None,
-            }
-        }
-        Some(format!("/{}", out.join("/")))
+        let mut out = String::with_capacity(
+            1 + self
+                .segments
+                .iter()
+                .map(|segment| match segment {
+                    RouteSegment::Static(segment) => segment.len() + 1,
+                    _ => 1,
+                })
+                .sum::<usize>(),
+        );
+        self.push_formatted_path(&mut out, params, false)?;
+        Some(out)
     }
 
     /// Format the "base" part of a pattern, stopping before wildcards.
     ///
     /// This is useful for nested routing patterns like `/admin/**`, where the base is `/admin`.
     pub fn format_base_path(&self, params: &RouteParams) -> String {
-        let mut out: Vec<String> = Vec::with_capacity(self.segments.len());
-        for segment in &self.segments {
-            match segment {
-                RouteSegment::Static(s) => out.push(s.clone()),
-                RouteSegment::Dynamic { key, .. } => {
-                    if let Some(value) = params.get(*key) {
-                        out.push(value.to_string());
-                    } else {
-                        break;
-                    }
-                }
-                RouteSegment::WildcardSingle | RouteSegment::WildcardMulti => break,
-            }
-        }
-        if out.is_empty() {
-            "/".to_string()
-        } else {
-            format!("/{}", out.join("/"))
-        }
+        let mut out = String::with_capacity(
+            1 + self
+                .segments
+                .iter()
+                .map(|segment| match segment {
+                    RouteSegment::Static(segment) => segment.len() + 1,
+                    _ => 1,
+                })
+                .sum::<usize>(),
+        );
+        self.push_formatted_path(&mut out, params, true)
+            .expect("base path formatting should only stop early, not fail");
+        out
     }
 }
 
@@ -635,5 +681,83 @@ mod tests {
     fn test_pattern_types_exist() {
         // Verify that RoutePattern and RouteSegment can be constructed
         let _pattern = RoutePattern::parse("/user/:id").unwrap();
+    }
+
+    #[test]
+    fn test_format_path_and_base_path_outputs() {
+        let pattern = RoutePattern::parse("/team/:team/member/:member/**").unwrap();
+        let mut params = RouteParams::new();
+        params.add(
+            LiveId::from_str("team"),
+            LiveId::from_str_with_intern("alpha", InternLiveId::Yes),
+        );
+        params.add(
+            LiveId::from_str("member"),
+            LiveId::from_str_with_intern("beta", InternLiveId::Yes),
+        );
+
+        assert_eq!(pattern.format_path(&params), None);
+        assert_eq!(pattern.format_base_path(&params), "/team/alpha/member/beta");
+        assert_eq!(
+            RoutePattern::parse("/team/:team/member/:member")
+                .unwrap()
+                .format_path(&params),
+            Some("/team/alpha/member/beta".to_string())
+        );
+    }
+
+    #[test]
+    fn test_format_path_with_non_interned_param_uses_hex_fallback() {
+        let pattern = RoutePattern::parse("/user/:id/settings").unwrap();
+        let mut params = RouteParams::new();
+        let non_interned = LiveId::from_str("42");
+        params.add(LiveId::from_str("id"), non_interned);
+
+        let expected = format!("/user/{:016x}/settings", non_interned.get_value());
+        assert_eq!(pattern.format_path(&params), Some(expected.clone()));
+        assert_eq!(pattern.format_base_path(&params), expected);
+    }
+
+    #[test]
+    #[ignore = "benchmark-style measurement for allocation reduction"]
+    fn bench_format_path_direct_string_build() {
+        fn legacy_format_path(pattern: &RoutePattern, params: &RouteParams) -> Option<String> {
+            let mut out: Vec<String> = Vec::with_capacity(pattern.segments.len());
+            for segment in &pattern.segments {
+                match segment {
+                    RouteSegment::Static(segment) => out.push(segment.clone()),
+                    RouteSegment::Dynamic { key, .. } => out.push(params.get(*key)?.to_string()),
+                    RouteSegment::WildcardSingle | RouteSegment::WildcardMulti => return None,
+                }
+            }
+            Some(format!("/{}", out.join("/")))
+        }
+
+        let pattern = RoutePattern::parse("/team/:team/member/:member/settings").unwrap();
+        let mut params = RouteParams::new();
+        params.add(
+            LiveId::from_str("team"),
+            LiveId::from_str_with_intern("alpha", InternLiveId::Yes),
+        );
+        params.add(
+            LiveId::from_str("member"),
+            LiveId::from_str_with_intern("beta", InternLiveId::Yes),
+        );
+        let iterations = 200_000;
+
+        let start = std::time::Instant::now();
+        let mut sink = 0usize;
+        for _ in 0..iterations {
+            sink += legacy_format_path(&pattern, &params).unwrap().len();
+        }
+        let legacy_elapsed = start.elapsed();
+
+        let start = std::time::Instant::now();
+        for _ in 0..iterations {
+            sink += pattern.format_path(&params).unwrap().len();
+        }
+        let optimized_elapsed = start.elapsed();
+
+        eprintln!("legacy={legacy_elapsed:?} optimized={optimized_elapsed:?} sink={sink}");
     }
 }

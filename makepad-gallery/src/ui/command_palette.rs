@@ -163,6 +163,10 @@ script_mod! {
                             draw_text.text_style.font_size: 14
                             draw_text.color_empty: (shad_theme.color_muted_foreground)
                         }
+
+                        clear_search_btn := ShadButtonGhost{
+                            text: "Clear"
+                        }
                     }
 
                     results_summary := ShadFieldDescription{
@@ -415,6 +419,9 @@ impl GalleryCommandPalette {
             cx,
             &command_results_summary(&display_query, self.filtered_indices.len()),
         );
+        self.overlay
+            .button(cx, ids!(clear_search_btn))
+            .set_enabled(cx, !query.is_empty());
         self.reset_results_position(cx);
         if results_changed || active_changed {
             self.redraw(cx);
@@ -568,6 +575,15 @@ impl Widget for GalleryCommandPalette {
                     self.query = text;
                     self.active_index = 0;
                     self.refresh_results(cx);
+                }
+
+                if self
+                    .overlay
+                    .button(cx, ids!(clear_search_btn))
+                    .clicked(actions)
+                {
+                    self.clear_query(cx);
+                    return;
                 }
 
                 let content = self.overlay.widget(cx, ids!(content));
