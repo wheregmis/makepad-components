@@ -20,24 +20,32 @@ macro_rules! icon_gallery_page_generated {
             divider: { ShadHr{} },
             preview_spacing: 12.0,
             preview: {
-                search_toolbar := View{
+                search_controls := ShadField{
                     width: Fill
-                    height: Fit
-                    flow: Right
-                    spacing: 8.0
 
-                    search_field := ShadInputWithIcon{
+                    search_label := ShadFieldLabel{
+                        text: "Search icons or widget names"
+                    }
+
+                    search_toolbar := View{
                         width: Fill
-                        input +: {
-                            empty_text: "Search icons or widget names..."
+                        height: Fit
+                        flow: Right
+                        spacing: 8.0
+
+                        search_field := ShadInputWithIcon{
+                            width: Fill
+                            input +: {
+                                empty_text: "Search icons or widget names..."
+                            }
                         }
-                    }
 
-                    clear_search_btn := ShadButtonOutline{
-                        text: "Clear"
-                    }
+                        clear_search_btn := ShadButtonOutline{
+                            text: "Clear"
+                        }
 
-                    icon_search_btn := ShadButtonSm{text: "Focus field"}
+                        icon_search_btn := ShadButtonSm{text: "Focus search"}
+                    }
                 }
 
                 search_hint := ShadFieldDescription{
