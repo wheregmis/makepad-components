@@ -28,25 +28,10 @@ macro_rules! define_gallery_root {
             use mod.draw.KeyCode
             use mod.widgets.*
 
-            mod.widgets.GalleryThemeToggle = ButtonFlatIcon{
-                width: 36
+            mod.widgets.GalleryThemeToggle = ShadButtonOutline{
+                width: Fit
                 height: 36
-                icon_walk: Walk{width: 16, height: 16}
-                draw_icon.svg: crate_resource("self://resources/icons/sun-moon.svg")
-                draw_icon.color: (shad_theme.color_primary)
-
-                draw_bg +: {
-                    color: #0000
-                    color_hover: (shad_theme.color_ghost_hover)
-                    color_down: (shad_theme.color_ghost_down)
-                    color_focus: (shad_theme.color_ghost_hover)
-                    border_size: 1.0
-                    border_radius: (shad_theme.radius)
-                    border_color: (shad_theme.color_outline_border)
-                    border_color_hover: (shad_theme.color_outline_border_hover)
-                    border_color_down: (shad_theme.color_outline_border_down)
-                    border_color_focus: (shad_theme.color_outline_border_hover)
-                }
+                text: "Light theme"
             }
 
             mod.widgets.GalleryCommandPaletteHeaderTrigger = View{
