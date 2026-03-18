@@ -281,7 +281,7 @@ impl ShadSonner {
     }
 
     fn register_global_host(&mut self, cx: &mut Cx) {
-        let global = cx.global::<SonnerGlobal>().clone();
+        let global = cx.global::<SonnerGlobal>();
         let mut state = global.state.borrow_mut();
         if state.host_uid.is_none() || state.host_uid == Some(self.widget_uid()) {
             if state.host_uid != Some(self.widget_uid()) || state.host_overlay.is_none() {
@@ -294,19 +294,19 @@ impl ShadSonner {
     }
 
     fn is_global_host(&self, cx: &mut Cx) -> bool {
-        let global = cx.global::<SonnerGlobal>().clone();
+        let global = cx.global::<SonnerGlobal>();
         let is_host = global.state.borrow().host_uid == Some(self.widget_uid());
         is_host
     }
 
     fn global_is_open(&self, cx: &mut Cx) -> bool {
-        let global = cx.global::<SonnerGlobal>().clone();
+        let global = cx.global::<SonnerGlobal>();
         let is_open = !global.state.borrow().toasts.is_empty();
         is_open
     }
 
     fn visible_toasts(&self, cx: &mut Cx) -> [Option<SonnerToastKind>; MAX_VISIBLE_TOASTS] {
-        let global = cx.global::<SonnerGlobal>().clone();
+        let global = cx.global::<SonnerGlobal>();
         let state = global.state.borrow();
         Self::visible_toasts_snapshot(&state)
     }
@@ -480,8 +480,8 @@ impl ShadSonner {
         }
 
         let visible_toasts = self.visible_toasts(cx);
-        for index in 0..MAX_VISIBLE_TOASTS {
-            Self::sync_overlay_slot(cx, &self.overlay, index, visible_toasts[index]);
+        for (index, kind) in visible_toasts.into_iter().enumerate().take(MAX_VISIBLE_TOASTS) {
+            Self::sync_overlay_slot(cx, &self.overlay, index, kind);
         }
         self.sync_overlay_open_state(cx);
     }

@@ -135,6 +135,19 @@ fn replace_arc_slice_if_changed<T>(dst: &mut Arc<[T]>, src: &Arc<[T]>) -> bool {
     true
 }
 
+fn sync_vec_if_changed<T: PartialEq + Clone>(dst: &mut Vec<T>, src: &[T]) -> bool {
+    if dst.as_slice() == src {
+        return false;
+    }
+
+    // Optimization: header data is refreshed from table draw/layout sync paths.
+    // Previously: `src.to_vec()` rebuilt the Vec storage on every content change.
+    // Now: clear + extend reuses the existing allocation when capacity is sufficient.
+    dst.clear();
+    dst.extend_from_slice(src);
+    true
+}
+
 /// Ensures the table width buffer tracks the current column count while reusing allocations.
 ///
 /// The common case for virtualized updates is a stable column count, so this returns early and
@@ -152,6 +165,18 @@ fn sync_default_widths(widths: &mut Vec<f64>, column_count: usize, default_width
     if shrinking && widths.iter().any(|width| *width != default_width) {
         widths.fill(default_width);
     }
+}
+
+fn update_cached_width(cached_width: &mut f64, width: f64) -> bool {
+    if *cached_width == width {
+        return false;
+    }
+    *cached_width = width;
+    true
+}
+
+fn invalidate_cached_width(cached_width: &mut f64) {
+    *cached_width = f64::NAN;
 }
 
 fn calculate_content_based_widths(headers: &[String], rows_data: &[Arc<[String]>]) -> Vec<f64> {
@@ -242,12 +267,10 @@ impl ShadTableHeaderView {
         text_align: f64,
     ) {
         let mut changed = false;
-        if self.headers != headers {
-            self.headers = headers.to_vec();
+        if sync_vec_if_changed(&mut self.headers, headers) {
             changed = true;
         }
-        if self.widths != widths {
-            self.widths = widths.to_vec();
+        if sync_vec_if_changed(&mut self.widths, widths) {
             changed = true;
         }
         if self.text_align != text_align {
@@ -502,6 +525,8 @@ pub struct ShadTable {
     #[rust]
     stretched_avail_width: f64,
     #[rust]
+    applied_content_width: f64,
+    #[rust]
     total_width: f64,
     #[rust]
     selected_row: Option<usize>,
@@ -529,6 +554,10 @@ impl ScriptHook for ShadTable {
                 self.rows_data = rows;
                 self.rows_source = self.rows;
             }
+            // A live/script apply can restore `table_view.scroll.content` to its declared `Fit`
+            // width before `sync_layout` reapplies the computed fixed width. Invalidate the cache
+            // so same-width reapplies still run `script_apply_eval!` once after every apply pass.
+            invalidate_cached_width(&mut self.applied_content_width);
             if self.virtual_total_rows == 0 {
                 self.virtual_window_start = 0;
             } else if self.virtual_window_start >= self.virtual_total_rows {
@@ -598,6 +627,20 @@ impl ShadTable {
         Some((Arc::clone(&self.stretched_widths_shared), avail))
     }
 
+    fn sync_content_width(&mut self, cx: &mut Cx, width: f64) {
+        if !update_cached_width(&mut self.applied_content_width, width) {
+            return;
+        }
+
+        // Optimization: only re-run `script_apply_eval!` when the stretched content width
+        // actually changes. Previously the auto-fill draw path re-applied the same width every
+        // frame, which forced unnecessary script evaluation in a hot render loop.
+        let mut content = self.view.view(cx, ids!(table_view.scroll.content));
+        script_apply_eval!(cx, content, {
+            width: #(width)
+        });
+    }
+
     fn sync_layout(&mut self, cx: &mut Cx) {
         let custom_row_mode = self.has_custom_rows();
         let column_count = if custom_row_mode {
@@ -660,10 +703,7 @@ impl ShadTable {
             );
         }
 
-        let mut content = self.view.view(cx, ids!(table_view.scroll.content));
-        script_apply_eval!(cx, content, {
-            width: #(self.total_width)
-        });
+        self.sync_content_width(cx, self.total_width);
     }
 
     fn empty_fill_rows(list: &PortalList, cx: &Cx2d, used_rows: usize) -> usize {
@@ -1059,10 +1099,7 @@ impl Widget for ShadTable {
                     );
                 }
 
-                let mut content = self.view.view(cx, ids!(table_view.scroll.content));
-                script_apply_eval!(cx, content, {
-                    width: #(new_total)
-                });
+                self.sync_content_width(cx, new_total);
 
                 while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
                     if let Some(mut list) = step.as_portal_list().borrow_mut() {
@@ -1212,7 +1249,7 @@ fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
 
 #[cfg(test)]
 mod tests {
-    use super::{replace_arc_slice_if_changed, sync_default_widths};
+    use super::{replace_arc_slice_if_changed, sync_default_widths, sync_vec_if_changed};
     use std::hint::black_box;
     use std::sync::Arc;
     use std::time::Instant;
@@ -1326,5 +1363,67 @@ mod tests {
         assert_eq!(widths.len(), 8);
         assert_eq!(widths.capacity(), capacity_before);
         assert!(widths.iter().all(|width| *width == 160.0));
+    }
+
+    #[test]
+    fn sync_vec_if_changed_reuses_allocation_for_header_updates() {
+        let mut headers = vec!["old".to_string(), "header".to_string()];
+        headers.reserve(2);
+        let ptr_before = headers.as_ptr();
+        let capacity_before = headers.capacity();
+
+        assert!(sync_vec_if_changed(
+            &mut headers,
+            &["new".to_string(), "labels".to_string()]
+        ));
+        assert_eq!(headers.as_ptr(), ptr_before);
+        assert_eq!(headers.capacity(), capacity_before);
+        assert_eq!(headers, ["new".to_string(), "labels".to_string()]);
+    }
+
+    #[test]
+    fn sync_vec_if_changed_performance_comparison() {
+        // Performance comparison helper: this prints timings for manual verification.
+        // It intentionally does not assert wall-clock durations to avoid flaky CI failures.
+        const BENCHMARK_ITERATIONS: usize = 100_000;
+        let source_a = vec![
+            "A".to_string(),
+            "B".to_string(),
+            "C".to_string(),
+            "D".to_string(),
+        ];
+        let source_b = vec![
+            "W".to_string(),
+            "X".to_string(),
+            "Y".to_string(),
+            "Z".to_string(),
+        ];
+
+        let old_start = Instant::now();
+        let mut old = source_b.clone();
+        for _ in 0..BENCHMARK_ITERATIONS {
+            if old != source_a {
+                old = source_a.to_vec();
+            }
+            if old != source_b {
+                old = source_b.to_vec();
+            }
+            black_box(&old);
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        let mut optimized = source_b.clone();
+        let optimized_capacity = optimized.capacity();
+        for _ in 0..BENCHMARK_ITERATIONS {
+            sync_vec_if_changed(&mut optimized, &source_a);
+            sync_vec_if_changed(&mut optimized, &source_b);
+            black_box(&optimized);
+        }
+        let new_elapsed = new_start.elapsed();
+
+        assert_eq!(optimized.capacity(), optimized_capacity);
+        assert_eq!(old, optimized);
+        println!("sync_vec_if_changed benchmark: old={old_elapsed:?}, new={new_elapsed:?}");
     }
 }
