@@ -6,6 +6,7 @@ use crate::models::pagination::{
 use makepad_widgets::makepad_script::NoTrap;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
+use std::fmt::Write;
 
 const MAX_PAGE_BUTTONS: usize = 7;
 
@@ -129,6 +130,8 @@ pub struct ShadPagination {
     #[rust]
     show_right_ellipsis: bool,
     #[rust]
+    slot_text_cache: [String; MAX_PAGE_BUTTONS],
+    #[rust]
     view_synced: bool,
     #[rust]
     theme_style: PaginationThemeStyle,
@@ -156,6 +159,19 @@ impl ScriptHook for ShadPagination {
 }
 
 impl ShadPagination {
+    fn sync_page_button_text(
+        &mut self,
+        cx: &mut Cx,
+        button: &mut ButtonRef,
+        index: usize,
+        page: usize,
+    ) {
+        let text = &mut self.slot_text_cache[index];
+        text.clear();
+        let _ = write!(text, "{page}");
+        button.set_text(cx, text);
+    }
+
     fn resolve_theme_style(vm: &mut ScriptVm) -> PaginationThemeStyle {
         fn theme_value(vm: &mut ScriptVm, key: LiveId) -> ScriptValue {
             let mod_obj = vm.module(id!(mod));
@@ -350,7 +366,7 @@ impl ShadPagination {
 
             if is_visible {
                 if force || self.slot_pages[index] != page {
-                    button.set_text(cx, &page.to_string());
+                    self.sync_page_button_text(cx, &mut button, index, page);
                 }
                 self.slot_pages[index] = page;
                 let is_active = page == current_page;
