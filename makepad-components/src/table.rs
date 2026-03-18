@@ -531,6 +531,7 @@ impl ScriptHook for ShadTable {
                 self.rows_data = rows;
                 self.rows_source = self.rows;
             }
+            invalidate_content_width_cache(&mut self.applied_content_width);
             if self.virtual_total_rows == 0 {
                 self.virtual_window_start = 0;
             } else if self.virtual_window_start >= self.virtual_total_rows {
@@ -1196,6 +1197,10 @@ fn should_apply_content_width(last_applied_width: &mut Option<f64>, width: f64) 
     true
 }
 
+fn invalidate_content_width_cache(last_applied_width: &mut Option<f64>) {
+    *last_applied_width = None;
+}
+
 fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
     draw.color = color;
     draw.draw_abs(
@@ -1230,7 +1235,10 @@ fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
 
 #[cfg(test)]
 mod tests {
-    use super::{replace_arc_slice_if_changed, should_apply_content_width, sync_default_widths};
+    use super::{
+        invalidate_content_width_cache, replace_arc_slice_if_changed, should_apply_content_width,
+        sync_default_widths,
+    };
     use std::hint::black_box;
     use std::sync::Arc;
     use std::time::Instant;
@@ -1374,5 +1382,17 @@ mod tests {
         println!(
             "content_width_apply_cache benchmark: frames={FRAME_COUNT}, uncached_updates={uncached_updates}, cached_updates={cached_updates}, old={old_elapsed:?}, new={new_elapsed:?}"
         );
+    }
+
+    #[test]
+    fn content_width_apply_cache_reapplies_after_invalidation() {
+        let mut cached_width = None;
+
+        assert!(should_apply_content_width(&mut cached_width, 960.0));
+        assert!(!should_apply_content_width(&mut cached_width, 960.0));
+
+        invalidate_content_width_cache(&mut cached_width);
+
+        assert!(should_apply_content_width(&mut cached_width, 960.0));
     }
 }
