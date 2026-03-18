@@ -9,6 +9,7 @@
 use makepad_live_id::*;
 use makepad_micro_serde::*;
 use std::collections::HashMap;
+use std::fmt::Write;
 use std::ops::Deref;
 use std::sync::Arc;
 
@@ -120,6 +121,15 @@ pub enum RouteParamStore {
 }
 
 impl RoutePattern {
+    fn push_live_id_value(out: &mut String, value: LiveId) {
+        if value == LiveId::empty() {
+            out.push('0');
+        } else {
+            write!(out, "{:016x}", value.get_value())
+                .expect("writing into a String should be infallible");
+        }
+    }
+
     fn push_formatted_path(
         &self,
         out: &mut String,
@@ -141,9 +151,11 @@ impl RoutePattern {
                     out.push('/');
                     // Optimization: write directly into the output string instead of first
                     // building a Vec<String> and joining it, which cloned every static segment.
+                    // Keep the non-interned fallback outside of LiveId::as_string's mutex to avoid
+                    // recursively formatting the same LiveId and deadlocking.
                     value.as_string(|value_str| match value_str {
                         Some(value_str) => out.push_str(value_str),
-                        None => out.push_str(&value.to_string()),
+                        None => Self::push_live_id_value(out, value),
                     });
                 }
                 RouteSegment::WildcardSingle | RouteSegment::WildcardMulti => {
@@ -692,6 +704,18 @@ mod tests {
                 .format_path(&params),
             Some("/team/alpha/member/beta".to_string())
         );
+    }
+
+    #[test]
+    fn test_format_path_with_non_interned_param_uses_hex_fallback() {
+        let pattern = RoutePattern::parse("/user/:id/settings").unwrap();
+        let mut params = RouteParams::new();
+        let non_interned = LiveId::from_str("42");
+        params.add(LiveId::from_str("id"), non_interned);
+
+        let expected = format!("/user/{:016x}/settings", non_interned.get_value());
+        assert_eq!(pattern.format_path(&params), Some(expected.clone()));
+        assert_eq!(pattern.format_base_path(&params), expected);
     }
 
     #[test]
