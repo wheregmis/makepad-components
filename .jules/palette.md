@@ -13,3 +13,7 @@
 ## 2026-03-17 – [Keep live search controls stable]
 **Learning:** In the gallery, a live-filtering search field became less obvious when a submit-style `Search` button implied delayed execution and the `Clear` button appeared and disappeared, shifting the toolbar.
 **Action:** For live search in this codebase, keep reset actions in a stable slot, disable them when idle, and label any secondary button by what it actually does, like refocusing the field.
+
+## 2026-03-17 – [Escape should recover before dismissing]
+**Learning:** In the gallery's shared command palette, treating `Esc` as an immediate close makes keyboard recovery clumsy because users lose their query context and must reopen the modal just to retry.
+**Action:** For searchable overlays in this codebase, use a two-step `Esc` flow: clear the current query first while keeping focus in the field, then close only when the query is already empty.

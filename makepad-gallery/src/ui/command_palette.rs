@@ -208,7 +208,7 @@ script_mod! {
                         ShadSectionHeader{
                             draw_text.color: (shad_theme.color_muted_foreground)
                             draw_text.text_style.font_size: 10
-                            text: "Close"
+                            text: "Clear / Close"
                         }
 
                         ShadKbd{ label := ShadKbdLabel{text: "Up/Down"} }
@@ -462,6 +462,16 @@ impl GalleryCommandPalette {
             self.close(cx);
         }
     }
+
+    fn clear_query(&mut self, cx: &mut Cx) {
+        self.query.clear();
+        self.active_index = 0;
+        self.overlay
+            .text_input(cx, ids!(search_input))
+            .set_text(cx, "");
+        self.refresh_results(cx);
+        self.focus_search_on_next_draw = true;
+    }
 }
 
 #[cfg(test)]
@@ -503,7 +513,11 @@ impl Widget for GalleryCommandPalette {
                         return;
                     }
                     KeyCode::Escape => {
-                        self.close(cx);
+                        if self.normalize_query().is_empty() {
+                            self.close(cx);
+                        } else {
+                            self.clear_query(cx);
+                        }
                         return;
                     }
                     _ => {}
