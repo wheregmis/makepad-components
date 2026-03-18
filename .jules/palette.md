@@ -17,3 +17,6 @@
 ## 2026-03-17 – [Escape should recover before dismissing]
 **Learning:** In the gallery's shared command palette, treating `Esc` as an immediate close makes keyboard recovery clumsy because users lose their query context and must reopen the modal just to retry.
 **Action:** For searchable overlays in this codebase, use a two-step `Esc` flow: clear the current query first while keeping focus in the field, then close only when the query is already empty.
+## 2026-03-17 – [Label transient search surfaces]
+**Learning:** In the gallery, modal and toolbar search fields can become placeholder-only once users begin typing, which removes the only visible cue about what the field searches.
+**Action:** For search UIs in this codebase, keep a persistent visible label or live summary near the field so the search scope stays clear after input starts.

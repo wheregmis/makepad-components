@@ -35,6 +35,20 @@ fn matches_command_query(term: &CommandSearchTerm, query: &str) -> bool {
         || term.shortcut.contains(query)
 }
 
+fn command_results_summary(query: &str, matches_count: usize) -> String {
+    let query = query.trim();
+    let total = catalog::entries().len();
+    if query.is_empty() {
+        format!(
+            "Showing all {total} gallery components. Search by title, section, or shortcut tag."
+        )
+    } else if matches_count == 0 {
+        format!("No gallery components matched \"{query}\".")
+    } else {
+        format!("Showing {matches_count} of {total} gallery components for \"{query}\".")
+    }
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
@@ -120,6 +134,10 @@ script_mod! {
                         border_color: (shad_theme.color_outline_border)
                     }
 
+                    search_label := ShadFieldLabel{
+                        text: "Search gallery components"
+                    }
+
                     search_shell := ShadSurface{
                         width: Fill
                         height: Fit
@@ -145,6 +163,10 @@ script_mod! {
                             draw_text.text_style.font_size: 14
                             draw_text.color_empty: (shad_theme.color_muted_foreground)
                         }
+                    }
+
+                    results_summary := ShadFieldDescription{
+                        text: "Showing all gallery components. Search by title, section, or shortcut tag."
                     }
 
                     results_shell := View{
@@ -359,6 +381,7 @@ impl GalleryCommandPalette {
 
     fn refresh_results(&mut self, cx: &mut Cx) {
         let query = self.normalize_query();
+        let display_query = self.query.trim().to_string();
         let search_terms = command_search_terms();
         let previous_active = self.active_index;
         self.filtered_indices_scratch.clear();
@@ -388,6 +411,10 @@ impl GalleryCommandPalette {
         let active_changed = previous_active != self.active_index;
 
         self.sync_empty_state(cx);
+        self.overlay.label(cx, ids!(results_summary)).set_text(
+            cx,
+            &command_results_summary(&display_query, self.filtered_indices.len()),
+        );
         self.reset_results_position(cx);
         if results_changed || active_changed {
             self.redraw(cx);
@@ -476,7 +503,7 @@ impl GalleryCommandPalette {
 
 #[cfg(test)]
 mod tests {
-    use super::{matches_command_query, CommandSearchTerm};
+    use super::{command_results_summary, matches_command_query, CommandSearchTerm};
 
     #[test]
     fn command_palette_query_matches_shortcut_tags() {
@@ -490,6 +517,13 @@ mod tests {
         assert!(matches_command_query(&term, "navigation"));
         assert!(matches_command_query(&term, "kb"));
         assert!(!matches_command_query(&term, "dialog"));
+    }
+
+    #[test]
+    fn command_palette_summary_describes_matches() {
+        assert!(command_results_summary("", 12).contains("Showing all"));
+        assert!(command_results_summary("dialog", 1).contains("Showing 1 of"));
+        assert!(command_results_summary("missing", 0).contains("No gallery components matched"));
     }
 }
 
