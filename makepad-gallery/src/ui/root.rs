@@ -61,6 +61,16 @@ macro_rules! define_gallery_root {
                 ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
                 ShadKbdSeparator{}
                 ShadKbd{ label := ShadKbdLabel{text: "K"} }
+
+                ShadSectionHeader{
+                    draw_text.color: (shad_theme.color_muted_foreground)
+                    draw_text.text_style.font_size: 10
+                    text: "or"
+                }
+
+                ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
+                ShadKbdSeparator{}
+                ShadKbd{ label := ShadKbdLabel{text: "K"} }
             }
 
             mod.widgets.GalleryContentFlip = RouterWidget{
@@ -192,7 +202,7 @@ macro_rules! define_gallery_root {
                     }
 
                     mobile_command_palette_trigger := ShadButtonGhost{
-                        text: "Search"
+                        text: "Search components"
                     }
 
                     View{

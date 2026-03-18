@@ -20,3 +20,7 @@
 ## 2026-03-17 – [Label transient search surfaces]
 **Learning:** In the gallery, modal and toolbar search fields can become placeholder-only once users begin typing, which removes the only visible cue about what the field searches.
 **Action:** For search UIs in this codebase, keep a persistent visible label or live summary near the field so the search scope stays clear after input starts.
+
+## 2026-03-18 – [Shortcut hints must match real input support]
+**Learning:** The gallery shell already opens the command palette on both `Cmd+K` and `Ctrl+K`, but the header only advertised the macOS shortcut and the mobile trigger label was too generic.
+**Action:** When a shared launcher supports multiple modifier paths or ambiguous search scope, show the real cross-platform shortcut and name the target explicitly in the shell chrome.
