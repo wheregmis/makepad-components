@@ -18,3 +18,7 @@
 ## 2026-03-15 - Reusing row buffers in virtualized table updates
 **Learning:** In `ShadTableRowView::set_row_data`, replacing row/cell vectors with `to_vec()` during scroll updates creates repeated heap allocations and deallocations in a hot UI path.
 **Action:** For virtualized row updates, prefer `clear()` + `extend_from_slice()` on existing `Vec` storage (after change detection) so visible row widgets reuse capacity instead of reallocating every swap.
+
+## 2025-02-12 – Rust Borrow Checker vs. Global State Clones in Makepad
+**Learning:** In Makepad, accessing global state via `cx.global::<T>()` borrows `cx` mutably (or immutably, depending on context). If you try to avoid `.clone()` on the global `T` (which is often a cheap `Rc` or `Arc`) to hold a direct reference, you might hold that borrow across subsequent calls that *also* require `cx` mutably (like `.redraw(cx)` or `.open(cx)`), causing an `E0499` borrow checker error. The original `.clone()` calls were not necessarily naive allocations; they were intentionally bypassing borrow check lifetimes for cheap `Rc`/`Arc` clones.
+**Action:** Before removing `.clone()` on global Makepad state to "optimize" it, check if the value is actually an `Rc`/`Arc` (making the clone cheap). If it is, and removing it causes lifetime overlap errors with `cx`, keep the `.clone()`. For real optimizations, look for actual string cloning, buffer recreations, or unoptimized loop iterations (like `take()` on iterators instead of `for index in 0..LEN`).
