@@ -16,8 +16,8 @@ pub struct RouterUrl {
 impl RouterUrl {
     /// Parse a URL or path into normalized path/query/hash parts.
     pub fn parse(input: &str) -> Self {
-        let mut s = input.trim().to_string();
-        if s.is_empty() {
+        let trimmed = input.trim();
+        if trimmed.is_empty() {
             return Self {
                 path: "/".to_string(),
                 query: String::new(),
@@ -25,35 +25,57 @@ impl RouterUrl {
             };
         }
 
-        // Accept full URLs (e.g. https://host/path?query#hash) and path-only inputs.
-        if let Some((_, after_scheme)) = s.split_once("://") {
-            let mut rest = after_scheme;
-            if let Some((_, after_host_slash)) = rest.split_once('/') {
-                rest = after_host_slash;
-                s = format!("/{}", rest);
-            } else {
-                s = "/".to_string();
-            }
-        }
+        // Optimization: keep parsing on borrowed slices until the final result.
+        // Previously: built an eager scratch String, then reformatted query/hash/path pieces.
+        // Now: slice the input first and allocate only the three output strings.
+        let normalized = if let Some((_, after_scheme)) = trimmed.split_once("://") {
+            after_scheme
+                .split_once('/')
+                .map(|(_, after_host_slash)| after_host_slash)
+                .unwrap_or("")
+        } else {
+            trimmed
+        };
 
-        let s_trim = s.trim();
-        let (before_hash, hash) = match s_trim.split_once('#') {
-            Some((a, b)) => (a, format!("#{}", b)),
-            None => (s_trim, String::new()),
+        let (before_hash, hash) = match normalized.split_once('#') {
+            Some((head, tail)) => (head, tail),
+            None => (normalized, ""),
         };
         let (path, query) = match before_hash.split_once('?') {
-            Some((a, b)) => (a, format!("?{}", b)),
-            None => (before_hash, String::new()),
+            Some((head, tail)) => (head, tail),
+            None => (before_hash, ""),
         };
 
-        let mut path = path.trim().to_string();
-        if path.is_empty() {
-            path = "/".to_string();
-        } else if !path.starts_with('/') {
-            path.insert(0, '/');
-        }
+        let path = match path.trim() {
+            "" => "/".to_string(),
+            trimmed_path if trimmed_path.starts_with('/') => trimmed_path.to_string(),
+            trimmed_path => {
+                let mut normalized_path = String::with_capacity(trimmed_path.len() + 1);
+                normalized_path.push('/');
+                normalized_path.push_str(trimmed_path);
+                normalized_path
+            }
+        };
 
-        Self { path, query, hash }
+        Self {
+            path,
+            query: if query.is_empty() {
+                String::new()
+            } else {
+                let mut query_string = String::with_capacity(query.len() + 1);
+                query_string.push('?');
+                query_string.push_str(query);
+                query_string
+            },
+            hash: if hash.is_empty() {
+                String::new()
+            } else {
+                let mut hash_string = String::with_capacity(hash.len() + 1);
+                hash_string.push('#');
+                hash_string.push_str(hash);
+                hash_string
+            },
+        }
     }
 
     /// Parse the query string into a string map.
@@ -220,5 +242,85 @@ fn hex_char(n: u8) -> char {
         0..=9 => (b'0' + n) as char,
         10..=15 => (b'A' + (n - 10)) as char,
         _ => '0',
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::RouterUrl;
+    use std::hint::black_box;
+    use std::time::Instant;
+
+    #[test]
+    fn parse_url_handles_full_url_and_path_inputs() {
+        let parsed = RouterUrl::parse("https://example.com/dashboard/jobs?tab=active#row-7");
+        assert_eq!(parsed.path, "/dashboard/jobs");
+        assert_eq!(parsed.query, "?tab=active");
+        assert_eq!(parsed.hash, "#row-7");
+
+        let parsed = RouterUrl::parse("reports?sort=desc");
+        assert_eq!(parsed.path, "/reports");
+        assert_eq!(parsed.query, "?sort=desc");
+        assert_eq!(parsed.hash, "");
+    }
+
+    #[test]
+    #[ignore = "micro-benchmark; run explicitly in release mode for stable numbers"]
+    fn parse_url_performance_comparison() {
+        fn old_parse(input: &str) -> RouterUrl {
+            let mut s = input.trim().to_string();
+            if s.is_empty() {
+                return RouterUrl {
+                    path: "/".to_string(),
+                    query: String::new(),
+                    hash: String::new(),
+                };
+            }
+            if let Some((_, after_scheme)) = s.split_once("://") {
+                if let Some((_, after_host_slash)) = after_scheme.split_once('/') {
+                    s = format!("/{}", after_host_slash);
+                } else {
+                    s = "/".to_string();
+                }
+            }
+            let s_trim = s.trim();
+            let (before_hash, hash) = match s_trim.split_once('#') {
+                Some((a, b)) => (a, format!("#{}", b)),
+                None => (s_trim, String::new()),
+            };
+            let (path, query) = match before_hash.split_once('?') {
+                Some((a, b)) => (a, format!("?{}", b)),
+                None => (before_hash, String::new()),
+            };
+            let mut path = path.trim().to_string();
+            if path.is_empty() {
+                path = "/".to_string();
+            } else if !path.starts_with('/') {
+                path.insert(0, '/');
+            }
+            RouterUrl { path, query, hash }
+        }
+
+        const ITERATIONS: usize = 20_000;
+        let input = "/dashboard/jobs?tab=active#row-7";
+
+        let old_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(old_parse(input));
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(RouterUrl::parse(input));
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!(
+            "old_parse={:?} new_parse={:?} improvement={:.2}%",
+            old_elapsed,
+            new_elapsed,
+            (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
+        );
     }
 }
