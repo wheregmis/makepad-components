@@ -1,6 +1,7 @@
 use crate::ui::catalog;
 use makepad_components::makepad_widgets::*;
 use std::collections::HashMap;
+use std::hash::Hash;
 use std::sync::OnceLock;
 
 const RESULTS_SCROLL_SPEED: f64 = 18.0;
@@ -47,6 +48,28 @@ fn command_results_summary(query: &str, matches_count: usize) -> String {
     } else {
         format!("Showing {matches_count} of {total} gallery components for \"{query}\".")
     }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct CommandPaletteRowState {
+    command_index: usize,
+    show_header: bool,
+    is_active: bool,
+}
+
+fn sync_cached_row_state<K>(
+    cache: &mut HashMap<K, CommandPaletteRowState>,
+    key: K,
+    next: CommandPaletteRowState,
+) -> bool
+where
+    K: Eq + Hash + Copy,
+{
+    if cache.get(&key).copied() == Some(next) {
+        return false;
+    }
+    cache.insert(key, next);
+    true
 }
 
 script_mod! {
@@ -286,7 +309,7 @@ pub struct GalleryCommandPalette {
     #[rust]
     has_results_cache: Option<bool>,
     #[rust]
-    row_active_by_uid: HashMap<WidgetUid, bool>,
+    row_state_by_uid: HashMap<WidgetUid, CommandPaletteRowState>,
 }
 
 impl GalleryCommandPalette {
@@ -345,7 +368,7 @@ impl GalleryCommandPalette {
         self.active_index = 0;
         self.focus_search_on_next_draw = true;
         self.has_results_cache = None;
-        self.row_active_by_uid.clear();
+        self.row_state_by_uid.clear();
         self.overlay
             .text_input(cx, ids!(search_input))
             .set_text(cx, "");
@@ -359,7 +382,7 @@ impl GalleryCommandPalette {
         self.active_index = 0;
         self.focus_search_on_next_draw = false;
         self.has_results_cache = None;
-        self.row_active_by_uid.clear();
+        self.row_state_by_uid.clear();
         self.overlay
             .text_input(cx, ids!(search_input))
             .set_text(cx, "");
@@ -397,9 +420,10 @@ impl GalleryCommandPalette {
                 &mut self.filtered_indices,
                 &mut self.filtered_indices_scratch,
             );
-            // PortalList reuses item widgets, so clear row-style cache when the backing list
-            // changes to avoid carrying old active styles across recycled items.
-            self.row_active_by_uid.clear();
+            // Optimization: PortalList recycles row widgets across frames and scroll positions.
+            // Cache each row widget's bound command/active/header state so unchanged rows skip
+            // repeated text/visibility/script updates on every draw.
+            self.row_state_by_uid.clear();
             self.has_results_cache = None;
         }
 
@@ -438,28 +462,31 @@ impl GalleryCommandPalette {
                     .get(item_id - 1)
                     .is_some_and(|previous| entries[*previous].section != command.section);
 
-            item.widget(cx, ids!(header)).set_visible(cx, show_header);
-            item.label(cx, ids!(header)).set_text(cx, command.section);
-            item.button(cx, ids!(button)).set_text(cx, command.title);
-            item.label(cx, ids!(shortcut))
-                .set_text(cx, command.shortcut);
-
-            let background = if item_id == self.active_index {
-                self.active_row_color
-            } else {
-                Vec4f::all(0.0)
-            };
             let mut row = item.view(cx, ids!(row));
             let row_uid = row.widget_uid();
-            let is_active = item_id == self.active_index;
-            if self.row_active_by_uid.get(&row_uid).copied() != Some(is_active) {
+            let next_state = CommandPaletteRowState {
+                command_index,
+                show_header,
+                is_active: item_id == self.active_index,
+            };
+            if sync_cached_row_state(&mut self.row_state_by_uid, row_uid, next_state) {
+                item.widget(cx, ids!(header)).set_visible(cx, show_header);
+                item.label(cx, ids!(header)).set_text(cx, command.section);
+                item.button(cx, ids!(button)).set_text(cx, command.title);
+                item.label(cx, ids!(shortcut))
+                    .set_text(cx, command.shortcut);
+
+                let background = if next_state.is_active {
+                    self.active_row_color
+                } else {
+                    Vec4f::all(0.0)
+                };
                 script_apply_eval!(cx, row, {
                     draw_bg +: {
                         color: #(background)
                         border_radius: 10.0
                     }
                 });
-                self.row_active_by_uid.insert(row_uid, is_active);
             }
 
             item.draw_all(cx, &mut Scope::empty());
@@ -503,7 +530,11 @@ impl GalleryCommandPalette {
 
 #[cfg(test)]
 mod tests {
-    use super::{command_results_summary, matches_command_query, CommandSearchTerm};
+    use super::{
+        command_results_summary, matches_command_query, sync_cached_row_state,
+        CommandPaletteRowState, CommandSearchTerm,
+    };
+    use std::collections::HashMap;
 
     #[test]
     fn command_palette_query_matches_shortcut_tags() {
@@ -524,6 +555,47 @@ mod tests {
         assert!(command_results_summary("", 12).contains("Showing all"));
         assert!(command_results_summary("dialog", 1).contains("Showing 1 of"));
         assert!(command_results_summary("missing", 0).contains("No gallery components matched"));
+    }
+
+    #[test]
+    fn command_palette_row_cache_skips_unchanged_updates() {
+        let mut cache = HashMap::new();
+        let state = CommandPaletteRowState {
+            command_index: 3,
+            show_header: true,
+            is_active: false,
+        };
+
+        assert!(sync_cached_row_state(&mut cache, 7_u64, state));
+        assert!(!sync_cached_row_state(&mut cache, 7_u64, state));
+    }
+
+    #[test]
+    fn command_palette_row_cache_reduces_steady_state_updates() {
+        const VISIBLE_ROWS: usize = 8;
+        const FRAMES: usize = 1_000;
+        const WIDGET_UPDATES_PER_ROW: usize = 5;
+
+        let old_updates = VISIBLE_ROWS * FRAMES * WIDGET_UPDATES_PER_ROW;
+        let mut new_updates = 0;
+        let mut cache = HashMap::new();
+
+        for _frame in 0..FRAMES {
+            for row in 0..VISIBLE_ROWS {
+                let state = CommandPaletteRowState {
+                    command_index: row,
+                    show_header: row == 0,
+                    is_active: row == 0,
+                };
+                if sync_cached_row_state(&mut cache, row, state) {
+                    new_updates += WIDGET_UPDATES_PER_ROW;
+                }
+            }
+        }
+
+        assert_eq!(new_updates, VISIBLE_ROWS * WIDGET_UPDATES_PER_ROW);
+        assert_eq!(old_updates, 40_000);
+        assert_eq!(new_updates, 40);
     }
 }
 

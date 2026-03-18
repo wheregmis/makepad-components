@@ -18,3 +18,7 @@
 ## 2026-03-15 - Reusing row buffers in virtualized table updates
 **Learning:** In `ShadTableRowView::set_row_data`, replacing row/cell vectors with `to_vec()` during scroll updates creates repeated heap allocations and deallocations in a hot UI path.
 **Action:** For virtualized row updates, prefer `clear()` + `extend_from_slice()` on existing `Vec` storage (after change detection) so visible row widgets reuse capacity instead of reallocating every swap.
+
+## 2026-03-18 - PortalList row state should be cached per recycled widget
+**Learning:** In `makepad-gallery`'s command palette, `PortalList` reuses row widgets across frames, so blindly reapplying identical `set_text`, `set_visible`, and `script_apply_eval!` updates in `draw_walk` causes avoidable UI churn even when the visible result is unchanged.
+**Action:** When a Makepad list recycles widgets, cache the bound row state keyed by `WidgetUid` and only push widget property updates when the item identity or visual state actually changes.
