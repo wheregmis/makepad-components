@@ -28,25 +28,18 @@ macro_rules! define_gallery_root {
             use mod.draw.KeyCode
             use mod.widgets.*
 
-            mod.widgets.GalleryThemeToggle = ButtonFlatIcon{
+            mod.widgets.GalleryThemeToggle = ShadButtonOutline{
+                width: Fit
+                height: 36
+                text: "Light theme"
+            }
+
+            mod.widgets.GalleryMobileThemeToggle = ShadButtonOutline{
                 width: 36
                 height: 36
-                icon_walk: Walk{width: 16, height: 16}
-                draw_icon.svg: crate_resource("self://resources/icons/sun-moon.svg")
-                draw_icon.color: (shad_theme.color_primary)
-
-                draw_bg +: {
-                    color: #0000
-                    color_hover: (shad_theme.color_ghost_hover)
-                    color_down: (shad_theme.color_ghost_down)
-                    color_focus: (shad_theme.color_ghost_hover)
-                    border_size: 1.0
-                    border_radius: (shad_theme.radius)
-                    border_color: (shad_theme.color_outline_border)
-                    border_color_hover: (shad_theme.color_outline_border_hover)
-                    border_color_down: (shad_theme.color_outline_border_down)
-                    border_color_focus: (shad_theme.color_outline_border_hover)
-                }
+                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                text: "☀"
+                draw_text.text_style.font_size: 14
             }
 
             mod.widgets.GalleryCommandPaletteHeaderTrigger = View{
@@ -200,7 +193,7 @@ macro_rules! define_gallery_root {
                         height: Fit
                     }
 
-                    mobile_theme_toggle := mod.widgets.GalleryThemeToggle{}
+                    mobile_theme_toggle := mod.widgets.GalleryMobileThemeToggle{}
                 }
 
                 ShadSeparator{}

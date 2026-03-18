@@ -84,6 +84,21 @@ impl App {
             .set_visible(cx, show_close);
     }
 
+    fn sync_theme_toggle_copy(&self, cx: &mut Cx) {
+        let desktop_label = if self.is_light_theme {
+            "Dark theme"
+        } else {
+            "Light theme"
+        };
+        let mobile_label = if self.is_light_theme { "☾" } else { "☀" };
+        self.ui
+            .button(cx, ids!(desktop_theme_toggle))
+            .set_text(cx, desktop_label);
+        self.ui
+            .button(cx, ids!(mobile_theme_toggle))
+            .set_text(cx, mobile_label);
+    }
+
     fn sync_page_metadata(&self, cx: &mut Cx) {
         if let Some(entry) = catalog::entry_for_page(self.current_page) {
             self.ui
@@ -154,6 +169,7 @@ impl App {
             );
         });
         self.apply_responsive_visibility(cx);
+        self.sync_theme_toggle_copy(cx);
         self.set_current_page(cx, self.current_page);
         self.ui.redraw(cx);
     }
@@ -294,6 +310,7 @@ impl AppMain for App {
                 self.pending_theme = None;
                 self.theme_reload_next_frame = NextFrame::default();
                 self.apply_responsive_visibility(cx);
+                self.sync_theme_toggle_copy(cx);
                 self.set_current_page(cx, self.current_page);
             }
             Event::NextFrame(_) => {
