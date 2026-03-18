@@ -21,27 +21,51 @@ macro_rules! define_lucide_icons {
             // Callers apply draw_bg / draw_icon.color styling on top.
             mod.widgets.IconButtonX = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
-                draw_icon.svg: crate_resource("self://resources/icons/x.svg")
+                draw_icon +: {
+                    svg: crate_resource("self://resources/icons/x.svg")
+                }
             }
 
             mod.widgets.IconButtonChevronLeft = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
-                draw_icon.svg: crate_resource("self://resources/icons/chevron-left.svg")
+                draw_icon +: {
+                    svg: crate_resource("self://resources/icons/chevron-left.svg")
+                }
             }
 
             mod.widgets.IconButtonChevronRight = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
-                draw_icon.svg: crate_resource("self://resources/icons/chevron-right.svg")
+                draw_icon +: {
+                    svg: crate_resource("self://resources/icons/chevron-right.svg")
+                }
             }
 
             mod.widgets.IconButtonMenu = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
-                draw_icon.svg: crate_resource("self://resources/icons/menu.svg")
+                draw_icon +: {
+                    svg: crate_resource("self://resources/icons/menu.svg")
+                }
+            }
+
+            mod.widgets.IconButtonMoon = mod.widgets.ButtonFlatIcon{
+                icon_walk: Walk{width: 14, height: 14}
+                draw_icon +: {
+                    svg: crate_resource("self://resources/icons/moon.svg")
+                }
+            }
+
+            mod.widgets.IconButtonSun = mod.widgets.ButtonFlatIcon{
+                icon_walk: Walk{width: 14, height: 14}
+                draw_icon +: {
+                    svg: crate_resource("self://resources/icons/sun.svg")
+                }
             }
 
             mod.widgets.IconButtonMoreHorizontal = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
-                draw_icon.svg: crate_resource("self://resources/icons/more-horizontal.svg")
+                draw_icon +: {
+                    svg: crate_resource("self://resources/icons/ellipsis.svg")
+                }
             }
         }
     };
@@ -49,3 +73,17 @@ macro_rules! define_lucide_icons {
 
 // Generated at build time by makepad-icon/build.rs.
 include!(concat!(env!("OUT_DIR"), "/lucide_icon_bindings.rs"));
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn icon_button_more_horizontal_uses_existing_asset() {
+        let source = include_str!("icons.rs");
+        let start = source.find("mod.widgets.IconButtonMoreHorizontal").unwrap();
+        let body = &source[start..];
+        let end = body.find("        }\n    };\n}").unwrap_or(body.len());
+        let definition = &body[..end];
+        assert!(definition.contains("resources/icons/ellipsis.svg"));
+        assert!(!definition.contains("resources/icons/more-horizontal.svg"));
+    }
+}

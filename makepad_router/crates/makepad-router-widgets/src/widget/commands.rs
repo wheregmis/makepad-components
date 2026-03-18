@@ -8,6 +8,7 @@ use makepad_widgets::LiveId;
 pub enum RouterBlockReason {
     GuardBlocked,
     BeforeLeaveBlocked,
+    BundleLoadFailed,
     RouteMissing,
     NoHistory,
     CapabilityDisabled,
@@ -138,5 +139,15 @@ mod tests {
         let result = RouterDispatchResult::blocked(None, None, RouterBlockReason::NoHistory);
         assert!(!result.changed);
         assert_eq!(result.blocked_reason, Some(RouterBlockReason::NoHistory));
+    }
+
+    #[test]
+    fn blocked_result_preserves_bundle_load_failure_reason() {
+        let result = RouterDispatchResult::blocked(None, None, RouterBlockReason::BundleLoadFailed);
+        assert!(!result.changed);
+        assert_eq!(
+            result.blocked_reason,
+            Some(RouterBlockReason::BundleLoadFailed)
+        );
     }
 }

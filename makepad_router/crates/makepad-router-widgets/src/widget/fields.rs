@@ -102,6 +102,7 @@ pub(crate) struct RouterRouteMaps {
     pub(crate) templates: ComponentMap<LiveId, ScriptObjectRef>,
     pub(crate) widgets: ComponentMap<LiveId, WidgetRef>,
     pub(crate) patterns: ComponentMap<LiveId, String>,
+    pub(crate) bundle_ids: ComponentMap<LiveId, String>,
     pub(crate) transition_overrides: ComponentMap<LiveId, LiveId>,
     pub(crate) transition_duration_overrides: ComponentMap<LiveId, f64>,
 }

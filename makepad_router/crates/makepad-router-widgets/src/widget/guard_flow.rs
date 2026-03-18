@@ -9,7 +9,7 @@ use crate::{
 };
 use makepad_widgets::*;
 
-use super::{ResolvedPathIntent, RouterBlockReason, RouterNavRequest, RouterWidget};
+use super::{ResolvedPathIntent, RouterAction, RouterBlockReason, RouterNavRequest, RouterWidget};
 
 pub(super) const ROUTER_MAX_REDIRECTS: u8 = 8;
 
@@ -17,11 +17,18 @@ pub(super) const ROUTER_MAX_REDIRECTS: u8 = 8;
 enum PendingNavPhase {
     BeforeLeaveAsync,
     GuardAsync,
+    BundleAsync,
+    BootBundleAsync,
 }
 
 enum PendingAsyncRx {
     BeforeLeave(ToUIReceiver<RouterBeforeLeaveDecision>),
     Guard(ToUIReceiver<RouterGuardDecision>),
+    Bundle {
+        route_id: LiveId,
+        bundle_id: String,
+        rx: ToUIReceiver<Result<(), String>>,
+    },
 }
 
 pub(super) struct PendingNavigation {
@@ -64,7 +71,13 @@ impl RouterWidget {
             && self.route_guards().is_empty()
             && !self.has_async_route_guards()
         {
-            return self.apply_request_bypassing_guards_resolved(cx, request, resolved_path);
+            return self.apply_request_after_bundle_check(
+                cx,
+                request,
+                context,
+                resolved_path,
+                redirect_depth,
+            );
         }
 
         if !skip_before_leave && leaving {
@@ -209,6 +222,129 @@ impl RouterWidget {
         }
     }
 
+    fn fail_bundle_load(
+        &mut self,
+        route_id: LiveId,
+        bundle_id: String,
+        error: Option<String>,
+    ) -> bool {
+        if let Some(error) = error {
+            log!(
+                "Router: failed to load wasm bundle `{}` for route {:?}: {}",
+                bundle_id,
+                route_id,
+                error
+            );
+        }
+        self.last_blocked_reason = Some(RouterBlockReason::BundleLoadFailed);
+        self.pending_actions.push(RouterAction::BundleLoadFailed {
+            route_id,
+            bundle_id,
+        });
+        false
+    }
+
+    fn apply_request_after_bundle_check(
+        &mut self,
+        cx: &mut Cx,
+        request: RouterNavRequest,
+        context: RouterNavContext,
+        resolved_path: Option<ResolvedPathIntent>,
+        redirect_depth: u8,
+    ) -> bool {
+        let Some(route_id) = context.to.as_ref().map(|route| route.id) else {
+            return self.apply_request_bypassing_guards_resolved(cx, request, resolved_path);
+        };
+        let Some(bundle_id) = self.route_bundle_id(route_id) else {
+            return self.apply_request_bypassing_guards_resolved(cx, request, resolved_path);
+        };
+
+        let rx = cx.ensure_wasm_bundle(&bundle_id);
+        match rx.try_recv_flush() {
+            Ok(Ok(())) => self.apply_request_bypassing_guards_resolved(cx, request, resolved_path),
+            Ok(Err(error)) => self.fail_bundle_load(route_id, bundle_id, Some(error)),
+            Err(std::sync::mpsc::TryRecvError::Empty) => {
+                self.pending_navigation = Some(PendingNavigation {
+                    request,
+                    context,
+                    resolved_path,
+                    phase: PendingNavPhase::BundleAsync,
+                    async_index: 0,
+                    redirect_depth,
+                    rx: PendingAsyncRx::Bundle {
+                        route_id,
+                        bundle_id,
+                        rx,
+                    },
+                });
+                true
+            }
+            Err(std::sync::mpsc::TryRecvError::Disconnected) => self.fail_bundle_load(
+                route_id,
+                bundle_id,
+                Some("bundle load channel disconnected".to_string()),
+            ),
+        }
+    }
+
+    pub(super) fn ensure_boot_active_route(&mut self, cx: &mut Cx) {
+        if self.pending_navigation.is_some()
+            || self.active_route.0 == 0
+            || self.routes.widgets.contains_key(&self.active_route)
+        {
+            return;
+        }
+
+        let Some(bundle_id) = self.route_bundle_id(self.active_route) else {
+            self.ensure_route_widget(cx, self.active_route);
+            return;
+        };
+
+        let rx = cx.ensure_wasm_bundle(&bundle_id);
+        match rx.try_recv_flush() {
+            Ok(Ok(())) => {
+                self.ensure_route_widget(cx, self.active_route);
+            }
+            Ok(Err(error)) => {
+                let _ = self.fail_bundle_load(self.active_route, bundle_id, Some(error));
+            }
+            Err(std::sync::mpsc::TryRecvError::Empty) => {
+                let route = self
+                    .router
+                    .current_route()
+                    .cloned()
+                    .unwrap_or_else(|| Route::new(self.active_route));
+                self.pending_navigation = Some(PendingNavigation {
+                    request: RouterNavRequest::Reset {
+                        route: route.clone(),
+                    },
+                    context: RouterNavContext {
+                        kind: RouterNavKind::Reset,
+                        from: None,
+                        to: Some(route),
+                        to_path: None,
+                    },
+                    resolved_path: None,
+                    phase: PendingNavPhase::BootBundleAsync,
+                    async_index: 0,
+                    redirect_depth: 0,
+                    rx: PendingAsyncRx::Bundle {
+                        route_id: self.active_route,
+                        bundle_id,
+                        rx,
+                    },
+                });
+            }
+            Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                let _ = self.fail_bundle_load(
+                    self.active_route,
+                    bundle_id,
+                    Some("bundle load channel disconnected".to_string()),
+                );
+            }
+        }
+    }
+
     fn apply_guards_and_maybe_commit(
         &mut self,
         cx: &mut Cx,
@@ -261,7 +397,13 @@ impl RouterWidget {
                 );
             }
 
-            return self.apply_request_bypassing_guards_resolved(cx, request, resolved_path);
+            return self.apply_request_after_bundle_check(
+                cx,
+                request,
+                context,
+                resolved_path,
+                redirect_depth,
+            );
         }
     }
 
@@ -350,7 +492,7 @@ impl RouterWidget {
             }
         }
 
-        self.apply_request_bypassing_guards_resolved(cx, request, resolved_path)
+        self.apply_request_after_bundle_check(cx, request, context, resolved_path, redirect_depth)
     }
 
     fn redirect_to_request(target: RouterRedirectTarget, replace: bool) -> RouterNavRequest {
@@ -434,16 +576,25 @@ impl RouterWidget {
             return;
         };
 
-        match pending {
-            PendingNavigation {
-                request,
-                context,
-                resolved_path,
-                phase: PendingNavPhase::BeforeLeaveAsync,
-                async_index,
-                redirect_depth,
-                rx: PendingAsyncRx::BeforeLeave(rx),
-            } => {
+        let PendingNavigation {
+            request,
+            context,
+            resolved_path,
+            phase,
+            async_index,
+            redirect_depth,
+            rx,
+        } = pending;
+
+        match phase {
+            PendingNavPhase::BeforeLeaveAsync => {
+                let PendingAsyncRx::BeforeLeave(rx) = rx else {
+                    debug_assert!(
+                        false,
+                        "router before-leave phase paired with non before-leave rx"
+                    );
+                    return;
+                };
                 let decision = match rx.try_recv_flush() {
                     Ok(v) => v,
                     Err(std::sync::mpsc::TryRecvError::Empty) => {
@@ -451,7 +602,7 @@ impl RouterWidget {
                             request,
                             context,
                             resolved_path,
-                            phase: PendingNavPhase::BeforeLeaveAsync,
+                            phase,
                             async_index,
                             redirect_depth,
                             rx: PendingAsyncRx::BeforeLeave(rx),
@@ -474,15 +625,11 @@ impl RouterWidget {
                     redirect_depth,
                 );
             }
-            PendingNavigation {
-                request,
-                context,
-                resolved_path,
-                phase: PendingNavPhase::GuardAsync,
-                async_index,
-                redirect_depth,
-                rx: PendingAsyncRx::Guard(rx),
-            } => {
+            PendingNavPhase::GuardAsync => {
+                let PendingAsyncRx::Guard(rx) = rx else {
+                    debug_assert!(false, "router guard phase paired with non guard rx");
+                    return;
+                };
                 let decision = match rx.try_recv_flush() {
                     Ok(v) => v,
                     Err(std::sync::mpsc::TryRecvError::Empty) => {
@@ -490,7 +637,7 @@ impl RouterWidget {
                             request,
                             context,
                             resolved_path,
-                            phase: PendingNavPhase::GuardAsync,
+                            phase,
                             async_index,
                             redirect_depth,
                             rx: PendingAsyncRx::Guard(rx),
@@ -531,9 +678,103 @@ impl RouterWidget {
                     }
                 }
             }
-            pending => {
-                // Mismatched pending state; keep it around.
-                self.pending_navigation = Some(pending);
+            PendingNavPhase::BundleAsync => {
+                let PendingAsyncRx::Bundle {
+                    route_id,
+                    bundle_id,
+                    rx,
+                } = rx
+                else {
+                    debug_assert!(false, "router bundle phase paired with non bundle rx");
+                    return;
+                };
+                let result = match rx.try_recv_flush() {
+                    Ok(v) => v,
+                    Err(std::sync::mpsc::TryRecvError::Empty) => {
+                        self.pending_navigation = Some(PendingNavigation {
+                            request,
+                            context,
+                            resolved_path,
+                            phase,
+                            async_index,
+                            redirect_depth,
+                            rx: PendingAsyncRx::Bundle {
+                                route_id,
+                                bundle_id,
+                                rx,
+                            },
+                        });
+                        return;
+                    }
+                    Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                        let _ = self.fail_bundle_load(
+                            route_id,
+                            bundle_id,
+                            Some("bundle load channel disconnected".to_string()),
+                        );
+                        return;
+                    }
+                };
+
+                match result {
+                    Ok(()) => {
+                        let _ = self.apply_request_bypassing_guards_resolved(
+                            cx,
+                            request,
+                            resolved_path,
+                        );
+                    }
+                    Err(error) => {
+                        let _ = self.fail_bundle_load(route_id, bundle_id, Some(error));
+                    }
+                }
+            }
+            PendingNavPhase::BootBundleAsync => {
+                let PendingAsyncRx::Bundle {
+                    route_id,
+                    bundle_id,
+                    rx,
+                } = rx
+                else {
+                    debug_assert!(false, "router boot bundle phase paired with non bundle rx");
+                    return;
+                };
+                let result = match rx.try_recv_flush() {
+                    Ok(v) => v,
+                    Err(std::sync::mpsc::TryRecvError::Empty) => {
+                        self.pending_navigation = Some(PendingNavigation {
+                            request,
+                            context,
+                            resolved_path,
+                            phase,
+                            async_index,
+                            redirect_depth,
+                            rx: PendingAsyncRx::Bundle {
+                                route_id,
+                                bundle_id,
+                                rx,
+                            },
+                        });
+                        return;
+                    }
+                    Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                        let _ = self.fail_bundle_load(
+                            route_id,
+                            bundle_id,
+                            Some("bundle load channel disconnected".to_string()),
+                        );
+                        return;
+                    }
+                };
+
+                match result {
+                    Ok(()) => {
+                        self.ensure_route_widget(cx, route_id);
+                    }
+                    Err(error) => {
+                        let _ = self.fail_bundle_load(route_id, bundle_id, Some(error));
+                    }
+                }
             }
         }
     }

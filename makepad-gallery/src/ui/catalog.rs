@@ -55,6 +55,8 @@ pub struct GalleryCatalogEntry {
     #[cfg_attr(not(test), allow(dead_code))]
     pub route: &'static str,
     pub page: LiveId,
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub bundle_id: Option<&'static str>,
     pub sidebar_id: LiveId,
     #[cfg_attr(not(test), allow(dead_code))]
     pub sidebar_label: &'static str,
@@ -76,6 +78,7 @@ macro_rules! build_gallery_catalog {
                 section: $section:literal,
                 shortcut: $shortcut:literal,
                 snippet: $snippet:ident,
+                bundle: $bundle:ident,
                 $(transition: $transition:ident,)?
             }
         )*
@@ -86,6 +89,7 @@ macro_rules! build_gallery_catalog {
                     title: $title,
                     route: $route,
                     page: live_id!($page),
+                    bundle_id: catalog_bundle_id!($bundle, $page),
                     sidebar_id: live_id!($sidebar_id),
                     sidebar_label: $sidebar_label,
                     section: $section,
@@ -97,14 +101,19 @@ macro_rules! build_gallery_catalog {
     };
 }
 
+macro_rules! catalog_bundle_id {
+    (base, $page:ident) => {
+        None
+    };
+    (page, $page:ident) => {
+        Some(stringify!($page))
+    };
+}
+
 gallery_page_entries!(build_gallery_catalog);
 
 pub fn entries() -> &'static [GalleryCatalogEntry] {
     GALLERY_CATALOG
-}
-
-pub fn default_page() -> LiveId {
-    GALLERY_CATALOG[0].page
 }
 
 pub fn entry_for_page(page: LiveId) -> Option<&'static GalleryCatalogEntry> {
@@ -121,7 +130,7 @@ pub fn entry_for_sidebar(sidebar_id: LiveId) -> Option<&'static GalleryCatalogEn
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ui::{root, snippets};
+    use crate::ui::{root, snippets, ROUTE_BUNDLE_DESCRIPTORS};
     use std::collections::HashSet;
 
     #[test]
@@ -130,12 +139,16 @@ mod tests {
         let mut sidebar_ids = HashSet::new();
         let mut routes = HashSet::new();
         let mut shortcuts = HashSet::new();
+        let mut bundle_ids = HashSet::new();
 
         for entry in GALLERY_CATALOG {
             assert!(pages.insert(entry.page));
             assert!(sidebar_ids.insert(entry.sidebar_id));
             assert!(routes.insert(entry.route));
             assert!(shortcuts.insert(entry.shortcut));
+            if let Some(bundle_id) = entry.bundle_id {
+                assert!(bundle_ids.insert(bundle_id));
+            }
             assert!(!entry.title.is_empty());
             assert!(!entry.sidebar_label.is_empty());
             assert!(!entry.section.is_empty());
@@ -161,5 +174,43 @@ mod tests {
             assert_eq!(looked_up.page, entry.page);
             assert_eq!(looked_up.title, entry.title);
         }
+    }
+
+    #[test]
+    fn bundled_catalog_entries_match_bundle_descriptors() {
+        let bundled_pages: HashSet<LiveId> = ROUTE_BUNDLE_DESCRIPTORS
+            .iter()
+            .map(|item| item.page)
+            .collect();
+
+        for entry in GALLERY_CATALOG {
+            assert_eq!(
+                entry.bundle_id.is_some(),
+                bundled_pages.contains(&entry.page)
+            );
+        }
+    }
+
+    #[test]
+    fn route_bundle_manifest_matches_registry() {
+        let manifest = include_str!("../../route-bundles.toml");
+
+        for descriptor in ROUTE_BUNDLE_DESCRIPTORS {
+            assert!(
+                manifest.contains(&format!("[bundles.{}]", descriptor.bundle_id)),
+                "missing bundle entry for {}",
+                descriptor.bundle_id
+            );
+            assert!(
+                manifest.contains(&format!("functions = [\"{}\"]", descriptor.marker_symbol)),
+                "missing marker symbol for {}",
+                descriptor.bundle_id
+            );
+        }
+
+        assert_eq!(
+            manifest.matches("[bundles.").count(),
+            ROUTE_BUNDLE_DESCRIPTORS.len()
+        );
     }
 }

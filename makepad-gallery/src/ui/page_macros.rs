@@ -87,6 +87,25 @@ macro_rules! gallery_static_page {
                 }
             }
         }
+
+        pub fn register_gallery_route_bundle(vm: &mut ScriptVm) {
+            script_mod(vm);
+            let template = script_eval!(vm, {
+                mod.widgets.$widget{}
+            });
+            crate::ui::publish_gallery_page_template(
+                vm,
+                live_id!($page),
+                template,
+            );
+        }
+
+        #[unsafe(export_name = concat!("gallery_bundle_mark_", stringify!($page)))]
+        pub extern "C" fn gallery_bundle_mark(vm: *mut ScriptVm) {
+            if let Some(vm) = unsafe { vm.as_mut() } {
+                register_gallery_route_bundle(vm);
+            }
+        }
     };
 
     (
@@ -95,7 +114,6 @@ macro_rules! gallery_static_page {
         gallery_static_page!(@impl ShadScrollYView, $($rest)*);
     };
 }
-
 pub(crate) use gallery_static_page;
 
 macro_rules! gallery_stateful_page_shell {
@@ -226,6 +244,25 @@ macro_rules! gallery_stateful_page_shell {
                 }
 
                 $($after_root)*
+            }
+        }
+
+        pub fn register_gallery_route_bundle(vm: &mut ScriptVm) {
+            script_mod(vm);
+            let template = script_eval!(vm, {
+                mod.widgets.$widget{}
+            });
+            crate::ui::publish_gallery_page_template(
+                vm,
+                live_id!($page),
+                template,
+            );
+        }
+
+        #[unsafe(export_name = concat!("gallery_bundle_mark_", stringify!($page)))]
+        pub extern "C" fn gallery_bundle_mark(vm: *mut ScriptVm) {
+            if let Some(vm) = unsafe { vm.as_mut() } {
+                register_gallery_route_bundle(vm);
             }
         }
     };

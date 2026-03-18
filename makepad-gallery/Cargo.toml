@@ -5,6 +5,9 @@ edition = "2021"
 description = "Makepad component gallery example"
 license = "MIT OR Apache-2.0"
 
+[package.metadata.makepad.web]
+preserve = ["makepad_icon:resources/icons"]
+
 [dependencies]
 makepad-widgets = { workspace = true }
 makepad-code-editor = { workspace = true }

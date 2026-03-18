@@ -5,9 +5,8 @@ mod ui;
 
 use crate::ui::catalog;
 use crate::ui::command_palette::GalleryCommandPalette;
-use crate::ui::command_palette_page::GalleryCommandPalettePageWidgetRefExt;
 use makepad_components::makepad_widgets::*;
-use makepad_router::RouterWidgetWidgetRefExt;
+use makepad_router::{RouterAction, RouterWidgetWidgetRefExt};
 
 app_main!(App);
 
@@ -15,7 +14,7 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    load_all_resources() do #(App::script_component(vm)){
+    #(App::script_component(vm)){
         ui: mod.widgets.GalleryAppUi{}
     }
 }
@@ -42,11 +41,14 @@ impl App {
         self::script_mod(vm)
     }
 
-    fn set_current_page(&mut self, cx: &mut Cx, page: LiveId) {
-        self.current_page = page;
+    fn navigate_to_page(&mut self, cx: &mut Cx, page: LiveId) {
         self.ui
             .router_widget(cx, ids!(content_flip))
             .go_to_route(cx, page);
+    }
+
+    fn apply_active_page_state(&mut self, cx: &mut Cx, page: LiveId) {
+        self.current_page = page;
         self.sync_page_metadata(cx);
         if self.is_small_screen {
             self.sidebar_open = false;
@@ -84,19 +86,20 @@ impl App {
             .set_visible(cx, show_close);
     }
 
-    fn sync_theme_toggle_copy(&self, cx: &mut Cx) {
-        let desktop_label = if self.is_light_theme {
-            "Dark theme"
-        } else {
-            "Light theme"
-        };
-        let mobile_label = if self.is_light_theme { "☾" } else { "☀" };
+    fn sync_theme_toggle_state(&self, cx: &mut Cx) {
+        let show_dark_toggle = self.is_light_theme;
         self.ui
-            .button(cx, ids!(desktop_theme_toggle))
-            .set_text(cx, desktop_label);
+            .button(cx, ids!(desktop_theme_dark_button))
+            .set_visible(cx, show_dark_toggle);
         self.ui
-            .button(cx, ids!(mobile_theme_toggle))
-            .set_text(cx, mobile_label);
+            .button(cx, ids!(desktop_theme_light_button))
+            .set_visible(cx, !show_dark_toggle);
+        self.ui
+            .button(cx, ids!(mobile_theme_dark_button))
+            .set_visible(cx, show_dark_toggle);
+        self.ui
+            .button(cx, ids!(mobile_theme_light_button))
+            .set_visible(cx, !show_dark_toggle);
     }
 
     fn sync_page_metadata(&self, cx: &mut Cx) {
@@ -183,8 +186,11 @@ impl App {
             );
         });
         self.apply_responsive_visibility(cx);
-        self.sync_theme_toggle_copy(cx);
-        self.set_current_page(cx, self.current_page);
+        self.sync_theme_toggle_state(cx);
+        self.sync_page_metadata(cx);
+        if self.current_page != LiveId(0) {
+            self.navigate_to_page(cx, self.current_page);
+        }
         self.ui.redraw(cx);
     }
 
@@ -227,10 +233,20 @@ impl App {
     fn handle_sidebar_navigation(&mut self, cx: &mut Cx, actions: &Actions) {
         for entry in catalog::entries() {
             if self.ui.button(cx, &[entry.sidebar_id]).clicked(actions) {
-                self.set_current_page(cx, entry.page);
+                self.navigate_to_page(cx, entry.page);
                 break;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn gallery_manifest_preserves_generated_icon_resources() {
+        let cargo_toml = include_str!("../Cargo.toml");
+        assert!(cargo_toml.contains("[package.metadata.makepad.web]"));
+        assert!(cargo_toml.contains("makepad_icon:resources/icons"));
     }
 }
 
@@ -254,6 +270,25 @@ pub struct App {
 
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
+        let router = self.ui.router_widget(cx, ids!(content_flip));
+
+        for action in actions.filter_widget_actions(router.widget_uid()) {
+            if let Some(RouterAction::RouteChanged { to, .. }) = action.action.downcast_ref() {
+                self.apply_active_page_state(cx, *to);
+            }
+            if let Some(RouterAction::BundleLoadFailed {
+                route_id,
+                bundle_id,
+            }) = action.action.downcast_ref()
+            {
+                log!(
+                    "Gallery route bundle failed for {:?} (bundle `{}`)",
+                    route_id,
+                    bundle_id
+                );
+            }
+        }
+
         let palette = self.ui.widget_flood(cx, ids!(command_palette));
         if let Some(page) = actions
             .find_widget_action(palette.widget_uid())
@@ -262,7 +297,7 @@ impl MatchEvent for App {
                 _ => None,
             })
         {
-            self.set_current_page(cx, page);
+            self.navigate_to_page(cx, page);
         }
         if self.is_small_screen
             && (self
@@ -279,11 +314,19 @@ impl MatchEvent for App {
         }
         if self
             .ui
-            .button(cx, ids!(desktop_theme_toggle))
+            .button(cx, ids!(desktop_theme_dark_button))
             .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_theme_toggle))
+                .button(cx, ids!(desktop_theme_light_button))
+                .clicked(actions)
+            || self
+                .ui
+                .button(cx, ids!(mobile_theme_dark_button))
+                .clicked(actions)
+            || self
+                .ui
+                .button(cx, ids!(mobile_theme_light_button))
                 .clicked(actions)
         {
             self.queue_theme_change(cx, !self.is_light_theme);
@@ -301,12 +344,14 @@ impl MatchEvent for App {
         }
 
         self.handle_sidebar_navigation(cx, actions);
-        if self
-            .ui
-            .gallery_command_palette_page(cx, ids!(command_palette_page))
-            .open_requested(actions)
-        {
-            self.open_command_palette(cx);
+        for action in actions {
+            if matches!(
+                action.downcast_ref::<ui::GalleryShellAction>(),
+                Some(ui::GalleryShellAction::OpenCommandPalette)
+            ) {
+                self.open_command_palette(cx);
+                break;
+            }
         }
     }
 }
@@ -320,13 +365,12 @@ impl AppMain for App {
         match event {
             Event::Startup => {
                 self.sidebar_open = true;
-                self.current_page = catalog::default_page();
+                self.current_page = LiveId(0);
                 self.is_light_theme = false;
                 self.pending_theme = None;
                 self.theme_reload_next_frame = NextFrame::default();
                 self.apply_responsive_visibility(cx);
-                self.sync_theme_toggle_copy(cx);
-                self.set_current_page(cx, self.current_page);
+                self.sync_theme_toggle_state(cx);
             }
             Event::NextFrame(_) => {
                 if self.theme_reload_next_frame.is_event(event).is_some() {

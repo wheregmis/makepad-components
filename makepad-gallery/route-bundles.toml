@@ -1,0 +1,128 @@
+[bundles.alert_page]
+functions = ["gallery_bundle_mark_alert_page"]
+
+[bundles.aspect_ratio_page]
+functions = ["gallery_bundle_mark_aspect_ratio_page"]
+
+[bundles.avatar_page]
+functions = ["gallery_bundle_mark_avatar_page"]
+
+[bundles.badge_page]
+functions = ["gallery_bundle_mark_badge_page"]
+
+[bundles.breadcrumb_page]
+functions = ["gallery_bundle_mark_breadcrumb_page"]
+
+[bundles.button_page]
+functions = ["gallery_bundle_mark_button_page"]
+
+[bundles.button_group_page]
+functions = ["gallery_bundle_mark_button_group_page"]
+
+[bundles.calendar_page]
+functions = ["gallery_bundle_mark_calendar_page"]
+
+[bundles.card_page]
+functions = ["gallery_bundle_mark_card_page"]
+
+[bundles.carousel_page]
+functions = ["gallery_bundle_mark_carousel_page"]
+
+[bundles.chart_page]
+functions = ["gallery_bundle_mark_chart_page"]
+
+[bundles.checkbox_page]
+functions = ["gallery_bundle_mark_checkbox_page"]
+
+[bundles.collapsible_page]
+functions = ["gallery_bundle_mark_collapsible_page"]
+
+[bundles.command_palette_page]
+functions = ["gallery_bundle_mark_command_palette_page"]
+
+[bundles.context_menu_page]
+functions = ["gallery_bundle_mark_context_menu_page"]
+
+[bundles.date_picker_page]
+functions = ["gallery_bundle_mark_date_picker_page"]
+
+[bundles.dialog_page]
+functions = ["gallery_bundle_mark_dialog_page"]
+
+[bundles.icon_gallery_page]
+functions = ["gallery_bundle_mark_icon_gallery_page"]
+
+[bundles.input_page]
+functions = ["gallery_bundle_mark_input_page"]
+
+[bundles.input_otp_page]
+functions = ["gallery_bundle_mark_input_otp_page"]
+
+[bundles.kbd_page]
+functions = ["gallery_bundle_mark_kbd_page"]
+
+[bundles.label_page]
+functions = ["gallery_bundle_mark_label_page"]
+
+[bundles.menubar_page]
+functions = ["gallery_bundle_mark_menubar_page"]
+
+[bundles.navigation_menu_page]
+functions = ["gallery_bundle_mark_navigation_menu_page"]
+
+[bundles.pagination_page]
+functions = ["gallery_bundle_mark_pagination_page"]
+
+[bundles.popover_page]
+functions = ["gallery_bundle_mark_popover_page"]
+
+[bundles.progress_page]
+functions = ["gallery_bundle_mark_progress_page"]
+
+[bundles.radio_group_page]
+functions = ["gallery_bundle_mark_radio_group_page"]
+
+[bundles.resizable_page]
+functions = ["gallery_bundle_mark_resizable_page"]
+
+[bundles.scroll_area_page]
+functions = ["gallery_bundle_mark_scroll_area_page"]
+
+[bundles.select_page]
+functions = ["gallery_bundle_mark_select_page"]
+
+[bundles.separator_page]
+functions = ["gallery_bundle_mark_separator_page"]
+
+[bundles.sheet_page]
+functions = ["gallery_bundle_mark_sheet_page"]
+
+[bundles.sidebar_page]
+functions = ["gallery_bundle_mark_sidebar_page"]
+
+[bundles.skeleton_page]
+functions = ["gallery_bundle_mark_skeleton_page"]
+
+[bundles.slider_page]
+functions = ["gallery_bundle_mark_slider_page"]
+
+[bundles.sonner_page]
+functions = ["gallery_bundle_mark_sonner_page"]
+
+[bundles.spinner_page]
+functions = ["gallery_bundle_mark_spinner_page"]
+
+[bundles.switch_page]
+functions = ["gallery_bundle_mark_switch_page"]
+
+[bundles.table_page]
+functions = ["gallery_bundle_mark_table_page"]
+
+[bundles.tabs_page]
+functions = ["gallery_bundle_mark_tabs_page"]
+
+[bundles.textarea_page]
+functions = ["gallery_bundle_mark_textarea_page"]
+
+[bundles.toggle_page]
+functions = ["gallery_bundle_mark_toggle_page"]

@@ -11,6 +11,7 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "A",
                 snippet: Accordion,
+                bundle: base,
                 transition: none,
             }
             {
@@ -23,6 +24,7 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "L",
                 snippet: Alert,
+                bundle: page,
             }
             {
                 title: "Aspect Ratio",
@@ -34,6 +36,7 @@ macro_rules! gallery_page_entries {
                 section: "Layout",
                 shortcut: "R",
                 snippet: AspectRatio,
+                bundle: page,
             }
             {
                 title: "Avatar",
@@ -45,6 +48,7 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "V",
                 snippet: Avatar,
+                bundle: page,
             }
             {
                 title: "Badge",
@@ -56,6 +60,7 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "B",
                 snippet: Badge,
+                bundle: page,
             }
             {
                 title: "Breadcrumb",
@@ -67,6 +72,7 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "C",
                 snippet: Breadcrumb,
+                bundle: page,
             }
             {
                 title: "Button",
@@ -78,6 +84,7 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "U",
                 snippet: Button,
+                bundle: page,
             }
             {
                 title: "Button Group",
@@ -89,6 +96,7 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "G",
                 snippet: ButtonGroup,
+                bundle: page,
             }
             {
                 title: "Calendar",
@@ -100,6 +108,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "7",
                 snippet: Calendar,
+                bundle: page,
             }
             {
                 title: "Card",
@@ -111,6 +120,7 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "D",
                 snippet: Card,
+                bundle: page,
             }
             {
                 title: "Carousel",
@@ -122,6 +132,7 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "O",
                 snippet: Carousel,
+                bundle: page,
             }
             {
                 title: "Chart",
@@ -133,6 +144,7 @@ macro_rules! gallery_page_entries {
                 section: "Data",
                 shortcut: "H",
                 snippet: Chart,
+                bundle: page,
             }
             {
                 title: "Checkbox",
@@ -144,6 +156,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "X",
                 snippet: Checkbox,
+                bundle: page,
             }
             {
                 title: "Collapsible",
@@ -155,6 +168,7 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "P",
                 snippet: Collapsible,
+                bundle: page,
             }
             {
                 title: "Command Palette",
@@ -166,6 +180,7 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "K",
                 snippet: CommandPalette,
+                bundle: page,
             }
             {
                 title: "Context Menu",
@@ -177,6 +192,7 @@ macro_rules! gallery_page_entries {
                 section: "Overlays",
                 shortcut: "X1",
                 snippet: ContextMenu,
+                bundle: page,
             }
             {
                 title: "Date Picker",
@@ -188,6 +204,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "5",
                 snippet: DatePicker,
+                bundle: page,
             }
             {
                 title: "Dialog",
@@ -199,6 +216,7 @@ macro_rules! gallery_page_entries {
                 section: "Overlays",
                 shortcut: "I",
                 snippet: Dialog,
+                bundle: page,
             }
             {
                 title: "Icons",
@@ -210,6 +228,7 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "IC",
                 snippet: IconGallery,
+                bundle: page,
             }
             {
                 title: "Input",
@@ -221,6 +240,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "N",
                 snippet: Input,
+                bundle: page,
             }
             {
                 title: "Input OTP",
@@ -232,6 +252,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "6",
                 snippet: InputOtp,
+                bundle: page,
             }
             {
                 title: "Kbd",
@@ -243,6 +264,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "KB",
                 snippet: Kbd,
+                bundle: page,
             }
             {
                 title: "Label",
@@ -254,6 +276,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "LB",
                 snippet: Label,
+                bundle: page,
             }
             {
                 title: "Menubar",
@@ -265,6 +288,7 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "MB",
                 snippet: Menubar,
+                bundle: page,
             }
             {
                 title: "Navigation Menu",
@@ -276,6 +300,7 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "NM",
                 snippet: NavigationMenu,
+                bundle: page,
             }
             {
                 title: "Pagination",
@@ -287,6 +312,7 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "PG",
                 snippet: Pagination,
+                bundle: page,
             }
             {
                 title: "Popover",
@@ -298,6 +324,7 @@ macro_rules! gallery_page_entries {
                 section: "Overlays",
                 shortcut: "PO",
                 snippet: Popover,
+                bundle: page,
             }
             {
                 title: "Progress",
@@ -309,6 +336,7 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "PR",
                 snippet: Progress,
+                bundle: page,
             }
             {
                 title: "Radio Group",
@@ -320,6 +348,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "RG",
                 snippet: RadioGroup,
+                bundle: page,
             }
             {
                 title: "Resizable",
@@ -331,6 +360,7 @@ macro_rules! gallery_page_entries {
                 section: "Layout",
                 shortcut: "Z",
                 snippet: Resizable,
+                bundle: page,
             }
             {
                 title: "Scroll Area",
@@ -342,6 +372,7 @@ macro_rules! gallery_page_entries {
                 section: "Layout",
                 shortcut: "SA",
                 snippet: ScrollArea,
+                bundle: page,
             }
             {
                 title: "Select",
@@ -353,6 +384,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "E",
                 snippet: Select,
+                bundle: page,
             }
             {
                 title: "Separator",
@@ -364,6 +396,7 @@ macro_rules! gallery_page_entries {
                 section: "Layout",
                 shortcut: "SP",
                 snippet: Separator,
+                bundle: page,
             }
             {
                 title: "Sheet",
@@ -375,6 +408,7 @@ macro_rules! gallery_page_entries {
                 section: "Overlays",
                 shortcut: "SH",
                 snippet: Sheet,
+                bundle: page,
             }
             {
                 title: "Sidebar",
@@ -386,6 +420,7 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "SB",
                 snippet: Sidebar,
+                bundle: page,
             }
             {
                 title: "Skeleton",
@@ -397,6 +432,7 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "SK",
                 snippet: Skeleton,
+                bundle: page,
             }
             {
                 title: "Slider",
@@ -408,6 +444,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "J",
                 snippet: Slider,
+                bundle: page,
             }
             {
                 title: "Sonner",
@@ -419,6 +456,7 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "SN",
                 snippet: Sonner,
+                bundle: page,
             }
             {
                 title: "Spinner",
@@ -430,6 +468,7 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "W",
                 snippet: Spinner,
+                bundle: page,
             }
             {
                 title: "Switch",
@@ -441,6 +480,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "SW",
                 snippet: Switch,
+                bundle: page,
             }
             {
                 title: "Table",
@@ -452,6 +492,7 @@ macro_rules! gallery_page_entries {
                 section: "Data",
                 shortcut: "8",
                 snippet: Table,
+                bundle: page,
             }
             {
                 title: "Tabs",
@@ -463,6 +504,7 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "TB",
                 snippet: Tabs,
+                bundle: page,
             }
             {
                 title: "Textarea",
@@ -474,6 +516,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "TA",
                 snippet: Textarea,
+                bundle: page,
             }
             {
                 title: "Toggle",
@@ -485,6 +528,7 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "TG",
                 snippet: Toggle,
+                bundle: page,
             }
         }
     };

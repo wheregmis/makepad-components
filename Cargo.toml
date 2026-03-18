@@ -25,6 +25,12 @@ makepad-router = { path = "makepad_router", version = "1.0.0" }
 makepad-router-core = { path = "makepad_router/crates/makepad-router-core", version = "1.0.0" }
 makepad-router-widgets = { path = "makepad_router/crates/makepad-router-widgets", version = "1.0.0" }
 
+[patch."https://github.com/wheregmis/makepad.git"]
+makepad-live-id = { path = "../makepad/libs/live_id" }
+makepad-micro-serde = { path = "../makepad/libs/micro_serde" }
+makepad-draw = { path = "../makepad/draw" }
+makepad-widgets = { path = "../makepad/widgets" }
+
 [profile.small]
 inherits = "release"
 #debug = true

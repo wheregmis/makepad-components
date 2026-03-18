@@ -193,6 +193,8 @@ pub enum RouterAction {
     Forward,
     /// Reset to a route
     Reset(Route),
+    /// Route bundle failed to load, so navigation stayed on the previous route.
+    BundleLoadFailed { route_id: LiveId, bundle_id: String },
     /// Route changed notification
     RouteChanged { from: Option<LiveId>, to: LiveId },
 }

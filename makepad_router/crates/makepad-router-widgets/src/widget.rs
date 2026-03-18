@@ -184,6 +184,8 @@ pub struct RouterRoute {
     #[live]
     route_pattern: String,
     #[live]
+    route_bundle: ArcStringMut,
+    #[live]
     route_transition: LiveId,
     #[live(0.0)]
     route_transition_duration: f64,

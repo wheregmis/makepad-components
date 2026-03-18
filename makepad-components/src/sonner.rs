@@ -480,7 +480,11 @@ impl ShadSonner {
         }
 
         let visible_toasts = self.visible_toasts(cx);
-        for (index, kind) in visible_toasts.into_iter().enumerate().take(MAX_VISIBLE_TOASTS) {
+        for (index, kind) in visible_toasts
+            .into_iter()
+            .enumerate()
+            .take(MAX_VISIBLE_TOASTS)
+        {
             Self::sync_overlay_slot(cx, &self.overlay, index, kind);
         }
         self.sync_overlay_open_state(cx);

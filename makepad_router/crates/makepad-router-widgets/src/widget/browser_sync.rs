@@ -278,6 +278,7 @@ impl RouterWidget {
             }
             RouterAction::Back => self.sync_browser(cx, BrowserSync::History(-1)),
             RouterAction::Forward => self.sync_browser(cx, BrowserSync::History(1)),
+            RouterAction::BundleLoadFailed { .. } => {}
             RouterAction::RouteChanged { .. } => {}
         }
     }
@@ -304,7 +305,9 @@ impl RouterWidget {
 
         self.browser_sync_inbound = true;
         self.browser_sync_suppress_once = true;
-        let changed = self.replace_by_path_internal(cx, &route_url, true);
+        // Browser-originated path activation must go through the normal request pipeline so
+        // route bundles load before the target route widget is instantiated.
+        let changed = self.replace_by_path(cx, &route_url, true);
         self.browser_sync_inbound = false;
 
         if !changed {
@@ -333,7 +336,7 @@ impl RouterWidget {
         } else if self.preview_forward_url().as_deref() == Some(route_url.as_str()) {
             self.forward(cx)
         } else {
-            self.replace_by_path_internal(cx, &route_url, true)
+            self.replace_by_path(cx, &route_url, true)
         };
         self.browser_sync_inbound = false;
 

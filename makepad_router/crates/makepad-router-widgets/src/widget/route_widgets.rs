@@ -3,6 +3,15 @@ use makepad_widgets::*;
 use super::RouterWidget;
 
 impl RouterWidget {
+    pub(super) fn route_bundle_id(&self, route_id: LiveId) -> Option<String> {
+        let bundle_id = self.routes.bundle_ids.get(&route_id)?.trim();
+        if bundle_id.is_empty() {
+            None
+        } else {
+            Some(bundle_id.to_string())
+        }
+    }
+
     pub(super) fn new_route_widget_from_template(
         cx: &mut Cx,
         template: ScriptObjectRef,

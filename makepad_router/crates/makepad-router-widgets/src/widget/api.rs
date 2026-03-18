@@ -572,4 +572,18 @@ impl RouterWidget {
         let ok = self.navigate_by_path_internal(cx, path, true);
         ok
     }
+
+    /// Replace the current route by path string (does not add to history).
+    pub fn replace_by_path(&mut self, cx: &mut Cx, path: &str, clear_extras: bool) -> bool {
+        if !self.guard_bypass {
+            return self.request_navigation(
+                cx,
+                RouterNavRequest::ReplaceByPath {
+                    path: path.to_string(),
+                    clear_extras,
+                },
+            );
+        }
+        self.replace_by_path_internal(cx, path, clear_extras)
+    }
 }
