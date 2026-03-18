@@ -121,6 +121,8 @@ impl App {
         let inactive_bg_hover = theme_color(cx, id!(color_ghost_hover)).unwrap_or(Vec4f::all(0.0));
         let inactive_bg_down = theme_color(cx, id!(color_ghost_down)).unwrap_or(active_bg_down);
         let inactive_text = theme_color(cx, id!(color_muted_foreground)).unwrap_or(Vec4f::all(1.0));
+        let inactive_focus_bg = inactive_bg_hover;
+        let inactive_focus_text = active_text;
 
         for entry in catalog::entries() {
             let is_active = entry.page == self.current_page;
@@ -130,13 +132,13 @@ impl App {
                     color: #(if is_active { active_bg } else { Vec4f::all(0.0) })
                     color_hover: #(if is_active { active_bg } else { inactive_bg_hover })
                     color_down: #(if is_active { active_bg_down } else { inactive_bg_down })
-                    color_focus: #(if is_active { active_bg } else { Vec4f::all(0.0) })
+                    color_focus: #(if is_active { active_bg } else { inactive_focus_bg })
                 }
                 draw_text +: {
                     color: #(if is_active { active_text } else { inactive_text })
                     color_hover: #(active_text)
                     color_down: #(active_text)
-                    color_focus: #(if is_active { active_text } else { inactive_text })
+                    color_focus: #(if is_active { active_text } else { inactive_focus_text })
                 }
             });
         }

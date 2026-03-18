@@ -20,3 +20,7 @@
 ## 2026-03-17 – [Label transient search surfaces]
 **Learning:** In the gallery, modal and toolbar search fields can become placeholder-only once users begin typing, which removes the only visible cue about what the field searches.
 **Action:** For search UIs in this codebase, keep a persistent visible label or live summary near the field so the search scope stays clear after input starts.
+
+## 2026-03-18 – [Keep primary navigation keyboard reachable]
+**Learning:** In this codebase, `grab_key_focus: false` on shared sidebar items silently removes the main catalog navigation from the tab order, and transparent focus colors make the regression easy to miss.
+**Action:** For reusable nav controls, keep keyboard focus enabled by default and pair it with a visible focus state that matches hover or active treatment.
