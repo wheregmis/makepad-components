@@ -135,6 +135,19 @@ fn replace_arc_slice_if_changed<T>(dst: &mut Arc<[T]>, src: &Arc<[T]>) -> bool {
     true
 }
 
+fn sync_vec_if_changed<T: PartialEq + Clone>(dst: &mut Vec<T>, src: &[T]) -> bool {
+    if dst.as_slice() == src {
+        return false;
+    }
+
+    // Optimization: header data is refreshed from table draw/layout sync paths.
+    // Previously: `src.to_vec()` rebuilt the Vec storage on every content change.
+    // Now: clear + extend reuses the existing allocation when capacity is sufficient.
+    dst.clear();
+    dst.extend_from_slice(src);
+    true
+}
+
 /// Ensures the table width buffer tracks the current column count while reusing allocations.
 ///
 /// The common case for virtualized updates is a stable column count, so this returns early and
@@ -152,6 +165,18 @@ fn sync_default_widths(widths: &mut Vec<f64>, column_count: usize, default_width
     if shrinking && widths.iter().any(|width| *width != default_width) {
         widths.fill(default_width);
     }
+}
+
+fn update_cached_width(cached_width: &mut f64, width: f64) -> bool {
+    if *cached_width == width {
+        return false;
+    }
+    *cached_width = width;
+    true
+}
+
+fn invalidate_cached_width(cached_width: &mut f64) {
+    *cached_width = f64::NAN;
 }
 
 fn calculate_content_based_widths(headers: &[String], rows_data: &[Arc<[String]>]) -> Vec<f64> {
@@ -242,12 +267,10 @@ impl ShadTableHeaderView {
         text_align: f64,
     ) {
         let mut changed = false;
-        if self.headers != headers {
-            self.headers = headers.to_vec();
+        if sync_vec_if_changed(&mut self.headers, headers) {
             changed = true;
         }
-        if self.widths != widths {
-            self.widths = widths.to_vec();
+        if sync_vec_if_changed(&mut self.widths, widths) {
             changed = true;
         }
         if self.text_align != text_align {
@@ -613,6 +636,20 @@ impl ShadTable {
         }
 
         Some((Arc::clone(&self.stretched_widths_shared), avail))
+    }
+
+    fn sync_content_width(&mut self, cx: &mut Cx, width: f64) {
+        if !update_cached_width(&mut self.applied_content_width, width) {
+            return;
+        }
+
+        // Optimization: only re-run `script_apply_eval!` when the stretched content width
+        // actually changes. Previously the auto-fill draw path re-applied the same width every
+        // frame, which forced unnecessary script evaluation in a hot render loop.
+        let mut content = self.view.view(cx, ids!(table_view.scroll.content));
+        script_apply_eval!(cx, content, {
+            width: #(width)
+        });
     }
 
     fn sync_layout(&mut self, cx: &mut Cx) {

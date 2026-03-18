@@ -20,3 +20,13 @@
 ## 2026-03-17 – [Label transient search surfaces]
 **Learning:** In the gallery, modal and toolbar search fields can become placeholder-only once users begin typing, which removes the only visible cue about what the field searches.
 **Action:** For search UIs in this codebase, keep a persistent visible label or live summary near the field so the search scope stays clear after input starts.
+
+## 2026-03-18 – [Shortcut hints must match real input support]
+**Learning:** The gallery shell already opens the command palette on both `Cmd+K` and `Ctrl+K`, but the header only advertised the macOS shortcut and the mobile trigger label was too generic.
+**Action:** When a shared launcher supports multiple modifier paths or ambiguous search scope, show the real cross-platform shortcut and name the target explicitly in the shell chrome.
+## 2026-03-18 – [Keep primary navigation keyboard reachable]
+**Learning:** In this codebase, `grab_key_focus: false` on shared sidebar items silently removes the main catalog navigation from the tab order, and transparent focus colors make the regression easy to miss.
+**Action:** For reusable nav controls, keep keyboard focus enabled by default and pair it with a visible focus state that matches hover or active treatment.
+## 2026-03-18 – [Gallery examples should not teach placeholder-only fields]
+**Learning:** In this repo, the gallery pages act as live documentation. When a preview uses only placeholder text, it quietly teaches an inaccessible pattern even if the code snippet beside it shows the correct labeled-field composition.
+**Action:** Keep the live preview aligned with `ShadFieldLabel` and helper text patterns whenever a gallery page demonstrates form inputs.

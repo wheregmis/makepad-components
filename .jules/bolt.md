@@ -22,3 +22,9 @@
 ## 2026-03-18 - Caching script width updates in auto-fill table draws
 **Learning:** `ShadTable::draw_walk` can re-enter continuously while scrolling or hovering, so calling `script_apply_eval!` for the scroll content width on every frame wastes CPU even when the computed width is unchanged.
 **Action:** In Makepad widgets with derived layout values, keep a small Rust-side cache of the last applied value and guard `script_apply_eval!` behind that change check so steady-state redraws skip script work entirely.
+## 2026-03-18 - Streaming router paths avoids segment churn
+**Learning:** In `makepad-router-core`, formatting route URLs through `Vec<String>` plus `join("/")` clones every static segment and adds an extra heap pass on each navigation/update.
+**Action:** Build router paths directly into one pre-sized `String`, and use `LiveId::as_string` for interned dynamic params before falling back to `to_string()`.
+## 2025-02-12 – Rust Borrow Checker vs. Global State Clones in Makepad
+**Learning:** In Makepad, accessing global state via `cx.global::<T>()` borrows `cx` mutably (or immutably, depending on context). If you try to avoid `.clone()` on the global `T` (which is often a cheap `Rc` or `Arc`) to hold a direct reference, you might hold that borrow across subsequent calls that *also* require `cx` mutably (like `.redraw(cx)` or `.open(cx)`), causing an `E0499` borrow checker error. The original `.clone()` calls were not necessarily naive allocations; they were intentionally bypassing borrow check lifetimes for cheap `Rc`/`Arc` clones.
+**Action:** Before removing `.clone()` on global Makepad state to "optimize" it, check if the value is actually an `Rc`/`Arc` (making the clone cheap). If it is, and removing it causes lifetime overlap errors with `cx`, keep the `.clone()`. For real optimizations, look for actual string cloning, buffer recreations, or unoptimized loop iterations (like `take()` on iterators instead of `for index in 0..LEN`).
