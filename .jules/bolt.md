@@ -18,3 +18,7 @@
 ## 2026-03-15 - Reusing row buffers in virtualized table updates
 **Learning:** In `ShadTableRowView::set_row_data`, replacing row/cell vectors with `to_vec()` during scroll updates creates repeated heap allocations and deallocations in a hot UI path.
 **Action:** For virtualized row updates, prefer `clear()` + `extend_from_slice()` on existing `Vec` storage (after change detection) so visible row widgets reuse capacity instead of reallocating every swap.
+
+## 2026-03-18 - Streaming router paths avoids segment churn
+**Learning:** In `makepad-router-core`, formatting route URLs through `Vec<String>` plus `join("/")` clones every static segment and adds an extra heap pass on each navigation/update.
+**Action:** Build router paths directly into one pre-sized `String`, and use `LiveId::as_string` for interned dynamic params before falling back to `to_string()`.
