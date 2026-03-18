@@ -117,6 +117,12 @@ macro_rules! define_gallery_root {
                         height: Fit
                     }
 
+                    desktop_theme_status := ShadLabel{
+                        text: "Dark theme"
+                        draw_text.text_style.font_size: 12
+                        draw_text.color: (shad_theme.color_muted_foreground)
+                    }
+
                     desktop_theme_toggle := mod.widgets.GalleryThemeToggle{}
                 }
 
@@ -198,6 +204,12 @@ macro_rules! define_gallery_root {
                     View{
                         width: Fill
                         height: Fit
+                    }
+
+                    mobile_theme_status := ShadLabel{
+                        text: "Dark"
+                        draw_text.text_style.font_size: 12
+                        draw_text.color: (shad_theme.color_muted_foreground)
                     }
 
                     mobile_theme_toggle := mod.widgets.GalleryThemeToggle{}

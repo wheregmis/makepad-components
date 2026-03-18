@@ -20,3 +20,7 @@
 ## 2026-03-17 – [Label transient search surfaces]
 **Learning:** In the gallery, modal and toolbar search fields can become placeholder-only once users begin typing, which removes the only visible cue about what the field searches.
 **Action:** For search UIs in this codebase, keep a persistent visible label or live summary near the field so the search scope stays clear after input starts.
+
+## 2026-03-18 – [Expose icon-only theme state]
+**Learning:** In the gallery shell, the theme switcher was an icon-only control with no adjacent state text, so users had to infer both the current theme and what the button would affect.
+**Action:** When this codebase uses compact icon toggles for global chrome actions, pair them with a short visible state label like `Dark theme` or `Light` instead of relying on the icon alone.

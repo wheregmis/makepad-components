@@ -93,6 +93,18 @@ impl App {
                 .label(cx, ids!(mobile_page_label))
                 .set_text(cx, entry.title);
         }
+        let desktop_theme = if self.is_light_theme {
+            "Light theme"
+        } else {
+            "Dark theme"
+        };
+        let mobile_theme = if self.is_light_theme { "Light" } else { "Dark" };
+        self.ui
+            .label(cx, ids!(desktop_theme_status))
+            .set_text(cx, desktop_theme);
+        self.ui
+            .label(cx, ids!(mobile_theme_status))
+            .set_text(cx, mobile_theme);
         self.sync_sidebar_selection(cx);
     }
 
