@@ -61,10 +61,14 @@ fn sync_cached_row_state<K>(
     cache: &mut HashMap<K, CommandPaletteRowState>,
     key: K,
     next: CommandPaletteRowState,
+    item_existed: bool,
 ) -> bool
 where
     K: Eq + Hash + Copy,
 {
+    if !item_existed {
+        cache.remove(&key);
+    }
     if cache.get(&key).copied() == Some(next) {
         return false;
     }
@@ -462,7 +466,8 @@ impl GalleryCommandPalette {
             };
 
             let command = entries[command_index];
-            let item = list.item(cx, item_id, id!(Item)).as_view();
+            let (item, item_existed) = list.item_with_existed(cx, item_id, id!(Item));
+            let item = item.as_view();
             let show_header = item_id == 0
                 || self
                     .filtered_indices
@@ -476,7 +481,12 @@ impl GalleryCommandPalette {
                 show_header,
                 is_active: item_id == self.active_index,
             };
-            if sync_cached_row_state(&mut self.row_state_by_uid, row_uid, next_state) {
+            if sync_cached_row_state(
+                &mut self.row_state_by_uid,
+                row_uid,
+                next_state,
+                item_existed,
+            ) {
                 item.widget(cx, ids!(header)).set_visible(cx, show_header);
                 item.label(cx, ids!(header)).set_text(cx, command.section);
                 item.button(cx, ids!(button)).set_text(cx, command.title);
@@ -573,8 +583,22 @@ mod tests {
             is_active: false,
         };
 
-        assert!(sync_cached_row_state(&mut cache, 7_u64, state));
-        assert!(!sync_cached_row_state(&mut cache, 7_u64, state));
+        assert!(sync_cached_row_state(&mut cache, 7_u64, state, false));
+        assert!(!sync_cached_row_state(&mut cache, 7_u64, state, true));
+    }
+
+    #[test]
+    fn command_palette_row_cache_refreshes_reloaded_widgets() {
+        let mut cache = HashMap::new();
+        let state = CommandPaletteRowState {
+            command_index: 3,
+            show_header: true,
+            is_active: false,
+        };
+
+        assert!(sync_cached_row_state(&mut cache, 7_u64, state, false));
+        assert!(sync_cached_row_state(&mut cache, 7_u64, state, false));
+        assert!(!sync_cached_row_state(&mut cache, 7_u64, state, true));
     }
 
     #[test]
@@ -594,7 +618,7 @@ mod tests {
                     show_header: row == 0,
                     is_active: row == 0,
                 };
-                if sync_cached_row_state(&mut cache, row, state) {
+                if sync_cached_row_state(&mut cache, row, state, _frame != 0) {
                     new_updates += WIDGET_UPDATES_PER_ROW;
                 }
             }
