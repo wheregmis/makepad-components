@@ -1,3 +1,4 @@
+use makepad_widgets::makepad_script::ScriptFnRef;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -404,7 +405,7 @@ script_mod! {
     }
 }
 
-#[derive(Script, Widget, Animator)]
+#[derive(Script, ScriptHook, Widget, Animator)]
 pub struct ShadNavButton {
     #[uid]
     uid: WidgetUid,
