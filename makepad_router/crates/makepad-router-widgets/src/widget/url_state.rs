@@ -20,9 +20,18 @@ impl RouterWidget {
                 base_trim.to_string()
             }
         } else if base_trim.is_empty() || base_trim == "/" {
-            format!("/{}", tail_trim)
+            let mut joined = String::with_capacity(tail_trim.len() + 1);
+            // Optimization: nested router path joins run during current/preview URL resolution.
+            // Build the path directly into one pre-sized buffer instead of going through `format!`.
+            joined.push('/');
+            joined.push_str(tail_trim);
+            joined
         } else {
-            format!("{}/{}", base_trim, tail_trim)
+            let mut joined = String::with_capacity(base_trim.len() + tail_trim.len() + 1);
+            joined.push_str(base_trim);
+            joined.push('/');
+            joined.push_str(tail_trim);
+            joined
         }
     }
 
@@ -69,12 +78,16 @@ impl RouterWidget {
     }
 
     pub(super) fn url_for_route(&self, route: &crate::route::Route) -> String {
-        format!(
-            "{}{}{}",
-            self.current_path_for_route(route),
-            route.query_string(),
-            route.hash
-        )
+        // Optimization: `current_path_for_route` already allocates the base URL path.
+        // Reuse that buffer for query/hash suffixes instead of formatting a second String.
+        let mut url = self.current_path_for_route(route);
+        if !route.query.data.is_empty() {
+            url.push_str(&route.query_string());
+        }
+        if !route.hash.is_empty() {
+            url.push_str(&route.hash);
+        }
+        url
     }
 
     fn current_path(&self) -> String {
@@ -101,5 +114,72 @@ impl RouterWidget {
             return self.current_path();
         };
         self.url_for_route(route)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::RouterWidget;
+    use std::hint::black_box;
+    use std::time::Instant;
+
+    #[test]
+    fn join_paths_handles_root_and_nested_segments() {
+        assert_eq!(RouterWidget::join_paths("/", "/child"), "/child");
+        assert_eq!(
+            RouterWidget::join_paths("/admin/", "reports"),
+            "/admin/reports"
+        );
+        assert_eq!(
+            RouterWidget::join_paths(" /admin ", " /reports/2026 "),
+            "/admin/reports/2026"
+        );
+    }
+
+    #[test]
+    #[ignore = "micro-benchmark; run explicitly in release mode for stable numbers"]
+    fn bench_join_paths_direct_buffer_build() {
+        fn legacy_join_paths(base: &str, tail: &str) -> String {
+            let base = base.trim();
+            let tail = tail.trim();
+            let base = if base.is_empty() { "/" } else { base };
+            let base_trim = base.trim_end_matches('/');
+            let tail_trim = tail.trim_start_matches('/');
+
+            if tail_trim.is_empty() {
+                if base_trim.is_empty() || base_trim == "/" {
+                    "/".to_string()
+                } else {
+                    base_trim.to_string()
+                }
+            } else if base_trim.is_empty() || base_trim == "/" {
+                format!("/{}", tail_trim)
+            } else {
+                format!("{}/{}", base_trim, tail_trim)
+            }
+        }
+
+        const ITERATIONS: usize = 200_000;
+        let base = "/team/alpha/member/beta";
+        let tail = "/settings/profile";
+
+        let old_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(legacy_join_paths(base, tail));
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(RouterWidget::join_paths(base, tail));
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!(
+            "legacy_join_paths={:?} new_join_paths={:?} improvement={:.2}%",
+            old_elapsed,
+            new_elapsed,
+            (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
+        );
     }
 }

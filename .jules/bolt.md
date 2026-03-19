@@ -35,3 +35,7 @@
 ## 2024-05-19 – Optimize ShadAvatarImage Async Image Load Check
 **Learning:** Checking equality of an `Option<PathBuf>` with a newly allocated `PathBuf` by cloning the `Option<PathBuf>` causes an unnecessary heap allocation on every async image load event, leading to reduced performance.
 **Action:** When comparing an `Option<PathBuf>` against a `Path` or `PathBuf`, use `.as_deref()` to directly compare references without allocating memory for a new `PathBuf`.
+
+## 2026-03-19 - Nested router URL joins should reuse the first path buffer
+**Learning:** `RouterWidget` builds current and preview URLs frequently during browser sync and nested-route resolution. Using `format!` for `join_paths` and then formatting the final URL again adds avoidable heap churn on a hot router path.
+**Action:** When extending a route path with child segments, query strings, or hashes, pre-size one `String`, append into it with `push_str`, and reuse the initial path allocation instead of formatting a second URL string.
