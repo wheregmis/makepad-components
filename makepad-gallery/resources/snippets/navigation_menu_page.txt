@@ -1,0 +1,35 @@
+site_nav := ShadNavigationMenu{
+    navigation_list := ShadNavigationMenuList{
+        products_menu := ShadNavigationMenuItem{
+            trigger := ShadNavigationMenuTrigger{text: "Products"}
+            content: ShadNavigationMenuContent{
+                products_trial_btn := ShadButton{text: "Start trial"}
+                products_sdk_btn := ShadButtonGhost{
+                    width: Fill
+                    align: Align{x: 0.0, y: 0.5}
+                    text: "SDKs"
+                }
+            }
+        }
+
+        resources_menu := ShadNavigationMenuItem{
+            trigger := ShadNavigationMenuTrigger{text: "Resources"}
+            content: ShadNavigationMenuContent{
+                guides_btn := ShadButtonGhost{
+                    width: Fill
+                    align: Align{x: 0.0, y: 0.5}
+                    text: "Guides"
+                }
+            }
+        }
+    }
+}
+
+// Controller example (Rust):
+// let products = self.view.shad_popover(cx, ids!(products_menu));
+// let content = products.content_widget();
+//
+// if content.button(cx, ids!(products_sdk_btn)).clicked(actions) {
+//     products.close(cx);
+//     self.selected_destination = "SDKs".to_string();
+// }

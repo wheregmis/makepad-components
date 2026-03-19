@@ -4,6 +4,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 const GENERATED_PREVIEW_FILENAME: &str = "icon_preview_rows.rs";
+const GENERATED_ICON_ENTRIES_FILENAME: &str = "icon_gallery_entries.tsv";
 const ICON_LABEL_FONT_SIZE: usize = 12;
 
 fn to_widget_name(icon_stem: &str) -> Option<String> {
@@ -111,18 +112,20 @@ fn generate_preview(entries: &[(String, String)]) -> String {
     }
 
     output.push_str("}\n");
-    output.push_str(&format!(
-        "const ICON_GALLERY_TOTAL: usize = {};\n",
-        entries.len()
-    ));
-    output.push_str("const ICON_GALLERY_ENTRIES: &[IconGalleryEntry] = &[\n");
+    output
+}
+
+fn generate_icon_entries_manifest(entries: &[(String, String)]) -> String {
+    let mut output = String::new();
     for (widget_name, label) in entries {
         let template_id = to_id_name("icon_entry", label);
-        output.push_str(&format!(
-            "    IconGalleryEntry{{template_id: \"{template_id}\", icon_name: \"{label}\", widget_name: \"{widget_name}\"}},\n"
-        ));
+        output.push_str(&template_id);
+        output.push('\t');
+        output.push_str(label);
+        output.push('\t');
+        output.push_str(widget_name);
+        output.push('\n');
     }
-    output.push_str("];\n");
     output
 }
 
@@ -139,8 +142,15 @@ fn main() {
 
     let entries = icon_entries(&icons_dir).expect("failed to read icon resources");
     let generated = generate_preview(&entries);
-    let out_path = PathBuf::from(std::env::var("OUT_DIR").expect("OUT_DIR not set"))
-        .join(GENERATED_PREVIEW_FILENAME);
+    let entries_manifest = generate_icon_entries_manifest(&entries);
+    let generated_dir = manifest_dir.join("target").join("generated");
+    fs::create_dir_all(&generated_dir).unwrap_or_else(|error| {
+        panic!(
+            "failed to create generated icon preview directory at {}: {error}",
+            generated_dir.display()
+        )
+    });
+    let out_path = generated_dir.join(GENERATED_PREVIEW_FILENAME);
     let mut file = fs::File::create(&out_path).unwrap_or_else(|error| {
         panic!(
             "failed to create generated icon preview at {}: {error}",
@@ -154,4 +164,19 @@ fn main() {
                 out_path.display()
             )
         });
+
+    let generated_resources_dir = manifest_dir.join("resources").join("generated");
+    fs::create_dir_all(&generated_resources_dir).unwrap_or_else(|error| {
+        panic!(
+            "failed to create generated icon metadata directory at {}: {error}",
+            generated_resources_dir.display()
+        )
+    });
+    let entries_path = generated_resources_dir.join(GENERATED_ICON_ENTRIES_FILENAME);
+    fs::write(&entries_path, entries_manifest).unwrap_or_else(|error| {
+        panic!(
+            "failed to write generated icon metadata at {}: {error}",
+            entries_path.display()
+        )
+    });
 }

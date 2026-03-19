@@ -1,0 +1,9 @@
+// The Icons page is generated from makepad-icon/resources/icons/*.svg.
+//
+// 1) Sync assets:
+// python3 makepad-icon/scripts/download_lucide_icons.py --clean
+//
+// 2) Build:
+// cargo check -p makepad-icon
+//
+// 3) Open /icons in makepad-gallery to preview all generated icon components.

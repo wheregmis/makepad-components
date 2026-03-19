@@ -1,0 +1,17 @@
+horizontal_split := ShadResizable{
+    axis: SplitterAxis.Horizontal
+    align: SplitterAlign.FromA(180.0)
+    a: View{width: Fill height: Fill}
+    b: View{width: Fill height: Fill}
+}
+
+// Controller example (Rust):
+// let split = self.view.splitter(cx, ids!(horizontal_split));
+//
+// if let Some((axis, align)) = split.changed(actions) {
+//     self.saved_split = Some((axis, align));
+// }
+//
+// if let Some(align) = self.saved_split.map(|(_, align)| align) {
+//     split.set_align(cx, align);
+// }

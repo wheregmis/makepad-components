@@ -1,0 +1,28 @@
+// Keep fallback text in the avatar, then let the image cover it when present.
+View{
+    width: Fit
+    height: Fit
+    flow: Right
+    align: Align{y: 0.5}
+    spacing: 12.0
+
+    mod.widgets.ShadAvatar{
+        fallback := mod.widgets.ShadAvatarFallback{text: "ML"}
+        image := mod.widgets.ShadAvatarImage{
+            src: crate_resource("self://resources/avatar/portrait-a.jpg")
+        }
+        status := mod.widgets.ShadAvatarStatusOnline{}
+    }
+
+    mod.widgets.ShadAvatar{
+        fallback := mod.widgets.ShadAvatarFallback{text: "JD"}
+    }
+
+    mod.widgets.ShadAvatarLg{
+        fallback := mod.widgets.ShadAvatarFallback{text: "AB"}
+        image := mod.widgets.ShadAvatarImage{
+            src: crate_resource("self://resources/avatar/portrait-b.jpg")
+        }
+        status := mod.widgets.ShadAvatarStatusBusy{}
+    }
+}

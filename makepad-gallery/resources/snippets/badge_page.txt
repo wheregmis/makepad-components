@@ -1,0 +1,32 @@
+// Put badges beside the content they annotate.
+mod.widgets.ShadSurfaceMuted{
+    width: 320
+    height: Fit
+    padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
+    draw_bg +: {
+        border_size: 1.0
+        border_color: (shad_theme.color_outline_border)
+    }
+
+    View{
+        width: Fill
+        height: Fit
+        flow: Right
+        align: Align{y: 0.5}
+        spacing: 12.0
+
+        View{
+            width: Fill
+            height: Fit
+            flow: Down
+            spacing: 2.0
+
+            mod.widgets.ShadFieldLabel{text: "Realtime API"}
+            mod.widgets.ShadFieldDescription{text: "Production webhook delivery is enabled."}
+        }
+
+        mod.widgets.ShadBadgeSuccess{
+            label := mod.widgets.ShadBadgeSuccessLabel{text: "Live"}
+        }
+    }
+}

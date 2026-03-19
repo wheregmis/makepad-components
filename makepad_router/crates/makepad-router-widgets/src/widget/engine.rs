@@ -111,7 +111,7 @@ impl RouterWidget {
                 None => self.replace(cx, *route_id),
             },
             RouterCommand::ReplacePath { path, clear_extras } => {
-                self.replace_by_path_internal(cx, path, *clear_extras)
+                self.replace_by_path(cx, path, *clear_extras)
             }
             RouterCommand::Back { transition } => match transition {
                 Some(t) => self.back_with_transition(cx, *t),

@@ -1,0 +1,20 @@
+View{
+    width: Fill
+    height: Fit
+    flow: Down
+    spacing: 12.0
+    accept_terms := ShadCheckbox{label: "Accept terms and conditions"}
+    product_updates := ShadCheckbox{label: "Receive product updates"}
+    notifications := ShadCheckbox{label: "Enable notifications" checked: true}
+}
+
+// Controller example (Rust):
+// let accept_terms = self.ui.shad_checkbox(cx, ids!(accept_terms));
+//
+// if let Some(checked) = accept_terms.changed(actions) {
+//     self.can_submit = checked;
+// }
+//
+// if self.reset_requested {
+//     accept_terms.set_checked(cx, false, animator::Animate::No);
+// }

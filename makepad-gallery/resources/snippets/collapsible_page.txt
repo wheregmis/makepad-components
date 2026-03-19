@@ -1,0 +1,26 @@
+mod.widgets.ShadCollapsible{
+    title: "Order #4189"
+    is_open: true
+    body: View{
+        flow: Down
+        spacing: 6
+        mod.widgets.ShadLabel{text: "Status: Shipped"}
+        mod.widgets.ShadLabel{text: "Shipping Address: 123 Main St, New York, NY"}
+        mod.widgets.ShadLabel{text: "Items: 2 × T-shirt, 1 × Hoodie"}
+    }
+}
+
+// Controller example (Rust):
+// let details = self.ui.shad_collapsible(cx, ids!(order_details));
+//
+// if self.ui.button(cx, ids!(toggle_details_btn)).clicked(actions) {
+//     details.set_open(cx, !details.is_open(cx), animator::Animate::Yes);
+// }
+//
+// if let Some(is_open) = details.open_changed(actions) {
+//     log!("Details panel open: {}", is_open);
+// }
+//
+// if let Some(progress) = details.animation_progress(actions) {
+//     log!("Collapsible animation progress: {}", progress);
+// }

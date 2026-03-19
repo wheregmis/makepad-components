@@ -1,0 +1,22 @@
+// Use ShadAspectRatio as the frame, then let the child media fill it.
+ShadAspectRatio{
+    width: 320
+    ratio: 1.7777777778
+
+    ShadMediaFrame{
+        width: Fill
+        height: Fill
+        draw_bg +: {
+            color: (shad_theme.color_secondary)
+            border_size: 1.0
+            border_color: (shad_theme.color_outline_border)
+        }
+
+        ShadImage{
+            width: Fill
+            height: Fill
+            fit: ImageFit.Biggest
+            src: crate_resource("self://resources/aspect-ratio/royal-esplanade.jpg")
+        }
+    }
+}

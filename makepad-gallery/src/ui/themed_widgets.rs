@@ -21,11 +21,23 @@ script_mod! {
                 border_size: 0.0
             }
 
-            code_view := CodeView{
-                text: ""
-                editor +: {
-                    width: Fill
+            code_scroll := ScrollXView{
+                width: Fill
+                height: Fit
+                flow: Right
+
+                code_text := Label{
+                    width: Fit
                     height: Fit
+                    padding: 0.0
+                    draw_text +: {
+                        color: (shad_theme.color_primary_foreground)
+                        text_style: theme.font_code{
+                            font_size: 11.0
+                            line_spacing: 1.35
+                        }
+                    }
+                    text: ""
                 }
             }
         }
@@ -139,6 +151,10 @@ pub struct GalleryCodeSnippet {
     view: View,
     #[live]
     code: ArcStringMut,
+    #[live]
+    code_resource: Option<ScriptHandleRef>,
+    #[rust]
+    last_code: String,
 }
 
 impl ScriptHook for GalleryCodeSnippet {
@@ -150,19 +166,57 @@ impl ScriptHook for GalleryCodeSnippet {
         _value: ScriptValue,
     ) {
         vm.with_cx_mut(|cx| {
-            self.view
-                .widget(cx, ids!(container.code_view))
-                .set_text(cx, self.code.as_ref());
+            self.refresh_text(cx);
         });
+    }
+}
+
+impl GalleryCodeSnippet {
+    fn set_code_view_text(&mut self, cx: &mut Cx, text: &str) {
+        if self.last_code == text {
+            return;
+        }
+        self.last_code.clear();
+        self.last_code.push_str(text);
+        self.view.label(cx, ids!(container.code_scroll.code_text)).set_text(cx, text);
+    }
+
+    fn resource_text(&mut self, cx: &mut Cx) -> Option<String> {
+        let handle = self.code_resource.as_ref()?.as_handle();
+        cx.load_script_resource(handle);
+        if let Some(data) = cx.get_resource(handle) {
+            return Some(
+                String::from_utf8(data.as_ref().clone()).unwrap_or_else(|_| {
+                    "// Failed to decode snippet resource as UTF-8.\n".to_string()
+                }),
+            );
+        }
+
+        let resources = cx.script_data.resources.resources.borrow();
+        resources
+            .iter()
+            .find(|resource| resource.handle == handle && resource.is_error())
+            .map(|_| "// Failed to load snippet resource.\n".to_string())
+    }
+
+    fn refresh_text(&mut self, cx: &mut Cx) {
+        if let Some(text) = self.resource_text(cx) {
+            self.set_code_view_text(cx, &text);
+        } else {
+            let inline_code = self.code.as_ref().to_string();
+            self.set_code_view_text(cx, &inline_code);
+        }
     }
 }
 
 impl Widget for GalleryCodeSnippet {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.refresh_text(cx);
         self.view.handle_event(cx, event, scope);
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.refresh_text(cx.cx);
         self.view.draw_walk(cx, scope, walk)
     }
 }

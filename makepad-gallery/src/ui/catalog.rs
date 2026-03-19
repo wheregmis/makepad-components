@@ -1,5 +1,7 @@
 use crate::ui::registry::gallery_page_entries;
 use makepad_components::makepad_widgets::*;
+#[cfg(test)]
+use std::path::PathBuf;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GallerySnippetKey {
@@ -55,12 +57,39 @@ pub struct GalleryCatalogEntry {
     #[cfg_attr(not(test), allow(dead_code))]
     pub route: &'static str,
     pub page: LiveId,
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub bundle_id: Option<&'static str>,
     pub sidebar_id: LiveId,
     #[cfg_attr(not(test), allow(dead_code))]
     pub sidebar_label: &'static str,
     pub section: &'static str,
     pub shortcut: &'static str,
     pub snippet: GallerySnippetKey,
+    pub snippet_resource_path: &'static str,
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub component_count: usize,
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub direct_icon_count: usize,
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub uses_all_icons: bool,
+}
+
+macro_rules! count_gallery_items {
+    () => {
+        0usize
+    };
+    ($head:ident $(, $tail:ident)*) => {
+        1usize + count_gallery_items!($($tail),*)
+    };
+}
+
+macro_rules! icon_policy_all {
+    (all) => {
+        true
+    };
+    (none) => {
+        false
+    };
 }
 
 macro_rules! build_gallery_catalog {
@@ -76,6 +105,10 @@ macro_rules! build_gallery_catalog {
                 section: $section:literal,
                 shortcut: $shortcut:literal,
                 snippet: $snippet:ident,
+                bundle: $bundle:ident,
+                components: [$($components:ident),* $(,)?],
+                icons: [$($icons:ident),* $(,)?],
+                icon_policy: $icon_policy:ident,
                 $(transition: $transition:ident,)?
             }
         )*
@@ -86,14 +119,28 @@ macro_rules! build_gallery_catalog {
                     title: $title,
                     route: $route,
                     page: live_id!($page),
+                    bundle_id: catalog_bundle_id!($bundle, $page),
                     sidebar_id: live_id!($sidebar_id),
                     sidebar_label: $sidebar_label,
                     section: $section,
                     shortcut: $shortcut,
                     snippet: GallerySnippetKey::$snippet,
+                    snippet_resource_path: concat!("resources/snippets/", stringify!($page), ".txt"),
+                    component_count: count_gallery_items!($($components),*),
+                    direct_icon_count: count_gallery_items!($($icons),*),
+                    uses_all_icons: icon_policy_all!($icon_policy),
                 },
             )*
         ];
+    };
+}
+
+macro_rules! catalog_bundle_id {
+    (base, $page:ident) => {
+        None
+    };
+    (page, $page:ident) => {
+        Some(stringify!($page))
     };
 }
 
@@ -101,10 +148,6 @@ gallery_page_entries!(build_gallery_catalog);
 
 pub fn entries() -> &'static [GalleryCatalogEntry] {
     GALLERY_CATALOG
-}
-
-pub fn default_page() -> LiveId {
-    GALLERY_CATALOG[0].page
 }
 
 pub fn entry_for_page(page: LiveId) -> Option<&'static GalleryCatalogEntry> {
@@ -121,7 +164,7 @@ pub fn entry_for_sidebar(sidebar_id: LiveId) -> Option<&'static GalleryCatalogEn
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ui::{root, snippets};
+    use crate::ui::{root, ROUTE_BUNDLE_DESCRIPTORS};
     use std::collections::HashSet;
 
     #[test]
@@ -130,16 +173,27 @@ mod tests {
         let mut sidebar_ids = HashSet::new();
         let mut routes = HashSet::new();
         let mut shortcuts = HashSet::new();
+        let mut bundle_ids = HashSet::new();
 
         for entry in GALLERY_CATALOG {
             assert!(pages.insert(entry.page));
             assert!(sidebar_ids.insert(entry.sidebar_id));
             assert!(routes.insert(entry.route));
             assert!(shortcuts.insert(entry.shortcut));
+            if let Some(bundle_id) = entry.bundle_id {
+                assert!(bundle_ids.insert(bundle_id));
+            }
             assert!(!entry.title.is_empty());
             assert!(!entry.sidebar_label.is_empty());
             assert!(!entry.section.is_empty());
-            assert!(!snippets::snippet_code(entry.snippet).is_empty());
+            let snippet_path =
+                PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(entry.snippet_resource_path);
+            assert!(
+                snippet_path.is_file(),
+                "missing snippet resource for {} at {}",
+                entry.title,
+                snippet_path.display()
+            );
         }
     }
 
@@ -160,6 +214,81 @@ mod tests {
             let looked_up = entry_for_sidebar(entry.sidebar_id).unwrap();
             assert_eq!(looked_up.page, entry.page);
             assert_eq!(looked_up.title, entry.title);
+        }
+    }
+
+    #[test]
+    fn bundled_catalog_entries_match_bundle_descriptors() {
+        let bundled_pages: HashSet<LiveId> = ROUTE_BUNDLE_DESCRIPTORS
+            .iter()
+            .map(|item| item.page)
+            .collect();
+
+        for entry in GALLERY_CATALOG {
+            assert_eq!(
+                entry.bundle_id.is_some(),
+                bundled_pages.contains(&entry.page)
+            );
+        }
+    }
+
+    #[test]
+    fn route_bundle_manifest_matches_registry() {
+        let manifest = include_str!("../../route-bundles.toml");
+
+        for descriptor in ROUTE_BUNDLE_DESCRIPTORS {
+            assert!(
+                manifest.contains(&format!("[bundles.{}]", descriptor.bundle_id)),
+                "missing bundle entry for {}",
+                descriptor.bundle_id
+            );
+            assert!(
+                manifest.contains(&format!("functions = [\"{}\"]", descriptor.marker_symbol)),
+                "missing marker symbol for {}",
+                descriptor.bundle_id
+            );
+            if descriptor.bundle_id == "icon_gallery_page" {
+                assert!(
+                    manifest.contains("target/generated/icon_preview_rows.rs"),
+                    "missing generated icon preview ownership for icon_gallery_page"
+                );
+            } else {
+                assert!(
+                    manifest.contains(&format!("src/ui/{}.rs", descriptor.bundle_id)),
+                    "missing script ownership for {}",
+                    descriptor.bundle_id
+                );
+            }
+        }
+
+        assert_eq!(
+            manifest.matches("[bundles.").count(),
+            ROUTE_BUNDLE_DESCRIPTORS.len()
+        );
+    }
+
+    #[test]
+    fn registry_declares_page_dependencies_and_single_full_icon_page() {
+        let full_icon_pages: Vec<_> = GALLERY_CATALOG
+            .iter()
+            .filter(|entry| entry.uses_all_icons)
+            .collect();
+
+        assert_eq!(full_icon_pages.len(), 1);
+        assert_eq!(full_icon_pages[0].page, live_id!(icon_gallery_page));
+        assert!(
+            GALLERY_CATALOG
+                .iter()
+                .any(|entry| entry.direct_icon_count > 0),
+            "expected at least one page to declare direct icon metadata"
+        );
+
+        for entry in GALLERY_CATALOG {
+            assert!(
+                entry.component_count > 0,
+                "page {} is missing component metadata",
+                entry.title
+            );
         }
     }
 }

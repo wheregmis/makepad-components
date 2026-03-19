@@ -1,6 +1,7 @@
 macro_rules! gallery_page_entries {
-    ($callback:ident) => {
+    ($callback:ident $(, $args:tt)*) => {
         $callback! {
+            $($args,)*
             {
                 title: "Accordion",
                 route: "/",
@@ -11,6 +12,10 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "A",
                 snippet: Accordion,
+                bundle: base,
+                components: [Accordion, Checkbox, Hr, Input, Label, Scroll, Switch],
+                icons: [],
+                icon_policy: none,
                 transition: none,
             }
             {
@@ -23,6 +28,10 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "L",
                 snippet: Alert,
+                bundle: page,
+                components: [Alert, Hr, Input, Label, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Aspect Ratio",
@@ -34,6 +43,10 @@ macro_rules! gallery_page_entries {
                 section: "Layout",
                 shortcut: "R",
                 snippet: AspectRatio,
+                bundle: page,
+                components: [AspectRatio, Hr, Image, Input, Label, Scroll, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Avatar",
@@ -45,6 +58,10 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "V",
                 snippet: Avatar,
+                bundle: page,
+                components: [Avatar, Hr, Input, Label, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Badge",
@@ -56,6 +73,10 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "B",
                 snippet: Badge,
+                bundle: page,
+                components: [Badge, Hr, Input, Label, Scroll, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Breadcrumb",
@@ -67,6 +88,10 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "C",
                 snippet: Breadcrumb,
+                bundle: page,
+                components: [Breadcrumb, Hr, Input, Label, Scroll, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Button",
@@ -78,6 +103,21 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "U",
                 snippet: Button,
+                bundle: page,
+                components: [Alert, Button, Hr, Input, Label, Scroll],
+                icons: [
+                    ButtonChevronLeft,
+                    ButtonChevronRight,
+                    ButtonX,
+                    ChevronDown,
+                    ChevronLeft,
+                    ChevronRight,
+                    Check,
+                    Info,
+                    Search,
+                    X,
+                ],
+                icon_policy: none,
             }
             {
                 title: "Button Group",
@@ -89,6 +129,10 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "G",
                 snippet: ButtonGroup,
+                bundle: page,
+                components: [ButtonGroup, Hr, Label, Scroll],
+                icons: [ButtonChevronLeft, ButtonMoreHorizontal],
+                icon_policy: none,
             }
             {
                 title: "Calendar",
@@ -100,6 +144,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "7",
                 snippet: Calendar,
+                bundle: page,
+                components: [Button, Calendar, Hr, Input, Label, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Card",
@@ -111,6 +159,10 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "D",
                 snippet: Card,
+                bundle: page,
+                components: [Badge, Button, Card, Hr, Input, Label, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Carousel",
@@ -122,6 +174,10 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "O",
                 snippet: Carousel,
+                bundle: page,
+                components: [Carousel, Hr, Input, Label, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Chart",
@@ -133,6 +189,10 @@ macro_rules! gallery_page_entries {
                 section: "Data",
                 shortcut: "H",
                 snippet: Chart,
+                bundle: page,
+                components: [Button, Chart, Hr, Input, Label, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Checkbox",
@@ -144,6 +204,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "X",
                 snippet: Checkbox,
+                bundle: page,
+                components: [Checkbox, Hr, Label, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Collapsible",
@@ -155,6 +219,10 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "P",
                 snippet: Collapsible,
+                bundle: page,
+                components: [Collapsible, Hr, Label, Scroll, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Command Palette",
@@ -166,6 +234,10 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "K",
                 snippet: CommandPalette,
+                bundle: page,
+                components: [Button, Hr, Input, Kbd, Label, Scroll, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Context Menu",
@@ -177,6 +249,10 @@ macro_rules! gallery_page_entries {
                 section: "Overlays",
                 shortcut: "X1",
                 snippet: ContextMenu,
+                bundle: page,
+                components: [ContextMenu, Hr, Input, Label, Scroll, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Date Picker",
@@ -188,6 +264,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "5",
                 snippet: DatePicker,
+                bundle: page,
+                components: [Button, Calendar, DatePicker, Hr, Input, Label, Popover, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Dialog",
@@ -199,6 +279,10 @@ macro_rules! gallery_page_entries {
                 section: "Overlays",
                 shortcut: "I",
                 snippet: Dialog,
+                bundle: page,
+                components: [Button, Dialog, Hr, Input, Label, Panel, Scroll, Sheet],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Icons",
@@ -210,6 +294,10 @@ macro_rules! gallery_page_entries {
                 section: "Components",
                 shortcut: "IC",
                 snippet: IconGallery,
+                bundle: page,
+                components: [Button, Hr, Input, Label, Scroll, Surface, Table],
+                icons: [],
+                icon_policy: all,
             }
             {
                 title: "Input",
@@ -221,6 +309,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "N",
                 snippet: Input,
+                bundle: page,
+                components: [Hr, Input, Label, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Input OTP",
@@ -232,6 +324,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "6",
                 snippet: InputOtp,
+                bundle: page,
+                components: [Hr, Input, InputOtp, Label, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Kbd",
@@ -243,6 +339,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "KB",
                 snippet: Kbd,
+                bundle: page,
+                components: [Hr, Input, Kbd, Label, Scroll, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Label",
@@ -254,6 +354,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "LB",
                 snippet: Label,
+                bundle: page,
+                components: [Hr, Input, Label, Scroll, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Menubar",
@@ -265,6 +369,10 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "MB",
                 snippet: Menubar,
+                bundle: page,
+                components: [Hr, Input, Label, Menubar, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Navigation Menu",
@@ -276,6 +384,10 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "NM",
                 snippet: NavigationMenu,
+                bundle: page,
+                components: [Button, Hr, Input, Label, NavigationMenu, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Pagination",
@@ -287,6 +399,10 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "PG",
                 snippet: Pagination,
+                bundle: page,
+                components: [Hr, Input, Label, Pagination, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Popover",
@@ -298,6 +414,10 @@ macro_rules! gallery_page_entries {
                 section: "Overlays",
                 shortcut: "PO",
                 snippet: Popover,
+                bundle: page,
+                components: [Button, Hr, Input, Label, Popover, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Progress",
@@ -309,6 +429,10 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "PR",
                 snippet: Progress,
+                bundle: page,
+                components: [Hr, Label, Progress, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Radio Group",
@@ -320,6 +444,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "RG",
                 snippet: RadioGroup,
+                bundle: page,
+                components: [Hr, Label, Panel, RadioGroup, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Resizable",
@@ -331,6 +459,10 @@ macro_rules! gallery_page_entries {
                 section: "Layout",
                 shortcut: "Z",
                 snippet: Resizable,
+                bundle: page,
+                components: [Hr, Input, Label, Panel, Resizable, Scroll, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Scroll Area",
@@ -342,6 +474,10 @@ macro_rules! gallery_page_entries {
                 section: "Layout",
                 shortcut: "SA",
                 snippet: ScrollArea,
+                bundle: page,
+                components: [Badge, Hr, Label, Panel, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Select",
@@ -353,6 +489,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "E",
                 snippet: Select,
+                bundle: page,
+                components: [Hr, Input, Panel, Scroll, Select],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Separator",
@@ -364,6 +504,10 @@ macro_rules! gallery_page_entries {
                 section: "Layout",
                 shortcut: "SP",
                 snippet: Separator,
+                bundle: page,
+                components: [Hr, Input, Label, Panel, Scroll],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Sheet",
@@ -375,6 +519,10 @@ macro_rules! gallery_page_entries {
                 section: "Overlays",
                 shortcut: "SH",
                 snippet: Sheet,
+                bundle: page,
+                components: [Button, Hr, Input, Label, Scroll, Select, Sheet, Sidebar, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Sidebar",
@@ -386,6 +534,10 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "SB",
                 snippet: Sidebar,
+                bundle: page,
+                components: [Hr, Label, Scroll, Sidebar],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Skeleton",
@@ -397,6 +549,10 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "SK",
                 snippet: Skeleton,
+                bundle: page,
+                components: [Hr, Input, Label, Scroll, Skeleton, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Slider",
@@ -408,6 +564,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "J",
                 snippet: Slider,
+                bundle: page,
+                components: [Hr, Label, Scroll, Slider],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Sonner",
@@ -419,6 +579,10 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "SN",
                 snippet: Sonner,
+                bundle: page,
+                components: [Button, Hr, Label, Scroll, Sonner],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Spinner",
@@ -430,6 +594,10 @@ macro_rules! gallery_page_entries {
                 section: "Feedback",
                 shortcut: "W",
                 snippet: Spinner,
+                bundle: page,
+                components: [Hr, Input, Label, Panel, Scroll, Spinner, Surface],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Switch",
@@ -441,6 +609,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "SW",
                 snippet: Switch,
+                bundle: page,
+                components: [Hr, Label, Scroll, Switch],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Table",
@@ -452,6 +624,10 @@ macro_rules! gallery_page_entries {
                 section: "Data",
                 shortcut: "8",
                 snippet: Table,
+                bundle: page,
+                components: [Button, Hr, Input, Label, Scroll, Table],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Tabs",
@@ -463,6 +639,10 @@ macro_rules! gallery_page_entries {
                 section: "Navigation",
                 shortcut: "TB",
                 snippet: Tabs,
+                bundle: page,
+                components: [Hr, Input, Label, Scroll, Tabs],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Textarea",
@@ -474,6 +654,10 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "TA",
                 snippet: Textarea,
+                bundle: page,
+                components: [Hr, Input, Label, Scroll, Textarea],
+                icons: [],
+                icon_policy: none,
             }
             {
                 title: "Toggle",
@@ -485,9 +669,64 @@ macro_rules! gallery_page_entries {
                 section: "Forms",
                 shortcut: "TG",
                 snippet: Toggle,
+                bundle: page,
+                components: [Hr, Label, Scroll, Toggle],
+                icons: [],
+                icon_policy: none,
             }
         }
     };
 }
+
+macro_rules! register_page_icons {
+    (none, $vm:ident, [$($icons:ident),* $(,)?]) => {
+        makepad_components::makepad_icon::register_icons(
+            $vm,
+            &[$(makepad_components::makepad_icon::IconModule::$icons),*],
+        );
+    };
+    (all, $vm:ident, [$($icons:ident),* $(,)?]) => {
+        makepad_components::makepad_icon::register_all_icons($vm);
+    };
+}
+
+macro_rules! define_gallery_page_dependency_registrars {
+    (
+        $(
+            {
+                title: $title:literal,
+                route: $route:literal,
+                page: $page:ident,
+                widget: $widget:ident,
+                sidebar_id: $sidebar_id:ident,
+                sidebar_label: $sidebar_label:literal,
+                section: $section:literal,
+                shortcut: $shortcut:literal,
+                snippet: $snippet:ident,
+                bundle: $bundle:ident,
+                components: [$($components:ident),* $(,)?],
+                icons: [$($icons:ident),* $(,)?],
+                icon_policy: $icon_policy:ident,
+                $(transition: $transition:ident,)?
+            }
+        )*
+    ) => {
+        $(
+            pub(crate) mod $page {
+                use makepad_components::makepad_widgets::*;
+
+                pub(crate) fn register_bundle_dependencies(vm: &mut ScriptVm) {
+                    makepad_components::register_component_set!(
+                        vm,
+                        [$($components),*]
+                    );
+                    register_page_icons!($icon_policy, vm, [$($icons),*]);
+                }
+            }
+        )*
+    };
+}
+
+gallery_page_entries!(define_gallery_page_dependency_registrars);
 
 pub(crate) use gallery_page_entries;

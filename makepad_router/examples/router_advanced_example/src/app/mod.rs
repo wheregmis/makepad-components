@@ -4,16 +4,67 @@ use makepad_router::{
 };
 use makepad_widgets::*;
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
+    atomic::{AtomicBool, AtomicUsize, Ordering},
     Arc,
 };
 use std::time::Duration;
 
 app_main!(App);
 
+static PROTECTED_BUNDLE_INITS: AtomicUsize = AtomicUsize::new(0);
+static ASYNC_PROTECTED_BUNDLE_INITS: AtomicUsize = AtomicUsize::new(0);
+
+#[unsafe(no_mangle)]
+pub extern "C" fn router_bundle_mark_protected() -> usize {
+    PROTECTED_BUNDLE_INITS.fetch_add(1, Ordering::SeqCst) + 1
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn router_bundle_mark_async_protected() -> usize {
+    ASYNC_PROTECTED_BUNDLE_INITS.fetch_add(1, Ordering::SeqCst) + 1
+}
+
+fn protected_bundle_init_count() -> usize {
+    PROTECTED_BUNDLE_INITS.load(Ordering::SeqCst)
+}
+
+fn async_protected_bundle_init_count() -> usize {
+    ASYNC_PROTECTED_BUNDLE_INITS.load(Ordering::SeqCst)
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
+
+    mod.widgets.BundledProtectedPageBase = #(BundledProtectedPage::register_widget(vm))
+    mod.widgets.BundledProtectedPage = set_type_default() do mod.widgets.BundledProtectedPageBase {
+        width: Fill
+        height: Fill
+        flow: Down
+        spacing: 12
+        padding: 20
+
+        Label { text: "Protected" draw_text.text_style.font_size: 28 }
+        Label { text: "Reached only when auth is enabled." }
+        Label { text: "First visit should initialize this bundle exactly once." }
+        bundle_status := Label { text: "Bundle status: waiting for route activation" }
+        protected_home_btn := Button { text: "Back to Home" }
+    }
+
+    mod.widgets.BundledAsyncProtectedPageBase = #(BundledAsyncProtectedPage::register_widget(vm))
+    mod.widgets.BundledAsyncProtectedPage = set_type_default() do mod.widgets.BundledAsyncProtectedPageBase {
+        width: Fill
+        height: Fill
+        flow: Down
+        spacing: 12
+        padding: 20
+
+        Label { text: "Async Protected" draw_text.text_style.font_size: 28 }
+        Label { text: "This route is checked by an async guard." }
+        Label { text: "Deep-linking to /async-protected should load the bundle before render." }
+        bundle_status := Label { text: "Bundle status: waiting for route activation" }
+        async_home_btn := Button { text: "Back to Home" }
+    }
 
     mod.widgets.AdvHomePage = View {
         width: Fill
@@ -23,7 +74,8 @@ script_mod! {
         padding: 20
 
         Label { text: "Advanced Router Example" draw_text.text_style.font_size: 28 }
-        Label { text: "Focus: guards (sync + async) and stack commands." }
+        Label { text: "Focus: guards (sync + async), stack commands, and route bundles." }
+        Label { text: "Try /protected or /async-protected directly in the browser to test deep-link boot." }
         auth_status_label := Label { text: "Auth: disabled" }
 
         View {
@@ -37,30 +89,6 @@ script_mod! {
             go_stack_btn := Button { text: "Open Stack Demo" }
             go_broken_btn := Button { text: "Broken Path" }
         }
-    }
-
-    mod.widgets.ProtectedPage = View {
-        width: Fill
-        height: Fill
-        flow: Down
-        spacing: 12
-        padding: 20
-
-        Label { text: "Protected" draw_text.text_style.font_size: 28 }
-        Label { text: "Reached only when auth is enabled." }
-        protected_home_btn := Button { text: "Back to Home" }
-    }
-
-    mod.widgets.AsyncProtectedPage = View {
-        width: Fill
-        height: Fill
-        flow: Down
-        spacing: 12
-        padding: 20
-
-        Label { text: "Async Protected" draw_text.text_style.font_size: 28 }
-        Label { text: "This route is checked by an async guard." }
-        async_home_btn := Button { text: "Back to Home" }
     }
 
     mod.widgets.StackDemoPage = View {
@@ -151,11 +179,13 @@ script_mod! {
                         }
                         protected := mod.widgets.RouterRoute {
                             route_pattern: "/protected"
-                            mod.widgets.ProtectedPage {}
+                            route_bundle: "protected"
+                            mod.widgets.BundledProtectedPage {}
                         }
                         async_protected := mod.widgets.RouterRoute {
                             route_pattern: "/async-protected"
-                            mod.widgets.AsyncProtectedPage {}
+                            route_bundle: "async_protected"
+                            mod.widgets.BundledAsyncProtectedPage {}
                         }
                         stack_demo := mod.widgets.RouterRoute {
                             route_pattern: "/stack"
@@ -172,6 +202,82 @@ script_mod! {
                 }
             }
         }
+    }
+}
+
+#[derive(Script, Widget)]
+pub struct BundledProtectedPage {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl BundledProtectedPage {
+    fn sync_bundle_status(&self, cx: &mut Cx, init_count: usize) {
+        self.view.label(cx, ids!(bundle_status)).set_text(
+            cx,
+            &format!(
+                "Bundle `protected` initialized {init_count} time(s). Repeat visits should stay at 1."
+            ),
+        );
+    }
+}
+
+impl ScriptHook for BundledProtectedPage {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        let init_count = protected_bundle_init_count();
+        vm.with_cx_mut(|cx| self.sync_bundle_status(cx, init_count));
+    }
+}
+
+impl Widget for BundledProtectedPage {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+}
+
+#[derive(Script, Widget)]
+pub struct BundledAsyncProtectedPage {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl BundledAsyncProtectedPage {
+    fn sync_bundle_status(&self, cx: &mut Cx, init_count: usize) {
+        self.view.label(cx, ids!(bundle_status)).set_text(
+            cx,
+            &format!(
+                "Bundle `async_protected` initialized {init_count} time(s). Deep-link boot should also show 1."
+            ),
+        );
+    }
+}
+
+impl ScriptHook for BundledAsyncProtectedPage {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        let init_count = async_protected_bundle_init_count();
+        vm.with_cx_mut(|cx| self.sync_bundle_status(cx, init_count));
+    }
+}
+
+impl Widget for BundledAsyncProtectedPage {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
     }
 }
 
@@ -241,6 +347,17 @@ impl MatchEvent for App {
         for action in actions.filter_widget_actions(router.widget_uid()) {
             if let Some(RouterAction::RouteChanged { from, to }) = action.action.downcast_ref() {
                 log!("Route changed: {:?} -> {:?}", from, to);
+            }
+            if let Some(RouterAction::BundleLoadFailed {
+                route_id,
+                bundle_id,
+            }) = action.action.downcast_ref()
+            {
+                log!(
+                    "Bundle load failed for route {:?} (bundle `{}`)",
+                    route_id,
+                    bundle_id
+                );
             }
         }
 

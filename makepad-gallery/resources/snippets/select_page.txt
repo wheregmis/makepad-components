@@ -1,0 +1,17 @@
+status_select := ShadSelect{
+    labels: ["Pending" "In Progress" "Done"]
+}
+
+// Controller example (Rust):
+// let status = self.view.drop_down(cx, ids!(status_select));
+//
+// if let Some(index) = status.changed(actions) {
+//     self.status_index = index;
+// }
+//
+// if let Some(label) = status.changed_label(actions) {
+//     self.status_label = label;
+// }
+//
+// status.set_selected_item(cx, 2);
+// let current_label = status.selected_label();

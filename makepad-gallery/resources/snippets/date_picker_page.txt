@@ -1,0 +1,21 @@
+deadline_picker := ShadDatePicker{
+    value: "2026-03-13"
+}
+
+// Controller example (Rust):
+// let picker = self.ui.shad_date_picker(cx, ids!(deadline_picker));
+//
+// if self.ui.button(cx, ids!(open_picker_btn)).clicked(actions) {
+//     picker.set_open(cx, true);
+// }
+//
+// if let Some(date) = picker.changed(actions) {
+//     self.deadline = Some(date);
+// }
+//
+// if let Some(is_open) = picker.open_changed(actions) {
+//     self.is_picker_visible = is_open;
+// }
+//
+// picker.set_value(cx, Some(ShadDate{year: 2026, month: 4, day: 1}));
+// picker.clear(cx);

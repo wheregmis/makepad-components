@@ -1,0 +1,36 @@
+mod.widgets.ShadAccordion{
+    item_accessible := mod.widgets.ShadAccordionItem{
+        title: "Is it accessible?"
+        is_open: true
+        body: mod.widgets.ShadLabel{text: "Yes. It adheres to expected keyboard interactions and semantic structure."}
+    }
+    item_styled := mod.widgets.ShadAccordionItem{
+        title: "Is it styled with complex elements?"
+        body: View{
+            flow: Down
+            spacing: 8
+            mod.widgets.ShadLabel{text: "Yes. It supports rich content inside the body."}
+            mod.widgets.ShadToggle{text: "Enable feature" selected: true}
+            mod.widgets.ShadCheckbox{label: "Accept terms" checked: true}
+        }
+    }
+}
+
+// Controller example (Rust):
+// let faq = self.ui.shad_accordion_item(cx, ids!(item_accessible));
+//
+// if self.ui.button(cx, ids!(expand_faq_btn)).clicked(actions) {
+//     faq.set_open(cx, true, animator::Animate::Yes);
+// }
+//
+// if self.ui.button(cx, ids!(collapse_faq_btn)).clicked(actions) {
+//     faq.set_open(cx, false, animator::Animate::Yes);
+// }
+//
+// if let Some(is_open) = faq.open_changed(actions) {
+//     log!("FAQ item open: {}", is_open);
+// }
+//
+// if let Some(progress) = faq.animation_progress(actions) {
+//     log!("Accordion animation progress: {}", progress);
+// }

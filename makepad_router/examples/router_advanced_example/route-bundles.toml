@@ -1,0 +1,5 @@
+[bundles.protected]
+functions = ["router_bundle_mark_protected"]
+
+[bundles.async_protected]
+functions = ["router_bundle_mark_async_protected"]

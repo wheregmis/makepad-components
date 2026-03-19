@@ -1,0 +1,17 @@
+ShadButtonGroup{
+    archive_btn := ShadButtonGroupItem{text: "Archive"}
+    ShadButtonGroupSeparator{}
+    report_btn := ShadButtonGroupItem{text: "Report"}
+}
+
+// Controller example (Rust):
+// if self.ui.button(cx, ids!(archive_btn)).clicked(actions) {
+//     self.toolbar_action = ToolbarAction::Archive;
+// }
+//
+// if self.ui.button(cx, ids!(report_btn)).clicked(actions) {
+//     self.toolbar_action = ToolbarAction::Report;
+// }
+//
+// Keep the chosen tool or mode in page state. The button group itself is
+// presentational; each named child button emits the action you care about.

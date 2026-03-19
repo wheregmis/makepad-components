@@ -1,0 +1,17 @@
+calendar_demo := ShadCalendar{
+    value: "2026-03-13"
+}
+
+// Controller example (Rust):
+// let calendar = self.ui.shad_calendar(cx, ids!(calendar_demo));
+//
+// if let Some(date) = calendar.changed(actions) {
+//     self.selected_due_date = Some(date);
+// }
+//
+// if self.ui.button(cx, ids!(next_month_btn)).clicked(actions) {
+//     calendar.next_month(cx);
+// }
+//
+// calendar.set_value(cx, Some(ShadDate{year: 2026, month: 4, day: 1}));
+// calendar.clear(cx);

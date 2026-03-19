@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use crate::ui::GalleryShellAction;
 use makepad_components::makepad_widgets::widget::WidgetActionData;
 use makepad_components::makepad_widgets::*;
 
@@ -59,18 +60,11 @@ gallery_stateful_page_shell! {
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. This page does not open the shared palette directly; it emits GalleryCommandPalettePageAction::OpenRequested."}
-        mod.widgets.GalleryActionFlowStep{text: "2. The app shell listens to command_palette_page.open_requested(actions) and opens the global overlay."}
+        mod.widgets.GalleryActionFlowStep{text: "1. This page does not open the shared palette directly; it emits GalleryShellAction::OpenCommandPalette."}
+        mod.widgets.GalleryActionFlowStep{text: "2. The app shell listens for GalleryShellAction::OpenCommandPalette and opens the global overlay."}
         mod.widgets.GalleryActionFlowStep{text: "3. The overlay remains shell-owned, so no page-internal button ids leak into main.rs."}
         mod.widgets.GalleryActionFlowStep{text: "4. When a command is chosen, the palette emits a semantic selection back to the shell for routing."}
     },
-}
-
-#[derive(Clone, Debug, Default)]
-pub enum GalleryCommandPalettePageAction {
-    OpenRequested,
-    #[default]
-    None,
 }
 
 #[derive(Script, ScriptHook, Widget)]
@@ -82,19 +76,6 @@ pub struct GalleryCommandPalettePage {
     #[action_data]
     #[rust]
     action_data: WidgetActionData,
-}
-
-impl GalleryCommandPalettePage {
-    pub fn open_requested(&self, actions: &Actions) -> bool {
-        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
-            matches!(
-                item.cast::<GalleryCommandPalettePageAction>(),
-                GalleryCommandPalettePageAction::OpenRequested
-            )
-        } else {
-            false
-        }
-    }
 }
 
 impl Widget for GalleryCommandPalettePage {
@@ -110,7 +91,7 @@ impl Widget for GalleryCommandPalettePage {
                 cx.widget_action_with_data(
                     &self.action_data,
                     self.widget_uid(),
-                    GalleryCommandPalettePageAction::OpenRequested,
+                    GalleryShellAction::OpenCommandPalette,
                 );
             }
         }
@@ -118,12 +99,5 @@ impl Widget for GalleryCommandPalettePage {
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         self.view.draw_walk(cx, scope, walk)
-    }
-}
-
-impl GalleryCommandPalettePageRef {
-    pub fn open_requested(&self, actions: &Actions) -> bool {
-        self.borrow()
-            .is_some_and(|inner| inner.open_requested(actions))
     }
 }

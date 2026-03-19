@@ -3,6 +3,7 @@ use makepad_widgets::*;
 #[derive(Clone, Debug, Default)]
 pub(super) struct RouteDefinition {
     pub(super) pattern: Option<String>,
+    pub(super) route_bundle: Option<String>,
     pub(super) transition: Option<LiveId>,
     pub(super) transition_duration: Option<f64>,
 }
@@ -35,9 +36,17 @@ pub(super) fn route_definition_from_template(
         .heap
         .value(template_obj, id!(route_transition_duration).into(), NoTrap)
         .as_number();
+    let route_bundle = script_value_to_string(
+        vm,
+        vm.bx
+            .heap
+            .value(template_obj, id!(route_bundle).into(), NoTrap),
+    )
+    .filter(|value| !value.trim().is_empty());
 
     RouteDefinition {
         pattern,
+        route_bundle,
         transition,
         transition_duration,
     }

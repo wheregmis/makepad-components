@@ -78,7 +78,7 @@ macro_rules! gallery_static_page {
                                     spacing: 12.0
 
                                     code_snippet +: {
-                                        code: #(crate::ui::snippets::snippet_code_for_page(live_id!($page)))
+                                        code_resource: #(crate::ui::gallery_snippet_resource(vm, stringify!($page)))
                                     }
                                 }
                             }
@@ -86,6 +86,28 @@ macro_rules! gallery_static_page {
                     }
                 }
             }
+        }
+
+        pub fn register_gallery_route_bundle(vm: &mut ScriptVm) {
+            crate::ui::registry::$page::register_bundle_dependencies(vm);
+            script_mod(vm);
+            let template = script_eval!(vm, {
+                mod.widgets.$widget{}
+            });
+            crate::ui::publish_gallery_page_template(
+                vm,
+                live_id!($page),
+                template,
+            );
+        }
+
+        #[unsafe(export_name = concat!("gallery_bundle_mark_", stringify!($page)))]
+        pub extern "C" fn gallery_bundle_mark() -> usize {
+            crate::ui::with_gallery_bundle_vm(|vm| {
+                register_gallery_route_bundle(vm);
+                1usize
+            })
+            .unwrap_or(0)
         }
     };
 
@@ -95,10 +117,42 @@ macro_rules! gallery_static_page {
         gallery_static_page!(@impl ShadScrollYView, $($rest)*);
     };
 }
-
 pub(crate) use gallery_static_page;
 
 macro_rules! gallery_stateful_page_shell {
+    (
+        root: $root:ident,
+        shell: { $($shell:tt)* },
+        widget: $widget:ident,
+        page: $page:ident,
+        title: $title:literal,
+        subtitle: $subtitle:literal,
+        divider: { $($divider:tt)* },
+        preview_spacing: $preview_spacing:literal,
+        preview: { $($preview:tt)* }
+        $(,
+            action_flow: { $($action_flow:tt)* }
+        )?
+        $(,)?
+    ) => {
+        gallery_stateful_page_shell!(
+            @impl
+            $root,
+            { $($shell)* },
+            {},
+            widget: $widget,
+            page: $page,
+            title: $title,
+            subtitle: $subtitle,
+            divider: { $($divider)* },
+            preview_spacing: $preview_spacing,
+            preview: { $($preview)* }
+            $(,
+                action_flow: { $($action_flow)* }
+            )?
+        );
+    };
+
     (
         root: $root:ident,
         shell: { $($shell:tt)* },
@@ -216,7 +270,7 @@ macro_rules! gallery_stateful_page_shell {
                                         spacing: 12.0
 
                                         code_snippet +: {
-                                            code: #(crate::ui::snippets::snippet_code_for_page(live_id!($page)))
+                                            code_resource: #(crate::ui::gallery_snippet_resource(vm, stringify!($page)))
                                         }
                                     }
                                 }
@@ -227,6 +281,28 @@ macro_rules! gallery_stateful_page_shell {
 
                 $($after_root)*
             }
+        }
+
+        pub fn register_gallery_route_bundle(vm: &mut ScriptVm) {
+            crate::ui::registry::$page::register_bundle_dependencies(vm);
+            script_mod(vm);
+            let template = script_eval!(vm, {
+                mod.widgets.$widget{}
+            });
+            crate::ui::publish_gallery_page_template(
+                vm,
+                live_id!($page),
+                template,
+            );
+        }
+
+        #[unsafe(export_name = concat!("gallery_bundle_mark_", stringify!($page)))]
+        pub extern "C" fn gallery_bundle_mark() -> usize {
+            crate::ui::with_gallery_bundle_vm(|vm| {
+                register_gallery_route_bundle(vm);
+                1usize
+            })
+            .unwrap_or(0)
         }
     };
 

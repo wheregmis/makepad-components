@@ -14,6 +14,10 @@ macro_rules! define_gallery_sidebar {
                 section: $section:literal,
                 shortcut: $shortcut:literal,
                 snippet: $snippet:ident,
+                bundle: $bundle:ident,
+                components: [$($components:ident),* $(,)?],
+                icons: [$($icons:ident),* $(,)?],
+                icon_policy: $icon_policy:ident,
                 $(transition: $transition:ident,)?
             }
         )*

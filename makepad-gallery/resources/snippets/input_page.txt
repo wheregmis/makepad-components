@@ -1,0 +1,20 @@
+ShadField{
+    ShadFieldLabel{text: "Email"}
+    email_input := ShadInput{empty_text: "you@example.com"}
+    ShadFieldDescription{text: "We'll never share your email."}
+}
+
+// Controller example (Rust):
+// let email_input = self.view.text_input(cx, ids!(email_input));
+//
+// if let Some(text) = email_input.changed(actions) {
+//     self.email_draft = text;
+// }
+//
+// if let Some((submitted, _modifiers)) = email_input.returned(actions) {
+//     self.submit_email(submitted);
+// }
+//
+// if self.clear_requested {
+//     email_input.set_text(cx, "");
+// }

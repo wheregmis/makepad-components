@@ -1,0 +1,32 @@
+// Basic toast
+View{
+    flow: Right
+    spacing: 8.0
+ShadButton{text: "Event created"}
+ShadButton{text: "Toast with description"}
+}
+ShadSonner{open: false}
+ShadSonnerWithDescription{open: false}
+
+// Toast with check icon + close button
+ShadButton{text: "Show toast with close"}
+ShadSonnerWithClose{open: false}
+
+// Controller example (Rust):
+// let event_toast = self.ui.shad_sonner(cx, ids!(toast_event));
+// let desc_toast = self.ui.shad_sonner(cx, ids!(toast_desc));
+// let close_toast = self.ui.shad_sonner(cx, ids!(toast_close));
+//
+// if self.ui.button(cx, ids!(toast_event_btn)).clicked(actions) {
+//     event_toast.open(cx);
+// }
+// if self.ui.button(cx, ids!(toast_desc_btn)).clicked(actions) {
+//     desc_toast.open(cx);
+// }
+// if self.ui.button(cx, ids!(toast_close_btn)).clicked(actions) {
+//     close_toast.open(cx);
+// }
+//
+// if let Some(is_open) = event_toast.open_changed(actions) {
+//     log!("Toast open: {}", is_open);
+// }

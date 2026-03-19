@@ -1,0 +1,32 @@
+ShadContextMenu{
+    labels: ["Open" "Duplicate" "Share" "Delete"]
+
+    ShadSurface{
+        width: 360
+        height: Fit
+        flow: Down
+        spacing: 6.0
+        padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
+        draw_bg +: {
+            color: (shad_theme.color_secondary)
+            border_size: 1.0
+            border_color: (shad_theme.color_outline_border)
+        }
+
+        ShadLabel{text: "Project brief.md"}
+        ShadFieldDescription{text: "Right click this card to open the menu."}
+    }
+}
+
+// Controller example (Rust):
+// let menu = self.ui.shad_context_menu(cx, ids!(context_menu_basic));
+//
+// if let Some(index) = menu.changed(actions) {
+//     match index {
+//         0 => self.open_file(),
+//         1 => self.duplicate_file(),
+//         2 => self.share_file(),
+//         3 => self.delete_file(),
+//         _ => {}
+//     }
+// }

@@ -1,0 +1,75 @@
+View{
+    width: Fill
+    height: Fit
+    flow: Down
+    spacing: 14.0
+
+    ShadFieldDescription{
+        width: Fill
+        text: "Mirror the final content shape so loading transitions feel stable."
+    }
+
+    View{
+        width: Fill
+        height: Fit
+        flow: Right
+        spacing: 12.0
+        align: Align{x: 0.0, y: 0.5}
+
+        ShadSkeleton{
+            width: 48
+            height: 48
+            draw_bg.border_radius: 24.0
+        }
+
+        View{
+            width: Fill
+            height: Fit
+            flow: Down
+            spacing: 8.0
+
+            ShadSkeleton{ width: 220 height: 16 }
+            ShadSkeleton{ width: 160 height: 14 }
+        }
+    }
+
+    ShadSurface{
+        width: Fill
+        height: Fit
+        flow: Down
+        spacing: 10.0
+        padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
+
+        ShadSkeleton{ width: 180 height: 18 }
+        ShadSkeleton{ width: Fill height: 14 }
+        ShadSkeleton{ width: Fill height: 14 }
+        ShadSkeleton{ width: 260 height: 14 }
+
+        View{
+            width: Fit
+            height: Fit
+            flow: Right
+            spacing: 8.0
+
+            ShadSkeleton{ width: 96 height: 32 }
+            ShadSkeleton{ width: 72 height: 32 animate: false }
+        }
+    }
+
+    View{
+        width: Fill
+        height: Fit
+        flow: Down
+        spacing: 8.0
+
+        ShadSkeleton{ width: Fill height: 14 }
+        ShadSkeleton{ width: Fill height: 14 shimmer_speed: 0.8 }
+        ShadSkeleton{ width: Fill height: 14 animation_fps: 12.0 }
+        ShadSkeleton{ width: Fill height: 14 animate: false }
+    }
+}
+
+// Usage notes:
+// 1. Skeleton is a presentational loading placeholder, not a fetch controller.
+// 2. Keep the geometry close to the resolved layout to avoid visible jumps.
+// 3. animate, animation_fps, and shimmer_speed are declarative tuning knobs for motion.

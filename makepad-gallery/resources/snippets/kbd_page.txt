@@ -1,0 +1,93 @@
+View{
+    width: Fill
+    height: Fit
+    flow: Down
+    spacing: 14.0
+
+    ShadFieldDescription{
+        width: Fill
+        text: "Use Kbd chips as shortcut copy in menus, dialogs, or onboarding hints."
+    }
+
+    View{
+        width: Fit
+        height: Fit
+        flow: Right
+        spacing: 6.0
+        align: Align{y: 0.5}
+
+        ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
+        ShadKbd{ label := ShadKbdLabel{text: "Shift"} }
+        ShadKbd{ label := ShadKbdLabel{text: "Option"} }
+        ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
+    }
+
+    View{
+        width: Fill
+        height: Fit
+        flow: Right
+        spacing: 16.0
+        align: Align{y: 0.5}
+
+        ShadLabel{
+            width: 180
+            text: "Open command palette"
+        }
+
+        View{
+            width: Fit
+            height: Fit
+            flow: Right
+            spacing: 6.0
+            align: Align{y: 0.5}
+
+            ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
+            ShadKbdSeparator{}
+            ShadKbd{ label := ShadKbdLabel{text: "K"} }
+        }
+
+        View{
+            width: Fit
+            height: Fit
+            flow: Right
+            spacing: 6.0
+            align: Align{y: 0.5}
+
+            ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
+            ShadKbdSeparator{}
+            ShadKbd{ label := ShadKbdLabel{text: "K"} }
+        }
+    }
+
+    View{
+        width: Fill
+        height: Fit
+        flow: Right
+        spacing: 16.0
+        align: Align{y: 0.5}
+
+        ShadLabel{
+            width: 180
+            text: "Duplicate current row"
+        }
+
+        View{
+            width: Fit
+            height: Fit
+            flow: Right
+            spacing: 6.0
+            align: Align{y: 0.5}
+
+            ShadKbd{ label := ShadKbdLabel{text: "Shift"} }
+            ShadKbdSeparator{}
+            ShadKbd{ label := ShadKbdLabel{text: "Alt"} }
+            ShadKbdSeparator{}
+            ShadKbd{ label := ShadKbdLabel{text: "Down"} }
+        }
+    }
+}
+
+// Usage notes:
+// 1. Treat Kbd as presentational copy, not as the keyboard handler.
+// 2. Render one ShadKbd per key and place ShadKbdSeparator between keys in a combo.
+// 3. Keep the actual shortcut behavior in the surrounding page or app shell.

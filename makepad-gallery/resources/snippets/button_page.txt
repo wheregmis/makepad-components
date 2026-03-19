@@ -1,0 +1,21 @@
+View{
+    width: Fit
+    height: Fit
+    flow: Right
+    spacing: 8.0
+    save_btn := mod.widgets.ShadButton{text: "Save"}
+    delete_btn := mod.widgets.ShadButtonDestructive{text: "Delete"}
+    more_btn := mod.widgets.ShadButtonGhost{text: "More"}
+}
+
+// Controller example (Rust):
+// if self.ui.button(cx, ids!(save_btn)).clicked(actions) {
+//     self.save_document();
+// }
+//
+// if self.ui.button(cx, ids!(delete_btn)).clicked(actions) {
+//     self.confirm_delete = true;
+// }
+//
+// Buttons stay intentionally small: give the button an id, then listen for
+// clicked(actions) in the page or feature controller.

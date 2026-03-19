@@ -1,0 +1,22 @@
+featured_carousel := mod.widgets.ShadCarousel{
+    width: 720
+}
+
+// The current carousel ships with 3 named slides and matching dots.
+// Override slide_0, slide_1, and slide_2 inside content_wrap.carousel_flip
+// when you need custom highlight content.
+//
+// Controller example (Rust):
+// let carousel = self.ui.shad_carousel(cx, ids!(featured_carousel));
+//
+// if self.ui.button(cx, ids!(open_next_highlight_btn)).clicked(actions) {
+//     carousel.next(cx);
+// }
+//
+// if self.ui.button(cx, ids!(jump_to_first_highlight_btn)).clicked(actions) {
+//     carousel.go_to(cx, 0);
+// }
+//
+// if let Some(index) = carousel.changed(actions) {
+//     log!("Active highlight changed to {}", index);
+// }

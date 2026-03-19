@@ -23,6 +23,7 @@ impl ScriptHook for RouterWidget {
             self.caches.child_router_scan_widget_count = 0;
             self.routes.templates.clear();
             self.routes.patterns.clear();
+            self.routes.bundle_ids.clear();
             self.routes.transition_overrides.clear();
             self.routes.transition_duration_overrides.clear();
             self.child_routers.clear();
@@ -62,6 +63,12 @@ impl ScriptHook for RouterWidget {
                         if let Some(pattern) = route_def.pattern {
                             self.routes.patterns.insert(route_id, pattern.clone());
                             pending_patterns.push((route_id, pattern));
+                        }
+
+                        if let Some(route_bundle) = route_def.route_bundle {
+                            self.routes.bundle_ids.insert(route_id, route_bundle);
+                        } else {
+                            self.routes.bundle_ids.remove(&route_id);
                         }
 
                         if let Some(transition) = route_def.transition {
@@ -138,13 +145,9 @@ impl ScriptHook for RouterWidget {
             }
 
             vm.with_cx_mut(|cx| {
-                // Performance-first: lazily instantiate only the active route.
-                if self.active_route.0 != 0 {
-                    self.ensure_route_widget(cx, self.active_route);
-                }
-
                 self.detect_child_routers(cx);
                 self.bootstrap_from_browser_url(cx);
+                self.ensure_boot_active_route(cx);
             });
         }
     }
