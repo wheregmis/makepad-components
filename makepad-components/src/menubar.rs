@@ -73,12 +73,11 @@ script_mod! {
         text: "Shortcut"
     }
 
-    mod.widgets.ShadMenubarItem = mod.widgets.ShadButtonGhost{
+    mod.widgets.ShadMenubarItem = set_type_default() do mod.widgets.ShadNavButtonBase{
         width: Fill
         height: 32
         align: Align{x: 0.0, y: 0.5}
         padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
-        grab_key_focus: false
         reset_hover_on_click: true
 
         draw_bg +: {

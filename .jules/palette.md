@@ -34,3 +34,7 @@
 ## 2024-03-19 - [Focus ring contrast consistency]
 **Learning:** In Makepad components, thin 1px focus rings using subtle hover colors (like `color_outline_border_hover`) fail accessibility contrast guidelines for keyboard users, whereas other components (like `RadioGroup`) correctly use a 2px `color_primary` stroke.
 **Action:** Always ensure focus rings for interactive controls (Checkbox, Toggle, etc.) use a high-contrast primary color and a thicker stroke (e.g. 2px) for clear keyboard visibility.
+
+## 2026-03-19 – [Grouped actions must stay in tab order]
+**Learning:** In this codebase, toggling `grab_key_focus` on a styled `ButtonFlat` is not enough to make grouped actions meaningfully keyboard reachable because the upstream widget already manages its own nav stop and click-focus path.
+**Action:** When a reusable action row or grouped button needs real tab-stop control, wire keyboard reachability in the component widget itself: add or skip `cx.add_nav_stop(...)` in `draw_walk`, and gate click focus plus key activation in `handle_event`.
