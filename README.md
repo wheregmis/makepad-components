@@ -77,7 +77,7 @@ cargo run -p makepad-gallery --release
 ```bash
 cargo install --git https://github.com/wheregmis/makepad.git --branch small_web_nits cargo-makepad --locked
 cargo makepad wasm install-toolchain
-./scripts/build_wasm.sh -p makepad-gallery --profile small --bindgen --no-threads
+./scripts/build_wasm.sh -p makepad-gallery --profile small --no-threads
 ```
 
 Expected output directory:

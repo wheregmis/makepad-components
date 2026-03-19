@@ -18,21 +18,6 @@ HAS_RELEASE=0
 HAS_PROFILE=0
 ENABLE_BROTLI=1
 
-patch_bindgen_js() {
-    local bindgen_file="$1"
-
-    if [[ ! -f "${bindgen_file}" ]]; then
-        return 0
-    fi
-
-    perl -0pi -e '
-        s/const imports=__wbg_get_imports\(memory\);/const imports=__wbg_get_imports(memory);imports.env=env;/g;
-        s/const imports = __wbg_get_imports\(memory\);/const imports = __wbg_get_imports(memory); imports.env = env;/g;
-        s/imports=__wbg_get_imports\(\);/imports=__wbg_get_imports(); imports.env=env;/g;
-        s/imports = __wbg_get_imports\(\);/imports = __wbg_get_imports(); imports.env = env;/g;
-    ' "${bindgen_file}"
-}
-
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -p|--package)
@@ -87,10 +72,3 @@ fi
 CMD+=("${EXTRA_FLAGS[@]}")
 
 "${CMD[@]}"
-
-OUTPUT_PROFILE="${PROFILE}"
-if [[ ${HAS_RELEASE} -eq 1 ]]; then
-    OUTPUT_PROFILE="release"
-fi
-
-patch_bindgen_js "target/makepad-wasm-app/${OUTPUT_PROFILE}/${APP_PACKAGE}/bindgen.js"
