@@ -1,10 +1,4 @@
-use makepad_components::calendar::ShadDate;
-use makepad_components::date_picker::ShadDatePickerWidgetRefExt;
-use makepad_components::popup_list::{
-    enqueue_popup_notification, set_global_popup_list, PopupItem, PopupKind,
-};
 use makepad_components::sonner::{ShadSonnerWidgetRefExt, SonnerItem, SonnerKind};
-use makepad_components::table::ShadTableWidgetRefExt;
 use makepad_widgets::*;
 
 app_main!(App);
@@ -50,13 +44,16 @@ impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
         if self.ui.button(cx, ids!(open_btn)).clicked(actions) {
             let sonner = self.ui.shad_sonner(cx, ids!(toast_close));
-            sonner.enqueue(cx, SonnerItem {
-                title: "上传失败".to_string(),
-                description: Some("服务器拒绝了请求，请重试。".to_string()),
-                kind: SonnerKind::Error,
-                duration: Some(3.0),
-                show_close: true,
-            });
+            sonner.enqueue(
+                cx,
+                SonnerItem {
+                    title: "上传失败".to_string(),
+                    description: Some("服务器拒绝了请求，请重试。".to_string()),
+                    kind: SonnerKind::Error,
+                    duration: Some(3.0),
+                    show_close: true,
+                },
+            );
             cx.redraw_all();
         }
     }

@@ -5,9 +5,7 @@ use makepad_widgets::*;
 use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 
 const MAX_VISIBLE_TOASTS: usize = 4;
-const DEFAULT_TIMEOUT_SEC: f64 = 5.0; // 默认 5 秒关闭
-
-// --- 新增数据结构 ---
+const DEFAULT_TIMEOUT_SEC: f64 = 5.0; 
 
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub enum SonnerKind {
@@ -90,7 +88,7 @@ script_mod! {
     }
     let ToastSlotPanel = RoundedView{
         visible: false
-        width: 260
+        width: 280
         height: Fit
         padding: Inset{left: 14, right: 8, top: 10, bottom: 10}
         spacing: 4.0
@@ -341,12 +339,11 @@ impl ShadSonner {
 
     fn sync_global_host_overlay(cx: &mut Cx) {
         let global = cx.global::<SonnerGlobal>().clone();
-        let (host_overlay, visible_toasts, rendered_open) = {
+        let (host_overlay, visible_toasts) = {
             let state = global.state.borrow();
             (
                 state.host_overlay.clone(),
                 Self::visible_toasts_snapshot(&state),
-                state.rendered_open,
             )
         };
 
@@ -443,8 +440,17 @@ impl ShadSonner {
         let visible = self.visible_toasts(cx);
         for (index, item) in visible.into_iter().enumerate() {
             Self::sync_overlay_slot(cx, &self.overlay, index, item);
+
+            let visible_toasts = self.visible_toasts(cx);
+            for (index, kind) in visible_toasts
+                .into_iter()
+                .enumerate()
+                .take(MAX_VISIBLE_TOASTS)
+            {
+                Self::sync_overlay_slot(cx, &self.overlay, index, kind);
+            }
+            self.sync_overlay_open_state(cx);
         }
-        self.sync_overlay_open_state(cx);
     }
 
     fn visible_toasts(&self, cx: &mut Cx) -> [Option<SonnerItem>; MAX_VISIBLE_TOASTS] {
@@ -478,7 +484,7 @@ impl ShadSonner {
             state.toast_timers.push_back(timeout_ms);
 
             if was_empty {
-                state.timer = cx.start_timeout(0.1); 
+                state.timer = cx.start_timeout(0.1);
             }
             (was_empty, true)
         };
