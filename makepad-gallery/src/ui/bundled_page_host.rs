@@ -167,13 +167,13 @@ mod tests {
     use super::*;
 
     fn bootstrap_gallery_vm(vm: &mut ScriptVm) {
-        crate::makepad_widgets::script_mod(vm);
+        crate::ui::register_gallery_shell_widgets(vm);
         makepad_components::theme::script_mod(vm);
         script_eval!(vm, {
             mod.widgets.shad_theme = mod.widgets.shad_themes.dark
         });
-        makepad_components::script_mod_without_theme(vm);
-        crate::makepad_code_editor::script_mod(vm);
+        crate::ui::set_gallery_bundle_vm(vm);
+        crate::ui::register_gallery_shell_dependencies(vm);
         makepad_router::script_mod(vm);
         crate::ui::script_mod(vm);
     }
@@ -184,7 +184,11 @@ mod tests {
 
         cx.with_vm(|vm| {
             bootstrap_gallery_vm(vm);
+        });
 
+        crate::ui::alert_page::gallery_bundle_mark();
+
+        cx.with_vm(|vm| {
             let host_value = script_eval!(vm, {
                 mod.widgets.GalleryBundledPageHost {
                     page_id: @alert_page

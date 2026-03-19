@@ -1,128 +1,172 @@
 [bundles.alert_page]
 functions = ["gallery_bundle_mark_alert_page"]
+script_files = ["src/ui/alert_page.rs"]
 
 [bundles.aspect_ratio_page]
 functions = ["gallery_bundle_mark_aspect_ratio_page"]
+script_files = ["src/ui/aspect_ratio_page.rs"]
 
 [bundles.avatar_page]
 functions = ["gallery_bundle_mark_avatar_page"]
+script_files = ["src/ui/avatar_page.rs"]
 
 [bundles.badge_page]
 functions = ["gallery_bundle_mark_badge_page"]
+script_files = ["src/ui/badge_page.rs"]
 
 [bundles.breadcrumb_page]
 functions = ["gallery_bundle_mark_breadcrumb_page"]
+script_files = ["src/ui/breadcrumb_page.rs"]
 
 [bundles.button_page]
 functions = ["gallery_bundle_mark_button_page"]
+script_files = ["src/ui/button_page.rs"]
 
 [bundles.button_group_page]
 functions = ["gallery_bundle_mark_button_group_page"]
+script_files = ["src/ui/button_group_page.rs"]
 
 [bundles.calendar_page]
 functions = ["gallery_bundle_mark_calendar_page"]
+script_files = ["src/ui/calendar_page.rs"]
 
 [bundles.card_page]
 functions = ["gallery_bundle_mark_card_page"]
+script_files = ["src/ui/card_page.rs"]
 
 [bundles.carousel_page]
 functions = ["gallery_bundle_mark_carousel_page"]
+script_files = ["src/ui/carousel_page.rs"]
 
 [bundles.chart_page]
 functions = ["gallery_bundle_mark_chart_page"]
+script_files = ["src/ui/chart_page.rs"]
 
 [bundles.checkbox_page]
 functions = ["gallery_bundle_mark_checkbox_page"]
+script_files = ["src/ui/checkbox_page.rs"]
 
 [bundles.collapsible_page]
 functions = ["gallery_bundle_mark_collapsible_page"]
+script_files = ["src/ui/collapsible_page.rs"]
 
 [bundles.command_palette_page]
 functions = ["gallery_bundle_mark_command_palette_page"]
+script_files = ["src/ui/command_palette_page.rs"]
 
 [bundles.context_menu_page]
 functions = ["gallery_bundle_mark_context_menu_page"]
+script_files = ["src/ui/context_menu_page.rs"]
 
 [bundles.date_picker_page]
 functions = ["gallery_bundle_mark_date_picker_page"]
+script_files = ["src/ui/date_picker_page.rs"]
 
 [bundles.dialog_page]
 functions = ["gallery_bundle_mark_dialog_page"]
+script_files = ["src/ui/dialog_page.rs"]
 
 [bundles.icon_gallery_page]
 functions = ["gallery_bundle_mark_icon_gallery_page"]
+script_files = ["src/ui/icon_gallery_page.rs"]
+script_modules = ["makepad_icon::icons::generated"]
 
 [bundles.input_page]
 functions = ["gallery_bundle_mark_input_page"]
+script_files = ["src/ui/input_page.rs"]
 
 [bundles.input_otp_page]
 functions = ["gallery_bundle_mark_input_otp_page"]
+script_files = ["src/ui/input_otp_page.rs"]
 
 [bundles.kbd_page]
 functions = ["gallery_bundle_mark_kbd_page"]
+script_files = ["src/ui/kbd_page.rs"]
 
 [bundles.label_page]
 functions = ["gallery_bundle_mark_label_page"]
+script_files = ["src/ui/label_page.rs"]
 
 [bundles.menubar_page]
 functions = ["gallery_bundle_mark_menubar_page"]
+script_files = ["src/ui/menubar_page.rs"]
 
 [bundles.navigation_menu_page]
 functions = ["gallery_bundle_mark_navigation_menu_page"]
+script_files = ["src/ui/navigation_menu_page.rs"]
 
 [bundles.pagination_page]
 functions = ["gallery_bundle_mark_pagination_page"]
+script_files = ["src/ui/pagination_page.rs"]
 
 [bundles.popover_page]
 functions = ["gallery_bundle_mark_popover_page"]
+script_files = ["src/ui/popover_page.rs"]
 
 [bundles.progress_page]
 functions = ["gallery_bundle_mark_progress_page"]
+script_files = ["src/ui/progress_page.rs"]
 
 [bundles.radio_group_page]
 functions = ["gallery_bundle_mark_radio_group_page"]
+script_files = ["src/ui/radio_group_page.rs"]
 
 [bundles.resizable_page]
 functions = ["gallery_bundle_mark_resizable_page"]
+script_files = ["src/ui/resizable_page.rs"]
 
 [bundles.scroll_area_page]
 functions = ["gallery_bundle_mark_scroll_area_page"]
+script_files = ["src/ui/scroll_area_page.rs"]
 
 [bundles.select_page]
 functions = ["gallery_bundle_mark_select_page"]
+script_files = ["src/ui/select_page.rs"]
 
 [bundles.separator_page]
 functions = ["gallery_bundle_mark_separator_page"]
+script_files = ["src/ui/separator_page.rs"]
 
 [bundles.sheet_page]
 functions = ["gallery_bundle_mark_sheet_page"]
+script_files = ["src/ui/sheet_page.rs"]
 
 [bundles.sidebar_page]
 functions = ["gallery_bundle_mark_sidebar_page"]
+script_files = ["src/ui/sidebar_page.rs"]
 
 [bundles.skeleton_page]
 functions = ["gallery_bundle_mark_skeleton_page"]
+script_files = ["src/ui/skeleton_page.rs"]
 
 [bundles.slider_page]
 functions = ["gallery_bundle_mark_slider_page"]
+script_files = ["src/ui/slider_page.rs"]
 
 [bundles.sonner_page]
 functions = ["gallery_bundle_mark_sonner_page"]
+script_files = ["src/ui/sonner_page.rs"]
 
 [bundles.spinner_page]
 functions = ["gallery_bundle_mark_spinner_page"]
+script_files = ["src/ui/spinner_page.rs"]
 
 [bundles.switch_page]
 functions = ["gallery_bundle_mark_switch_page"]
+script_files = ["src/ui/switch_page.rs"]
 
 [bundles.table_page]
 functions = ["gallery_bundle_mark_table_page"]
+script_files = ["src/ui/table_page.rs"]
 
 [bundles.tabs_page]
 functions = ["gallery_bundle_mark_tabs_page"]
+script_files = ["src/ui/tabs_page.rs"]
 
 [bundles.textarea_page]
 functions = ["gallery_bundle_mark_textarea_page"]
+script_files = ["src/ui/textarea_page.rs"]
 
 [bundles.toggle_page]
 functions = ["gallery_bundle_mark_toggle_page"]
+script_files = ["src/ui/toggle_page.rs"]

@@ -1,0 +1,14 @@
+mod.widgets.ShadSidebar{
+    nav_playground := ShadSidebarItem{text: "Playground"}
+    nav_history := ShadSidebarItem{text: "History"}
+    nav_settings := ShadSidebarItem{text: "Settings"}
+}
+
+// Controller example (Rust):
+// if self.ui.button(cx, ids!(nav_playground)).clicked(actions) {
+//     self.router.go_to_route(cx, live_id!(playground));
+// }
+//
+// Sidebar items are button actions with navigation styling. Keep the selected
+// route or active section in page/app state, then render the matching item as
+// active from that state.

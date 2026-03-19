@@ -1,0 +1,21 @@
+View{
+    width: Fill
+    height: Fit
+    flow: Down
+    spacing: 16.0
+    volume_slider := ShadSlider{default: 0.5}
+}
+
+// Controller example (Rust):
+// let volume = self.view.slider(cx, ids!(volume_slider));
+//
+// if let Some(value) = volume.slided(actions) {
+//     self.preview_volume = value;
+// }
+//
+// if let Some(value) = volume.end_slide(actions) {
+//     self.saved_volume = value;
+// }
+//
+// volume.set_value(cx, 0.8);
+// let current = volume.value();

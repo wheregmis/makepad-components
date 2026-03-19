@@ -1,0 +1,56 @@
+open_right_sheet_btn := ShadButton{
+    text: "Open editor"
+}
+
+right_sheet := ShadSheet{
+    side: "right"
+    sheet_size: 360.0
+
+    overlay +: {
+        content +: {
+            sheet_frame +: {
+                header +: {
+                    title +: {text: "Edit workspace"}
+                    description +: {text: "Keep editing in context without leaving the current dashboard."}
+                }
+
+                body +: {
+                    ShadField{
+                        ShadFieldLabel{text: "Workspace name"}
+                        ShadInput{empty_text: "Northwind"}
+                    }
+
+                    ShadField{
+                        ShadFieldLabel{text: "Default team"}
+                        ShadSelect{labels: ["Design" "Engineering" "Ops"]}
+                    }
+                }
+
+                footer +: {
+                    close_right_sheet_btn := ShadButtonOutline{text: "Cancel"}
+                    save_right_sheet_btn := ShadButton{text: "Save changes"}
+                }
+            }
+        }
+    }
+}
+
+// Controller example (Rust):
+// let sheet = self.ui.shad_sheet(cx, ids!(right_sheet));
+//
+// if self.ui.button(cx, ids!(open_right_sheet_btn)).clicked(actions) {
+//     sheet.open(cx);
+// }
+//
+// if self.ui.button(cx, ids!(close_right_sheet_btn)).clicked(actions)
+//     || self.ui.button(cx, ids!(save_right_sheet_btn)).clicked(actions)
+// {
+//     sheet.close(cx);
+// }
+//
+// if let Some(is_open) = sheet.open_changed(actions) {
+//     log!("Sheet open: {}", is_open);
+// }
+//
+// side and sheet_size are declarative configuration.
+// The page opens and closes the sheet; backdrop dismissal and Escape stay inside ShadSheet.

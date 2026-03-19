@@ -24,6 +24,14 @@ pub extern "C" fn router_bundle_mark_async_protected() -> usize {
     ASYNC_PROTECTED_BUNDLE_INITS.fetch_add(1, Ordering::SeqCst) + 1
 }
 
+fn protected_bundle_init_count() -> usize {
+    PROTECTED_BUNDLE_INITS.load(Ordering::SeqCst)
+}
+
+fn async_protected_bundle_init_count() -> usize {
+    ASYNC_PROTECTED_BUNDLE_INITS.load(Ordering::SeqCst)
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
@@ -224,7 +232,7 @@ impl ScriptHook for BundledProtectedPage {
         _scope: &mut Scope,
         _value: ScriptValue,
     ) {
-        let init_count = router_bundle_mark_protected();
+        let init_count = protected_bundle_init_count();
         vm.with_cx_mut(|cx| self.sync_bundle_status(cx, init_count));
     }
 }
@@ -262,7 +270,7 @@ impl ScriptHook for BundledAsyncProtectedPage {
         _scope: &mut Scope,
         _value: ScriptValue,
     ) {
-        let init_count = router_bundle_mark_async_protected();
+        let init_count = async_protected_bundle_init_count();
         vm.with_cx_mut(|cx| self.sync_bundle_status(cx, init_count));
     }
 }

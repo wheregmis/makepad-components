@@ -1,0 +1,28 @@
+app_menubar := ShadMenubar{
+    file_menu := ShadMenubarMenu{
+        trigger := ShadMenubarTrigger{text: "File"}
+        content: ShadMenubarContent{
+            file_new_btn := ShadMenubarItem{text: "New file"}
+            file_open_btn := ShadMenubarItem{text: "Open recent"}
+            ShadMenubarSeparator{}
+            file_share_btn := ShadMenubarItem{text: "Share"}
+        }
+    }
+
+    edit_menu := ShadMenubarMenu{
+        trigger := ShadMenubarTrigger{text: "Edit"}
+        content: ShadMenubarContent{
+            edit_undo_btn := ShadMenubarItem{text: "Undo"}
+            edit_redo_btn := ShadMenubarItem{text: "Redo"}
+        }
+    }
+}
+
+// Controller example (Rust):
+// let file_menu = self.view.shad_popover(cx, ids!(file_menu));
+// let file_content = file_menu.content_widget();
+//
+// if file_content.button(cx, ids!(file_new_btn)).clicked(actions) {
+//     file_menu.close(cx);
+//     self.status = "Selected File -> New file".to_string();
+// }

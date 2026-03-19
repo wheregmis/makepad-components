@@ -1,0 +1,42 @@
+mod.widgets.ShadCard{
+    width: 380
+
+    header := mod.widgets.ShadCardHeader{
+        title := mod.widgets.ShadCardTitle{text: "Team Access"}
+        description := mod.widgets.ShadCardDescription{text: "Review seats, pending invites, and billing impact before applying changes."}
+    }
+
+    content := mod.widgets.ShadCardContent{
+        View{
+            width: Fill
+            height: Fit
+            flow: Right
+            align: Align{y: 0.5}
+            spacing: 12.0
+
+            View{
+                width: Fill
+                height: Fit
+                flow: Down
+                spacing: 2.0
+
+                mod.widgets.ShadFieldLabel{text: "Current plan"}
+                mod.widgets.ShadFieldDescription{text: "Pro workspace with advanced sharing controls."}
+            }
+
+            mod.widgets.ShadBadgeSecondary{
+                label := mod.widgets.ShadBadgeSecondaryLabel{text: "Pro"}
+            }
+        }
+
+        mod.widgets.ShadHr{}
+
+        mod.widgets.ShadFieldDescription{text: "Seats in use: 18 of 25"}
+        mod.widgets.ShadFieldDescription{text: "Pending invites: 3 awaiting acceptance"}
+    }
+
+    footer := mod.widgets.ShadCardFooter{
+        mod.widgets.ShadButtonGhost{text: "Cancel"}
+        mod.widgets.ShadButton{text: "Review changes"}
+    }
+}

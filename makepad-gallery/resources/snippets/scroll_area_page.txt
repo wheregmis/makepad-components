@@ -1,0 +1,13 @@
+ShadScrollArea{
+    width: Fill
+    height: 220
+    View{
+        width: Fill
+        height: Fit
+        flow: Down
+        spacing: 8.0
+        ShadLabel{text: "Row 1"}
+        ShadLabel{text: "Row 2"}
+        ShadLabel{text: "Row 3"}
+    }
+}

@@ -1,0 +1,36 @@
+// Keep the breadcrumb close to the page title it describes.
+ShadSurfaceMuted{
+    width: 360
+    height: Fit
+    flow: Down
+    spacing: 10.0
+    padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
+    draw_bg +: {
+        border_size: 1.0
+        border_color: (shad_theme.color_outline_border)
+    }
+
+    mod.widgets.ShadBreadcrumb{
+        mod.widgets.ShadBreadcrumbLink{ text: "Workspace" }
+        mod.widgets.ShadBreadcrumbSeparator{}
+        mod.widgets.ShadBreadcrumbLink{ text: "Settings" }
+        mod.widgets.ShadBreadcrumbSeparator{}
+        mod.widgets.ShadBreadcrumbPage{ text: "Billing" }
+    }
+
+    View{
+        width: Fill
+        height: Fit
+        flow: Down
+        spacing: 4.0
+
+        mod.widgets.ShadLabel{
+            draw_text.color: (shad_theme.color_primary)
+            draw_text.text_style.font_size: 16
+            text: "Billing Settings"
+        }
+        mod.widgets.ShadFieldDescription{
+            text: "Manage invoices, tax details, and workspace-level billing contacts."
+        }
+    }
+}

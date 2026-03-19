@@ -1,0 +1,26 @@
+View{
+    width: Fit
+    height: Fit
+    flow: Down
+    spacing: 8.0
+    ShadLabel{text: "Enter the 6-digit code"}
+    ShadInputOtp{}
+    ShadFieldDescription{text: "Paste is supported. Only digits are accepted."}
+}
+
+// Controller example (Rust):
+// let otp = self.ui.shad_input_otp(cx, ids!(otp_demo));
+//
+// if let Some(value) = otp.changed(actions) {
+//     self.status = format!("Current value: {}", value);
+// }
+//
+// if let Some(code) = otp.completed(actions) {
+//     self.status = format!("Completed: {}", code);
+// }
+//
+// // Restore from saved state:
+// otp.set_value(cx, "123456");
+//
+// // On redraw/startup you can also inspect the current value:
+// let current = otp.value();

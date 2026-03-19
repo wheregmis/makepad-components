@@ -6,10 +6,9 @@ description = "Makepad component gallery example"
 license = "MIT OR Apache-2.0"
 
 [package.metadata.makepad.web]
-preserve = ["makepad_icon:resources/icons"]
+preserve = ["makepad_icon:resources/icons", "self:resources/snippets"]
 
 [dependencies]
 makepad-widgets = { workspace = true }
-makepad-code-editor = { workspace = true }
 makepad-components = { workspace = true }
 makepad-router = { workspace = true }

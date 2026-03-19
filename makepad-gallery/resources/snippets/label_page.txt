@@ -1,0 +1,62 @@
+View{
+    width: Fill
+    height: Fit
+    flow: Down
+    spacing: 14.0
+
+    ShadFieldDescription{
+        width: Fill
+        text: "Use ShadLabel for nearby UI copy, summaries, and status text."
+    }
+
+    View{
+        width: Fill
+        height: Fit
+        flow: Right
+        spacing: 12.0
+
+        ShadSurface{
+            width: 248
+            height: Fit
+            flow: Down
+            spacing: 6.0
+            padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
+
+            ShadLabel{text: "Current plan"}
+            ShadFieldDescription{text: "Pro workspace with annual billing."}
+        }
+
+        ShadSurface{
+            width: 248
+            height: Fit
+            flow: Down
+            spacing: 6.0
+            padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
+
+            ShadLabel{text: "Environment"}
+            ShadFieldDescription{text: "Production API connected."}
+        }
+    }
+
+    View{
+        width: Fill
+        height: Fit
+        flow: Down
+        spacing: 10.0
+
+        sync_status := ShadLabel{
+            text: "Last synced 2 minutes ago"
+        }
+
+        results_count := ShadLabel{
+            text: "Showing 24 of 120 results"
+        }
+    }
+}
+
+// Runtime update example (Rust):
+// self.view.label(cx, ids!(sync_status)).set_text(cx, "Last synced just now");
+// self.view.label(cx, ids!(results_count)).set_text(cx, "Showing 36 of 120 results");
+//
+// Use ShadFieldLabel inside ShadField when the text belongs to an input stack,
+// instead of reusing ShadLabel as a form caption.

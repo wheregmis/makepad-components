@@ -299,14 +299,6 @@ name = "makepad-byteorder-lite"
 version = "0.1.0"
 
 [[package]]
-name = "makepad-code-editor"
-version = "2.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=crazy_web#78bbb3e7570d3ec3bddf80c9f63ca6d271826d87"
-dependencies = [
- "makepad-widgets",
-]
-
-[[package]]
 name = "makepad-components"
 version = "1.0.0"
 dependencies = [
@@ -380,7 +372,6 @@ version = "1.0.0"
 name = "makepad-gallery"
 version = "1.0.0"
 dependencies = [
- "makepad-code-editor",
  "makepad-components",
  "makepad-router",
  "makepad-widgets",

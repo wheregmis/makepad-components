@@ -1,0 +1,46 @@
+profile_popover := ShadPopover{
+    side: "bottom"
+    align: "start"
+
+    trigger := ShadButtonOutline{
+        text: "Open profile editor"
+    }
+
+    content: ShadPopoverContent{
+        title := ShadSectionHeader{
+            text: "Edit profile"
+        }
+
+        description := ShadFieldDescription{
+            text: "Quick edits belong in a popover when the page context should stay visible."
+        }
+
+        footer := View{
+            width: Fill
+            height: Fit
+            flow: Right
+            spacing: 8.0
+
+            popover_close_btn := ShadButtonGhost{
+                text: "Cancel"
+            }
+
+            popover_apply_btn := ShadButton{
+                text: "Save"
+            }
+        }
+    }
+}
+
+// Controller example (Rust):
+// let popover = self.view.shad_popover(cx, ids!(profile_popover));
+// let content = popover.content_widget();
+//
+// if content.button(cx, ids!(popover_apply_btn)).clicked(actions) {
+//     self.save_profile_changes();
+//     popover.close(cx);
+// }
+//
+// if let Some(is_open) = popover.open_changed(actions) {
+//     log!("Popover open: {}", is_open);
+// }

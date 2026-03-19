@@ -20,6 +20,9 @@ macro_rules! define_gallery_root {
             shortcut: $shortcut:literal,
             snippet: $snippet:ident,
             bundle: base,
+            components: [$($components:ident),* $(,)?],
+            icons: [$($icons:ident),* $(,)?],
+            icon_policy: $icon_policy:ident,
             $(transition: $transition:ident,)?
         }
         $($rest:tt)*
@@ -60,6 +63,9 @@ macro_rules! define_gallery_root {
             shortcut: $shortcut:literal,
             snippet: $snippet:ident,
             bundle: page,
+            components: [$($components:ident),* $(,)?],
+            icons: [$($icons:ident),* $(,)?],
+            icon_policy: $icon_policy:ident,
             $(transition: $transition:ident,)?
         }
         $($rest:tt)*
@@ -426,13 +432,13 @@ mod tests {
     use std::collections::HashMap;
 
     fn bootstrap_gallery_vm(vm: &mut ScriptVm) {
-        crate::makepad_widgets::script_mod(vm);
+        crate::ui::register_gallery_shell_widgets(vm);
         makepad_components::theme::script_mod(vm);
         script_eval!(vm, {
             mod.widgets.shad_theme = mod.widgets.shad_themes.dark
         });
-        makepad_components::script_mod_without_theme(vm);
-        crate::makepad_code_editor::script_mod(vm);
+        crate::ui::set_gallery_bundle_vm(vm);
+        crate::ui::register_gallery_shell_dependencies(vm);
         makepad_router::script_mod(vm);
         crate::ui::script_mod(vm);
     }

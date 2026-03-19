@@ -1,0 +1,20 @@
+projects_pagination := ShadPagination{
+    current_page: 5
+    page_count: 12
+}
+
+// Controller example (Rust):
+// let pagination = self.view.shad_pagination(cx, ids!(projects_pagination));
+//
+// if let Some(page) = pagination.changed(actions) {
+//     self.current_page = page;
+//     self.reload_rows_for(page);
+// }
+//
+// if self.view.button(cx, ids!(next_page_btn)).clicked(actions) {
+//     pagination.next(cx);
+// }
+//
+// pagination.set_page(cx, 1);
+// let active_page = pagination.page();
+// let total_pages = pagination.page_count();

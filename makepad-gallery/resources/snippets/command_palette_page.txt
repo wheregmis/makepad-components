@@ -1,0 +1,10 @@
+mod.widgets.ShadButton{text: "Open Command Palette"}
+
+// The gallery listens for Cmd/Ctrl + K globally.
+//
+// Page action flow:
+// 1. The page-local trigger emits GalleryCommandPalettePageAction::OpenRequested.
+// 2. The app shell listens to command_palette_page.open_requested(actions).
+// 3. The shell opens the shared command palette overlay.
+//
+// This keeps page-local button clicks separate from shell-owned modal state.

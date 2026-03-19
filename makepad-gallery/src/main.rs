@@ -1,4 +1,3 @@
-pub use makepad_code_editor;
 pub use makepad_widgets;
 
 mod ui;
@@ -23,7 +22,7 @@ impl App {
     const SMALL_SCREEN_WIDTH: f64 = 900.0;
 
     fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
-        crate::makepad_widgets::script_mod(vm);
+        crate::ui::register_gallery_shell_widgets(vm);
         makepad_components::theme::script_mod(vm);
         if is_light_theme {
             script_eval!(vm, {
@@ -34,8 +33,8 @@ impl App {
                 mod.widgets.shad_theme = mod.widgets.shad_themes.dark
             });
         }
-        makepad_components::script_mod_without_theme(vm);
-        makepad_code_editor::script_mod(vm);
+        crate::ui::set_gallery_bundle_vm(vm);
+        crate::ui::register_gallery_shell_dependencies(vm);
         makepad_router::script_mod(vm);
         crate::ui::script_mod(vm);
         self::script_mod(vm)

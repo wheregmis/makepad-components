@@ -1,0 +1,20 @@
+ShadTabs{
+    ShadTabsList{
+        ShadTabsTrigger{text: "Overview"}
+        ShadTabsTrigger{text: "Usage"}
+        ShadTabsTrigger{text: "Settings"}
+    }
+    ShadTabsContent{
+        ShadLabel{text: "Switch content in app code with PageFlip or another state holder."}
+    }
+}
+
+// Page-controller example (Rust):
+// if self.ui.button(cx, ids!(tabs_usage_trigger)).clicked(actions) {
+//     self.set_selected_tab(cx, live_id!(usage));
+// }
+//
+// fn set_selected_tab(&mut self, cx: &mut Cx, page: LiveId) {
+//     self.view.router_widget(cx, ids!(tabs_content_flip)).go_to_route(cx, page);
+//     // Also update the active indicator visibility here.
+// }

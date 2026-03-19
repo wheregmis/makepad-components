@@ -1,0 +1,29 @@
+// Alerts are inline callouts, not overlay state.
+// Compose them from:
+// 1. an outer shell (`ShadAlert` or `ShadAlertDestructive`)
+// 2. a sibling icon beside the content stack
+// 3. a `ShadAlertContent` stack for title + description
+View{
+    width: Fill
+    height: Fit
+    flow: Down
+    spacing: 12.0
+
+    mod.widgets.ShadAlert{
+        width: Fill
+        mod.widgets.ShadAlertIcon{}
+        mod.widgets.ShadAlertContent{
+            mod.widgets.ShadAlertTitle{text: "Heads up!"}
+            mod.widgets.ShadAlertDescription{text: "You can add components and dependencies to your app using the cli."}
+        }
+    }
+
+    mod.widgets.ShadAlertDestructive{
+        width: Fill
+        mod.widgets.ShadAlertDestructiveIcon{}
+        mod.widgets.ShadAlertContent{
+            mod.widgets.ShadAlertDestructiveTitle{text: "Error"}
+            mod.widgets.ShadAlertDestructiveDescription{text: "Your session has expired. Please log in again."}
+        }
+    }
+}

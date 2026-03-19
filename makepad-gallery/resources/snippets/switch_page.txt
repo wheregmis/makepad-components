@@ -1,0 +1,14 @@
+email_alerts_switch := ShadSwitch{text: "Email alerts"}
+
+// Controller example (Rust):
+// let email_alerts = self.view.check_box(cx, ids!(email_alerts_switch));
+//
+// if let Some(enabled) = email_alerts.changed(actions) {
+//     self.email_alerts_enabled = enabled;
+// }
+//
+// if self.reset_preferences {
+//     email_alerts.set_active(cx, false);
+// }
+//
+// let is_enabled = email_alerts.active(cx);

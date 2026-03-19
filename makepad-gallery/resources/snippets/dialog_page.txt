@@ -1,0 +1,71 @@
+open_rename_dialog_btn := ShadButton{
+    text: "Rename project"
+}
+
+rename_dialog := ShadDialog{
+    overlay +: {
+        content +: {
+            body +: {
+                dialog_header := ShadDialogHeader{
+                    title := ShadDialogTitle{text: "Rename project"}
+                    description := ShadDialogDescription{
+                        text: "Update the project name shown across navigation and shares."
+                    }
+                }
+
+                dialog_content := ShadDialogContent{
+                    ShadField{
+                        ShadFieldLabel{text: "Project name"}
+                        ShadInput{empty_text: "Northwind Revamp"}
+                    }
+
+                    ShadFieldDescription{
+                        text: "Keep it concise. Changes apply immediately."
+                    }
+                }
+
+                dialog_footer := ShadDialogFooter{
+                    rename_cancel_btn := ShadButtonOutline{text: "Cancel"}
+                    rename_save_btn := ShadButton{text: "Save changes"}
+                }
+            }
+        }
+    }
+}
+
+publish_dialog := ShadDialogAlert{
+    overlay +: {
+        content +: {
+            dialog_panel +: {
+                dialog_body +: {
+                    title_label +: {text: "Publish changes?"}
+                    description_label +: {
+                        text: "Push the latest updates live for every workspace."
+                    }
+                }
+
+                footer +: {
+                    cancel +: {text: "Keep editing"}
+                    confirm +: {text: "Publish now"}
+                }
+            }
+        }
+    }
+}
+
+// Controller example (Rust):
+// let dialog = self.ui.shad_dialog(cx, ids!(rename_dialog));
+//
+// if self.ui.button(cx, ids!(open_rename_dialog_btn)).clicked(actions) {
+//     dialog.open(cx);
+// }
+//
+// if self.ui.button(cx, ids!(rename_cancel_btn)).clicked(actions)
+//     || self.ui.button(cx, ids!(rename_save_btn)).clicked(actions)
+// {
+//     dialog.close(cx);
+// }
+//
+// if let Some(is_open) = dialog.open_changed(actions) {
+//     log!("Dialog open: {}", is_open);
+// }

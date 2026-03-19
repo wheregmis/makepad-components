@@ -1,0 +1,18 @@
+ShadField{
+    ShadFieldLabel{text: "Bio"}
+    bio_input := ShadTextarea{
+        empty_text: "Tell us a little bit about yourself"
+    }
+    ShadFieldDescription{text: "Keep it short. You can always edit this later."}
+}
+
+// Controller example (Rust):
+// let bio = self.view.text_input(cx, ids!(bio_input));
+//
+// if let Some(text) = bio.changed(actions) {
+//     self.bio_draft = text;
+// }
+//
+// if self.restore_previous_draft {
+//     bio.set_text(cx, &self.cached_bio);
+// }

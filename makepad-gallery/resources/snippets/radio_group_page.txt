@@ -1,0 +1,20 @@
+ShadRadioGroup{
+    starter_plan := ShadRadioItem{text: "Starter"}
+    pro_plan := ShadRadioItem{text: "Pro"}
+    enterprise_plan := ShadRadioItem{text: "Enterprise"}
+}
+
+// Controller example (Rust):
+// if let Some(index) = self.view
+//     .radio_button_set(ids!(starter_plan, pro_plan, enterprise_plan))
+//     .selected(cx, actions)
+// {
+//     self.selected_plan = match index {
+//         0 => Plan::Starter,
+//         1 => Plan::Pro,
+//         _ => Plan::Enterprise,
+//     };
+// }
+//
+// When you restore state, call set_active(cx, ...) on the individual radio
+// items that should match the current domain value.

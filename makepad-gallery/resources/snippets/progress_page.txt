@@ -1,0 +1,10 @@
+View{
+    width: Fill
+    height: Fit
+    flow: Down
+    spacing: 12.0
+    ShadProgress33{}
+    ShadProgress66{}
+    ShadProgressFull{}
+    ShadProgressIndeterminate{}
+}
