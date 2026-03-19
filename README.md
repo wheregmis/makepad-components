@@ -69,21 +69,21 @@ cargo check --workspace
 ### 2) Run the gallery app (native)
 
 ```bash
-cargo run -p makepad-example-component-gallery --release
+cargo run -p makepad-gallery --release
 ```
 
 ### 3) Build gallery for web (WASM)
 
 ```bash
-cargo install --git https://github.com/makepad/makepad.git --branch dev cargo-makepad --locked
+cargo install --git https://github.com/wheregmis/makepad.git --branch small_web_nits cargo-makepad --locked
 cargo makepad wasm install-toolchain
-./scripts/build_wasm.sh -p makepad-example-component-gallery --profile small --release --bindgen
+./scripts/build_wasm.sh -p makepad-gallery --profile small --bindgen
 ```
 
 Expected output directory:
 
 ```text
-target/makepad-wasm-app/release/makepad-example-component-gallery
+target/makepad-wasm-app/small/makepad-gallery
 ```
 
 ### 4) Run the standalone date-picker/table example

@@ -4,9 +4,9 @@ set -euo pipefail
 
 usage() {
     cat <<'EOF'
-Usage: scripts/build_wasm.sh [-p package] [--profile profile] [--release] [--bindgen] [--no-threads]
+Usage: scripts/build_wasm.sh [-p package] [--profile profile] [--release] [--bindgen] [--no-threads] [--no-brotli] [extra cargo-makepad wasm flags]
 
-Builds a Makepad wasm app using cargo-makepad with --strip and --brotli enabled.
+Builds a Makepad wasm app using cargo-makepad with --wasm-opt and --strip enabled.
 EOF
 }
 
@@ -16,6 +16,7 @@ MODE_FLAGS=()
 EXTRA_FLAGS=()
 HAS_RELEASE=0
 HAS_PROFILE=0
+ENABLE_BROTLI=1
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -35,6 +36,10 @@ while [[ $# -gt 0 ]]; do
             MODE_FLAGS+=("$1")
             shift
             ;;
+        --no-brotli)
+            ENABLE_BROTLI=0
+            shift
+            ;;
         -h|--help)
             usage
             exit 0
@@ -51,7 +56,12 @@ if [[ ${HAS_RELEASE} -eq 1 && ${HAS_PROFILE} -eq 1 ]]; then
     exit 1
 fi
 
-CMD=(cargo makepad wasm --wasm-opt --strip --split --brotli)
+CMD=(cargo makepad wasm --wasm-opt --strip)
+
+if [[ ${ENABLE_BROTLI} -eq 1 ]]; then
+    CMD+=(--brotli)
+fi
+
 CMD+=("${MODE_FLAGS[@]}")
 CMD+=(build -p "${APP_PACKAGE}")
 
