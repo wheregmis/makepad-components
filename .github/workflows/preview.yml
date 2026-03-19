@@ -22,6 +22,7 @@ concurrency:
 env:
   MAKEPAD_BRANCH: small_web_nits
   APP_PACKAGE: makepad-gallery
+  WASM_BINDGEN_VERSION: 0.2.114
 
 jobs:
   deploy-preview:
@@ -55,15 +56,19 @@ jobs:
 
       - name: Install cargo-makepad
         if: github.event.action != 'closed'
-        run: cargo install --path "${GITHUB_WORKSPACE}/../makepad/tools/cargo_makepad" --locked
+        run: cargo install --path "${GITHUB_WORKSPACE}/../makepad/tools/cargo_makepad" --locked --force
 
       - name: Install Wasm toolchain
         if: github.event.action != 'closed'
         run: cargo makepad wasm install-toolchain
 
+      - name: Install wasm-bindgen CLI
+        if: github.event.action != 'closed'
+        run: cargo install wasm-bindgen-cli --version "${WASM_BINDGEN_VERSION}" --locked --force
+
       - name: Build gallery preview
         if: github.event.action != 'closed'
-        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}"
+        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile small --bindgen --no-threads --no-brotli
 
       - name: Patch index.html for GitHub Pages subpath hosting
         if: github.event.action != 'closed'

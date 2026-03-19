@@ -63,7 +63,7 @@ script_mod! {
 
         overlay: Modal{
             bg_view +: {
-                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.55)
+                draw_bg.color: (shad_theme.color_overlay)
             }
 
             content +: {
@@ -82,7 +82,7 @@ script_mod! {
 
         overlay: Modal{
             bg_view +: {
-                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.55)
+                draw_bg.color: (shad_theme.color_overlay)
             }
 
             content +: {
@@ -120,7 +120,7 @@ script_mod! {
 
         overlay: Modal{
             bg_view +: {
-                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.55)
+                draw_bg.color: (shad_theme.color_overlay)
             }
 
             content +: {

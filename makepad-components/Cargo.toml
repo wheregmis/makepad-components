@@ -8,3 +8,6 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 makepad-widgets = { workspace = true }
 makepad-icon = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-time = "1"

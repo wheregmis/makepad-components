@@ -69,21 +69,21 @@ cargo check --workspace
 ### 2) Run the gallery app (native)
 
 ```bash
-cargo run -p makepad-example-component-gallery --release
+cargo run -p makepad-gallery --release
 ```
 
 ### 3) Build gallery for web (WASM)
 
 ```bash
-cargo install --git https://github.com/makepad/makepad.git --branch dev cargo-makepad --locked
+cargo install --git https://github.com/wheregmis/makepad.git --branch small_web_nits cargo-makepad --locked
 cargo makepad wasm install-toolchain
-./scripts/build_wasm.sh -p makepad-example-component-gallery --profile small --release --bindgen
+./scripts/build_wasm.sh -p makepad-gallery --profile small --bindgen --no-threads
 ```
 
 Expected output directory:
 
 ```text
-target/makepad-wasm-app/release/makepad-example-component-gallery
+target/makepad-wasm-app/small/makepad-gallery
 ```
 
 ### 4) Run the standalone date-picker/table example
@@ -955,17 +955,35 @@ Run it to validate behavior and styling changes quickly.
 
 ## CI/CD
 
-GitHub Actions workflow: `.github/workflows/wasm-pages.yml`
+GitHub Actions workflows:
+- `.github/workflows/ci.yml` -> cross-platform `cargo check` on Linux, macOS, Windows, plus a dedicated `wasm32-unknown-unknown` gallery check.
+- `.github/workflows/preview.yml` -> deploys per-PR gallery previews to `gh-pages/pr-preview/pr-<number>/` and removes them when the PR closes.
+- `.github/workflows/wasm-pages.yml` -> deploys the main gallery/site build to the root of `gh-pages` on `main` or manual dispatch.
 
-For clean-path deep links on GitHub Pages, deploy both `index.html` and a copy of it as `404.html`. The Pages workflow in this repo patches `index.html` for subpath hosting and then reuses that patched app shell as `404.html` so refreshes on routes like `/scroll-area` still bootstrap the app.
+Both workflows materialize the sibling `../makepad` checkout that the workspace `Cargo.toml` patches expect, so CI matches the local dev layout instead of silently falling back to a different dependency graph.
 
-On pushes to `main`/`master` (or manual dispatch), it:
-- Installs Rust + system dependencies
-- Installs `cargo-makepad`
-- Builds selected package to WASM using profile `small`
-- Publishes output to GitHub Pages
+For clean-path deep links on GitHub Pages, both deploy workflows patch `index.html` and also emit `404.html`. That patched app shell is reused for route refreshes so paths like `/scroll-area` and `/pr-preview/pr-123/scroll-area` still bootstrap the app.
 
-Manual dispatch supports an optional `package` input (defaults to `makepad-example-component-gallery`).
+The GitHub Pages deploys are built with `--no-threads`. Threaded Makepad wasm needs `Cross-Origin-Embedder-Policy: require-corp` and `Cross-Origin-Opener-Policy: same-origin`, and GitHub Pages does not let this repo set those headers.
+
+On pull requests, the preview workflow:
+- builds `makepad-gallery` with profile `small`
+- deploys it to `gh-pages/pr-preview/pr-<number>/`
+- leaves/updates a sticky PR comment with the preview URL
+- removes the preview when the PR closes
+
+On pushes to `main` (or manual dispatch), it:
+- installs Rust + system dependencies
+- installs `cargo-makepad`
+- builds the selected package to WASM using profile `small`
+- publishes output to the root of `gh-pages` without deleting active `pr-preview/` deployments
+
+Manual dispatch supports an optional `package` input (defaults to `makepad-gallery`).
+
+Repository settings required for preview deploys:
+- Pages must be configured as `Deploy from a branch` using `gh-pages`.
+- Actions must have `Read and write permissions`, or the workflows cannot update `gh-pages`.
+- The preview workflow intentionally uses `pull_request` rather than `pull_request_target`, so previews are limited to same-repository PRs. That avoids running untrusted fork code with write-capable credentials.
 
 ## Build Profiles
 

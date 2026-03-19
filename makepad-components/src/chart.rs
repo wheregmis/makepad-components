@@ -15,11 +15,11 @@ script_mod! {
         border_color: (shad_theme.color_outline_border)
         bg_color: (shad_theme.color_background)
 
-        line_color: #x3b82f6
+        line_color: (shad_theme.color_chart)
         line_width: 2.0
-        fill_color: #x3b82f633
-        bar_color: #x3b82f6
-        dot_color: #x2563eb
+        fill_color: (shad_theme.color_chart_fill)
+        bar_color: (shad_theme.color_chart)
+        dot_color: (shad_theme.color_chart_emphasis)
         dot_radius: 3.0
         plot_margin: Inset{left: 52.0, top: 12.0, right: 12.0, bottom: 26.0}
 
@@ -42,11 +42,11 @@ script_mod! {
         border_color: (shad_theme.color_outline_border)
         bg_color: (shad_theme.color_background)
 
-        fill_color: #x3b82f633
-        line_color: #x2563eb
+        fill_color: (shad_theme.color_chart_fill)
+        line_color: (shad_theme.color_chart_emphasis)
         line_width: 2.0
-        bar_color: #x3b82f6
-        dot_color: #x2563eb
+        bar_color: (shad_theme.color_chart)
+        dot_color: (shad_theme.color_chart_emphasis)
         dot_radius: 3.0
         plot_margin: Inset{left: 52.0, top: 12.0, right: 12.0, bottom: 26.0}
 
@@ -69,11 +69,11 @@ script_mod! {
         border_color: (shad_theme.color_outline_border)
         bg_color: (shad_theme.color_background)
 
-        line_color: #x3b82f6
+        line_color: (shad_theme.color_chart)
         line_width: 2.0
-        fill_color: #x3b82f633
-        bar_color: #x3b82f6
-        dot_color: #x2563eb
+        fill_color: (shad_theme.color_chart_fill)
+        bar_color: (shad_theme.color_chart)
+        dot_color: (shad_theme.color_chart_emphasis)
         dot_radius: 3.0
         plot_margin: Inset{left: 52.0, top: 12.0, right: 12.0, bottom: 26.0}
 

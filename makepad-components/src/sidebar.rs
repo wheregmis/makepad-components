@@ -18,21 +18,28 @@ script_mod! {
         draw_text.text_style.font_size: 9
     }
 
-    mod.widgets.ShadSidebarItem = mod.widgets.ShadButtonGhost{
+    mod.widgets.ShadSidebarItem = mod.widgets.ButtonFlat{
         width: Fill
         height: 32
         padding: Inset{left: 10, right: 10}
         align: Align{x: 0.0, y: 0.5}
         reset_hover_on_click: true
         draw_bg +: {
+            color: #0000
+            color_hover: (shad_theme.color_secondary_hover)
+            color_down: (shad_theme.color_secondary_down)
             border_radius: (shad_theme.radius)
-            color_focus: #0000
+            color_focus: (shad_theme.color_secondary_hover)
+            border_size: 0.0
+            border_color: #0000
         }
-        draw_text.text_style.font_size: 10
-        draw_text.color: (shad_theme.color_muted_foreground)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.color_down: (shad_theme.color_primary)
-        draw_text.color_focus: (shad_theme.color_muted_foreground)
+        draw_text +: {
+            color: (shad_theme.color_primary)
+            color_hover: (shad_theme.color_primary)
+            color_down: (shad_theme.color_primary)
+            color_focus: (shad_theme.color_primary)
+            text_style.font_size: 10
+        }
         text: "Item"
     }
 }

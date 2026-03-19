@@ -189,50 +189,73 @@ impl ShadPagination {
             vm.bx.heap.value(theme_obj, key.into(), NoTrap)
         }
 
-        fn theme_color(vm: &mut ScriptVm, key: LiveId, fallback: u32) -> Vec4f {
-            theme_value(vm, key)
+        fn theme_color(vm: &mut ScriptVm, primary: LiveId, secondary: LiveId, fallback: u32) -> Vec4f {
+            theme_value(vm, primary)
                 .as_color()
                 .map(Vec4f::from_u32)
+                .or_else(|| theme_value(vm, secondary).as_color().map(Vec4f::from_u32))
                 .unwrap_or_else(|| Vec4f::from_u32(fallback))
         }
 
         let defaults = PaginationThemeStyle::default();
         PaginationThemeStyle {
-            active_bg: theme_color(vm, id!(color_secondary), defaults.active_bg.to_u32()),
+            active_bg: theme_color(
+                vm,
+                id!(color_pagination_active),
+                id!(color_secondary),
+                defaults.active_bg.to_u32(),
+            ),
             active_bg_hover: theme_color(
                 vm,
+                id!(color_pagination_active_hover),
                 id!(color_secondary_hover),
                 defaults.active_bg_hover.to_u32(),
             ),
             active_bg_down: theme_color(
                 vm,
+                id!(color_pagination_active_down),
                 id!(color_secondary_down),
                 defaults.active_bg_down.to_u32(),
             ),
             active_text: theme_color(
                 vm,
+                id!(color_pagination_active_foreground),
                 id!(color_secondary_foreground),
                 defaults.active_text.to_u32(),
             ),
             inactive_bg_hover: theme_color(
                 vm,
+                id!(color_pagination_inactive_hover),
                 id!(color_ghost_hover),
                 defaults.inactive_bg_hover.to_u32(),
             ),
             inactive_bg_down: theme_color(
                 vm,
+                id!(color_pagination_inactive_down),
                 id!(color_ghost_down),
                 defaults.inactive_bg_down.to_u32(),
             ),
-            inactive_text: theme_color(vm, id!(color_primary), defaults.inactive_text.to_u32()),
-            border: theme_color(vm, id!(color_outline_border), defaults.border.to_u32()),
+            inactive_text: theme_color(
+                vm,
+                id!(color_pagination_inactive_foreground),
+                id!(color_primary),
+                defaults.inactive_text.to_u32(),
+            ),
+            border: theme_color(
+                vm,
+                id!(color_pagination_border),
+                id!(color_outline_border),
+                defaults.border.to_u32(),
+            ),
             border_hover: theme_color(
                 vm,
+                id!(color_pagination_border_hover),
                 id!(color_outline_border_hover),
                 defaults.border_hover.to_u32(),
             ),
             border_down: theme_color(
                 vm,
+                id!(color_pagination_border_down),
                 id!(color_outline_border_down),
                 defaults.border_down.to_u32(),
             ),

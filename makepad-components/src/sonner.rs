@@ -2,12 +2,11 @@ use crate::internal::actions::emit_widget_action;
 use crate::internal::overlay::button_clicked;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
-use std::{
-    cell::RefCell,
-    collections::VecDeque,
-    rc::Rc,
-    time::{Duration, Instant},
-};
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::{Duration, Instant};
+use std::{cell::RefCell, collections::VecDeque, rc::Rc};
+#[cfg(target_arch = "wasm32")]
+use web_time::{Duration, Instant};
 
 const MAX_VISIBLE_TOASTS: usize = 4;
 const DEFAULT_TIMEOUT_SEC: f64 = 5.0;
@@ -63,7 +62,7 @@ script_mod! {
         }
         icon := Icon{
             draw_icon.svg: crate_resource("self://resources/icons/checkmark.svg")
-            draw_icon.color: #22c55e
+            draw_icon.color: (shad_theme.color_success)
             icon_walk: Walk{width: 24, height: 24}
         }
     }
@@ -78,7 +77,7 @@ script_mod! {
     let ForbiddenIcon = CheckIcon{
         icon +: {
             draw_icon.svg: crate_resource("self://resources/icons/forbidden.svg")
-            draw_icon.color: #ef4444
+            draw_icon.color: (shad_theme.color_destructive)
             icon_walk: Walk{width: 24, height: 24}
         }
     }
@@ -86,7 +85,7 @@ script_mod! {
     let WarningIcon = CheckIcon{
         icon +: {
             draw_icon.svg: crate_resource("self://resources/icons/warning.svg")
-            draw_icon.color: #f59e0b
+            draw_icon.color: (shad_theme.color_warning)
             icon_walk: Walk{width: 24, height: 24}
         }
     }
