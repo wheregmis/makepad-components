@@ -26,7 +26,7 @@ script_mod! {
 
         draw_text +: {
             color: (shad_theme.color_muted_foreground)
-            text_style: theme.font_regular{font_size: 10.0}
+            text_style: theme.font_regular{font_size: 11.0}
         }
     }
 
@@ -43,7 +43,7 @@ script_mod! {
 
         draw_text +: {
             color: (shad_theme.color_primary)
-            text_style: theme.font_regular{font_size: 11.0}
+            text_style: theme.font_regular{font_size: 10.0}
         }
     }
 
@@ -51,7 +51,7 @@ script_mod! {
         width: Fill
         height: 40
         flow: Right
-        align: Align{x: 0.0, y: 0.5}
+        align: Align{x: 0.5, y: 0.5}
         padding: Inset{left: 12.0, right: 12.0, top: 0.0, bottom: 0.0}
         draw_bg.color: #0000
 
