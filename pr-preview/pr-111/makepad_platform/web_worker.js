@@ -1,4 +1,3 @@
-import init from'../bindgen.js';
 const SPLIT_SLOT_EXPORT_PREFIX="$s";
 function patch_split_table(primary_exports,secondary_exports){
 const split_table=primary_exports.$s;
