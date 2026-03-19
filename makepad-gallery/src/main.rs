@@ -90,13 +90,9 @@ impl App {
         } else {
             "Light theme"
         };
-        let mobile_label = if self.is_light_theme { "☾" } else { "☀" };
         self.ui
             .button(cx, ids!(desktop_theme_toggle))
             .set_text(cx, desktop_label);
-        self.ui
-            .button(cx, ids!(mobile_theme_toggle))
-            .set_text(cx, mobile_label);
     }
 
     fn sync_page_metadata(&self, cx: &mut Cx) {
@@ -140,10 +136,10 @@ impl App {
                 Vec4f::from_u32(0xd4d4d8ff),
                 Vec4f::from_u32(0xa1a1aaff),
                 Vec4f::from_u32(0x09090bff),
+                Vec4f::from_u32(0xf4f4f5ff),
                 Vec4f::from_u32(0xe4e4e7ff),
-                Vec4f::from_u32(0xd4d4d8ff),
-                Vec4f::from_u32(0x09090bff),
-                Vec4f::from_u32(0xe4e4e7ff),
+                Vec4f::from_u32(0x71717aff),
+                Vec4f::from_u32(0xf4f4f5ff),
                 Vec4f::from_u32(0x09090bff),
             )
         } else {

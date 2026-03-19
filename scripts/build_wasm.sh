@@ -44,6 +44,15 @@ while [[ $# -gt 0 ]]; do
             HAS_PROFILE=1
             shift 2
             ;;
+        --profile=*)
+            PROFILE="${1#*=}"
+            if [[ -z "${PROFILE}" ]]; then
+                echo "error: missing profile name" >&2
+                exit 1
+            fi
+            HAS_PROFILE=1
+            shift
+            ;;
         --release|--bindgen|--no-threads)
             if [[ "$1" == "--release" ]]; then
                 HAS_RELEASE=1
