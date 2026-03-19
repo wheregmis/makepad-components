@@ -148,7 +148,7 @@ if(Object.getPrototypeOf(module)===Object.prototype){
 console.warn('using deprecated parameters for `initSync()`; pass a single object instead')
 }
 }
-const imports=__wbg_get_imports(memory);
+const imports=__wbg_get_imports(memory);imports.env=env;imports.env=env;
 if(!(module instanceof WebAssembly.Module)){
 module=new WebAssembly.Module(module);
 }
@@ -168,7 +168,7 @@ console.warn('using deprecated parameters for the initialization function; pass 
 if(module_or_path===undefined){
 module_or_path=new URL('bindgen_bg.wasm',import.meta.url);
 }
-const imports=__wbg_get_imports(memory);
+const imports=__wbg_get_imports(memory);imports.env=env;imports.env=env;
 if(typeof module_or_path==='string'||(typeof Request==='function'&&module_or_path instanceof Request)||(typeof URL==='function'&&module_or_path instanceof URL)){
 module_or_path=fetch(module_or_path);
 }
