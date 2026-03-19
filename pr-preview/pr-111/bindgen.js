@@ -1,4 +1,4 @@
-function __wbg_get_imports(memory){
+function __wbg_get_imports(){
 const import0={
 __proto__:null,
 __wbg___wbindgen_is_undefined_52709e72fb9f179c:function(arg0){
@@ -32,10 +32,6 @@ __wbg_static_accessor_WINDOW_bb9f1ba69d61b386:function(){
 const ret=typeof window==='undefined'?null:window;
 return isLikeNone(ret)?0:addHeapObject(ret);
 },
-__wbg_timeOrigin_f3d5cb4f4a06c2b7:function(arg0){
-const ret=getObject(arg0).timeOrigin;
-return ret;
-},
 __wbindgen_object_clone_ref:function(arg0){
 const ret=getObject(arg0);
 return addHeapObject(ret);
@@ -43,7 +39,6 @@ return addHeapObject(ret);
 __wbindgen_object_drop_ref:function(arg0){
 takeObject(arg0);
 },
-memory:memory||new WebAssembly.Memory({initial:127,maximum:32768,shared:true}),
 };
 return{
 __proto__:null,
@@ -68,7 +63,7 @@ return decodeText(ptr,len);
 }
 let cachedUint8ArrayMemory0=null;
 function getUint8ArrayMemory0(){
-if(cachedUint8ArrayMemory0===null||cachedUint8ArrayMemory0.buffer!==wasm.memory.buffer){
+if(cachedUint8ArrayMemory0===null||cachedUint8ArrayMemory0.byteLength===0){
 cachedUint8ArrayMemory0=new Uint8Array(wasm.memory.buffer);
 }
 return cachedUint8ArrayMemory0;
@@ -85,8 +80,8 @@ const ret=getObject(idx);
 dropObject(idx);
 return ret;
 }
-let cachedTextDecoder=(typeof TextDecoder!=='undefined'?new TextDecoder('utf-8',{ignoreBOM:true,fatal:true}):undefined);
-if(cachedTextDecoder)cachedTextDecoder.decode();
+let cachedTextDecoder=new TextDecoder('utf-8',{ignoreBOM:true,fatal:true});
+cachedTextDecoder.decode();
 const MAX_SAFARI_DECODE_BYTES=2146435072;
 let numBytesDecoded=0;
 function decodeText(ptr,len){
@@ -96,17 +91,14 @@ cachedTextDecoder=new TextDecoder('utf-8',{ignoreBOM:true,fatal:true});
 cachedTextDecoder.decode();
 numBytesDecoded=len;
 }
-return cachedTextDecoder.decode(getUint8ArrayMemory0().slice(ptr,ptr+len));
+return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr,ptr+len));
 }
 let wasmModule,wasm;
-function __wbg_finalize_init(instance,module,thread_stack_size){
+function __wbg_finalize_init(instance,module){
 wasm=instance.exports;
 wasmModule=module;
 cachedUint8ArrayMemory0=null;
-if(typeof thread_stack_size!=='undefined'&&(typeof thread_stack_size!=='number'||thread_stack_size===0||thread_stack_size%65536!==0)){
-throw new Error('invalid stack size');
-}
-wasm.__wbindgen_start(thread_stack_size);
+wasm.__wbindgen_start();
 return instance;
 }
 async function __wbg_load(module,imports){
@@ -138,29 +130,27 @@ case'basic':case'cors':case'default':return true;
 return false;
 }
 }
-function initSync(module,memory){
+function initSync(module){
 if(wasm!==undefined)return wasm;
-let thread_stack_size
 if(module!==undefined){
 if(Object.getPrototypeOf(module)===Object.prototype){
-({module,memory,thread_stack_size}=module)
+({module}=module)
 }else{
 console.warn('using deprecated parameters for `initSync()`; pass a single object instead')
 }
 }
-const imports=__wbg_get_imports(memory);imports.env=env;imports.env=env;
+const imports=__wbg_get_imports(); imports.env=env;imports.env=env;
 if(!(module instanceof WebAssembly.Module)){
 module=new WebAssembly.Module(module);
 }
 const instance=new WebAssembly.Instance(module,imports);
-return __wbg_finalize_init(instance,module,thread_stack_size);
+return __wbg_finalize_init(instance,module);
 }
 async function __wbg_init(module_or_path,env){let memory;
 if(wasm!==undefined)return wasm;
-let thread_stack_size
 if(module_or_path!==undefined){
 if(Object.getPrototypeOf(module_or_path)===Object.prototype){
-({module_or_path,memory,thread_stack_size}=module_or_path)
+({module_or_path}=module_or_path)
 }else{
 console.warn('using deprecated parameters for the initialization function; pass a single object instead')
 }
@@ -168,11 +158,11 @@ console.warn('using deprecated parameters for the initialization function; pass 
 if(module_or_path===undefined){
 module_or_path=new URL('bindgen_bg.wasm',import.meta.url);
 }
-const imports=__wbg_get_imports(memory);imports.env=env;imports.env=env;
+const imports=__wbg_get_imports(); imports.env=env;imports.env=env;
 if(typeof module_or_path==='string'||(typeof Request==='function'&&module_or_path instanceof Request)||(typeof URL==='function'&&module_or_path instanceof URL)){
 module_or_path=fetch(module_or_path);
 }
 const{instance,module}=await __wbg_load(await module_or_path,imports);
-return __wbg_finalize_init(instance,module,thread_stack_size);
+return __wbg_finalize_init(instance,module);
 }
 export{initSync,__wbg_init as default};
