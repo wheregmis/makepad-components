@@ -309,6 +309,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "makepad-example-notification"
+version = "0.1.0"
+dependencies = [
+ "makepad-components",
+ "makepad-widgets",
+]
+
+[[package]]
 name = "makepad-filesystem-watcher"
 version = "0.1.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=small_web_nits#0948b9f7fe92328ba09407745ce5521900b36068"

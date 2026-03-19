@@ -9,7 +9,7 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    startup() do #(App::script_component(vm)){
+    load_all_resources() do #(App::script_component(vm)){
         ui: Root{
             main_window := Window{
                 window.inner_size: vec2(980, 720)

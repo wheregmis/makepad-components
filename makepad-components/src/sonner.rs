@@ -1,32 +1,100 @@
-use crate::internal::actions::{emit_widget_action, first_widget_action};
+use crate::internal::actions::emit_widget_action;
 use crate::internal::overlay::button_clicked;
-use crate::internal::script_args::bool_arg;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
-use std::{cell::RefCell, collections::VecDeque, rc::Rc};
+use std::{
+    cell::RefCell,
+    collections::VecDeque,
+    rc::Rc,
+    time::{Duration, Instant},
+};
+
+const MAX_VISIBLE_TOASTS: usize = 4;
+const DEFAULT_TIMEOUT_SEC: f64 = 5.0;
+
+#[derive(Default, Debug, Clone, Copy, PartialEq)]
+pub enum SonnerKind {
+    #[default]
+    Info,
+    Success,
+    Warning,
+    Error,
+    Close,
+}
+
+#[derive(Default, Debug, Clone)]
+pub struct SonnerItem {
+    pub title: String,
+    pub description: Option<String>,
+    pub kind: SonnerKind,
+    pub duration: Option<f64>,
+    pub show_close: bool,
+}
+
+#[derive(Debug, Clone)]
+struct SonnerToastEntry {
+    item: SonnerItem,
+    expires_at: Instant,
+}
 
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
     mod.widgets.ShadToastTitle = mod.widgets.Label{
-        width: Fit
+        width: Fill
         height: Fit
         draw_text.color: (shad_theme.color_primary)
         draw_text.text_style.font_size: 12
     }
 
     mod.widgets.ShadToastDescription = mod.widgets.ShadAlertDescription{
-        width: Fit
+        width: Fill
         height: Fit
     }
+    let CheckIcon = RoundedView{
+        width: 28
+        height: 28
+        visible: false
+        draw_bg +: {
+            color: #0000
+            border_size: 0.0
+            border_radius: 4.0
+        }
+        icon := Icon{
+            draw_icon.svg: crate_resource("self://resources/icons/checkmark.svg")
+            draw_icon.color: #22c55e
+            icon_walk: Walk{width: 24, height: 24}
+        }
+    }
+    let InfoIcon = CheckIcon{
+        icon +: {
+            draw_icon.svg: crate_resource("self://resources/icons/info.svg")
+            draw_icon.color: (shad_theme.color_primary)
+            icon_walk: Walk{width: 24, height: 24}
+        }
+    }
 
+    let ForbiddenIcon = CheckIcon{
+        icon +: {
+            draw_icon.svg: crate_resource("self://resources/icons/forbidden.svg")
+            draw_icon.color: #ef4444
+            icon_walk: Walk{width: 24, height: 24}
+        }
+    }
+
+    let WarningIcon = CheckIcon{
+        icon +: {
+            draw_icon.svg: crate_resource("self://resources/icons/warning.svg")
+            draw_icon.color: #f59e0b
+            icon_walk: Walk{width: 24, height: 24}
+        }
+    }
     let ToastSlotPanel = RoundedView{
         visible: false
-        width: 260
+        width: 280
         height: Fit
         padding: Inset{left: 14, right: 8, top: 10, bottom: 10}
-        flow: Down
         spacing: 4.0
 
         draw_bg +: {
@@ -42,15 +110,30 @@ script_mod! {
             flow: Right
             align: Align{y: 0.5}
             spacing: 8.0
-
-            check_icon := mod.widgets.IconCheck{
-                icon_walk: Walk{width: 14, height: 14}
-                draw_icon.color: (shad_theme.color_primary)
+            info_icon := InfoIcon{
+                visible: false
             }
-
-            title_label := mod.widgets.ShadToastTitle{
+            success_icon :=CheckIcon{
+                visible: false
+            }
+            warning_icon := WarningIcon{
+                visible: false
+            }
+            error_icon := ForbiddenIcon{
+                visible: false
+            }
+            View {
                 width: Fill
-                text: "Event created"
+                height: Fit
+                flow: Down
+                spacing: 4.0
+                title_label := mod.widgets.ShadToastTitle{
+                    text: "Notification"
+                }
+                description_label := mod.widgets.ShadToastDescription{
+                    text: ""
+                    visible: false
+                }
             }
 
             close_btn := mod.widgets.IconButtonX{
@@ -68,25 +151,7 @@ script_mod! {
             }
         }
 
-        description_label := mod.widgets.ShadToastDescription{
-            text: ""
-            visible: false
-        }
-    }
 
-    mod.widgets.ShadToast = mod.widgets.RoundedView{
-        width: Fit
-        height: Fit
-        padding: Inset{left: 14, right: 14, top: 10, bottom: 10}
-        flow: Down
-        spacing: 4.0
-
-        draw_bg +: {
-            color: (shad_theme.color_secondary)
-            border_radius: (shad_theme.radius)
-            border_size: 1.0
-            border_color: (shad_theme.color_outline_border)
-        }
     }
 
     mod.widgets.ShadSonnerBase = #(ShadSonner::register_widget(vm))
@@ -95,7 +160,6 @@ script_mod! {
         width: Fill
         height: Fit
         open: false
-        toast_kind: "basic"
 
         overlay: PopupNotification{
             content +: {
@@ -103,7 +167,7 @@ script_mod! {
                 height: Fit
                 flow: Down
                 spacing: 8.0
-                margin: Inset{top: 16, right: 16}
+                margin: Inset{top: 25, right: 12}
 
                 toast_0 := ToastSlotPanel{}
                 toast_1 := ToastSlotPanel{}
@@ -113,51 +177,9 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadSonnerWithDescription = set_type_default() do mod.widgets.ShadSonnerBase{
-        width: Fill
-        height: Fit
-        open: false
-        toast_kind: "description"
-
-        overlay: PopupNotification{
-            content +: {
-                width: Fit
-                height: Fit
-                flow: Down
-                spacing: 8.0
-                margin: Inset{top: 16, right: 16}
-
-                toast_0 := ToastSlotPanel{}
-                toast_1 := ToastSlotPanel{}
-                toast_2 := ToastSlotPanel{}
-                toast_3 := ToastSlotPanel{}
-            }
-        }
-    }
-
-    // Toast with a leading check icon and a close (X) button.
-    // The close button dismisses the toast when clicked.
-    mod.widgets.ShadSonnerWithClose = set_type_default() do mod.widgets.ShadSonnerBase{
-        width: Fill
-        height: Fit
-        open: false
-        toast_kind: "close"
-
-        overlay: PopupNotification{
-            content +: {
-                width: Fit
-                height: Fit
-                flow: Down
-                spacing: 8.0
-                margin: Inset{top: 16, right: 16}
-
-                toast_0 := ToastSlotPanel{}
-                toast_1 := ToastSlotPanel{}
-                toast_2 := ToastSlotPanel{}
-                toast_3 := ToastSlotPanel{}
-            }
-        }
-    }
+    // 为了兼容性保留旧组件名，但内部逻辑已统一
+    mod.widgets.ShadSonnerWithClose = mod.widgets.ShadSonner{}
+    mod.widgets.ShadSonnerWithDescription = mod.widgets.ShadSonner{}
 }
 
 #[derive(Clone, Debug, Default)]
@@ -167,20 +189,14 @@ pub enum ShadSonnerAction {
     None,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum SonnerToastKind {
-    Basic,
-    Description,
-    Close,
-}
-
 #[derive(Default)]
 struct SonnerGlobalState {
     host_uid: Option<WidgetUid>,
     host_overlay: Option<WidgetRef>,
-    toasts: VecDeque<SonnerToastKind>,
-    rendered_toasts: [Option<SonnerToastKind>; MAX_VISIBLE_TOASTS],
+    toasts: VecDeque<SonnerToastEntry>,
+    rendered_toasts: [Option<SonnerItem>; MAX_VISIBLE_TOASTS],
     rendered_open: Option<bool>,
+    timer: Timer,
 }
 
 #[derive(Default, Clone)]
@@ -194,16 +210,12 @@ pub struct ShadSonner {
     uid: WidgetUid,
     #[source]
     source: ScriptObjectRef,
-
     #[find]
     #[redraw]
     #[live]
     overlay: WidgetRef,
-
     #[live]
     open: bool,
-    #[live]
-    toast_kind: ArcStringMut,
     #[rust]
     is_synced_open: bool,
     #[rust]
@@ -211,14 +223,11 @@ pub struct ShadSonner {
     #[action_data]
     #[rust]
     action_data: WidgetActionData,
-
     #[layout]
     layout: Layout,
     #[walk]
     walk: Walk,
 }
-
-const MAX_VISIBLE_TOASTS: usize = 4;
 
 impl ScriptHook for ShadSonner {
     fn on_after_apply(
@@ -231,22 +240,17 @@ impl ScriptHook for ShadSonner {
         let applied_open = self.open;
         vm.with_cx_mut(|cx| {
             self.register_global_host(cx);
-            match self.last_applied_open {
-                None => {
-                    if applied_open && !self.global_is_open(cx) {
-                        self.push_global_toast(cx, self.default_toast_kind(), false);
-                    }
+            if applied_open && self.last_applied_open != Some(true) {
+                let should_enqueue = {
+                    let global = cx.global::<SonnerGlobal>().clone();
+                    let state = global.state.borrow();
+                    state.toasts.is_empty()
+                };
+                if should_enqueue {
+                    self.enqueue(cx, Self::default_open_item());
                 }
-                Some(previous) if previous != applied_open => {
-                    if applied_open {
-                        if !self.global_is_open(cx) {
-                            self.push_global_toast(cx, self.default_toast_kind(), true);
-                        }
-                    } else {
-                        self.clear_global_toasts(cx, true);
-                    }
-                }
-                _ => {}
+            } else if !applied_open && self.last_applied_open == Some(true) {
+                self.clear_global_toasts(cx, true);
             }
             self.last_applied_open = Some(applied_open);
             self.sync_toast_visibility(cx);
@@ -255,28 +259,60 @@ impl ScriptHook for ShadSonner {
 }
 
 impl ShadSonner {
+    fn default_open_item() -> SonnerItem {
+        SonnerItem {
+            title: String::new(),
+            description: None,
+            kind: SonnerKind::Info,
+            duration: None,
+            show_close: false,
+        }
+    }
+
+    fn default_title(kind: SonnerKind) -> &'static str {
+        match kind {
+            SonnerKind::Info => "Info",
+            SonnerKind::Success => "Success",
+            SonnerKind::Warning => "Warning",
+            SonnerKind::Error => "Error",
+            SonnerKind::Close => "Notification",
+        }
+    }
     fn visible_toasts_snapshot(
         state: &SonnerGlobalState,
-    ) -> [Option<SonnerToastKind>; MAX_VISIBLE_TOASTS] {
-        let mut visible = [None; MAX_VISIBLE_TOASTS];
-        for (index, kind) in state
+    ) -> [Option<SonnerItem>; MAX_VISIBLE_TOASTS] {
+        let mut visible = [const { None }; MAX_VISIBLE_TOASTS];
+        for (index, entry) in state
             .toasts
             .iter()
             .rev()
             .take(MAX_VISIBLE_TOASTS)
-            .copied()
             .enumerate()
         {
-            visible[index] = Some(kind);
+            visible[index] = Some(entry.item.clone());
         }
         visible
     }
 
-    fn default_toast_kind(&self) -> SonnerToastKind {
-        match self.toast_kind.as_ref() {
-            "description" => SonnerToastKind::Description,
-            "close" => SonnerToastKind::Close,
-            _ => SonnerToastKind::Basic,
+    fn prune_expired_toasts(state: &mut SonnerGlobalState, now: Instant) -> bool {
+        let mut changed = false;
+        let mut index = 0;
+        while index < state.toasts.len() {
+            if state.toasts[index].expires_at <= now {
+                state.toasts.remove(index);
+                changed = true;
+            } else {
+                index += 1;
+            }
+        }
+        changed
+    }
+
+    fn reschedule_timer(state: &mut SonnerGlobalState, cx: &mut Cx) {
+        if state.toasts.is_empty() {
+            state.timer = Timer::default();
+        } else {
+            state.timer = cx.start_timeout(0.1);
         }
     }
 
@@ -284,128 +320,108 @@ impl ShadSonner {
         let global = cx.global::<SonnerGlobal>();
         let mut state = global.state.borrow_mut();
         if state.host_uid.is_none() || state.host_uid == Some(self.widget_uid()) {
-            if state.host_uid != Some(self.widget_uid()) || state.host_overlay.is_none() {
-                state.rendered_toasts = [None; MAX_VISIBLE_TOASTS];
-                state.rendered_open = None;
-            }
             state.host_uid = Some(self.widget_uid());
             state.host_overlay = Some(self.overlay.clone());
         }
     }
 
     fn is_global_host(&self, cx: &mut Cx) -> bool {
-        let global = cx.global::<SonnerGlobal>();
-        let is_host = global.state.borrow().host_uid == Some(self.widget_uid());
-        is_host
-    }
-
-    fn global_is_open(&self, cx: &mut Cx) -> bool {
-        let global = cx.global::<SonnerGlobal>();
-        let is_open = !global.state.borrow().toasts.is_empty();
-        is_open
-    }
-
-    fn visible_toasts(&self, cx: &mut Cx) -> [Option<SonnerToastKind>; MAX_VISIBLE_TOASTS] {
-        let global = cx.global::<SonnerGlobal>();
+        let global = cx.global::<SonnerGlobal>().clone();
         let state = global.state.borrow();
-        Self::visible_toasts_snapshot(&state)
+        state.host_uid == Some(self.widget_uid())
     }
 
     fn sync_overlay_slot(
         cx: &mut Cx,
         overlay: &WidgetRef,
         index: usize,
-        kind: Option<SonnerToastKind>,
+        item: Option<SonnerItem>,
     ) -> bool {
         let slot = overlay.widget(cx, Self::toast_slot_path(index));
         if slot.is_empty() {
             return false;
         }
 
-        let Some(kind) = kind else {
+        let Some(item) = item else {
             slot.set_visible(cx, false);
             return true;
         };
 
         slot.set_visible(cx, true);
-        slot.label(cx, ids!(title_label))
-            .set_text(cx, Self::title_for_kind(kind));
-        slot.label(cx, ids!(description_label))
-            .set_text(cx, Self::description_for_kind(kind));
-        slot.widget(cx, ids!(description_label))
-            .set_visible(cx, Self::kind_shows_description(kind));
-        slot.widget(cx, ids!(check_icon))
-            .set_visible(cx, Self::kind_shows_check(kind));
+        slot.widget(cx, ids!(info_icon)).set_visible(cx, false);
+        slot.widget(cx, ids!(success_icon)).set_visible(cx, false);
+        slot.widget(cx, ids!(warning_icon)).set_visible(cx, false);
+        slot.widget(cx, ids!(error_icon)).set_visible(cx, false);
+        slot.widget(cx, ids!(close_btn)).set_visible(cx, false);
+
+        // 标题处理
+        let title = if item.title.is_empty() {
+            Self::default_title(item.kind)
+        } else {
+            &item.title
+        };
+        slot.label(cx, ids!(title_label)).set_text(cx, title);
+        match item.kind {
+            SonnerKind::Success => {
+                slot.widget(cx, ids!(success_icon)).set_visible(cx, true);
+            }
+            SonnerKind::Error => {
+                slot.widget(cx, ids!(error_icon)).set_visible(cx, true);
+            }
+            SonnerKind::Warning => {
+                slot.widget(cx, ids!(warning_icon)).set_visible(cx, true);
+            }
+            SonnerKind::Info => {
+                slot.widget(cx, ids!(info_icon)).set_visible(cx, true);
+            }
+            SonnerKind::Close => {
+                slot.widget(cx, ids!(info_icon)).set_visible(cx, true);
+            } // Close类型默认显示Info图标
+        }
         slot.widget(cx, ids!(close_btn))
-            .set_visible(cx, Self::kind_shows_close(kind));
+            .set_visible(cx, item.show_close);
+        // 描述处理
+        if let Some(desc) = &item.description {
+            slot.label(cx, ids!(description_label)).set_text(cx, desc);
+            slot.widget(cx, ids!(description_label))
+                .set_visible(cx, true);
+        } else {
+            slot.widget(cx, ids!(description_label))
+                .set_visible(cx, false);
+        }
+
         true
     }
 
     fn sync_global_host_overlay(cx: &mut Cx) {
         let global = cx.global::<SonnerGlobal>().clone();
-        let (host_overlay, visible_toasts, rendered_toasts, rendered_open) = {
+        let (host_overlay, visible_toasts) = {
             let state = global.state.borrow();
             (
                 state.host_overlay.clone(),
                 Self::visible_toasts_snapshot(&state),
-                state.rendered_toasts,
-                state.rendered_open,
             )
         };
 
         if let Some(overlay) = host_overlay {
             let next_open = visible_toasts[0].is_some();
-            let mut changed = false;
             if let Some(mut popup) = overlay.borrow_mut::<PopupNotification>() {
-                if rendered_open != Some(next_open) {
-                    changed = true;
-                }
-                if !next_open {
-                    popup.close(cx);
-                } else {
+                if next_open {
                     popup.open(cx);
+                } else {
+                    popup.close(cx);
                 }
             }
 
             for index in 0..MAX_VISIBLE_TOASTS {
-                if rendered_toasts[index] != visible_toasts[index] {
-                    changed |= Self::sync_overlay_slot(cx, &overlay, index, visible_toasts[index]);
-                }
+                Self::sync_overlay_slot(cx, &overlay, index, visible_toasts[index].clone());
             }
 
-            if changed {
-                let mut state = global.state.borrow_mut();
-                state.rendered_toasts = visible_toasts;
-                state.rendered_open = Some(next_open);
-                overlay.redraw(cx);
-            }
+            let mut state = global.state.borrow_mut();
+            state.rendered_toasts = visible_toasts;
+            state.rendered_open = Some(next_open);
+            overlay.redraw(cx);
         }
-    }
-
-    fn title_for_kind(kind: SonnerToastKind) -> &'static str {
-        match kind {
-            SonnerToastKind::Description => "Toast with description",
-            _ => "Event created",
-        }
-    }
-
-    fn description_for_kind(kind: SonnerToastKind) -> &'static str {
-        match kind {
-            SonnerToastKind::Description => "Your changes have been saved.",
-            _ => "",
-        }
-    }
-
-    fn kind_shows_description(kind: SonnerToastKind) -> bool {
-        matches!(kind, SonnerToastKind::Description)
-    }
-
-    fn kind_shows_check(kind: SonnerToastKind) -> bool {
-        matches!(kind, SonnerToastKind::Close)
-    }
-
-    fn kind_shows_close(kind: SonnerToastKind) -> bool {
-        matches!(kind, SonnerToastKind::Close)
     }
 
     fn toast_slot_path(index: usize) -> &'static [LiveId] {
@@ -454,24 +470,17 @@ impl ShadSonner {
         };
         let is_host = host_uid == Some(self.widget_uid());
         self.open = open;
-        if !is_host {
-            self.is_synced_open = open;
-            return false;
-        }
-        if self.is_synced_open == open {
-            return true;
-        }
-
-        if let Some(mut popup) = self.overlay.borrow_mut::<PopupNotification>() {
-            if open {
-                popup.open(cx);
-            } else {
-                popup.close(cx);
+        if is_host && self.is_synced_open != open {
+            if let Some(mut popup) = self.overlay.borrow_mut::<PopupNotification>() {
+                if open {
+                    popup.open(cx);
+                } else {
+                    popup.close(cx);
+                }
             }
+            self.is_synced_open = open;
         }
-
-        self.is_synced_open = open;
-        true
+        is_host
     }
 
     fn sync_toast_visibility(&mut self, cx: &mut Cx) {
@@ -490,6 +499,11 @@ impl ShadSonner {
         self.sync_overlay_open_state(cx);
     }
 
+    fn visible_toasts(&self, cx: &mut Cx) -> [Option<SonnerItem>; MAX_VISIBLE_TOASTS] {
+        let state = cx.global::<SonnerGlobal>().state.borrow();
+        Self::visible_toasts_snapshot(&state)
+    }
+
     fn emit_open_state(&self, cx: &mut Cx, open: bool) {
         emit_widget_action(
             cx,
@@ -499,146 +513,110 @@ impl ShadSonner {
         );
     }
 
-    fn push_global_toast(&mut self, cx: &mut Cx, kind: SonnerToastKind, emit_action: bool) {
-        let (was_open, is_open) = {
+    // --- 核心推送方法 ---
+    pub fn enqueue(&mut self, cx: &mut Cx, item: SonnerItem) {
+        let was_empty = {
             let global = cx.global::<SonnerGlobal>().clone();
             let mut state = global.state.borrow_mut();
-            let was_open = !state.toasts.is_empty();
-            if state.toasts.len() == MAX_VISIBLE_TOASTS {
+            let now = Instant::now();
+            Self::prune_expired_toasts(&mut state, now);
+            let was_empty = state.toasts.is_empty();
+
+            if state.toasts.len() >= MAX_VISIBLE_TOASTS {
                 state.toasts.pop_front();
             }
-            state.toasts.push_back(kind);
-            (was_open, !state.toasts.is_empty())
+
+            let timeout =
+                Duration::from_secs_f64(item.duration.unwrap_or(DEFAULT_TIMEOUT_SEC).max(0.0));
+            state.toasts.push_back(SonnerToastEntry {
+                item,
+                expires_at: now + timeout,
+            });
+            if was_empty {
+                Self::reschedule_timer(&mut state, cx);
+            }
+            was_empty
         };
 
-        self.open = is_open;
+        self.open = true;
         Self::sync_global_host_overlay(cx);
-        if emit_action && was_open != is_open {
-            self.emit_open_state(cx, is_open);
+        if was_empty {
+            self.emit_open_state(cx, true);
         }
     }
 
-    fn clear_global_toasts(&mut self, cx: &mut Cx, emit_action: bool) {
-        let (was_open, is_open) = {
+    pub fn clear_global_toasts(&mut self, cx: &mut Cx, emit_action: bool) {
+        let was_open = {
             let global = cx.global::<SonnerGlobal>().clone();
             let mut state = global.state.borrow_mut();
             let was_open = !state.toasts.is_empty();
             state.toasts.clear();
-            (was_open, false)
+            state.timer = Timer::default();
+            was_open
         };
-
-        self.open = is_open;
+        self.open = false;
         Self::sync_global_host_overlay(cx);
-        if emit_action && was_open != is_open {
-            self.emit_open_state(cx, is_open);
+        if emit_action && was_open {
+            self.emit_open_state(cx, false);
         }
     }
 
     fn remove_visible_toast(&mut self, cx: &mut Cx, visible_index: usize) {
-        let removed = {
-            let global = cx.global::<SonnerGlobal>().clone();
-            let mut state = global.state.borrow_mut();
-            if visible_index >= state.toasts.len() {
-                return;
-            }
+        let global = cx.global::<SonnerGlobal>().clone();
+        let mut state = global.state.borrow_mut();
+        if visible_index < state.toasts.len() {
+            let was_open = !state.toasts.is_empty();
             let queue_index = state.toasts.len() - 1 - visible_index;
-            let had_toasts = !state.toasts.is_empty();
             state.toasts.remove(queue_index);
-            (had_toasts, !state.toasts.is_empty())
-        };
-
-        self.open = removed.1;
-        Self::sync_global_host_overlay(cx);
-        if removed.0 != removed.1 {
-            self.emit_open_state(cx, removed.1);
-        }
-    }
-
-    pub fn set_open(&mut self, cx: &mut Cx, open: bool) {
-        if open {
-            if !self.global_is_open(cx) {
-                self.push_global_toast(cx, self.default_toast_kind(), true);
+            Self::reschedule_timer(&mut state, cx);
+            let is_open = !state.toasts.is_empty();
+            drop(state);
+            self.open = is_open;
+            Self::sync_global_host_overlay(cx);
+            if was_open && !is_open {
+                self.emit_open_state(cx, false);
             }
-        } else {
-            self.clear_global_toasts(cx, true);
         }
-    }
-
-    pub fn open(&mut self, cx: &mut Cx) {
-        self.push_global_toast(cx, self.default_toast_kind(), true);
-    }
-
-    pub fn open_basic(&mut self, cx: &mut Cx) {
-        self.push_global_toast(cx, SonnerToastKind::Basic, true);
-    }
-
-    pub fn open_description(&mut self, cx: &mut Cx) {
-        self.push_global_toast(cx, SonnerToastKind::Description, true);
-    }
-
-    pub fn open_close(&mut self, cx: &mut Cx) {
-        self.push_global_toast(cx, SonnerToastKind::Close, true);
-    }
-
-    pub fn close(&mut self, cx: &mut Cx) {
-        self.set_open(cx, false);
-    }
-
-    pub fn is_open(&self, cx: &mut Cx) -> bool {
-        self.global_is_open(cx)
-    }
-
-    pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
-        if let Some(ShadSonnerAction::OpenChanged(open)) =
-            first_widget_action::<ShadSonnerAction>(actions, self.widget_uid())
-        {
-            return Some(open);
-        }
-        None
     }
 }
 
 impl Widget for ShadSonner {
-    fn script_call(
-        &mut self,
-        vm: &mut ScriptVm,
-        method: LiveId,
-        args: ScriptValue,
-    ) -> ScriptAsyncResult {
-        if method == live_id!(set_open) {
-            if let Some(open) = bool_arg(vm, args) {
-                vm.with_cx_mut(|cx| self.set_open(cx, open));
-            }
-            return ScriptAsyncResult::Return(NIL);
-        }
-        if method == live_id!(is_open) {
-            let is_open = vm.with_cx_mut(|cx| self.is_open(cx));
-            return ScriptAsyncResult::Return(ScriptValue::from_bool(is_open));
-        }
-        if method == live_id!(open_basic) {
-            vm.with_cx_mut(|cx| self.open_basic(cx));
-            return ScriptAsyncResult::Return(NIL);
-        }
-        if method == live_id!(open_description) {
-            vm.with_cx_mut(|cx| self.open_description(cx));
-            return ScriptAsyncResult::Return(NIL);
-        }
-        if method == live_id!(open_close) {
-            vm.with_cx_mut(|cx| self.open_close(cx));
-            return ScriptAsyncResult::Return(NIL);
-        }
-        ScriptAsyncResult::MethodNotFound
-    }
-
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        let global = cx.global::<SonnerGlobal>().clone();
+
+        // 定时器处理
+        if let Event::Timer(te) = event {
+            self.register_global_host(cx);
+            if !self.is_global_host(cx) {
+                return;
+            }
+            let mut state = global.state.borrow_mut();
+            if state.timer.is_timer(te).is_some() {
+                let was_open = !state.toasts.is_empty();
+                let changed = Self::prune_expired_toasts(&mut state, Instant::now());
+                let is_open = !state.toasts.is_empty();
+                Self::reschedule_timer(&mut state, cx);
+
+                drop(state);
+                self.open = is_open;
+                if changed {
+                    Self::sync_global_host_overlay(cx);
+                }
+                if was_open && !is_open {
+                    self.emit_open_state(cx, false);
+                }
+                return;
+            }
+        }
+
         self.register_global_host(cx);
         let is_host = self.sync_overlay_open_state(cx);
-
         if !is_host || !self.open {
             return;
         }
 
         self.overlay.handle_event(cx, event, scope);
+
         if let Event::Actions(actions) = event {
             for index in 0..MAX_VISIBLE_TOASTS {
                 if button_clicked(&self.overlay, cx, Self::close_button_path(index), actions) {
@@ -651,11 +629,9 @@ impl Widget for ShadSonner {
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         self.register_global_host(cx);
-        let is_host = self.sync_overlay_open_state(cx);
-        if !is_host || !self.open {
+        if !self.sync_overlay_open_state(cx) || !self.open {
             return DrawStep::done();
         }
-
         cx.begin_turtle(walk, self.layout);
         let step = self
             .overlay
@@ -665,48 +641,11 @@ impl Widget for ShadSonner {
     }
 }
 
+// 为旧接口提供简单封装
 impl ShadSonnerRef {
-    pub fn open(&self, cx: &mut Cx) {
+    pub fn enqueue(&self, cx: &mut Cx, item: SonnerItem) {
         if let Some(mut inner) = self.borrow_mut() {
-            inner.open(cx);
+            inner.enqueue(cx, item);
         }
-    }
-
-    pub fn close(&self, cx: &mut Cx) {
-        if let Some(mut inner) = self.borrow_mut() {
-            inner.close(cx);
-        }
-    }
-
-    pub fn set_open(&self, cx: &mut Cx, open: bool) {
-        if let Some(mut inner) = self.borrow_mut() {
-            inner.set_open(cx, open);
-        }
-    }
-
-    pub fn open_basic(&self, cx: &mut Cx) {
-        if let Some(mut inner) = self.borrow_mut() {
-            inner.open_basic(cx);
-        }
-    }
-
-    pub fn open_description(&self, cx: &mut Cx) {
-        if let Some(mut inner) = self.borrow_mut() {
-            inner.open_description(cx);
-        }
-    }
-
-    pub fn open_close(&self, cx: &mut Cx) {
-        if let Some(mut inner) = self.borrow_mut() {
-            inner.open_close(cx);
-        }
-    }
-
-    pub fn is_open(&self) -> bool {
-        self.borrow().is_some_and(|inner| inner.open)
-    }
-
-    pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
-        self.borrow().and_then(|inner| inner.open_changed(actions))
     }
 }

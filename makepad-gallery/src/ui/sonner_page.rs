@@ -1,6 +1,6 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
 use makepad_components::makepad_widgets::*;
-use makepad_components::sonner::ShadSonnerWidgetExt;
+use makepad_components::sonner::{ShadSonnerWidgetExt, SonnerItem, SonnerKind};
 
 gallery_stateful_page_shell! {
     widget: GallerySonnerPage,
@@ -81,14 +81,46 @@ impl Widget for GallerySonnerPage {
         self.view.handle_event(cx, event, scope);
 
         if let Event::Actions(actions) = event {
+            let sonner = self.view.shad_sonner(cx, ids!(toast_close));
+
             if self.view.button(cx, ids!(toast_event_btn)).clicked(actions) {
-                self.view.shad_sonner(cx, ids!(toast_event)).open(cx);
+                sonner.enqueue(
+                    cx,
+                    SonnerItem {
+                        title: "连接成功".to_string(),
+                        description: Some("服务器连接成功。".to_string()),
+                        kind: SonnerKind::Success,
+                        duration: Some(3.0),
+                        show_close: true,
+                    },
+                );
+                cx.redraw_all();
             }
             if self.view.button(cx, ids!(toast_desc_btn)).clicked(actions) {
-                self.view.shad_sonner(cx, ids!(toast_desc)).open(cx);
+                sonner.enqueue(
+                    cx,
+                    SonnerItem {
+                        title: "提示".to_string(),
+                        description: Some("网络连接不稳定，请稍后再试。".to_string()),
+                        kind: SonnerKind::Info,
+                        duration: Some(3.0),
+                        show_close: true,
+                    },
+                );
+                cx.redraw_all();
             }
             if self.view.button(cx, ids!(toast_close_btn)).clicked(actions) {
-                self.view.shad_sonner(cx, ids!(toast_close)).open(cx);
+                sonner.enqueue(
+                    cx,
+                    SonnerItem {
+                        title: "错误".to_string(),
+                        description: Some("网络连接失败，请检查网络设置。".to_string()),
+                        kind: SonnerKind::Error,
+                        duration: Some(3.0),
+                        show_close: true,
+                    },
+                );
+                cx.redraw_all();
             }
         }
     }

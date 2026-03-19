@@ -4,6 +4,7 @@ members = [
     "makepad-gallery",
     "makepad-components",
     "makepad-components/examples/date_picker_table_example",
+    "makepad-components/examples/notification_example",
     "makepad-icon",
     "makepad_router",
     "makepad_router/crates/makepad-router-core",

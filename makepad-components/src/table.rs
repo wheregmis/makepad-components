@@ -26,7 +26,7 @@ script_mod! {
 
         draw_text +: {
             color: (shad_theme.color_muted_foreground)
-            text_style: theme.font_regular{font_size: 10.0}
+            text_style: theme.font_regular{font_size: 11.0}
         }
     }
 
@@ -43,7 +43,7 @@ script_mod! {
 
         draw_text +: {
             color: (shad_theme.color_primary)
-            text_style: theme.font_regular{font_size: 11.0}
+            text_style: theme.font_regular{font_size: 10.0}
         }
     }
 
@@ -51,7 +51,7 @@ script_mod! {
         width: Fill
         height: 40
         flow: Right
-        align: Align{x: 0.0, y: 0.5}
+        align: Align{x: 0.5, y: 0.5}
         padding: Inset{left: 12.0, right: 12.0, top: 0.0, bottom: 0.0}
         draw_bg.color: #0000
 
@@ -62,7 +62,7 @@ script_mod! {
 
     mod.widgets.ShadTable = set_type_default() do mod.widgets.ShadTableBase{
         width: Fill
-        height: Fit
+        height: Fill
         caption: ""
         empty_message: "No rows available."
         selectable: true
@@ -74,7 +74,7 @@ script_mod! {
 
         table_view := View{
             width: Fill
-            height: Fit
+            height: Fill
             flow: Down
             spacing: 8.0
 
@@ -85,14 +85,14 @@ script_mod! {
 
             scroll := ScrollXView{
                 width: Fill
-                height: Fit
+                height: Fill
                 flow: Down
                 padding: Inset{left: 0.0, right: 0.0, top: 0.0, bottom: 0.0}
                 spacing: 0.0
 
                 content := View{
                     width: Fit
-                    height: Fit
+                    height: Fill
                     flow: Down
                     spacing: 6.0
 
