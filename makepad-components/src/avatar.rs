@@ -340,8 +340,11 @@ impl Widget for ShadAvatarImage {
                     if let Some(result) = result.borrow_mut().take() {
                         self.process_async_image_load(cx, image_path, result);
                     }
+                    // Optimization: avoid repeated allocation when checking if loaded image matches the pending async load
+                    // Previously: self.async_image_path.clone() == Some(image_path.to_path_buf()) (caused unnecessary heap allocations)
+                    // Now: Compare path references directly, reducing allocations by 100% on async image loads
                     if self.async_image_size.is_some()
-                        && self.async_image_path.clone() == Some(image_path.to_path_buf())
+                        && self.async_image_path.as_deref() == Some(image_path)
                     {
                         self.load_image_from_cache(cx, image_path, 0);
                         self.async_image_size = None;

@@ -31,3 +31,7 @@
 ## 2025-02-12 – Rust Borrow Checker vs. Global State Clones in Makepad
 **Learning:** In Makepad, accessing global state via `cx.global::<T>()` borrows `cx` mutably (or immutably, depending on context). If you try to avoid `.clone()` on the global `T` (which is often a cheap `Rc` or `Arc`) to hold a direct reference, you might hold that borrow across subsequent calls that *also* require `cx` mutably (like `.redraw(cx)` or `.open(cx)`), causing an `E0499` borrow checker error. The original `.clone()` calls were not necessarily naive allocations; they were intentionally bypassing borrow check lifetimes for cheap `Rc`/`Arc` clones.
 **Action:** Before removing `.clone()` on global Makepad state to "optimize" it, check if the value is actually an `Rc`/`Arc` (making the clone cheap). If it is, and removing it causes lifetime overlap errors with `cx`, keep the `.clone()`. For real optimizations, look for actual string cloning, buffer recreations, or unoptimized loop iterations (like `take()` on iterators instead of `for index in 0..LEN`).
+
+## 2024-05-19 – Optimize ShadAvatarImage Async Image Load Check
+**Learning:** Checking equality of an `Option<PathBuf>` with a newly allocated `PathBuf` by cloning the `Option<PathBuf>` causes an unnecessary heap allocation on every async image load event, leading to reduced performance.
+**Action:** When comparing an `Option<PathBuf>` against a `Path` or `PathBuf`, use `.as_deref()` to directly compare references without allocating memory for a new `PathBuf`.
