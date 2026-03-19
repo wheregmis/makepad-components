@@ -48,7 +48,7 @@ jobs:
           echo "WASM_OUTPUT_ROOT=target/makepad-wasm-app/small" >> "${GITHUB_ENV}"
 
       - name: Install cargo-makepad
-        run: cargo install --git https://github.com/wheregmis/makepad.git --branch crazy_web cargo-makepad --locked
+        run: cargo install --git https://github.com/wheregmis/makepad.git --branch small_web_nits cargo-makepad --locked
 
       - name: Install Wasm toolchain
         run: cargo makepad wasm install-toolchain

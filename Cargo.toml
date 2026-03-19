@@ -14,16 +14,22 @@ members = [
 resolver = "3"
 
 [workspace.dependencies]
-makepad-live-id = { git = "https://github.com/wheregmis/makepad.git", branch = "crazy_web", version = "1.0.0" }
-makepad-micro-serde = { git = "https://github.com/wheregmis/makepad.git", branch = "crazy_web", version = "1.0.0" }
-makepad-draw = { git = "https://github.com/wheregmis/makepad.git", branch = "crazy_web", version = "2.0.0" }
-makepad-widgets = { git = "https://github.com/wheregmis/makepad.git", branch = "crazy_web", version = "2.0.0" }
-makepad-code-editor = { git = "https://github.com/wheregmis/makepad.git", branch = "crazy_web", version = "2.0.0" }
+makepad-live-id = { git = "https://github.com/wheregmis/makepad.git", branch = "small_web_nits", version = "1.0.0" }
+makepad-micro-serde = { git = "https://github.com/wheregmis/makepad.git", branch = "small_web_nits", version = "1.0.0" }
+makepad-draw = { git = "https://github.com/wheregmis/makepad.git", branch = "small_web_nits", version = "2.0.0" }
+makepad-widgets = { git = "https://github.com/wheregmis/makepad.git", branch = "small_web_nits", version = "2.0.0" }
+makepad-code-editor = { git = "https://github.com/wheregmis/makepad.git", branch = "small_web_nits", version = "2.0.0" }
 makepad-components = { path = "makepad-components", version = "1.0.0" }
 makepad-icon = { path = "makepad-icon", version = "1.0.0" }
 makepad-router = { path = "makepad_router", version = "1.0.0" }
 makepad-router-core = { path = "makepad_router/crates/makepad-router-core", version = "1.0.0" }
 makepad-router-widgets = { path = "makepad_router/crates/makepad-router-widgets", version = "1.0.0" }
+
+# [patch."https://github.com/wheregmis/makepad.git"]
+# makepad-live-id = { path = "../makepad/libs/live_id" }
+# makepad-micro-serde = { path = "../makepad/libs/micro_serde" }
+# makepad-draw = { path = "../makepad/draw" }
+# makepad-widgets = { path = "../makepad/widgets" }
 
 [profile.small]
 inherits = "release"
