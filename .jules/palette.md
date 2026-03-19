@@ -30,3 +30,7 @@
 ## 2026-03-18 – [Gallery examples should not teach placeholder-only fields]
 **Learning:** In this repo, the gallery pages act as live documentation. When a preview uses only placeholder text, it quietly teaches an inaccessible pattern even if the code snippet beside it shows the correct labeled-field composition.
 **Action:** Keep the live preview aligned with `ShadFieldLabel` and helper text patterns whenever a gallery page demonstrates form inputs.
+
+## 2024-03-19 - [Focus ring contrast consistency]
+**Learning:** In Makepad components, thin 1px focus rings using subtle hover colors (like `color_outline_border_hover`) fail accessibility contrast guidelines for keyboard users, whereas other components (like `RadioGroup`) correctly use a 2px `color_primary` stroke.
+**Action:** Always ensure focus rings for interactive controls (Checkbox, Toggle, etc.) use a high-contrast primary color and a thicker stroke (e.g. 2px) for clear keyboard visibility.

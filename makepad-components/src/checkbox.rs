@@ -59,7 +59,7 @@ script_mod! {
 
                 // Focus ring (drawn last so it's visible)
                 sdf.box(0.0, 0.0, sz.x, sz.y, box_radius + 1.0)
-                sdf.stroke(mix(vec4(0.0), self.color_border_hover, self.focus), 1.5)
+                sdf.stroke(mix(vec4(0.0, 0.0, 0.0, 0.0), self.color_primary, self.focus), 2.0)
 
                 return sdf.result
             }
