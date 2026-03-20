@@ -1,5 +1,6 @@
 use crate::internal::actions::emit_widget_action;
 use crate::internal::overlay::button_clicked;
+use crate::progress_test::MyProgressBarWidgetRefExt;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 use std::{
@@ -35,6 +36,7 @@ pub struct SonnerItem {
 struct SonnerToastEntry {
     item: SonnerItem,
     expires_at: Instant,
+    total_duration: f64,
 }
 
 script_mod! {
@@ -90,12 +92,13 @@ script_mod! {
             icon_walk: Walk{width: 24, height: 24}
         }
     }
-    let ToastSlotPanel = RoundedView{
+    let ToastSlotPanel = RoundedView {
         visible: false
         width: 280
         height: Fit
-        padding: Inset{left: 14, right: 8, top: 10, bottom: 10}
-        spacing: 4.0
+        flow: Down 
+        padding: 0.0 
+        spacing: 0.0
 
         draw_bg +: {
             color: (shad_theme.color_secondary)
@@ -104,57 +107,45 @@ script_mod! {
             border_color: (shad_theme.color_outline_border)
         }
 
-        header_row := View{
+        content_row := View {
             width: Fill
             height: Fit
             flow: Right
-            align: Align{y: 0.5}
+            align: Align {y: 0.5}
+            padding: Inset {left: 14, right: 8, top: 10, bottom: 10}
             spacing: 8.0
-            info_icon := InfoIcon{
-                visible: false
-            }
-            success_icon :=CheckIcon{
-                visible: false
-            }
-            warning_icon := WarningIcon{
-                visible: false
-            }
-            error_icon := ForbiddenIcon{
-                visible: false
-            }
+
+            info_icon := InfoIcon { visible: false }
+            success_icon := CheckIcon { visible: false }
+            warning_icon := WarningIcon { visible: false }
+            error_icon := ForbiddenIcon { visible: false }
+
             View {
                 width: Fill
                 height: Fit
                 flow: Down
                 spacing: 4.0
-                title_label := mod.widgets.ShadToastTitle{
-                    text: "Notification"
-                }
-                description_label := mod.widgets.ShadToastDescription{
-                    text: ""
-                    visible: false
-                }
+                title_label := mod.widgets.ShadToastTitle { text: "Notification" }
+                description_label := mod.widgets.ShadToastDescription { text: "", visible: false }
             }
 
             close_btn := mod.widgets.IconButtonX{
                 visible: false
                 width: 24
                 height: 24
-                margin: Inset{left: -4, right: -4, top: -4, bottom: -4}
-
                 draw_bg +: {
                     color: #0000
-                    color_hover: #ffffff1a
-                    color_down: #00000033
+                    color_hover: (shad_theme.color_ghost_hover)
+                    color_down: (shad_theme.color_ghost_down)
                     border_size: 0.0
                     border_radius: (shad_theme.radius)
                 }
                 draw_icon.color: (shad_theme.color_muted_foreground)
-                draw_icon.hover_color: #ef4444
             }
         }
 
-
+        // 底部进度条
+        progress_bar := mod.widgets.MyProgressBar {}
     }
 
     mod.widgets.ShadSonnerBase = #(ShadSonner::register_widget(vm))
@@ -430,25 +421,25 @@ impl ShadSonner {
             0 => &[
                 live_id!(content),
                 live_id!(toast_0),
-                live_id!(header_row),
+                live_id!(content_row),
                 live_id!(close_btn),
             ],
             1 => &[
                 live_id!(content),
                 live_id!(toast_1),
-                live_id!(header_row),
+                live_id!(content_row),
                 live_id!(close_btn),
             ],
             2 => &[
                 live_id!(content),
                 live_id!(toast_2),
-                live_id!(header_row),
+                live_id!(content_row),
                 live_id!(close_btn),
             ],
             _ => &[
                 live_id!(content),
                 live_id!(toast_3),
-                live_id!(header_row),
+                live_id!(content_row),
                 live_id!(close_btn),
             ],
         }
@@ -518,11 +509,12 @@ impl ShadSonner {
                 state.toasts.pop_front();
             }
 
-            let timeout =
-                Duration::from_secs_f64(item.duration.unwrap_or(DEFAULT_TIMEOUT_SEC).max(0.0));
+            let timeout_sec = item.duration.unwrap_or(DEFAULT_TIMEOUT_SEC).max(0.0);
+            let timeout = Duration::from_secs_f64(timeout_sec);
             state.toasts.push_back(SonnerToastEntry {
                 item,
                 expires_at: now + timeout,
+                total_duration: timeout_sec,
             });
             (was_empty, changed || was_empty || !state.toasts.is_empty())
         };
@@ -582,24 +574,52 @@ impl ShadSonner {
 impl Widget for ShadSonner {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
         self.register_global_host(cx);
-        
 
-        // 定时器处理
         if let Event::NextFrame(_) = event {
-            
             if !self.is_global_host(cx) {
                 return;
             }
             let now = Instant::now();
-            let (changed, still_has_toasts,needs_schedule) = {
+            let mut needs_redraw = false;
+            let progresses: Vec<f64> = {
+                let global = cx.global::<SonnerGlobal>().clone();
+                let state = global.state.borrow();
+                state
+                    .toasts
+                    .iter()
+                    .rev()
+                    .take(MAX_VISIBLE_TOASTS)
+                    .map(|entry| {
+                        if entry.total_duration <= 0.0 {
+                            return 0.0;
+                        }
+                        let remaining = entry
+                            .expires_at
+                            .saturating_duration_since(now)
+                            .as_secs_f64();
+                        (remaining / entry.total_duration).clamp(0.0, 1.0)
+                    })
+                    .collect()
+            };
+            for (i, &prog) in progresses.iter().enumerate() {
+                let slot = self.overlay.widget(cx, Self::toast_slot_path(i));
+                if !slot.is_empty() {
+                    let progress_bar = slot.my_progress_bar(cx, ids!(progress_bar));
+                    progress_bar.set_progress(cx, prog * 100.0);
+                    needs_redraw = true;
+                }
+            }
+            if needs_redraw {
+                self.overlay.redraw(cx); // 触发重绘以更新进度条
+            }
+            let (changed, still_has_toasts, needs_schedule) = {
                 let global = cx.global::<SonnerGlobal>().clone();
                 let mut state = global.state.borrow_mut();
                 let changed = Self::prune_expired_toasts(&mut state, now);
                 let still_has_toasts = !state.toasts.is_empty();
                 let needs_schedule = still_has_toasts;
                 state.needs_next_frame = needs_schedule;
-                (changed, still_has_toasts,needs_schedule)
-
+                (changed, still_has_toasts, needs_schedule)
             };
             if changed || still_has_toasts != self.open {
                 self.open = still_has_toasts;
@@ -613,7 +633,7 @@ impl Widget for ShadSonner {
             }
             return;
         }
-        
+
         let is_host = self.sync_overlay_open_state(cx);
         if !is_host || !self.open {
             return;

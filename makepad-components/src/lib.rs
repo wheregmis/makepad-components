@@ -41,6 +41,7 @@ pub mod pagination;
 pub mod panel;
 pub mod popover;
 pub mod progress;
+pub mod progress_test;
 pub mod radio_group;
 pub mod resizable;
 pub mod scroll;
@@ -93,6 +94,7 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::panel::script_mod(vm);
     crate::pagination::script_mod(vm);
     crate::progress::script_mod(vm);
+    crate::progress_test::script_mod(vm);
     crate::radio_group::script_mod(vm);
     crate::resizable::script_mod(vm);
     crate::select::script_mod(vm);
