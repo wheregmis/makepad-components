@@ -282,6 +282,15 @@ impl MatchEvent for App {
         {
             self.sidebar_open = !self.sidebar_open;
             self.apply_responsive_visibility(cx);
+            if self.sidebar_open {
+                self.ui
+                    .button(cx, ids!(mobile_sidebar_close_button))
+                    .set_key_focus(cx);
+            } else {
+                self.ui
+                    .button(cx, ids!(mobile_sidebar_menu_button))
+                    .set_key_focus(cx);
+            }
         }
         if self
             .ui
