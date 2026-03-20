@@ -12,7 +12,7 @@ gallery_static_page! {
         ShadSectionHeader{ text: "Default" }
 
         View{
-            width: 420
+            width: Fill
             height: Fit
 
             bio_input := ShadTextarea{
@@ -25,7 +25,7 @@ gallery_static_page! {
         ShadSectionHeader{ text: "With label and helper text" }
 
         View{
-            width: 420
+            width: Fill
             height: Fit
             flow: Down
             spacing: 6.0
@@ -44,7 +44,7 @@ gallery_static_page! {
         ShadSectionHeader{ text: "Large" }
 
         View{
-            width: 520
+            width: Fill
             height: Fit
 
             ShadTextareaLg{

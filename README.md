@@ -51,6 +51,7 @@ This workspace contains:
   - New reusable components belong under `makepad-components/src/*.rs` and should be registered from `makepad_components::script_mod(vm)` into the `mod.widgets.*` namespace.
   - Gallery-only layout and helper widgets belong under `makepad-gallery/src/ui/*.rs` (for example `themed_widgets.rs`) and are registered from the gallery UI module.
   - `makepad-gallery/src/ui/catalog.rs` is the gallery metadata source of truth for sidebar labels, command-palette entries, route ids/paths, and snippet keys. `root.rs` stays as the explicit router adapter.
+- `docs/responsive.md` documents the workspace's responsive-layout patterns for Makepad, including mobile shell handling, `Fill`/`Fit` sizing, and wrapped row caveats.
 
 ## Prerequisites
 

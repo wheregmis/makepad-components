@@ -45,7 +45,7 @@ script_mod! {
     }
 
     mod.widgets.ShadNavigationMenuContent = RoundedView{
-        width: 480
+        width: 320
         height: Fit
         flow: Down
         spacing: 12.0
@@ -66,7 +66,7 @@ script_mod! {
     }
 
     mod.widgets.ShadNavigationMenuCallout = RoundedView{
-        width: 196
+        width: Fill
         height: Fit
         flow: Down
         spacing: 8.0

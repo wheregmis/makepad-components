@@ -16,7 +16,7 @@ gallery_stateful_page_shell! {
     preview_spacing: 16.0,
     preview: {
         sheet_demo_shell := View{
-            width: 840
+            width: Fill
             height: Fit
             flow: Down
             spacing: 12.0
@@ -64,11 +64,11 @@ gallery_stateful_page_shell! {
                     View{
                         width: Fill
                         height: Fit
-                        flow: Right
+                        flow: Right{wrap: true}
                         spacing: 12.0
 
                         ShadSurface{
-                            width: Fill
+                            width: 280
                             height: Fit
                             flow: Down
                             spacing: 8.0
@@ -88,7 +88,7 @@ gallery_stateful_page_shell! {
                         }
 
                         ShadSurface{
-                            width: Fill
+                            width: 280
                             height: Fit
                             flow: Down
                             spacing: 8.0
@@ -111,11 +111,11 @@ gallery_stateful_page_shell! {
                     View{
                         width: Fill
                         height: Fit
-                        flow: Right
+                        flow: Right{wrap: true}
                         spacing: 12.0
 
                         ShadSurface{
-                            width: Fill
+                            width: 280
                             height: Fit
                             flow: Down
                             spacing: 8.0
@@ -135,7 +135,7 @@ gallery_stateful_page_shell! {
                         }
 
                         ShadSurface{
-                            width: Fill
+                            width: 280
                             height: Fit
                             flow: Down
                             spacing: 8.0
@@ -233,7 +233,7 @@ gallery_stateful_page_shell! {
                             View{
                                 width: Fill
                                 height: Fit
-                                flow: Right
+                                flow: Down
                                 spacing: 12.0
 
                                 ShadField{

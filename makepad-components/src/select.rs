@@ -37,7 +37,7 @@ script_mod! {
     }
 
     mod.widgets.ShadSelectPopupMenu = mod.widgets.PopupMenu{
-        width: 180
+        width: 220
         padding: Inset{left: 4, right: 4, top: 4, bottom: 4}
         menu_item: mod.widgets.ShadSelectItem{}
 
@@ -51,7 +51,7 @@ script_mod! {
     }
 
     mod.widgets.ShadSelect = mod.widgets.DropDownFlat{
-        width: 180
+        width: Fill
         height: 36
         align: Align{x: 0.0, y: 0.5}
 

@@ -144,7 +144,7 @@ script_mod! {
             }
 
             content +: {
-                width: 620
+                width: 360
                 height: Fit
 
                 panel := ShadSurface{
@@ -208,7 +208,7 @@ script_mod! {
 
                         results := PortalList{
                             width: Fill
-                            height: 368.0
+                            height: 320.0
                             flow: Down
                             max_pull_down: 0.0
                             capture_overload: false
@@ -246,7 +246,7 @@ script_mod! {
                     footer := View{
                         width: Fill
                         height: Fit
-                        flow: Right
+                        flow: Right{wrap: true}
                         spacing: 8.0
                         margin: Inset{top: 4}
 

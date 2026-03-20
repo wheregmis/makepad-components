@@ -10,7 +10,7 @@ gallery_static_page! {
     preview_spacing: 16.0,
     preview: {
         kbd_demo_shell := View{
-            width: 840
+            width: Fill
             height: Fit
             flow: Down
             spacing: 12.0
@@ -47,7 +47,7 @@ gallery_static_page! {
                     View{
                         width: Fit
                         height: Fit
-                        flow: Right
+                        flow: Right{wrap: true}
                         spacing: 6.0
                         align: Align{y: 0.5}
 
@@ -79,19 +79,19 @@ gallery_static_page! {
                         View{
                             width: Fill
                             height: Fit
-                            flow: Right
+                            flow: Right{wrap: true}
                             spacing: 16.0
                             align: Align{y: 0.5}
 
                             ShadLabel{
-                                width: 180
+                                width: 140
                                 text: "Open command palette"
                             }
 
                             View{
                                 width: Fit
                                 height: Fit
-                                flow: Right
+                                flow: Right{wrap: true}
                                 spacing: 6.0
                                 align: Align{y: 0.5}
 
@@ -121,7 +121,7 @@ gallery_static_page! {
                             align: Align{y: 0.5}
 
                             ShadLabel{
-                                width: 180
+                                width: 140
                                 text: "Duplicate current row"
                             }
 

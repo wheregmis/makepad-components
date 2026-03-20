@@ -12,12 +12,12 @@ gallery_static_page! {
         View{
             width: Fill
             height: Fit
-            flow: Right
+            flow: Down
             spacing: 12.0
             align: Align{y: 0.0}
 
             ShadSidebar{
-                width: 300
+                width: 280
                 height: 320
                 ShadLabel{
                     text: "Acme Inc"

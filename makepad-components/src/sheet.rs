@@ -20,7 +20,7 @@ script_mod! {
         height: Fit
         open: false
         side: "right"
-        sheet_size: 420.0
+        sheet_size: 360.0
 
         overlay: Modal{
             align: Align{x: 1.0, y: 0.0}
@@ -29,7 +29,7 @@ script_mod! {
             }
 
             content +: {
-                width: 420
+                width: 360
                 height: Fill
                 flow: Down
 

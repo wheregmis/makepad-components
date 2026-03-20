@@ -10,7 +10,7 @@ gallery_static_page! {
     preview_spacing: 16.0,
     preview: {
         skeleton_demo_shell := View{
-            width: 840
+            width: Fill
             height: Fit
             flow: Down
             spacing: 12.0

@@ -34,7 +34,7 @@ gallery_static_page! {
             spacing: 10.0
 
             ShadAspectRatio{
-                width: 720
+                width: Fill
                 ratio: 1.7777777778
 
                 ShadMediaFrame{
@@ -56,7 +56,7 @@ gallery_static_page! {
             }
 
             View{
-                width: 720
+                width: Fill
                 height: Fit
                 flow: Down
                 spacing: 4.0
@@ -71,7 +71,7 @@ gallery_static_page! {
         View{
             width: Fill
             height: Fit
-            flow: Right
+            flow: Right{wrap: true}
             spacing: 16.0
 
             View{
@@ -81,7 +81,7 @@ gallery_static_page! {
                 spacing: 8.0
 
                 ShadAspectRatio{
-                    width: 180
+                    width: 160
                     ratio: 1.0
 
                     ShadMediaFrame{
@@ -104,7 +104,7 @@ gallery_static_page! {
 
                 ShadFieldLabel{text: "1:1"}
                 ShadFieldDescription{
-                    width: 180
+                    width: 160
                     text: "Square avatar or gallery crop."
                 }
             }
@@ -116,7 +116,7 @@ gallery_static_page! {
                 spacing: 8.0
 
                 ShadAspectRatio{
-                    width: 220
+                    width: 200
                     ratio: 1.3333333333
 
                     ShadMediaFrame{
@@ -139,7 +139,7 @@ gallery_static_page! {
 
                 ShadFieldLabel{text: "4:3"}
                 ShadFieldDescription{
-                    width: 220
+                    width: 200
                     text: "Editorial image or embedded document frame."
                 }
             }

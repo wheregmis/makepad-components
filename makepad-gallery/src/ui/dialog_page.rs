@@ -28,7 +28,7 @@ gallery_stateful_page_shell! {
                 View{
                     width: Fit
                     height: Fit
-                    flow: Right
+                    flow: Right{wrap: true}
                     spacing: 12.0
 
                     open_rename_dialog_btn := ShadButton{

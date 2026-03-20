@@ -67,7 +67,7 @@ script_mod! {
             }
 
             content +: {
-                width: 420
+                width: 360
                 height: Fit
 
                 body := DialogPanel{}
@@ -86,7 +86,7 @@ script_mod! {
             }
 
             content +: {
-                width: 420
+                width: 360
                 height: Fit
 
                 dialog_panel := DialogPanel{
@@ -124,7 +124,7 @@ script_mod! {
             }
 
             content +: {
-                width: 420
+                width: 360
                 height: Fit
 
                 dialog_panel := DialogPanel{

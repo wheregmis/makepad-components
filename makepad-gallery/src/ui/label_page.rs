@@ -10,7 +10,7 @@ gallery_static_page! {
     preview_spacing: 16.0,
     preview: {
         label_demo_shell := View{
-            width: 840
+            width: Fill
             height: Fit
             flow: Down
             spacing: 12.0
@@ -47,12 +47,12 @@ gallery_static_page! {
                     View{
                         width: Fill
                         height: Fit
-                        flow: Right
+                        flow: Right{wrap: true}
                         spacing: 12.0
                         align: Align{y: 0.0}
 
                         ShadSurface{
-                            width: 248
+                            width: 220
                             height: Fit
                             flow: Down
                             spacing: 6.0
@@ -68,7 +68,7 @@ gallery_static_page! {
                         }
 
                         ShadSurface{
-                            width: 248
+                            width: 220
                             height: Fit
                             flow: Down
                             spacing: 6.0
@@ -84,7 +84,7 @@ gallery_static_page! {
                         }
 
                         ShadSurface{
-                            width: 248
+                            width: 220
                             height: Fit
                             flow: Down
                             spacing: 6.0
@@ -122,12 +122,12 @@ gallery_static_page! {
                         View{
                             width: Fill
                             height: Fit
-                            flow: Right
+                            flow: Down
                             spacing: 16.0
                             align: Align{y: 0.5}
 
                             sync_status := ShadLabel{
-                                width: 220
+                                width: 160
                                 text: "Last synced 2 minutes ago"
                             }
                             ShadFieldDescription{
@@ -139,12 +139,12 @@ gallery_static_page! {
                         View{
                             width: Fill
                             height: Fit
-                            flow: Right
+                            flow: Down
                             spacing: 16.0
                             align: Align{y: 0.5}
 
                             results_count := ShadLabel{
-                                width: 220
+                                width: 160
                                 text: "Showing 24 of 120 results"
                             }
                             ShadFieldDescription{
