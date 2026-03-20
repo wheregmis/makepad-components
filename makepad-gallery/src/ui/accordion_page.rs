@@ -10,7 +10,7 @@ gallery_static_page! {
     preview_spacing: 12.0,
     preview: {
         accordion_demo_shell := View{
-            width: 840
+            width: Fill
             height: Fit
             flow: Down
             spacing: 12.0

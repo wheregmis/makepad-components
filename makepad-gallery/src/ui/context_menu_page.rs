@@ -16,7 +16,7 @@ gallery_stateful_page_shell! {
             labels: ["Open" "Duplicate" "Share" "Delete"]
 
             ShadSurface{
-                width: 360
+                width: Fill
                 height: Fit
                 flow: Down
                 spacing: 6.0

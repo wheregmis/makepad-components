@@ -34,7 +34,7 @@ gallery_static_page! {
             spacing: 10.0
 
             carousel_demo := mod.widgets.ShadCarousel{
-                width: 760
+                width: Fill
 
                 content_wrap +: {
                     carousel_flip +: {
@@ -96,7 +96,7 @@ gallery_static_page! {
             }
 
             View{
-                width: 760
+                width: Fill
                 height: Fit
                 flow: Down
                 spacing: 4.0

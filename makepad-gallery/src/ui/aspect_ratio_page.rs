@@ -34,7 +34,7 @@ gallery_static_page! {
             spacing: 10.0
 
             ShadAspectRatio{
-                width: 720
+                width: Fill
                 ratio: 1.7777777778
 
                 ShadMediaFrame{
@@ -56,7 +56,7 @@ gallery_static_page! {
             }
 
             View{
-                width: 720
+                width: Fill
                 height: Fit
                 flow: Down
                 spacing: 4.0

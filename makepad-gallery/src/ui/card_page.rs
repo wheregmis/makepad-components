@@ -29,12 +29,12 @@ gallery_static_page! {
         View{
             width: Fill
             height: Fit
-            flow: Right
+            flow: Down
             spacing: 16.0
             align: Align{y: 0.0}
 
             mod.widgets.ShadCard{
-                width: 420
+                width: Fill
 
                 header := mod.widgets.ShadCardHeader{
                     title := mod.widgets.ShadCardTitle{text: "Team Access"}
@@ -123,7 +123,7 @@ gallery_static_page! {
             }
 
             mod.widgets.ShadCard{
-                width: 300
+                width: Fill
 
                 header := mod.widgets.ShadCardHeader{
                     title := mod.widgets.ShadCardTitle{text: "API Usage"}

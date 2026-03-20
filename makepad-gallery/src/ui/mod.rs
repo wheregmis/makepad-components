@@ -4,6 +4,7 @@ pub mod catalog;
 pub mod command_palette;
 mod page_macros;
 mod registry;
+pub mod responsive;
 pub mod root;
 pub mod sidebar;
 pub mod snippets;

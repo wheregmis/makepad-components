@@ -12,7 +12,7 @@ gallery_stateful_page_shell! {
         ShadSectionHeader{ text: "Field with persistent label" }
 
         View{
-            width: 320
+            width: Fill
             height: Fit
             flow: Down
             spacing: 6.0
@@ -31,7 +31,7 @@ gallery_stateful_page_shell! {
         ShadSectionHeader{ text: "Read only" }
 
         View{
-            width: 320
+            width: Fill
             height: Fit
             flow: Down
             spacing: 6.0
@@ -50,7 +50,7 @@ gallery_stateful_page_shell! {
         ShadSectionHeader{ text: "With Label" }
 
         View{
-            width: 320
+            width: Fill
             height: Fit
             flow: Down
             spacing: 6.0
@@ -62,7 +62,7 @@ gallery_stateful_page_shell! {
         ShadSectionHeader{ text: "With Leading Icon" }
 
         View{
-            width: 320
+            width: Fill
             height: Fit
             flow: Down
             spacing: 6.0

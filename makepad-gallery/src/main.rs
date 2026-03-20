@@ -6,6 +6,7 @@ mod ui;
 use crate::ui::catalog;
 use crate::ui::command_palette::GalleryCommandPalette;
 use crate::ui::command_palette_page::GalleryCommandPalettePageWidgetRefExt;
+use crate::ui::responsive::GalleryResponsive;
 use makepad_components::makepad_widgets::*;
 use makepad_router::RouterWidgetWidgetRefExt;
 
@@ -21,8 +22,6 @@ script_mod! {
 }
 
 impl App {
-    const SMALL_SCREEN_WIDTH: f64 = 900.0;
-
     fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
         crate::makepad_widgets::script_mod(vm);
         makepad_components::theme::script_mod(vm);
@@ -222,7 +221,7 @@ impl App {
     }
 
     fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {
-        let is_small_screen = window_width < Self::SMALL_SCREEN_WIDTH;
+        let is_small_screen = window_width < GalleryResponsive::MOBILE_BREAKPOINT;
         if self.is_small_screen != is_small_screen {
             self.is_small_screen = is_small_screen;
             self.sidebar_open = !is_small_screen;

@@ -10,7 +10,7 @@ gallery_static_page! {
     preview_spacing: 16.0,
     preview: {
         label_demo_shell := View{
-            width: 840
+            width: Fill
             height: Fit
             flow: Down
             spacing: 12.0
@@ -52,7 +52,7 @@ gallery_static_page! {
                         align: Align{y: 0.0}
 
                         ShadSurface{
-                            width: 248
+                            width: Fill
                             height: Fit
                             flow: Down
                             spacing: 6.0
@@ -68,7 +68,7 @@ gallery_static_page! {
                         }
 
                         ShadSurface{
-                            width: 248
+                            width: Fill
                             height: Fit
                             flow: Down
                             spacing: 6.0
@@ -84,7 +84,7 @@ gallery_static_page! {
                         }
 
                         ShadSurface{
-                            width: 248
+                            width: Fill
                             height: Fit
                             flow: Down
                             spacing: 6.0

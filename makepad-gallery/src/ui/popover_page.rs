@@ -64,7 +64,7 @@ gallery_stateful_page_shell! {
             }
 
             content: ShadPopoverContent{
-                width: 280
+                width: Fill
 
                 title := ShadSectionHeader{
                     text: "Keyboard shortcuts"

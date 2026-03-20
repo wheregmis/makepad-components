@@ -10,7 +10,7 @@ gallery_static_page! {
     preview_spacing: 16.0,
     preview: {
         kbd_demo_shell := View{
-            width: 840
+            width: Fill
             height: Fit
             flow: Down
             spacing: 12.0
@@ -84,7 +84,7 @@ gallery_static_page! {
                             align: Align{y: 0.5}
 
                             ShadLabel{
-                                width: 180
+                                width: 150
                                 text: "Open command palette"
                             }
 
@@ -121,7 +121,7 @@ gallery_static_page! {
                             align: Align{y: 0.5}
 
                             ShadLabel{
-                                width: 180
+                                width: 150
                                 text: "Duplicate current row"
                             }
 

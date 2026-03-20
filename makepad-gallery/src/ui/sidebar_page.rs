@@ -17,8 +17,8 @@ gallery_static_page! {
             align: Align{y: 0.0}
 
             ShadSidebar{
-                width: 300
-                height: 320
+                width: Fill
+                height: 280
                 ShadLabel{
                     text: "Acme Inc"
                     draw_text.text_style.font_size: 12
@@ -31,7 +31,7 @@ gallery_static_page! {
 
             View{
                 width: Fill
-                height: 320
+                height: 280
                 draw_bg.color: #0000
                 draw_bg.border_size: 1.0
                 draw_bg.border_color: (shad_theme.color_outline_border)
