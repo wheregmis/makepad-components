@@ -22,6 +22,31 @@ macro_rules! define_gallery_sidebar {
             use mod.prelude.widgets.*
             use mod.widgets.*
 
+            mod.widgets.GallerySidebarItem = set_type_default() do mod.widgets.ShadNavButtonBase{
+                width: Fill
+                height: 32
+                padding: Inset{left: 10, right: 10}
+                align: Align{x: 0.0, y: 0.5}
+                reset_hover_on_click: true
+                draw_bg +: {
+                    color: #0000
+                    color_hover: (shad_theme.color_secondary_hover)
+                    color_down: (shad_theme.color_secondary_down)
+                    border_radius: (shad_theme.radius)
+                    color_focus: (shad_theme.color_secondary_hover)
+                    border_size: 0.0
+                    border_color: #0000
+                }
+                draw_text +: {
+                    color: (shad_theme.color_primary)
+                    color_hover: (shad_theme.color_primary)
+                    color_down: (shad_theme.color_primary)
+                    color_focus: (shad_theme.color_primary)
+                    text_style.font_size: 10
+                }
+                text: "Item"
+            }
+
             mod.widgets.GallerySidebar = ShadSidebar{
                 width: 280
 
@@ -38,7 +63,7 @@ macro_rules! define_gallery_sidebar {
                     flow: Down
 
                     $(
-                        $sidebar_id := ShadSidebarItem{text: $sidebar_label}
+                        $sidebar_id := GallerySidebarItem{text: $sidebar_label}
                     )*
                 }
             }

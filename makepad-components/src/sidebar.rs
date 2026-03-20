@@ -18,12 +18,11 @@ script_mod! {
         draw_text.text_style.font_size: 9
     }
 
-    mod.widgets.ShadSidebarItem = set_type_default() do mod.widgets.ShadNavButtonBase{
+    mod.widgets.ShadSidebarItem = mod.widgets.ButtonFlat{
         width: Fill
         height: 32
         padding: Inset{left: 10, right: 10}
         align: Align{x: 0.0, y: 0.5}
-        reset_hover_on_click: true
         draw_bg +: {
             color: #0000
             color_hover: (shad_theme.color_secondary_hover)

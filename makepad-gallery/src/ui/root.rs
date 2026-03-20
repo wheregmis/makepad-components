@@ -140,6 +140,54 @@ macro_rules! define_gallery_root {
                 }
             }
 
+            mod.widgets.GalleryMobileSidebarBackdrop = ShadButtonGhost{
+                width: Fill
+                height: Fill
+                visible: false
+                grab_key_focus: false
+                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                spacing: 0.0
+                text: ""
+                draw_bg +: {
+                    color: #0007
+                    color_hover: #0007
+                    color_down: #0007
+                    color_focus: #0007
+                    border_size: 0.0
+                    border_color: #0000
+                }
+                draw_text +: {
+                    color: #0000
+                    color_hover: #0000
+                    color_down: #0000
+                    color_focus: #0000
+                }
+            }
+
+            mod.widgets.GalleryMobileSidebarSlidePanel = SlidePanel{
+                visible: false
+                side: SlideSide.Left
+                width: 280
+                height: Fill
+                animator: Animator{
+                    active: {
+                        default: @off
+                        on: AnimatorState{
+                            redraw: true
+                            ease: Ease.ExpDecay{d1: 0.82 d2: 0.95}
+                            from: {all: Play.Forward{duration: 0.45}}
+                            apply: {active: 0.0}
+                        }
+                        off: AnimatorState{
+                            redraw: true
+                            ease: Ease.ExpDecay{d1: 0.80 d2: 0.97}
+                            from: {all: Play.Forward{duration: 0.5}}
+                            apply: {active: 1.0}
+                        }
+                    }
+                }
+            }
+
             mod.widgets.GalleryCommandPaletteHeaderTrigger = View{
                 width: Fit
                 height: Fit
@@ -297,7 +345,22 @@ macro_rules! define_gallery_root {
 
                 desktop_header := mod.widgets.GalleryDesktopHeader{}
                 mobile_header := mod.widgets.GalleryMobileHeader{}
-                content_flip := mod.widgets.GalleryContentFlip{}
+                content_stage := View{
+                    width: Fill
+                    height: Fill
+                    flow: Overlay
+
+                    content_flip := mod.widgets.GalleryContentFlip{}
+
+                    mobile_sidebar_backdrop := mod.widgets.GalleryMobileSidebarBackdrop{}
+
+                    mobile_sidebar_slide_panel := mod.widgets.GalleryMobileSidebarSlidePanel{
+                        mobile_sidebar := mod.widgets.GallerySidebar{
+                            width: Fill
+                            height: Fill
+                        }
+                    }
+                }
             }
 
             mod.widgets.GalleryAppShell = View{

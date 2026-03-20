@@ -87,16 +87,47 @@ impl App {
             .set_visible(cx, show_close);
     }
 
+    fn sync_mobile_sidebar_panel(&self, cx: &mut Cx) {
+        let panel = self.ui.slide_panel(cx, ids!(mobile_sidebar_slide_panel));
+
+        if self.is_small_screen {
+            panel.set_visible(cx, true);
+            if self.sidebar_open {
+                panel.open(cx);
+            } else {
+                panel.close(cx);
+            }
+            let show_backdrop = self.sidebar_open || panel.is_animating(cx);
+            self.ui
+                .button(cx, ids!(mobile_sidebar_backdrop))
+                .set_visible(cx, show_backdrop);
+        } else {
+            panel.close(cx);
+            panel.set_visible(cx, false);
+            self.ui
+                .button(cx, ids!(mobile_sidebar_backdrop))
+                .set_visible(cx, false);
+        }
+    }
+
     fn focus_mobile_sidebar_menu_button(&self, cx: &mut Cx) {
         self.ui
             .button(cx, ids!(mobile_sidebar_menu_button))
             .set_key_focus(cx);
     }
 
+    fn focus_current_desktop_sidebar_item(&self, cx: &mut Cx) {
+        if let Some(entry) = catalog::entry_for_page(self.current_page) {
+            self.ui
+                .shad_nav_button(cx, &[live_id!(sidebar), entry.sidebar_id])
+                .set_key_focus(cx);
+        }
+    }
+
     fn focus_first_sidebar_item(&self, cx: &mut Cx) {
         if let Some(first_entry) = catalog::entries().first() {
             self.ui
-                .shad_nav_button(cx, &[first_entry.sidebar_id])
+                .shad_nav_button(cx, &[live_id!(mobile_sidebar), first_entry.sidebar_id])
                 .set_key_focus(cx);
         }
     }
@@ -126,12 +157,19 @@ impl App {
     }
 
     fn sync_sidebar_focus_behavior(&self, cx: &mut Cx) {
-        let allow_sidebar_focus = !self.is_small_screen || self.sidebar_open;
-
         for entry in catalog::entries() {
-            let mut item = self.ui.shad_nav_button(cx, &[entry.sidebar_id]);
-            script_apply_eval!(cx, item, {
-                grab_key_focus: #(allow_sidebar_focus)
+            let mut desktop_item = self
+                .ui
+                .shad_nav_button(cx, &[live_id!(sidebar), entry.sidebar_id]);
+            script_apply_eval!(cx, desktop_item, {
+                grab_key_focus: #(!self.is_small_screen)
+            });
+
+            let mut mobile_item = self
+                .ui
+                .shad_nav_button(cx, &[live_id!(mobile_sidebar), entry.sidebar_id]);
+            script_apply_eval!(cx, mobile_item, {
+                grab_key_focus: #(self.is_small_screen && self.sidebar_open)
             });
         }
     }
@@ -139,7 +177,10 @@ impl App {
     fn reset_sidebar_hover_states(&self, cx: &mut Cx) {
         for entry in catalog::entries() {
             self.ui
-                .shad_nav_button(cx, &[entry.sidebar_id])
+                .shad_nav_button(cx, &[live_id!(sidebar), entry.sidebar_id])
+                .reset_hover(cx);
+            self.ui
+                .shad_nav_button(cx, &[live_id!(mobile_sidebar), entry.sidebar_id])
                 .reset_hover(cx);
         }
     }
@@ -183,22 +224,24 @@ impl App {
 
         for entry in catalog::entries() {
             let is_active = entry.page == self.current_page;
-            let mut item = self.ui.widget(cx, &[entry.sidebar_id]);
-            script_apply_eval!(cx, item, {
-                draw_bg +: {
-                    color: #(if is_active { active_bg } else { Vec4f::all(0.0) })
-                    color_hover: #(if is_active { active_bg_hover } else { inactive_bg_hover })
-                    color_down: #(if is_active { active_bg_down } else { inactive_bg_down })
-                    color_focus: #(if is_active { active_bg_hover } else { inactive_focus_bg })
-                }
-                draw_text +: {
-                    color: #(if is_active { active_text } else { inactive_text })
-                    color_hover: #(active_text)
-                    color_down: #(active_text)
-                    color_focus: #(if is_active { active_text } else { inactive_focus_text })
-                }
-            });
-            item.redraw(cx);
+            for host in [live_id!(sidebar), live_id!(mobile_sidebar)] {
+                let mut item = self.ui.widget(cx, &[host, entry.sidebar_id]);
+                script_apply_eval!(cx, item, {
+                    draw_bg +: {
+                        color: #(if is_active { active_bg } else { Vec4f::all(0.0) })
+                        color_hover: #(if is_active { active_bg_hover } else { inactive_bg_hover })
+                        color_down: #(if is_active { active_bg_down } else { inactive_bg_down })
+                        color_focus: #(if is_active { active_bg_hover } else { inactive_focus_bg })
+                    }
+                    draw_text +: {
+                        color: #(if is_active { active_text } else { inactive_text })
+                        color_hover: #(active_text)
+                        color_down: #(active_text)
+                        color_focus: #(if is_active { active_text } else { inactive_focus_text })
+                    }
+                });
+                item.redraw(cx);
+            }
         }
     }
 
@@ -238,32 +281,37 @@ impl App {
             .set_visible(cx, self.is_small_screen);
         self.ui
             .view(cx, ids!(sidebar))
-            .set_visible(cx, !self.is_small_screen || self.sidebar_open);
-        self.ui
-            .view(cx, ids!(main_content))
-            .set_visible(cx, !self.is_small_screen || !self.sidebar_open);
+            .set_visible(cx, !self.is_small_screen);
+        self.ui.view(cx, ids!(main_content)).set_visible(cx, true);
         self.sync_mobile_sidebar_button(cx);
+        self.sync_mobile_sidebar_panel(cx);
         self.sync_sidebar_focus_behavior(cx);
     }
 
     fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {
         let is_small_screen = window_width < Self::SMALL_SCREEN_WIDTH;
+        let leaving_mobile_mode = self.is_small_screen && !is_small_screen;
         if self.is_small_screen != is_small_screen {
             self.is_small_screen = is_small_screen;
             self.sidebar_open = !is_small_screen;
         }
         self.apply_responsive_visibility(cx);
+        if leaving_mobile_mode {
+            self.focus_current_desktop_sidebar_item(cx);
+        }
     }
 
     fn handle_sidebar_navigation(&mut self, cx: &mut Cx, actions: &Actions) {
-        for entry in catalog::entries() {
-            if self
-                .ui
-                .shad_nav_button(cx, &[entry.sidebar_id])
-                .clicked(actions)
-            {
-                self.set_current_page(cx, entry.page);
-                break;
+        'entries: for entry in catalog::entries() {
+            for host in [live_id!(sidebar), live_id!(mobile_sidebar)] {
+                if self
+                    .ui
+                    .shad_nav_button(cx, &[host, entry.sidebar_id])
+                    .clicked(actions)
+                {
+                    self.set_current_page(cx, entry.page);
+                    break 'entries;
+                }
             }
         }
     }
@@ -307,6 +355,10 @@ impl MatchEvent for App {
                 || self
                     .ui
                     .button(cx, ids!(mobile_sidebar_close_button))
+                    .clicked(actions)
+                || self
+                    .ui
+                    .button(cx, ids!(mobile_sidebar_backdrop))
                     .clicked(actions))
         {
             let opening_sidebar = !self.sidebar_open;
