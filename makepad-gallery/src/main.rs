@@ -49,6 +49,7 @@ impl App {
             .go_to_route(cx, page);
         self.sync_page_metadata(cx);
         if self.is_small_screen {
+            self.reset_sidebar_hover_states(cx);
             self.sidebar_open = false;
             self.apply_responsive_visibility(cx);
         }
@@ -116,6 +117,12 @@ impl App {
             script_apply_eval!(cx, item, {
                 grab_key_focus: #(allow_sidebar_focus)
             });
+        }
+    }
+
+    fn reset_sidebar_hover_states(&self, cx: &mut Cx) {
+        for entry in catalog::entries() {
+            self.ui.button(cx, &[entry.sidebar_id]).reset_hover(cx);
         }
     }
 
@@ -280,6 +287,7 @@ impl MatchEvent for App {
                     .button(cx, ids!(mobile_sidebar_close_button))
                     .clicked(actions))
         {
+            self.reset_sidebar_hover_states(cx);
             self.sidebar_open = !self.sidebar_open;
             self.apply_responsive_visibility(cx);
             if self.sidebar_open {
