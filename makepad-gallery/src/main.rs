@@ -24,6 +24,10 @@ script_mod! {
 impl App {
     const SMALL_SCREEN_WIDTH: f64 = 900.0;
 
+    fn responsive_width(inner_width: f64, dpi_factor: f64) -> f64 {
+        inner_width * dpi_factor.max(1.0)
+    }
+
     fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
         crate::makepad_widgets::script_mod(vm);
         makepad_components::theme::script_mod(vm);
@@ -288,8 +292,13 @@ impl App {
         self.sync_sidebar_focus_behavior(cx);
     }
 
-    fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {
-        let is_small_screen = window_width < Self::SMALL_SCREEN_WIDTH;
+    fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64, dpi_factor: f64) {
+        if window_width <= 0.0 {
+            return;
+        }
+
+        let responsive_width = Self::responsive_width(window_width, dpi_factor);
+        let is_small_screen = responsive_width < Self::SMALL_SCREEN_WIDTH;
         let leaving_mobile_mode = self.is_small_screen && !is_small_screen;
         if self.is_small_screen != is_small_screen {
             self.is_small_screen = is_small_screen;
@@ -413,7 +422,7 @@ impl AppMain for App {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
         match event {
             Event::Startup => {
-                self.sidebar_open = true;
+                self.sidebar_open = !self.is_small_screen;
                 self.current_page = catalog::default_page();
                 self.is_light_theme = false;
                 self.pending_theme = None;
@@ -438,7 +447,7 @@ impl AppMain for App {
                 }
             }
             Event::WindowGeomChange(geom) => {
-                self.update_screen_mode(cx, geom.new_geom.inner_size.x)
+                self.update_screen_mode(cx, geom.new_geom.inner_size.x, geom.new_geom.dpi_factor)
             }
             Event::KeyDown(key_event) => {
                 if key_event.key_code == KeyCode::KeyK

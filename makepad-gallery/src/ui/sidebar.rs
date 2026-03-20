@@ -63,7 +63,7 @@ macro_rules! define_gallery_sidebar {
                     flow: Down
 
                     $(
-                        $sidebar_id := GallerySidebarItem{text: $sidebar_label}
+                        $sidebar_id := mod.widgets.GallerySidebarItem{text: $sidebar_label}
                     )*
                 }
             }
