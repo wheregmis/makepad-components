@@ -53,6 +53,7 @@ impl App {
             self.reset_sidebar_hover_states(cx);
             self.sidebar_open = false;
             self.apply_responsive_visibility(cx);
+            self.focus_mobile_sidebar_menu_button(cx);
         }
     }
 
@@ -84,6 +85,20 @@ impl App {
         self.ui
             .button(cx, ids!(mobile_sidebar_close_button))
             .set_visible(cx, show_close);
+    }
+
+    fn focus_mobile_sidebar_menu_button(&self, cx: &mut Cx) {
+        self.ui
+            .button(cx, ids!(mobile_sidebar_menu_button))
+            .set_key_focus(cx);
+    }
+
+    fn focus_first_sidebar_item(&self, cx: &mut Cx) {
+        if let Some(first_entry) = catalog::entries().first() {
+            self.ui
+                .shad_nav_button(cx, &[first_entry.sidebar_id])
+                .set_key_focus(cx);
+        }
     }
 
     fn sync_theme_toggle_copy(&self, cx: &mut Cx) {
@@ -294,17 +309,14 @@ impl MatchEvent for App {
                     .button(cx, ids!(mobile_sidebar_close_button))
                     .clicked(actions))
         {
+            let opening_sidebar = !self.sidebar_open;
             self.reset_sidebar_hover_states(cx);
-            self.sidebar_open = !self.sidebar_open;
+            self.sidebar_open = opening_sidebar;
             self.apply_responsive_visibility(cx);
             if self.sidebar_open {
-                self.ui
-                    .button(cx, ids!(mobile_sidebar_close_button))
-                    .set_key_focus(cx);
+                self.focus_first_sidebar_item(cx);
             } else {
-                self.ui
-                    .button(cx, ids!(mobile_sidebar_menu_button))
-                    .set_key_focus(cx);
+                self.focus_mobile_sidebar_menu_button(cx);
             }
         }
         if self
