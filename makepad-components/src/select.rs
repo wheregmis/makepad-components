@@ -51,7 +51,7 @@ script_mod! {
     }
 
     mod.widgets.ShadSelect = mod.widgets.DropDownFlat{
-        width: Fill
+        width: 220
         height: 36
         align: Align{x: 0.0, y: 0.5}
 

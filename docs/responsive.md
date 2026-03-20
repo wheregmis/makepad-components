@@ -21,7 +21,7 @@ In this repo, the gallery app already uses `WindowGeomChange` to switch between 
 
 Reusable widgets should usually let the parent decide width. In practice that means:
 
-- inputs/selectors should default to `width: Fill` when they are form controls;
+- form controls should usually be placed in a `width: Fill` field/container, with explicit control overrides when the surrounding shell is `Fit`-sized;
 - overlays should use a moderate bounded width instead of very wide desktop-first defaults;
 - preview/demo shells should use `width: Fill` unless a deliberate bounded width is part of the example.
 
@@ -63,9 +63,8 @@ That pattern should be reused for product apps: keep route, sidebar, and page-sh
 
 ### Component defaults
 
-- `ShadSelect` now defaults to `width: Fill` so it behaves like a form control inside responsive containers.
-- `ShadDatePicker` now defaults to `width: Fill` and uses a fill-width trigger.
 - `ShadDialog`, `ShadSheet`, and `ShadNavigationMenuContent` use smaller default widths that are safer on mobile.
+- Gallery form demos now opt into `width: Fill` at the usage site for `ShadSelect` and `ShadDatePicker`, which avoids collapses inside `Fit`-sized parents while keeping the underlying components reusable.
 
 ## Practical checklist for new components/pages
 
@@ -73,7 +72,7 @@ When adding a new component or gallery page, verify all of the following:
 
 - Does the main demo container use `Fill` unless a bounded width is essential?
 - If a row must wrap, are all direct children fixed-width or fit-width?
-- If a control belongs in a form, does it default to `width: Fill`?
+- If a control belongs in a form, is it placed inside a `width: Fill` field/container, and does the control get an explicit fill-width override when needed?
 - If an overlay opens on top of the UI, is its default width phone-safe?
 - If the app shell changes on mobile, is that behavior owned by app state via `WindowGeomChange`?
 - Does the page still read clearly in a narrow portrait layout?
@@ -85,8 +84,11 @@ When adding a new component or gallery page, verify all of the following:
 ```rust
 ShadField{
     width: Fill
-    ShadFieldLabel{text: "Email"}
-    ShadInput{empty_text: "you@example.com"}
+    ShadFieldLabel{text: "Status"}
+    ShadSelect{
+        width: Fill
+        labels: ["Pending" "In Progress" "Done"]
+    }
 }
 ```
 

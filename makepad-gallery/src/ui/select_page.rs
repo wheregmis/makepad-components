@@ -15,19 +15,41 @@ gallery_static_page! {
                 width: Fill
                 height: Fit
                 flow: Down
-                spacing: 12.0
+                spacing: 16.0
 
-                View{
-                    width: Fit
-                    height: Fit
-                    flow: Right
-                    spacing: 12.0
+                ShadFieldDescription{
+                    width: Fill
+                    text: "Use explicit field stacks on mobile so each trigger gets the full row width instead of competing inside a tight horizontal layout."
+                }
 
-                    ShadSelect{labels: ["Pending" "In Progress" "Done"]}
-                    ShadSelect{labels: ["Toronto" "Montreal" "Vancouver" "Calgary"]}
+                ShadField{
+                    width: Fill
+                    ShadFieldLabel{text: "Status"}
+                    status_select := ShadSelect{
+                        width: Fill
+                        labels: ["Pending" "In Progress" "Done"]
+                    }
+                    ShadFieldDescription{
+                        width: Fill
+                        text: "Good for short state lists where the surrounding page owns the selected index or label."
+                    }
+                }
+
+                ShadField{
+                    width: Fill
+                    ShadFieldLabel{text: "City"}
+                    city_select := ShadSelect{
+                        width: Fill
+                        labels: ["Toronto" "Montreal" "Vancouver" "Calgary"]
+                    }
+                    ShadFieldDescription{
+                        width: Fill
+                        text: "Treat the select like any other form control: let the container decide width, then keep helper copy below it."
+                    }
                 }
 
                 ShadFieldDescription{
+                    width: Fill
                     text: "Known limitation: popup-style selects can still be unreliable inside the current gallery PageFlip shell. The splash app remains the best place to verify interaction."
                 }
             }

@@ -13,14 +13,31 @@ gallery_stateful_page_shell! {
     preview: {
         ShadSectionHeader{ text: "Controlled picker" }
 
-        date_picker_demo := ShadDatePicker{
-            value: "2026-03-13"
+        ShadField{
+            width: Fill
+            ShadFieldLabel{text: "Deadline"}
+
+            date_picker_demo := ShadDatePicker{
+                width: Fill
+                value: "2026-03-13"
+                popover +: {
+                    width: Fill
+                    trigger +: {
+                        width: Fill
+                    }
+                }
+            }
+
+            ShadFieldDescription{
+                width: Fill
+                text: "Keep the picker trigger full-width on mobile so the hit target, selected value, and disclosure affordance stay aligned."
+            }
         }
 
         View{
-            width: Fit
+            width: Fill
             height: Fit
-            flow: Right
+            flow: Right{wrap: true}
             spacing: 8.0
 
             date_picker_open_btn := ShadButtonOutline{
@@ -37,6 +54,7 @@ gallery_stateful_page_shell! {
         }
 
         date_picker_status := ShadFieldDescription{
+            width: Fill
             text: "Selected date: 2026-03-13. Picker is closed."
         }
     },
@@ -68,10 +86,9 @@ impl GalleryDatePickerPage {
         self.view
             .button(cx, ids!(date_picker_clear_btn))
             .set_enabled(cx, picker.value().is_some());
-        self.view.label(cx, ids!(date_picker_status)).set_text(
-            cx,
-            &format!("{selected} Picker is {open_state}."),
-        );
+        self.view
+            .label(cx, ids!(date_picker_status))
+            .set_text(cx, &format!("{selected} Picker is {open_state}."));
     }
 }
 
