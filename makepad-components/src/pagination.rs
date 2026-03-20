@@ -189,7 +189,12 @@ impl ShadPagination {
             vm.bx.heap.value(theme_obj, key.into(), NoTrap)
         }
 
-        fn theme_color(vm: &mut ScriptVm, primary: LiveId, secondary: LiveId, fallback: u32) -> Vec4f {
+        fn theme_color(
+            vm: &mut ScriptVm,
+            primary: LiveId,
+            secondary: LiveId,
+            fallback: u32,
+        ) -> Vec4f {
             theme_value(vm, primary)
                 .as_color()
                 .map(Vec4f::from_u32)

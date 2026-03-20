@@ -38,3 +38,7 @@
 ## 2026-03-19 – [Grouped actions must stay in tab order]
 **Learning:** In this codebase, toggling `grab_key_focus` on a styled `ButtonFlat` is not enough to make grouped actions meaningfully keyboard reachable because the upstream widget already manages its own nav stop and click-focus path.
 **Action:** When a reusable action row or grouped button needs real tab-stop control, wire keyboard reachability in the component widget itself: add or skip `cx.add_nav_stop(...)` in `draw_walk`, and gate click focus plus key activation in `handle_event`.
+
+## 2026-03-20 – [Responsive drawers must restore keyboard access]
+**Learning:** In the gallery shell, disabling sidebar `grab_key_focus` for all small screens also removes the mobile catalog drawer from the tab order after it opens.
+**Action:** Gate responsive nav focus by actual drawer visibility, not viewport size alone, so keyboard users can reach drawer content whenever it is shown.
