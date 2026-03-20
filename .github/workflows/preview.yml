@@ -1,70 +1,77 @@
-name: Deploy Makepad Wasm
+name: Deploy PR previews
 
 on:
-  push:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+      - closed
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      package:
-        description: Cargo package/profile name for `cargo makepad wasm build -p`
-        required: false
-        default: makepad-gallery
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
-  group: wasm-pages-${{ github.ref }}
+  group: pr-preview-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
   MAKEPAD_BRANCH: small_web_nits
+  APP_PACKAGE: makepad-gallery
   WASM_BINDGEN_VERSION: 0.2.114
 
 jobs:
-  build-wasm:
+  deploy-preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository && (github.event.action == 'closed' || github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
+        if: github.event.action != 'closed'
         uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout sibling makepad workspace
+        if: github.event.action != 'closed'
         run: git clone --depth 1 --branch "${MAKEPAD_BRANCH}" https://github.com/wheregmis/makepad.git "${GITHUB_WORKSPACE}/../makepad"
 
       - name: Install system dependencies
+        if: github.event.action != 'closed'
         run: |
           sudo apt-get update
           sudo apt-get install -y pkg-config libssl-dev clang lld binaryen
 
       - name: Install Rust toolchain
+        if: github.event.action != 'closed'
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Cargo files
+        if: github.event.action != 'closed'
         uses: Swatinem/rust-cache@v2
 
-      - name: Resolve app package
-        run: |
-          APP_PACKAGE="${{ github.event.inputs.package }}"
-          if [ -z "${APP_PACKAGE}" ]; then
-            APP_PACKAGE="makepad-gallery"
-          fi
-          echo "APP_PACKAGE=${APP_PACKAGE}" >> "${GITHUB_ENV}"
-          echo "WASM_OUTPUT_ROOT=target/makepad-wasm-app/small" >> "${GITHUB_ENV}"
-
       - name: Install cargo-makepad
+        if: github.event.action != 'closed'
         run: cargo install --path "${GITHUB_WORKSPACE}/../makepad/tools/cargo_makepad" --locked --force
 
       - name: Install Wasm toolchain
+        if: github.event.action != 'closed'
         run: cargo makepad wasm install-toolchain
 
       - name: Install wasm-bindgen CLI
+        if: github.event.action != 'closed'
         run: cargo install wasm-bindgen-cli --version "${WASM_BINDGEN_VERSION}" --locked --force
 
-      - name: Build Wasm package
-        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --bindgen --no-threads
+      - name: Build gallery preview
+        if: github.event.action != 'closed'
+        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile small --bindgen --no-threads --no-brotli
 
       - name: Patch index.html for GitHub Pages subpath hosting
+        if: github.event.action != 'closed'
         run: |
           APP_DIR="target/makepad-wasm-app/small/${APP_PACKAGE}"
           INDEX_FILE="${APP_DIR}/index.html"
@@ -119,12 +126,23 @@ jobs:
           rm -f "${INDEX_FILE}.br"
           rm -f "${NOT_FOUND_FILE}.br"
 
-      - name: Deploy to gh-pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Deploy preview
+        if: github.event.action != 'closed'
+        id: preview
+        uses: rossjrw/pr-preview-action@v1
         with:
-          branch: gh-pages
-          folder: target/makepad-wasm-app/small/${{ env.APP_PACKAGE }}
-          clean: true
-          clean-exclude: |
-            pr-preview
-          force: false
+          source-dir: target/makepad-wasm-app/small/${{ env.APP_PACKAGE }}
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: deploy
+          wait-for-pages-deployment: true
+          qr-code: false
+
+      - name: Remove preview
+        if: github.event.action == 'closed'
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: remove
+          qr-code: false

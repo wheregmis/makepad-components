@@ -40,6 +40,22 @@ script_mod! {
 
             color_background: #09090b
             color_popover: #09090b
+            color_overlay: vec4(0.0, 0.0, 0.0, 0.55)
+
+            color_chart: #x3b82f6
+            color_chart_emphasis: #x2563eb
+            color_chart_fill: #x3b82f633
+
+            color_pagination_active: #18181b
+            color_pagination_active_hover: #27272a
+            color_pagination_active_down: #3f3f46
+            color_pagination_active_foreground: #fafafa
+            color_pagination_inactive_hover: #27272a
+            color_pagination_inactive_down: #3f3f46
+            color_pagination_inactive_foreground: #fafafa
+            color_pagination_border: #3f3f46
+            color_pagination_border_hover: #52525b
+            color_pagination_border_down: #71717a
 
             radius: 6.0
 
@@ -84,6 +100,22 @@ script_mod! {
 
             color_background: #ffffff
             color_popover: #ffffff
+            color_overlay: vec4(0.0, 0.0, 0.0, 0.55)
+
+            color_chart: #x3b82f6
+            color_chart_emphasis: #x2563eb
+            color_chart_fill: #x3b82f633
+
+            color_pagination_active: #f4f4f5
+            color_pagination_active_hover: #e4e4e7
+            color_pagination_active_down: #d4d4d8
+            color_pagination_active_foreground: #09090b
+            color_pagination_inactive_hover: #f4f4f5
+            color_pagination_inactive_down: #e4e4e7
+            color_pagination_inactive_foreground: #09090b
+            color_pagination_border: #e4e4e7
+            color_pagination_border_hover: #d4d4d8
+            color_pagination_border_down: #a1a1aa
 
             radius: 6.0
 

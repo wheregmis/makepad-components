@@ -90,13 +90,9 @@ impl App {
         } else {
             "Light theme"
         };
-        let mobile_label = if self.is_light_theme { "☾" } else { "☀" };
         self.ui
             .button(cx, ids!(desktop_theme_toggle))
             .set_text(cx, desktop_label);
-        self.ui
-            .button(cx, ids!(mobile_theme_toggle))
-            .set_text(cx, mobile_label);
     }
 
     fn sync_page_metadata(&self, cx: &mut Cx) {
@@ -124,42 +120,51 @@ impl App {
     }
 
     fn sync_sidebar_selection(&self, cx: &mut Cx) {
-        fn theme_color(cx: &mut Cx, key: LiveId) -> Option<Vec4f> {
-            cx.with_vm(|vm| {
-                let mod_obj = vm.module(id!(mod));
-                let widgets = vm.bx.heap.value(mod_obj, id!(widgets).into(), NoTrap);
-                let widgets_obj = widgets.as_object()?;
-                let theme = vm
-                    .bx
-                    .heap
-                    .value(widgets_obj, id!(shad_theme).into(), NoTrap);
-                let theme_obj = theme.as_object()?;
-                vm.bx
-                    .heap
-                    .value(theme_obj, key.into(), NoTrap)
-                    .as_color()
-                    .map(Vec4f::from_u32)
-            })
-        }
-
-        let active_bg = theme_color(cx, id!(color_secondary_hover)).unwrap_or(Vec4f::all(0.0));
-        let active_bg_down = theme_color(cx, id!(color_secondary_down)).unwrap_or(active_bg);
-        let active_text = theme_color(cx, id!(color_primary)).unwrap_or(Vec4f::all(1.0));
-        let inactive_bg_hover = theme_color(cx, id!(color_ghost_hover)).unwrap_or(Vec4f::all(0.0));
-        let inactive_bg_down = theme_color(cx, id!(color_ghost_down)).unwrap_or(active_bg_down);
-        let inactive_text = theme_color(cx, id!(color_muted_foreground)).unwrap_or(Vec4f::all(1.0));
-        let inactive_focus_bg = inactive_bg_hover;
-        let inactive_focus_text = active_text;
+        let (
+            active_bg,
+            active_bg_hover,
+            active_bg_down,
+            active_text,
+            inactive_bg_hover,
+            inactive_bg_down,
+            inactive_text,
+            inactive_focus_bg,
+            inactive_focus_text,
+        ) = if self.is_light_theme {
+            (
+                Vec4f::from_u32(0xe4e4e7ff),
+                Vec4f::from_u32(0xd4d4d8ff),
+                Vec4f::from_u32(0xa1a1aaff),
+                Vec4f::from_u32(0x09090bff),
+                Vec4f::from_u32(0xf4f4f5ff),
+                Vec4f::from_u32(0xe4e4e7ff),
+                Vec4f::from_u32(0x71717aff),
+                Vec4f::from_u32(0xf4f4f5ff),
+                Vec4f::from_u32(0x09090bff),
+            )
+        } else {
+            (
+                Vec4f::from_u32(0x3f3f46ff),
+                Vec4f::from_u32(0x52525bff),
+                Vec4f::from_u32(0x71717aff),
+                Vec4f::from_u32(0xfafafaff),
+                Vec4f::from_u32(0x27272aff),
+                Vec4f::from_u32(0x3f3f46ff),
+                Vec4f::from_u32(0xfafafaff),
+                Vec4f::from_u32(0x27272aff),
+                Vec4f::from_u32(0xfafafaff),
+            )
+        };
 
         for entry in catalog::entries() {
             let is_active = entry.page == self.current_page;
-            let mut item = self.ui.button(cx, &[entry.sidebar_id]);
+            let mut item = self.ui.widget(cx, &[entry.sidebar_id]);
             script_apply_eval!(cx, item, {
                 draw_bg +: {
                     color: #(if is_active { active_bg } else { Vec4f::all(0.0) })
-                    color_hover: #(if is_active { active_bg } else { inactive_bg_hover })
+                    color_hover: #(if is_active { active_bg_hover } else { inactive_bg_hover })
                     color_down: #(if is_active { active_bg_down } else { inactive_bg_down })
-                    color_focus: #(if is_active { active_bg } else { inactive_focus_bg })
+                    color_focus: #(if is_active { active_bg_hover } else { inactive_focus_bg })
                 }
                 draw_text +: {
                     color: #(if is_active { active_text } else { inactive_text })
@@ -168,6 +173,7 @@ impl App {
                     color_focus: #(if is_active { active_text } else { inactive_focus_text })
                 }
             });
+            item.redraw(cx);
         }
     }
 

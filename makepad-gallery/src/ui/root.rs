@@ -38,8 +38,106 @@ macro_rules! define_gallery_root {
                 width: 36
                 height: 36
                 padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-                text: "☀"
-                draw_text.text_style.font_size: 14
+                spacing: 0.0
+                text: ""
+                icon_walk: Walk{width: 16, height: 16}
+                draw_icon.svg: crate_resource("self://resources/icons/sun-moon.svg")
+                draw_icon.color: (shad_theme.color_primary)
+            }
+
+            mod.widgets.GalleryMobileSidebarMenuButton = ShadButtonOutline{
+                width: 36
+                height: 36
+                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                spacing: 0.0
+                text: ""
+                icon_walk: Walk{width: 0, height: 0}
+                draw_bg +: {
+                    icon_color: uniform(shad_theme.color_primary)
+                    pixel: fn() {
+                        let sdf = Sdf2d.viewport(self.pos * self.rect_size)
+
+                        let fill = self.color
+                            .mix(self.color_focus, self.focus)
+                            .mix(self.color_hover, self.hover)
+                            .mix(self.color_down, self.down)
+
+                        let stroke = self.border_color
+                            .mix(self.border_color_focus, self.focus)
+                            .mix(self.border_color_hover, self.hover)
+                            .mix(self.border_color_down, self.down)
+
+                        sdf.box(
+                            self.border_size * 0.5,
+                            self.border_size * 0.5,
+                            self.rect_size.x - self.border_size,
+                            self.rect_size.y - self.border_size,
+                            self.border_radius
+                        )
+                        sdf.fill_keep(fill)
+                        sdf.stroke(stroke, self.border_size)
+
+                        let left = self.rect_size.x * 0.32
+                        let right = self.rect_size.x * 0.68
+                        let top = self.rect_size.y * 0.36
+                        let mid = self.rect_size.y * 0.50
+                        let bot = self.rect_size.y * 0.64
+                        let line_w = 1.6
+
+                        sdf.move_to(left, top)
+                        sdf.line_to(right, top)
+                        sdf.move_to(left, mid)
+                        sdf.line_to(right, mid)
+                        sdf.move_to(left, bot)
+                        sdf.line_to(right, bot)
+                        return sdf.stroke(self.icon_color, line_w)
+                    }
+                }
+            }
+
+            mod.widgets.GalleryMobileSidebarCloseButton = ShadButtonOutline{
+                width: 36
+                height: 36
+                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                spacing: 0.0
+                text: ""
+                icon_walk: Walk{width: 0, height: 0}
+                draw_bg +: {
+                    icon_color: uniform(shad_theme.color_primary)
+                    pixel: fn() {
+                        let sdf = Sdf2d.viewport(self.pos * self.rect_size)
+
+                        let fill = self.color
+                            .mix(self.color_focus, self.focus)
+                            .mix(self.color_hover, self.hover)
+                            .mix(self.color_down, self.down)
+
+                        let stroke = self.border_color
+                            .mix(self.border_color_focus, self.focus)
+                            .mix(self.border_color_hover, self.hover)
+                            .mix(self.border_color_down, self.down)
+
+                        sdf.box(
+                            self.border_size * 0.5,
+                            self.border_size * 0.5,
+                            self.rect_size.x - self.border_size,
+                            self.rect_size.y - self.border_size,
+                            self.border_radius
+                        )
+                        sdf.fill_keep(fill)
+                        sdf.stroke(stroke, self.border_size)
+
+                        let inset = self.rect_size.x * 0.34
+                        let far = self.rect_size.x - inset
+                        let line_w = 1.6
+
+                        sdf.move_to(inset, inset)
+                        sdf.line_to(far, far)
+                        sdf.move_to(inset, far)
+                        sdf.line_to(far, inset)
+                        return sdf.stroke(self.icon_color, line_w)
+                    }
+                }
             }
 
             mod.widgets.GalleryCommandPaletteHeaderTrigger = View{
@@ -152,35 +250,10 @@ macro_rules! define_gallery_root {
                             height: 36
                             flow: Overlay
 
-                            mobile_sidebar_menu_button := IconButtonMenu{
-                                width: 36
-                                height: 36
-                                draw_bg +: {
-                                    color: #0000
-                                    color_hover: (shad_theme.color_ghost_hover)
-                                    color_down: (shad_theme.color_ghost_down)
-                                    color_focus: (shad_theme.color_ghost_hover)
-                                    border_size: 0.0
-                                    border_radius: (shad_theme.radius)
-                                    border_color: #0000
-                                }
-                                draw_icon.color: (shad_theme.color_primary)
-                            }
+                            mobile_sidebar_menu_button := mod.widgets.GalleryMobileSidebarMenuButton{}
 
-                            mobile_sidebar_close_button := IconButtonX{
+                            mobile_sidebar_close_button := mod.widgets.GalleryMobileSidebarCloseButton{
                                 visible: false
-                                width: 36
-                                height: 36
-                                draw_bg +: {
-                                    color: #0000
-                                    color_hover: (shad_theme.color_ghost_hover)
-                                    color_down: (shad_theme.color_ghost_down)
-                                    color_focus: (shad_theme.color_ghost_hover)
-                                    border_size: 0.0
-                                    border_radius: (shad_theme.radius)
-                                    border_color: #0000
-                                }
-                                draw_icon.color: (shad_theme.color_primary)
                             }
                         }
 
@@ -205,7 +278,7 @@ macro_rules! define_gallery_root {
                             height: Fit
                         }
 
-                        mobile_theme_toggle := mod.widgets.GalleryThemeToggle{}
+                        mobile_theme_toggle := mod.widgets.GalleryMobileThemeToggle{}
                     }
 
                     mobile_command_palette_trigger := ShadButtonGhost{

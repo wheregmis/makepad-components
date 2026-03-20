@@ -25,7 +25,7 @@ script_mod! {
         overlay: Modal{
             align: Align{x: 1.0, y: 0.0}
             bg_view +: {
-                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.55)
+                draw_bg.color: (shad_theme.color_overlay)
             }
 
             content +: {
