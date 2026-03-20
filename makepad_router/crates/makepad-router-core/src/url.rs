@@ -171,19 +171,30 @@ pub fn build_query_string(map: &HashMap<String, String>) -> String {
     if map.is_empty() {
         return String::new();
     }
-    let mut out = String::new();
+    let mut entries: Vec<(&str, &str)> = map
+        .iter()
+        .map(|(key, value)| (key.as_str(), value.as_str()))
+        .collect();
+    entries.sort_unstable_by_key(|(key, _)| *key);
+
+    let estimated_len = 1 + entries
+        .iter()
+        .map(|(key, value)| key.len() + value.len() + usize::from(!value.is_empty()) + 1)
+        .sum::<usize>();
+    let mut out = String::with_capacity(estimated_len);
     out.push('?');
-    let mut keys: Vec<&String> = map.keys().collect();
-    keys.sort();
-    for (i, k) in keys.iter().enumerate() {
+    for (i, (key, value)) in entries.iter().enumerate() {
         if i > 0 {
             out.push('&');
         }
-        let v = map.get(*k).map(|s| s.as_str()).unwrap_or("");
-        out.push_str(&encode_www_form_component(k));
-        if !v.is_empty() {
+        // Optimization: write percent-encoded bytes directly into the final query buffer.
+        // Previously: each key/value called `encode_www_form_component`, which built a
+        // temporary String before copying it into `out`, multiplying heap churn for hot
+        // router URL updates. Streaming keeps the same output with one destination buffer.
+        encode_www_form_component_into(&mut out, key);
+        if !value.is_empty() {
             out.push('=');
-            out.push_str(&encode_www_form_component(v));
+            encode_www_form_component_into(&mut out, value);
         }
     }
     out
@@ -210,8 +221,7 @@ fn decode_www_form_component(input: &str) -> String {
     String::from_utf8(bytes).unwrap_or_else(|_| input.to_string())
 }
 
-fn encode_www_form_component(input: &str) -> String {
-    let mut out = String::new();
+fn encode_www_form_component_into(out: &mut String, input: &str) {
     for &b in input.as_bytes() {
         match b {
             b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => {
@@ -225,7 +235,6 @@ fn encode_www_form_component(input: &str) -> String {
             }
         }
     }
-    out
 }
 
 fn hex_val(b: u8) -> Option<u8> {
@@ -248,6 +257,7 @@ fn hex_char(n: u8) -> char {
 #[cfg(test)]
 mod tests {
     use super::RouterUrl;
+    use std::collections::HashMap;
     use std::hint::black_box;
     use std::time::Instant;
 
@@ -318,6 +328,74 @@ mod tests {
 
         println!(
             "old_parse={:?} new_parse={:?} improvement={:.2}%",
+            old_elapsed,
+            new_elapsed,
+            (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
+        );
+    }
+
+    #[test]
+    #[ignore = "micro-benchmark; run explicitly in release mode for stable numbers"]
+    fn build_query_string_direct_encode_benchmark() {
+        fn old_encode_www_form_component(input: &str) -> String {
+            let mut out = String::new();
+            for &b in input.as_bytes() {
+                match b {
+                    b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => {
+                        out.push(b as char)
+                    }
+                    b' ' => out.push('+'),
+                    _ => {
+                        out.push('%');
+                        out.push(super::hex_char((b >> 4) & 0x0f));
+                        out.push(super::hex_char(b & 0x0f));
+                    }
+                }
+            }
+            out
+        }
+
+        fn old_build_query_string(map: &HashMap<String, String>) -> String {
+            let mut out = String::new();
+            out.push('?');
+            let mut keys: Vec<&String> = map.keys().collect();
+            keys.sort();
+            for (i, k) in keys.iter().enumerate() {
+                if i > 0 {
+                    out.push('&');
+                }
+                let v = map.get(*k).map(|s| s.as_str()).unwrap_or("");
+                out.push_str(&old_encode_www_form_component(k));
+                if !v.is_empty() {
+                    out.push('=');
+                    out.push_str(&old_encode_www_form_component(v));
+                }
+            }
+            out
+        }
+
+        let mut query = HashMap::new();
+        query.insert("tab".to_string(), "team members".to_string());
+        query.insert("filter".to_string(), "role=admin".to_string());
+        query.insert("page".to_string(), "42".to_string());
+        query.insert("empty".to_string(), String::new());
+        query.insert("redirect".to_string(), "/settings/profile".to_string());
+        const ITERATIONS: usize = 200_000;
+
+        let old_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(old_build_query_string(&query));
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(super::build_query_string(&query));
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!(
+            "old_build_query_string={:?} new_build_query_string={:?} improvement={:.2}%",
             old_elapsed,
             new_elapsed,
             (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
