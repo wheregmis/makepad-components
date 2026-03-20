@@ -537,10 +537,12 @@ impl Widget for ShadNavButton {
                 );
                 self.animator_play(cx, ids!(hover.down));
             }
-            Hit::FingerHoverIn(_) => {
+            Hit::FingerHoverIn(fh) => {
                 if self.enabled {
-                    cx.set_cursor(MouseCursor::Hand);
-                    self.animator_play(cx, ids!(hover.on));
+                    if fh.device.has_hovers() {
+                        cx.set_cursor(MouseCursor::Hand);
+                        self.animator_play(cx, ids!(hover.on));
+                    }
                 } else {
                     cx.set_cursor(MouseCursor::NotAllowed);
                 }
@@ -606,5 +608,19 @@ impl ShadNavButton {
     fn emit_click(&self, cx: &mut Cx, uid: WidgetUid, modifiers: KeyModifiers) {
         cx.widget_action_with_data(&self.action_data, uid, ButtonAction::Clicked(modifiers));
         cx.widget_to_script_call(uid, NIL, self.source.clone(), self.on_click.clone(), &[]);
+    }
+}
+
+impl ShadNavButtonRef {
+    pub fn clicked(&self, actions: &Actions) -> bool {
+        actions
+            .find_widget_action(self.widget_uid())
+            .is_some_and(|action| matches!(action.cast(), ButtonAction::Clicked(_)))
+    }
+
+    pub fn reset_hover(&self, cx: &mut Cx) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.animator_cut(cx, ids!(hover.off));
+        }
     }
 }

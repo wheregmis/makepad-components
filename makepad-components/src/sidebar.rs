@@ -18,7 +18,7 @@ script_mod! {
         draw_text.text_style.font_size: 9
     }
 
-    mod.widgets.ShadSidebarItem = mod.widgets.ButtonFlat{
+    mod.widgets.ShadSidebarItem = set_type_default() do mod.widgets.ShadNavButtonBase{
         width: Fill
         height: 32
         padding: Inset{left: 10, right: 10}

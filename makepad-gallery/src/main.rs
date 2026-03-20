@@ -6,6 +6,7 @@ mod ui;
 use crate::ui::catalog;
 use crate::ui::command_palette::GalleryCommandPalette;
 use crate::ui::command_palette_page::GalleryCommandPalettePageWidgetRefExt;
+use makepad_components::button::ShadNavButtonWidgetRefExt;
 use makepad_components::makepad_widgets::*;
 use makepad_router::RouterWidgetWidgetRefExt;
 
@@ -113,7 +114,7 @@ impl App {
         let allow_sidebar_focus = !self.is_small_screen || self.sidebar_open;
 
         for entry in catalog::entries() {
-            let mut item = self.ui.button(cx, &[entry.sidebar_id]);
+            let mut item = self.ui.shad_nav_button(cx, &[entry.sidebar_id]);
             script_apply_eval!(cx, item, {
                 grab_key_focus: #(allow_sidebar_focus)
             });
@@ -122,7 +123,9 @@ impl App {
 
     fn reset_sidebar_hover_states(&self, cx: &mut Cx) {
         for entry in catalog::entries() {
-            self.ui.button(cx, &[entry.sidebar_id]).reset_hover(cx);
+            self.ui
+                .shad_nav_button(cx, &[entry.sidebar_id])
+                .reset_hover(cx);
         }
     }
 
@@ -239,7 +242,11 @@ impl App {
 
     fn handle_sidebar_navigation(&mut self, cx: &mut Cx, actions: &Actions) {
         for entry in catalog::entries() {
-            if self.ui.button(cx, &[entry.sidebar_id]).clicked(actions) {
+            if self
+                .ui
+                .shad_nav_button(cx, &[entry.sidebar_id])
+                .clicked(actions)
+            {
                 self.set_current_page(cx, entry.page);
                 break;
             }
