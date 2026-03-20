@@ -34,7 +34,7 @@ gallery_static_page! {
             align: Align{y: 0.0}
 
             mod.widgets.ShadCard{
-                width: 320
+                width: 280
 
                 header := mod.widgets.ShadCardHeader{
                     title := mod.widgets.ShadCardTitle{text: "Team Access"}

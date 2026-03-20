@@ -62,7 +62,7 @@ script_mod! {
 
     mod.widgets.ShadTable = set_type_default() do mod.widgets.ShadTableBase{
         width: Fill
-        height: Fill
+        height: Fit
         caption: ""
         empty_message: "No rows available."
         selectable: true
@@ -74,7 +74,7 @@ script_mod! {
 
         table_view := View{
             width: Fill
-            height: Fill
+            height: Fit
             flow: Down
             spacing: 8.0
 
@@ -85,7 +85,7 @@ script_mod! {
 
             scroll := ScrollXView{
                 width: Fill
-                height: Fill
+                height: Fit
                 flow: Down
                 padding: Inset{left: 0.0, right: 0.0, top: 0.0, bottom: 0.0}
                 spacing: 0.0

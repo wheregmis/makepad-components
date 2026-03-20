@@ -175,6 +175,8 @@ pub struct ShadDialog {
     open: bool,
     #[rust]
     is_synced_open: bool,
+    #[rust]
+    last_content_width: Option<f64>,
     #[action_data]
     #[rust]
     action_data: WidgetActionData,
@@ -186,7 +188,25 @@ pub struct ShadDialog {
 }
 
 impl ShadDialog {
+    const VIEWPORT_MARGIN: f64 = 12.0;
+    const DEFAULT_CONTENT_WIDTH: f64 = 360.0;
+
+    fn sync_content_width(&mut self, cx: &mut Cx) {
+        let available_width = (cx.current_pass_size().x - Self::VIEWPORT_MARGIN * 2.0).max(0.0);
+        let content_width = Self::DEFAULT_CONTENT_WIDTH.min(available_width);
+        if self.last_content_width == Some(content_width) {
+            return;
+        }
+        self.last_content_width = Some(content_width);
+
+        let mut content = self.overlay.widget(cx, ids!(content));
+        script_apply_eval!(cx, content, {
+            width: #(content_width)
+        });
+    }
+
     fn sync_open_state(&mut self, cx: &mut Cx) {
+        self.sync_content_width(cx);
         sync_modal_open_state(cx, &mut self.overlay, &mut self.is_synced_open, self.open);
     }
 

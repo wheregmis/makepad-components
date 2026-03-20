@@ -42,11 +42,15 @@ impl App {
         self::script_mod(vm)
     }
 
-    fn set_current_page(&mut self, cx: &mut Cx, page: LiveId) {
-        self.current_page = page;
+    fn sync_content_route(&self, cx: &mut Cx) {
         self.ui
             .router_widget(cx, ids!(content_flip))
-            .go_to_route(cx, page);
+            .go_to_route(cx, self.current_page);
+    }
+
+    fn set_current_page(&mut self, cx: &mut Cx, page: LiveId) {
+        self.current_page = page;
+        self.sync_content_route(cx);
         self.sync_page_metadata(cx);
         if self.is_small_screen {
             self.sidebar_open = false;
@@ -219,6 +223,7 @@ impl App {
             .set_visible(cx, !self.is_small_screen || !self.sidebar_open);
         self.sync_mobile_sidebar_button(cx);
         self.sync_sidebar_focus_behavior(cx);
+        self.sync_content_route(cx);
     }
 
     fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {

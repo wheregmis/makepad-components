@@ -20,12 +20,13 @@ script_mod! {
         open: false
 
         popover := ShadPopover{
+            width: Fill
             open: false
             side: "bottom"
             align: "start"
 
             trigger := ShadButtonOutline{
-                width: 220
+                width: Fill
                 align: Align{x: 0.0, y: 0.5}
                 text: "Pick a date"
             }
