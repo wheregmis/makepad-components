@@ -116,10 +116,6 @@ pub struct ShadSheet {
     last_side: String,
     #[rust]
     is_side_initialized: bool,
-    #[rust]
-    last_content_width: Option<f64>,
-    #[rust]
-    last_content_height: Option<f64>,
     #[action_data]
     #[rust]
     action_data: WidgetActionData,
@@ -131,55 +127,11 @@ pub struct ShadSheet {
 }
 
 impl ShadSheet {
-    const VIEWPORT_MARGIN: f64 = 12.0;
-
     fn sync_side_layout(&mut self, cx: &mut Cx) {
         let current_side = self.side.as_ref();
-        let pass_size = cx.current_pass_size();
-        let clamped_width = (pass_size.x - Self::VIEWPORT_MARGIN * 2.0)
-            .max(0.0)
-            .min(self.sheet_size);
-        let clamped_height = (pass_size.y - Self::VIEWPORT_MARGIN * 2.0)
-            .max(0.0)
-            .min(self.sheet_size);
 
-        let (align, content_width, content_height, applied_width, applied_height) =
-            match current_side {
-                "left" => (
-                    Align { x: 0.0, y: 0.0 },
-                    Size::Fixed(clamped_width),
-                    Size::fill(),
-                    Some(clamped_width),
-                    None,
-                ),
-                "top" => (
-                    Align { x: 0.0, y: 0.0 },
-                    Size::fill(),
-                    Size::Fixed(clamped_height),
-                    None,
-                    Some(clamped_height),
-                ),
-                "bottom" => (
-                    Align { x: 0.0, y: 1.0 },
-                    Size::fill(),
-                    Size::Fixed(clamped_height),
-                    None,
-                    Some(clamped_height),
-                ),
-                _ => (
-                    Align { x: 1.0, y: 0.0 },
-                    Size::Fixed(clamped_width),
-                    Size::fill(),
-                    Some(clamped_width),
-                    None,
-                ),
-            };
-
-        if self.is_side_initialized
-            && current_side == self.last_side.as_str()
-            && self.last_content_width == applied_width
-            && self.last_content_height == applied_height
-        {
+        // Optimization: only reapply script evaluation if the side has changed after initialization
+        if self.is_side_initialized && current_side == self.last_side.as_str() {
             return;
         }
 
@@ -189,8 +141,29 @@ impl ShadSheet {
         self.last_side.clear();
         self.last_side.push_str(current_side);
         self.is_side_initialized = true;
-        self.last_content_width = applied_width;
-        self.last_content_height = applied_height;
+
+        let (align, content_width, content_height) = match current_side {
+            "left" => (
+                Align { x: 0.0, y: 0.0 },
+                Size::Fixed(self.sheet_size),
+                Size::fill(),
+            ),
+            "top" => (
+                Align { x: 0.0, y: 0.0 },
+                Size::fill(),
+                Size::Fixed(self.sheet_size),
+            ),
+            "bottom" => (
+                Align { x: 0.0, y: 1.0 },
+                Size::fill(),
+                Size::Fixed(self.sheet_size),
+            ),
+            _ => (
+                Align { x: 1.0, y: 0.0 },
+                Size::Fixed(self.sheet_size),
+                Size::fill(),
+            ),
+        };
 
         // Optimization: avoid cloning the `WidgetRef`
         // Previously: created a new cloned reference using `self.overlay.clone()`
