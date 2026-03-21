@@ -38,3 +38,7 @@
 ## 2026-03-19 – [Grouped actions must stay in tab order]
 **Learning:** In this codebase, toggling `grab_key_focus` on a styled `ButtonFlat` is not enough to make grouped actions meaningfully keyboard reachable because the upstream widget already manages its own nav stop and click-focus path.
 **Action:** When a reusable action row or grouped button needs real tab-stop control, wire keyboard reachability in the component widget itself: add or skip `cx.add_nav_stop(...)` in `draw_walk`, and gate click focus plus key activation in `handle_event`.
+
+## 2026-03-21 – [Icon-only chrome controls need visible copy]
+**Learning:** In the gallery shell, the mobile theme toggle used only a sun/moon icon, which made a global action ambiguous in the one place where header space is tightest and first-run orientation matters most.
+**Action:** For shared header controls in this codebase, keep the icon but add a short visible verb or mode label when the action changes global UI state.
