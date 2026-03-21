@@ -64,7 +64,7 @@ script_mod! {
         }
         icon := Icon{
             draw_icon.svg: crate_resource("self://resources/icons/checkmark.svg")
-            draw_icon.color: #22c55e
+            draw_icon.color: (shad_theme.color_success)
             icon_walk: Walk{width: 24, height: 24}
         }
     }
@@ -79,7 +79,7 @@ script_mod! {
     let ForbiddenIcon = CheckIcon{
         icon +: {
             draw_icon.svg: crate_resource("self://resources/icons/forbidden.svg")
-            draw_icon.color: #ef4444
+            draw_icon.color: (shad_theme.color_error)
             icon_walk: Walk{width: 24, height: 24}
         }
     }
@@ -87,7 +87,7 @@ script_mod! {
     let WarningIcon = CheckIcon{
         icon +: {
             draw_icon.svg: crate_resource("self://resources/icons/warning.svg")
-            draw_icon.color: #f59e0b
+            draw_icon.color: (shad_theme.color_warning)
             icon_walk: Walk{width: 24, height: 24}
         }
     }

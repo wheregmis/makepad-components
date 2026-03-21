@@ -28,6 +28,7 @@ script_mod! {
 
             color_success: #22c55e
             color_warning: #fbbf24
+            color_error: #dc2626
             color_success_subtle: #052e16
             color_warning_subtle: #451a03
 
@@ -88,6 +89,7 @@ script_mod! {
 
             color_success: #16a34a
             color_warning: #b45309
+            color_error: #dc2626
             color_success_subtle: #dcfce7
             color_warning_subtle: #fef3c7
 
@@ -122,6 +124,8 @@ script_mod! {
             color_kbd_bg: #fafafa
             color_kbd_border: #e4e4e7
             color_kbd_foreground: #18181b
+
+            
         }
     }
 
