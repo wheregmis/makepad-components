@@ -94,9 +94,13 @@ impl App {
         } else {
             "Light theme"
         };
+        let mobile_label = if self.is_light_theme { "Dark" } else { "Light" };
         self.ui
             .button(cx, ids!(desktop_theme_toggle))
             .set_text(cx, desktop_label);
+        self.ui
+            .button(cx, ids!(mobile_theme_toggle))
+            .set_text(cx, mobile_label);
     }
 
     fn sync_page_metadata(&self, cx: &mut Cx) {

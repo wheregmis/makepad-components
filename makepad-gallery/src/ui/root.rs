@@ -35,11 +35,11 @@ macro_rules! define_gallery_root {
             }
 
             mod.widgets.GalleryMobileThemeToggle = ShadButtonOutline{
-                width: 36
+                width: Fit
                 height: 36
-                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-                spacing: 0.0
-                text: ""
+                padding: Inset{left: 10, right: 12, top: 0, bottom: 0}
+                spacing: 6.0
+                text: "Theme"
                 icon_walk: Walk{width: 16, height: 16}
                 draw_icon.svg: crate_resource("self://resources/icons/sun-moon.svg")
                 draw_icon.color: (shad_theme.color_primary)
