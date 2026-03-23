@@ -103,17 +103,12 @@ script_mod! {
     mod.widgets.RouterRoute = mod.widgets.RouterRouteBase {}
 }
 
-#[derive(Script, ScriptHook, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Script, ScriptHook, Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum BrowserUrlMode {
     #[pick]
+    #[default]
     CleanPath,
     HashPath,
-}
-
-impl Default for BrowserUrlMode {
-    fn default() -> Self {
-        Self::CleanPath
-    }
 }
 
 #[derive(Clone, Debug)]

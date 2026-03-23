@@ -123,15 +123,11 @@ impl RouterWidget {
                 resolved_path = Some(intent);
             }
             RouterNavRequest::Back { .. } => {
-                let Some(next) = self.router.preview_back_route() else {
-                    return None;
-                };
+                let next = self.router.preview_back_route()?;
                 to = Some(next.clone());
             }
             RouterNavRequest::Forward { .. } => {
-                let Some(next) = self.router.preview_forward_route() else {
-                    return None;
-                };
+                let next = self.router.preview_forward_route()?;
                 to = Some(next.clone());
             }
             RouterNavRequest::Reset { route } => {
@@ -152,21 +148,15 @@ impl RouterWidget {
                 to = filtered.last().cloned();
             }
             RouterNavRequest::Pop => {
-                let Some(next) = self.router.preview_pop_route() else {
-                    return None;
-                };
+                let next = self.router.preview_pop_route()?;
                 to = Some(next.clone());
             }
             RouterNavRequest::PopTo { route_id } => {
-                let Some(next) = self.router.preview_pop_to_route(*route_id) else {
-                    return None;
-                };
+                let next = self.router.preview_pop_to_route(*route_id)?;
                 to = Some(next.clone());
             }
             RouterNavRequest::PopToRoot => {
-                let Some(next) = self.router.preview_pop_to_root_route() else {
-                    return None;
-                };
+                let next = self.router.preview_pop_to_root_route()?;
                 to = Some(next.clone());
             }
         }

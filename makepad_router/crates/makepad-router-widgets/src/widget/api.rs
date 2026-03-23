@@ -569,7 +569,6 @@ impl RouterWidget {
                 },
             );
         }
-        let ok = self.navigate_by_path_internal(cx, path, true);
-        ok
+        self.navigate_by_path_internal(cx, path, true)
     }
 }
