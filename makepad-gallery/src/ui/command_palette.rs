@@ -99,9 +99,9 @@ script_mod! {
         text: "Command"
         draw_bg +: {
             color: #0000
-            color_hover: #0000
-            color_down: #0000
-            color_focus: #0000
+            color_hover: (shad_theme.color_ghost_hover)
+            color_down: (shad_theme.color_ghost_down)
+            color_focus: (shad_theme.color_ghost_hover)
             border_size: 0.0
             border_radius: 10.0
             border_color: #0000
@@ -660,6 +660,9 @@ impl Widget for GalleryCommandPalette {
         self.sync_modal_state(cx);
 
         if self.open {
+            let search_input = self.overlay.text_input(cx, ids!(search_input));
+            let results = self.overlay.portal_list(cx, ids!(results));
+
             if let Event::KeyDown(key_event) = event {
                 match key_event.key_code {
                     KeyCode::ArrowDown => {
@@ -671,8 +674,10 @@ impl Widget for GalleryCommandPalette {
                         return;
                     }
                     KeyCode::ReturnKey => {
-                        self.activate(cx);
-                        return;
+                        if search_input.key_focus(cx) {
+                            self.activate(cx);
+                            return;
+                        }
                     }
                     KeyCode::Escape => {
                         if self.normalize_query().is_empty() {
@@ -685,9 +690,6 @@ impl Widget for GalleryCommandPalette {
                     _ => {}
                 }
             }
-
-            let search_input = self.overlay.text_input(cx, ids!(search_input));
-            let results = self.overlay.portal_list(cx, ids!(results));
 
             self.overlay.handle_event(cx, event, scope);
 
