@@ -228,8 +228,7 @@ impl ScriptHook for ShadSonner {
             self.register_global_host(cx);
             if applied_open && self.last_applied_open != Some(true) {
                 let should_enqueue = {
-                    let global = cx.global::<SonnerGlobal>().clone();
-                    let state = global.state.borrow();
+                    let state = cx.global::<SonnerGlobal>().state.borrow();
                     state.toasts.is_empty()
                 };
                 if should_enqueue {
@@ -297,8 +296,7 @@ impl ShadSonner {
     }
 
     fn register_global_host(&mut self, cx: &mut Cx) {
-        let global = cx.global::<SonnerGlobal>();
-        let mut state = global.state.borrow_mut();
+        let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
         if state.host_uid.is_none() || state.host_uid == Some(self.widget_uid()) {
             state.host_uid = Some(self.widget_uid());
             state.host_overlay = Some(self.overlay.clone());
@@ -306,9 +304,7 @@ impl ShadSonner {
     }
 
     fn is_global_host(&self, cx: &mut Cx) -> bool {
-        let global = cx.global::<SonnerGlobal>().clone();
-        let state = global.state.borrow();
-        state.host_uid == Some(self.widget_uid())
+        cx.global::<SonnerGlobal>().state.borrow().host_uid == Some(self.widget_uid())
     }
 
     fn sync_overlay_slot(
@@ -374,9 +370,8 @@ impl ShadSonner {
     }
 
     fn sync_global_host_overlay(cx: &mut Cx) {
-        let global = cx.global::<SonnerGlobal>().clone();
         let (host_overlay, visible_toasts) = {
-            let state = global.state.borrow();
+            let state = cx.global::<SonnerGlobal>().state.borrow();
             (
                 state.host_overlay.clone(),
                 Self::visible_toasts_snapshot(&state),
@@ -397,9 +392,11 @@ impl ShadSonner {
                 Self::sync_overlay_slot(cx, &overlay, index, toast.clone());
             }
 
-            let mut state = global.state.borrow_mut();
-            state.rendered_toasts = visible_toasts;
-            state.rendered_open = Some(next_open);
+            {
+                let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
+                state.rendered_toasts = visible_toasts;
+                state.rendered_open = Some(next_open);
+            }
             overlay.redraw(cx);
         }
     }
@@ -443,9 +440,8 @@ impl ShadSonner {
     }
 
     fn sync_overlay_open_state(&mut self, cx: &mut Cx) -> bool {
-        let global = cx.global::<SonnerGlobal>().clone();
         let (host_uid, open) = {
-            let state = global.state.borrow();
+            let state = cx.global::<SonnerGlobal>().state.borrow();
             (state.host_uid, !state.toasts.is_empty())
         };
         let is_host = host_uid == Some(self.widget_uid());
@@ -496,8 +492,7 @@ impl ShadSonner {
     // --- 核心推送方法 ---
     pub fn enqueue(&mut self, cx: &mut Cx, item: SonnerItem) {
         let (was_empty, needs_schedule) = {
-            let global = cx.global::<SonnerGlobal>().clone();
-            let mut state = global.state.borrow_mut();
+            let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
 
             let was_empty = state.toasts.is_empty();
 
@@ -526,8 +521,7 @@ impl ShadSonner {
 
     pub fn clear_global_toasts(&mut self, cx: &mut Cx, emit_action: bool) {
         let was_open = {
-            let global = cx.global::<SonnerGlobal>().clone();
-            let mut state = global.state.borrow_mut();
+            let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
             let was_open = !state.toasts.is_empty();
             state.toasts.clear();
             state.needs_next_frame = false;
@@ -542,8 +536,7 @@ impl ShadSonner {
 
     fn remove_visible_toast(&mut self, cx: &mut Cx, visible_index: usize) {
         let (was_open, is_open_now, needs_schedule) = {
-            let global = cx.global::<SonnerGlobal>().clone();
-            let mut state = global.state.borrow_mut();
+            let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
             if visible_index >= state.toasts.len() {
                 return;
             }
@@ -577,8 +570,7 @@ impl Widget for ShadSonner {
             let now = ne.time;
             let mut needs_redraw = false;
             let progresses: Vec<f64> = {
-                let global = cx.global::<SonnerGlobal>().clone();
-                let mut state = global.state.borrow_mut();
+                let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
 
                 // 初始化新 enqueue 的 toast 的过期时间
                 for entry in state.toasts.iter_mut() {
@@ -614,8 +606,7 @@ impl Widget for ShadSonner {
                 self.overlay.redraw(cx); // 触发重绘以更新进度条
             }
             let (changed, still_has_toasts, needs_schedule) = {
-                let global = cx.global::<SonnerGlobal>().clone();
-                let mut state = global.state.borrow_mut();
+                let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
                 let changed = Self::prune_expired_toasts(&mut state, now);
                 let still_has_toasts = !state.toasts.is_empty();
                 let needs_schedule = still_has_toasts;
