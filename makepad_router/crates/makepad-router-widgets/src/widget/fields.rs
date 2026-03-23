@@ -73,6 +73,7 @@ impl RouterUrlCache {
     }
 }
 
+#[derive(Default)]
 pub(crate) struct RouterCaches {
     pub(crate) route_registry_epoch: u64,
     pub(crate) nested_prefix_cache_epoch: u64,
@@ -81,20 +82,6 @@ pub(crate) struct RouterCaches {
     pub(crate) url_parse_cache: RouterUrlCache,
     pub(crate) child_router_scan_epoch: u64,
     pub(crate) child_router_scan_widget_count: usize,
-}
-
-impl Default for RouterCaches {
-    fn default() -> Self {
-        Self {
-            route_registry_epoch: 0,
-            nested_prefix_cache_epoch: 0,
-            nested_prefix_cache_path: String::new(),
-            nested_prefix_cache_result: None,
-            url_parse_cache: RouterUrlCache::default(),
-            child_router_scan_epoch: 0,
-            child_router_scan_widget_count: 0,
-        }
-    }
 }
 
 #[derive(Default)]

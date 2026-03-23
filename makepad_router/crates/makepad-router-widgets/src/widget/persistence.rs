@@ -50,7 +50,7 @@ impl RouterWidget {
         self.transition_rt.state = None;
         self.ensure_route_widget(cx, new_route.id);
 
-        self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
+        self.dispatch_route_change(cx, &old_route, &new_route);
         self.queue_route_actions(
             Some(RouterAction::Reset(new_route.clone())),
             old_route.as_ref().map(|r| r.id),

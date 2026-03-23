@@ -15,24 +15,13 @@ pub enum RouterBlockReason {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Default)]
 pub struct RouterCapabilities {
     pub guards_sync: bool,
     pub guards_async: bool,
     pub transitions: bool,
     pub nested: bool,
     pub persistence: bool,
-}
-
-impl Default for RouterCapabilities {
-    fn default() -> Self {
-        Self {
-            guards_sync: false,
-            guards_async: false,
-            transitions: false,
-            nested: false,
-            persistence: false,
-        }
-    }
 }
 
 #[derive(Clone, Debug)]
