@@ -50,6 +50,14 @@ fn command_results_summary(query: &str, matches_count: usize) -> String {
     }
 }
 
+fn command_palette_secondary_action_label(query: &str) -> &'static str {
+    if query.trim().is_empty() {
+        "Close"
+    } else {
+        "Clear"
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct CommandPaletteRowState {
     command_index: usize,
@@ -82,6 +90,29 @@ script_mod! {
 
     mod.widgets.GalleryCommandPaletteBase = #(GalleryCommandPalette::register_widget(vm))
 
+    mod.widgets.GalleryCommandPaletteRowButton = set_type_default() do mod.widgets.ShadNavButtonBase{
+        width: Fill
+        height: 36
+        grab_key_focus: false
+        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+        align: Align{x: 0.0, y: 0.5}
+        text: "Command"
+        draw_bg +: {
+            color: #0000
+            color_hover: (shad_theme.color_ghost_hover)
+            color_down: (shad_theme.color_ghost_down)
+            color_focus: (shad_theme.color_ghost_hover)
+            border_size: 0.0
+            border_radius: 10.0
+            border_color: #0000
+        }
+        draw_text.color: (shad_theme.color_primary)
+        draw_text.color_hover: (shad_theme.color_primary)
+        draw_text.color_down: (shad_theme.color_primary)
+        draw_text.color_focus: (shad_theme.color_primary)
+        draw_text.text_style.font_size: 13
+    }
+
     mod.widgets.GalleryCommandPaletteRow = View{
         width: Fill
         height: Fit
@@ -108,20 +139,7 @@ script_mod! {
                 border_size: 0.0
             }
 
-            button := ShadButtonGhost{
-                width: Fill
-                height: 36
-                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-                align: Align{x: 0.0, y: 0.5}
-                text: "Command"
-                draw_bg +: {
-                    color: #0000
-                    color_hover: #0000
-                    color_down: #0000
-                    color_focus: #0000
-                }
-                draw_text.text_style.font_size: 13
-            }
+            button := mod.widgets.GalleryCommandPaletteRowButton{}
 
             shortcut := ShadSectionHeader{
                 width: Fit
@@ -192,7 +210,7 @@ script_mod! {
                         }
 
                         clear_search_btn := ShadButtonGhost{
-                            text: "Clear"
+                            text: "Close"
                         }
                     }
 
@@ -449,7 +467,7 @@ impl GalleryCommandPalette {
         );
         self.overlay
             .button(cx, ids!(clear_search_btn))
-            .set_enabled(cx, !query.is_empty());
+            .set_text(cx, command_palette_secondary_action_label(&display_query));
         self.reset_results_position(cx);
         if results_changed || active_changed {
             self.redraw(cx);
@@ -548,8 +566,8 @@ impl GalleryCommandPalette {
 #[cfg(test)]
 mod tests {
     use super::{
-        command_results_summary, matches_command_query, sync_cached_row_state,
-        CommandPaletteRowState, CommandSearchTerm,
+        command_palette_secondary_action_label, command_results_summary, matches_command_query,
+        sync_cached_row_state, CommandPaletteRowState, CommandSearchTerm,
     };
     use std::collections::HashMap;
 
@@ -572,6 +590,13 @@ mod tests {
         assert!(command_results_summary("", 12).contains("Showing all"));
         assert!(command_results_summary("dialog", 1).contains("Showing 1 of"));
         assert!(command_results_summary("missing", 0).contains("No gallery components matched"));
+    }
+
+    #[test]
+    fn command_palette_secondary_action_switches_between_close_and_clear() {
+        assert_eq!(command_palette_secondary_action_label(""), "Close");
+        assert_eq!(command_palette_secondary_action_label("  "), "Close");
+        assert_eq!(command_palette_secondary_action_label("dialog"), "Clear");
     }
 
     #[test]
@@ -635,6 +660,9 @@ impl Widget for GalleryCommandPalette {
         self.sync_modal_state(cx);
 
         if self.open {
+            let search_input = self.overlay.text_input(cx, ids!(search_input));
+            let results = self.overlay.portal_list(cx, ids!(results));
+
             if let Event::KeyDown(key_event) = event {
                 match key_event.key_code {
                     KeyCode::ArrowDown => {
@@ -646,8 +674,10 @@ impl Widget for GalleryCommandPalette {
                         return;
                     }
                     KeyCode::ReturnKey => {
-                        self.activate(cx);
-                        return;
+                        if search_input.key_focus(cx) {
+                            self.activate(cx);
+                            return;
+                        }
                     }
                     KeyCode::Escape => {
                         if self.normalize_query().is_empty() {
@@ -660,9 +690,6 @@ impl Widget for GalleryCommandPalette {
                     _ => {}
                 }
             }
-
-            let search_input = self.overlay.text_input(cx, ids!(search_input));
-            let results = self.overlay.portal_list(cx, ids!(results));
 
             self.overlay.handle_event(cx, event, scope);
 
@@ -678,7 +705,11 @@ impl Widget for GalleryCommandPalette {
                     .button(cx, ids!(clear_search_btn))
                     .clicked(actions)
                 {
-                    self.clear_query(cx);
+                    if self.normalize_query().is_empty() {
+                        self.close(cx);
+                    } else {
+                        self.clear_query(cx);
+                    }
                     return;
                 }
 

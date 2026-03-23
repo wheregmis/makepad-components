@@ -42,3 +42,7 @@
 ## 2026-03-21 – [Icon-only chrome controls need visible copy]
 **Learning:** In the gallery shell, the mobile theme toggle used only a sun/moon icon, which made a global action ambiguous in the one place where header space is tightest and first-run orientation matters most.
 **Action:** For shared header controls in this codebase, keep the icon but add a short visible verb or mode label when the action changes global UI state.
+
+## 2026-03-23 – [Arrow-key pickers should not become tab traps]
+**Learning:** In the gallery command palette, every result row inherited `grab_key_focus: true`, which turned a single search modal into a long sequence of extra tab stops even though the UI already teaches arrow-key selection plus Enter to open.
+**Action:** For searchable overlays in this codebase, keep focus on the input and primary actions; remove virtualized result rows from the tab order when keyboard selection is handled centrally.
