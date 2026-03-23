@@ -48,6 +48,10 @@
 **Learning:** `ShadTableHeaderView` and `ShadTableRowView` were recomputing `estimate_text_width` and aligned x positions for every visible cell on every redraw, even though widths and text only change when row/header data changes.
 **Action:** In virtualized table widgets, precompute per-column text offsets during the data-sync step and reuse them in `draw_walk` so scroll and hover redraws stay glyph-only.
 
+## 2026-03-23 - Stream route pattern parsing during registry rebuilds
+**Learning:** `RoutePattern::parse` was allocating a temporary `Vec<&str>` for every route registration just to verify that `**` was trailing. In router live-reload and batch-registration flows, that extra pass shows up as measurable heap churn even before the owned segment strings are built.
+**Action:** For parser paths that only need look-ahead validation, prefer a `Peekable` iterator and allocate only the final owned data structure; keep a small ignored benchmark nearby so the win stays documented.
+
 ## 2026-03-20 - Router query serialization should stream percent-encoding
 **Learning:** `makepad-router-core` rebuilt query strings by percent-encoding each key and value into temporary `String`s before copying them into the final URL, which adds heap churn on every router URL update.
 **Action:** For hot URL serialization paths, collect borrowed `(&str, &str)` entries, sort those, and write percent-encoded bytes directly into one pre-sized output buffer.
