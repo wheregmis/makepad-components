@@ -30,7 +30,7 @@ impl RouterWidget {
 
             if let Some(new_route) = self.router.current_route().cloned() {
                 let primary_action = RouterAction::Navigate(new_route.clone());
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 self.queue_route_actions(
                     Some(primary_action.clone()),
                     old_route.as_ref().map(|r| r.id),
@@ -81,7 +81,7 @@ impl RouterWidget {
 
             if let Some(new_route) = self.router.current_route().cloned() {
                 let primary_action = RouterAction::Navigate(new_route.clone());
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 self.queue_route_actions(
                     Some(primary_action.clone()),
                     old_route.as_ref().map(|r| r.id),
@@ -121,7 +121,7 @@ impl RouterWidget {
 
             if let Some(new_route) = self.router.current_route().cloned() {
                 let primary_action = RouterAction::Replace(new_route.clone());
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 self.queue_route_actions(
                     Some(primary_action.clone()),
                     old_route.as_ref().map(|r| r.id),
@@ -172,7 +172,7 @@ impl RouterWidget {
 
             if let Some(new_route) = self.router.current_route().cloned() {
                 let primary_action = RouterAction::Replace(new_route.clone());
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 self.queue_route_actions(
                     Some(primary_action.clone()),
                     old_route.as_ref().map(|r| r.id),
@@ -208,7 +208,7 @@ impl RouterWidget {
                     None,
                 );
 
-                self.dispatch_route_change(cx, &old_route, &route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &route);
 
                 self.ensure_route_widget(cx, route.id);
                 self.queue_route_actions(
@@ -251,7 +251,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     Some(transition),
                 );
-                self.dispatch_route_change(cx, &old_route, &route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &route);
                 self.ensure_route_widget(cx, route.id);
                 self.queue_route_actions(
                     Some(RouterAction::Back),
@@ -287,7 +287,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Forward,
                     None,
                 );
-                self.dispatch_route_change(cx, &old_route, &route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &route);
                 self.ensure_route_widget(cx, route.id);
                 self.queue_route_actions(
                     Some(RouterAction::Forward),
@@ -332,7 +332,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Forward,
                     Some(transition),
                 );
-                self.dispatch_route_change(cx, &old_route, &route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &route);
                 self.ensure_route_widget(cx, route.id);
                 self.queue_route_actions(
                     Some(RouterAction::Forward),
@@ -411,7 +411,7 @@ impl RouterWidget {
 
         if let Some(new_route) = self.router.current_route().cloned() {
             let primary_action = RouterAction::Reset(new_route.clone());
-            self.dispatch_route_change(cx, &old_route, &new_route);
+            self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
             self.queue_route_actions(
                 Some(primary_action.clone()),
                 old_route.as_ref().map(|r| r.id),
@@ -449,7 +449,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     None,
                 );
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), &new_route);
                 self.sync_browser_after_pop(cx, old_depth.saturating_sub(self.router.depth()));
                 self.redraw(cx);
@@ -479,7 +479,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     None,
                 );
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), &new_route);
                 self.sync_browser_after_pop(cx, old_depth.saturating_sub(self.router.depth()));
                 self.redraw(cx);
@@ -509,7 +509,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     None,
                 );
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), &new_route);
                 self.sync_browser_after_pop(cx, old_depth.saturating_sub(self.router.depth()));
                 self.redraw(cx);
@@ -547,7 +547,7 @@ impl RouterWidget {
             RouterTransitionDirection::Forward,
             None,
         );
-        self.dispatch_route_change(cx, &old_route, &new_route);
+        self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
         let primary_action = RouterAction::Reset(new_route.clone());
         self.queue_route_actions(
             Some(primary_action.clone()),

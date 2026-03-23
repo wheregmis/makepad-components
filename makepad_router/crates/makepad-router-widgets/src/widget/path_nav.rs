@@ -118,7 +118,7 @@ impl RouterWidget {
             None,
         );
 
-        self.dispatch_route_change(cx, &old_route, &route);
+        self.dispatch_route_change(cx, old_route.as_ref(), &route);
         let primary_action = if intent.replace {
             RouterAction::Replace(route.clone())
         } else {

@@ -600,10 +600,11 @@ impl Widget for ShadSonner {
                     .iter()
                     .rev()
                     .take(MAX_VISIBLE_TOASTS)
-                    .map(|entry| {
-                        if entry.total_duration <= 0.0 {
-                            return 0.0;
-                        }
+                    .enumerate()
+                {
+                    progresses[i] = if entry.total_duration <= 0.0 {
+                        0.0
+                    } else {
                         let exp = entry.expires_at.unwrap_or(now + entry.total_duration);
                         let remaining = if exp > now { exp - now } else { 0.0 };
                         (remaining / entry.total_duration).clamp(0.0, 1.0)

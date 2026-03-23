@@ -14,14 +14,14 @@ impl RouterWidget {
     pub(super) fn dispatch_route_change(
         &self,
         cx: &mut Cx,
-        old_route: &Option<Route>,
+        old_route: Option<&Route>,
         new_route: &Route,
     ) {
         if self.callbacks.route_change.is_empty() {
             return;
         }
         for callback in &self.callbacks.route_change {
-            callback(cx, old_route.clone(), new_route.clone());
+            callback(cx, old_route.cloned(), new_route.clone());
         }
     }
 }
