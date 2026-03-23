@@ -278,7 +278,6 @@ impl RouterWidget {
         }
     }
 
-    #[allow(clippy::too_many_arguments)]
     pub(super) fn draw_route_into_draw_list(
         cx: &mut Cx2d,
         scope: &mut Scope,

@@ -204,7 +204,7 @@ impl RouterWidget {
                     None,
                 );
 
-                self.dispatch_route_change(cx, &old_route, &route);
+                self.dispatch_route_change(cx, old_route.clone(), route.clone());
 
                 self.ensure_route_widget(cx, route.id);
                 self.queue_route_actions(
@@ -247,7 +247,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     Some(transition),
                 );
-                self.dispatch_route_change(cx, &old_route, &route);
+                self.dispatch_route_change(cx, old_route.clone(), route.clone());
                 self.ensure_route_widget(cx, route.id);
                 self.queue_route_actions(
                     Some(RouterAction::Back),
@@ -283,7 +283,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Forward,
                     None,
                 );
-                self.dispatch_route_change(cx, &old_route, &route);
+                self.dispatch_route_change(cx, old_route.clone(), route.clone());
                 self.ensure_route_widget(cx, route.id);
                 self.queue_route_actions(
                     Some(RouterAction::Forward),
@@ -328,7 +328,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Forward,
                     Some(transition),
                 );
-                self.dispatch_route_change(cx, &old_route, &route);
+                self.dispatch_route_change(cx, old_route.clone(), route.clone());
                 self.ensure_route_widget(cx, route.id);
                 self.queue_route_actions(
                     Some(RouterAction::Forward),
@@ -444,7 +444,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     None,
                 );
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
                 self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), &new_route);
                 self.sync_browser_after_pop(cx, old_depth.saturating_sub(self.router.depth()));
                 self.redraw(cx);
@@ -474,7 +474,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     None,
                 );
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
                 self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), &new_route);
                 self.sync_browser_after_pop(cx, old_depth.saturating_sub(self.router.depth()));
                 self.redraw(cx);
@@ -504,7 +504,7 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     None,
                 );
-                self.dispatch_route_change(cx, &old_route, &new_route);
+                self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
                 self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), &new_route);
                 self.sync_browser_after_pop(cx, old_depth.saturating_sub(self.router.depth()));
                 self.redraw(cx);
@@ -542,14 +542,13 @@ impl RouterWidget {
             RouterTransitionDirection::Forward,
             None,
         );
-        self.dispatch_route_change(cx, &old_route, &new_route);
-        let primary_action = RouterAction::Reset(new_route.clone());
+        self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
         self.queue_route_actions(
-            Some(primary_action.clone()),
+            Some(RouterAction::Reset(new_route.clone())),
             old_route.as_ref().map(|r| r.id),
             &new_route,
         );
-        self.sync_browser_with_action(cx, &primary_action);
+        self.sync_browser_with_action(cx, &RouterAction::Reset(new_route));
         self.redraw(cx);
         true
     }
@@ -564,6 +563,7 @@ impl RouterWidget {
                 },
             );
         }
-        self.navigate_by_path_internal(cx, path, true)
+        let ok = self.navigate_by_path_internal(cx, path, true);
+        ok
     }
 }

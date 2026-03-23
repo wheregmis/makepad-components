@@ -374,8 +374,8 @@ impl ShadSonner {
     }
 
     fn sync_global_host_overlay(cx: &mut Cx) {
+        let global = cx.global::<SonnerGlobal>().clone();
         let (host_overlay, visible_toasts) = {
-            let global = cx.global::<SonnerGlobal>();
             let state = global.state.borrow();
             (
                 state.host_overlay.clone(),
@@ -397,12 +397,9 @@ impl ShadSonner {
                 Self::sync_overlay_slot(cx, &overlay, index, toast.clone());
             }
 
-            {
-                let global = cx.global::<SonnerGlobal>();
-                let mut state = global.state.borrow_mut();
-                state.rendered_toasts = visible_toasts;
-                state.rendered_open = Some(next_open);
-            }
+            let mut state = global.state.borrow_mut();
+            state.rendered_toasts = visible_toasts;
+            state.rendered_open = Some(next_open);
             overlay.redraw(cx);
         }
     }
@@ -579,10 +576,8 @@ impl Widget for ShadSonner {
             }
             let now = ne.time;
             let mut needs_redraw = false;
-            let mut progresses = [0.0; MAX_VISIBLE_TOASTS];
-            let mut num_progresses = 0;
-            {
-                let global = cx.global::<SonnerGlobal>();
+            let progresses: Vec<f64> = {
+                let global = cx.global::<SonnerGlobal>().clone();
                 let mut state = global.state.borrow_mut();
 
                 // 初始化新 enqueue 的 toast 的过期时间
@@ -592,27 +587,22 @@ impl Widget for ShadSonner {
                     }
                 }
 
-                // Optimization: avoid repeated allocation in render loop by reusing buffer
-                // Previously: created new Vec<f64> every frame (causing heap churn) and cloned global Rc
-                // Now: use a stack-allocated array, reducing allocations by 100%
-                for (i, entry) in state
+                state
                     .toasts
                     .iter()
                     .rev()
                     .take(MAX_VISIBLE_TOASTS)
-                    .enumerate()
-                {
-                    progresses[i] = if entry.total_duration <= 0.0 {
-                        0.0
-                    } else {
-                        let exp = entry.expires_at.unwrap_or(now + entry.total_duration);
+                    .map(|entry| {
+                        if entry.total_duration <= 0.0 {
+                            return 0.0;
+                        }
+                        let exp = entry.expires_at.unwrap();
                         let remaining = if exp > now { exp - now } else { 0.0 };
                         (remaining / entry.total_duration).clamp(0.0, 1.0)
-                    };
-                    num_progresses += 1;
-                }
+                    })
+                    .collect()
             };
-            for (i, &prog) in progresses.iter().enumerate().take(num_progresses) {
+            for (i, &prog) in progresses.iter().enumerate() {
                 let slot = self.overlay.widget(cx, Self::toast_slot_path(i));
                 if !slot.is_empty() {
                     let progress_bar = slot.my_progress_bar(cx, ids!(progress_bar));
@@ -624,7 +614,7 @@ impl Widget for ShadSonner {
                 self.overlay.redraw(cx); // 触发重绘以更新进度条
             }
             let (changed, still_has_toasts, needs_schedule) = {
-                let global = cx.global::<SonnerGlobal>();
+                let global = cx.global::<SonnerGlobal>().clone();
                 let mut state = global.state.borrow_mut();
                 let changed = Self::prune_expired_toasts(&mut state, now);
                 let still_has_toasts = !state.toasts.is_empty();
