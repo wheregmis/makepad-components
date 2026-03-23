@@ -182,18 +182,24 @@ impl RoutePattern {
         // Normalize: ensure it starts with /
         let pattern = pattern.strip_prefix('/').unwrap_or(pattern);
 
-        let mut segments = Vec::new();
-        let parts: Vec<&str> = pattern.split('/').filter(|s| !s.is_empty()).collect();
+        // Optimization: parse route patterns in a single streaming pass.
+        // Previously: collected every non-empty segment into a temporary `Vec<&str>` just to
+        // check whether `**` was trailing, adding an extra allocation during route registration
+        // and live-reload rebuilds. Now: walk a `Peekable` iterator and only allocate the final
+        // owned segment strings that must live in the parsed pattern.
+        let mut segments =
+            Vec::with_capacity(pattern.as_bytes().iter().filter(|&&b| b == b'/').count() + 1);
+        let mut parts = pattern.split('/').filter(|s| !s.is_empty()).peekable();
 
-        for (i, part) in parts.iter().enumerate() {
-            if part == &"**" {
+        while let Some(part) = parts.next() {
+            if part == "**" {
                 // Multi-segment wildcard must be the last segment
-                if i != parts.len() - 1 {
+                if parts.peek().is_some() {
                     return Err("Multi-segment wildcard (**) must be the last segment".to_string());
                 }
                 segments.push(RouteSegment::WildcardMulti);
                 break;
-            } else if part == &"*" {
+            } else if part == "*" {
                 segments.push(RouteSegment::WildcardSingle);
             } else if let Some(param_name) = part.strip_prefix(':') {
                 if param_name.is_empty() {
@@ -755,6 +761,64 @@ mod tests {
         let start = std::time::Instant::now();
         for _ in 0..iterations {
             sink += pattern.format_path(&params).unwrap().len();
+        }
+        let optimized_elapsed = start.elapsed();
+
+        eprintln!("legacy={legacy_elapsed:?} optimized={optimized_elapsed:?} sink={sink}");
+    }
+
+    #[test]
+    #[ignore = "benchmark-style measurement for parse allocation reduction"]
+    fn bench_parse_streaming_segments() {
+        fn legacy_parse(pattern: &str) -> Result<RoutePattern, String> {
+            let pattern = pattern.trim();
+            if pattern.is_empty() {
+                return Err("Pattern cannot be empty".to_string());
+            }
+
+            let pattern = pattern.strip_prefix('/').unwrap_or(pattern);
+            let mut segments = Vec::new();
+            let parts: Vec<&str> = pattern.split('/').filter(|s| !s.is_empty()).collect();
+
+            for (i, part) in parts.iter().enumerate() {
+                if part == &"**" {
+                    if i != parts.len() - 1 {
+                        return Err(
+                            "Multi-segment wildcard (**) must be the last segment".to_string()
+                        );
+                    }
+                    segments.push(RouteSegment::WildcardMulti);
+                    break;
+                } else if part == &"*" {
+                    segments.push(RouteSegment::WildcardSingle);
+                } else if let Some(param_name) = part.strip_prefix(':') {
+                    if param_name.is_empty() {
+                        return Err("Dynamic segment parameter name cannot be empty".to_string());
+                    }
+                    let name = param_name.to_string();
+                    let key = LiveId::from_str(param_name);
+                    segments.push(RouteSegment::Dynamic { name, key });
+                } else {
+                    segments.push(RouteSegment::Static(part.to_string()));
+                }
+            }
+
+            Ok(RoutePattern { segments })
+        }
+
+        let pattern = "/team/:team/member/:member/settings/:tab";
+        let iterations = 200_000;
+
+        let start = std::time::Instant::now();
+        let mut sink = 0usize;
+        for _ in 0..iterations {
+            sink += legacy_parse(pattern).unwrap().segments.len();
+        }
+        let legacy_elapsed = start.elapsed();
+
+        let start = std::time::Instant::now();
+        for _ in 0..iterations {
+            sink += RoutePattern::parse(pattern).unwrap().segments.len();
         }
         let optimized_elapsed = start.elapsed();
 
