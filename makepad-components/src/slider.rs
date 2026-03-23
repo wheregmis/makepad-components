@@ -40,7 +40,7 @@ script_mod! {
 
             border_color: uniform(shad_theme.color_outline_border)
             border_color_hover: uniform(shad_theme.color_outline_border_hover)
-            border_color_focus: uniform(shad_theme.color_outline_border_hover)
+            border_color_focus: uniform(shad_theme.color_primary)
             border_color_drag: uniform(shad_theme.color_outline_border_hover)
             border_color_disabled: uniform(shad_theme.color_muted_foreground)
 

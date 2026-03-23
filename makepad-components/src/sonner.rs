@@ -3,11 +3,7 @@ use crate::internal::overlay::button_clicked;
 use crate::progress_test::MyProgressBarWidgetRefExt;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
-use std::{
-    cell::RefCell,
-    collections::VecDeque,
-    rc::Rc,
-};
+use std::{cell::RefCell, collections::VecDeque, rc::Rc};
 
 const MAX_VISIBLE_TOASTS: usize = 4;
 const DEFAULT_TIMEOUT_SEC: f64 = 5.0;
@@ -95,8 +91,8 @@ script_mod! {
         visible: false
         width: 280
         height: Fit
-        flow: Down 
-        padding: 0.0 
+        flow: Down
+        padding: 0.0
         spacing: 0.0
 
         draw_bg +: {
@@ -397,8 +393,8 @@ impl ShadSonner {
                 }
             }
 
-            for index in 0..MAX_VISIBLE_TOASTS {
-                Self::sync_overlay_slot(cx, &overlay, index, visible_toasts[index].clone());
+            for (index, toast) in visible_toasts.iter().enumerate().take(MAX_VISIBLE_TOASTS) {
+                Self::sync_overlay_slot(cx, &overlay, index, toast.clone());
             }
 
             let mut state = global.state.borrow_mut();
@@ -502,7 +498,7 @@ impl ShadSonner {
         let (was_empty, needs_schedule) = {
             let global = cx.global::<SonnerGlobal>().clone();
             let mut state = global.state.borrow_mut();
-            
+
             let was_empty = state.toasts.is_empty();
 
             if state.toasts.len() >= MAX_VISIBLE_TOASTS {
@@ -583,7 +579,7 @@ impl Widget for ShadSonner {
             let progresses: Vec<f64> = {
                 let global = cx.global::<SonnerGlobal>().clone();
                 let mut state = global.state.borrow_mut();
-                
+
                 // 初始化新 enqueue 的 toast 的过期时间
                 for entry in state.toasts.iter_mut() {
                     if entry.expires_at.is_none() {

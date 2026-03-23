@@ -299,7 +299,7 @@ script_mod! {
             border_color: (shad_theme.color_outline_border)
             border_color_hover: (shad_theme.color_outline_border_hover)
             border_color_down: (shad_theme.color_outline_border_down)
-            border_color_focus: (shad_theme.color_outline_border_hover)
+            border_color_focus: (shad_theme.color_primary)
             border_color_disabled: (shad_theme.color_disabled_border)
         }
         draw_text.color: (shad_theme.color_primary)
@@ -473,7 +473,7 @@ impl Widget for ShadNavButton {
     ) -> ScriptAsyncResult {
         if method == live_id!(text) {
             let str_val = vm.bx.heap.new_string_from_str(self.text.as_ref());
-            return ScriptAsyncResult::Return(str_val.into());
+            return ScriptAsyncResult::Return(str_val);
         }
         if method == live_id!(set_text) {
             if let Some(args_obj) = args.as_object() {
