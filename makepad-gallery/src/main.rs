@@ -86,9 +86,6 @@ impl App {
         self.ui
             .button(cx, ids!(mobile_sidebar_close_button))
             .set_visible(cx, show_close);
-        self.ui
-            .label(cx, ids!(mobile_sidebar_toggle_label))
-            .set_text(cx, if show_close { "Close" } else { "Menu" });
     }
 
     fn sync_theme_toggle_copy(&self, cx: &mut Cx) {

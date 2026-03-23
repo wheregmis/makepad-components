@@ -25,6 +25,10 @@ macro_rules! define_gallery_sidebar {
             mod.widgets.GallerySidebar = ShadSidebar{
                 width: 280
 
+                mobile_sidebar_close_button := mod.widgets.GalleryMobileSidebarCloseButton{
+                    visible: false
+                }
+
                 ShadLabel{
                     text: "Makepad Component\nGallery"
                     draw_text.text_style.font_size: 13
