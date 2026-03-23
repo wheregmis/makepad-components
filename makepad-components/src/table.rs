@@ -232,7 +232,7 @@ pub enum ShadTableAction {
     None,
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct ShadTableHeaderView {
     #[uid]
     uid: WidgetUid,
@@ -264,6 +264,25 @@ pub struct ShadTableHeaderView {
     widths: Vec<f64>,
     #[rust]
     text_x_offsets: Vec<f64>,
+}
+
+impl ScriptHook for ShadTableHeaderView {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        sync_text_x_offsets(
+            &mut self.text_x_offsets,
+            &self.headers,
+            &self.widths,
+            self.text_align,
+            self.draw_text.text_style.font_size as f64,
+        );
+        vm.with_cx_mut(|cx| self.area.redraw(cx));
+    }
 }
 
 impl ShadTableHeaderView {
@@ -299,7 +318,7 @@ impl ShadTableHeaderView {
                 headers,
                 widths,
                 text_align,
-                HEADER_FONT_SIZE,
+                self.draw_text.text_style.font_size as f64,
             );
             self.area.redraw(cx);
         }
@@ -327,7 +346,7 @@ impl Widget for ShadTableHeaderView {
     }
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct ShadTableRowView {
     #[uid]
     uid: WidgetUid,
@@ -374,6 +393,25 @@ pub struct ShadTableRowView {
     #[action_data]
     #[rust]
     action_data: WidgetActionData,
+}
+
+impl ScriptHook for ShadTableRowView {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        sync_text_x_offsets(
+            &mut self.text_x_offsets,
+            self.cells.as_ref(),
+            self.widths.as_ref(),
+            self.text_align,
+            self.draw_text.text_style.font_size as f64,
+        );
+        vm.with_cx_mut(|cx| self.area.redraw(cx));
+    }
 }
 
 impl ShadTableRowView {
@@ -425,7 +463,7 @@ impl ShadTableRowView {
                 self.cells.as_ref(),
                 self.widths.as_ref(),
                 self.text_align,
-                CELL_FONT_SIZE,
+                self.draw_text.text_style.font_size as f64,
             );
             self.area.redraw(cx);
         }
@@ -1481,5 +1519,19 @@ mod tests {
 
         black_box((old_total, new_total));
         println!("text_offset_cache benchmark: old={old_elapsed:?}, new={new_elapsed:?}");
+    }
+
+    #[test]
+    fn text_offsets_track_font_size_changes() {
+        let texts = vec!["header".to_string()];
+        let widths = vec![140.0];
+        let mut small = Vec::new();
+        let mut large = Vec::new();
+
+        sync_text_x_offsets(&mut small, &texts, &widths, 0.5, 10.0);
+        sync_text_x_offsets(&mut large, &texts, &widths, 0.5, 18.0);
+
+        assert_ne!(small, large);
+        assert!(large[0] < small[0]);
     }
 }
