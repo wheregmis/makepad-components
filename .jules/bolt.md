@@ -44,6 +44,10 @@
 **Learning:** `RouterWidget::infer_browser_base_path` scans each leading path segment while syncing browser URLs. Rebuilding a stripped `String` for every candidate prefix added avoidable heap churn inside that probe loop even though the normalized pathname was already available.
 **Action:** For prefix-probe loops over normalized URLs, track the current byte offset and pass borrowed suffix slices into route matching instead of re-running String-building helpers per candidate.
 
+## 2026-03-22 - Cache table text positions outside redraws
+**Learning:** `ShadTableHeaderView` and `ShadTableRowView` were recomputing `estimate_text_width` and aligned x positions for every visible cell on every redraw, even though widths and text only change when row/header data changes.
+**Action:** In virtualized table widgets, precompute per-column text offsets during the data-sync step and reuse them in `draw_walk` so scroll and hover redraws stay glyph-only.
+
 ## 2026-03-20 - Router query serialization should stream percent-encoding
 **Learning:** `makepad-router-core` rebuilt query strings by percent-encoding each key and value into temporary `String`s before copying them into the final URL, which adds heap churn on every router URL update.
 **Action:** For hot URL serialization paths, collect borrowed `(&str, &str)` entries, sort those, and write percent-encoded bytes directly into one pre-sized output buffer.

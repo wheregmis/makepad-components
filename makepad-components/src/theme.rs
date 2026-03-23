@@ -125,7 +125,7 @@ script_mod! {
             color_kbd_border: #e4e4e7
             color_kbd_foreground: #18181b
 
-            
+
         }
     }
 
