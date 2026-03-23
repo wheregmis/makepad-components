@@ -125,6 +125,7 @@ jobs:
           cp "${INDEX_FILE}" "${NOT_FOUND_FILE}"
           rm -f "${INDEX_FILE}.br"
           rm -f "${NOT_FOUND_FILE}.br"
+          touch "${APP_DIR}/.nojekyll"
 
       - name: Deploy preview
         if: github.event.action != 'closed'
