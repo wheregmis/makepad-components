@@ -29,14 +29,13 @@ impl RouterWidget {
             );
 
             if let Some(new_route) = self.router.current_route().cloned() {
-                let primary_action = RouterAction::Navigate(new_route.clone());
                 self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
                 self.queue_route_actions(
-                    Some(primary_action.clone()),
+                    Some(RouterAction::Navigate(new_route.clone())),
                     old_route.as_ref().map(|r| r.id),
                     &new_route,
                 );
-                self.sync_browser_with_action(cx, &primary_action);
+                self.sync_browser_with_action(cx, &RouterAction::Navigate(new_route));
             }
 
             self.redraw(cx);
@@ -80,14 +79,13 @@ impl RouterWidget {
             );
 
             if let Some(new_route) = self.router.current_route().cloned() {
-                let primary_action = RouterAction::Navigate(new_route.clone());
                 self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
                 self.queue_route_actions(
-                    Some(primary_action.clone()),
+                    Some(RouterAction::Navigate(new_route.clone())),
                     old_route.as_ref().map(|r| r.id),
                     &new_route,
                 );
-                self.sync_browser_with_action(cx, &primary_action);
+                self.sync_browser_with_action(cx, &RouterAction::Navigate(new_route));
             }
 
             self.redraw(cx);
@@ -120,14 +118,13 @@ impl RouterWidget {
             );
 
             if let Some(new_route) = self.router.current_route().cloned() {
-                let primary_action = RouterAction::Replace(new_route.clone());
                 self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
                 self.queue_route_actions(
-                    Some(primary_action.clone()),
+                    Some(RouterAction::Replace(new_route.clone())),
                     old_route.as_ref().map(|r| r.id),
                     &new_route,
                 );
-                self.sync_browser_with_action(cx, &primary_action);
+                self.sync_browser_with_action(cx, &RouterAction::Replace(new_route));
             }
 
             self.redraw(cx);
@@ -171,14 +168,13 @@ impl RouterWidget {
             );
 
             if let Some(new_route) = self.router.current_route().cloned() {
-                let primary_action = RouterAction::Replace(new_route.clone());
                 self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
                 self.queue_route_actions(
-                    Some(primary_action.clone()),
+                    Some(RouterAction::Replace(new_route.clone())),
                     old_route.as_ref().map(|r| r.id),
                     &new_route,
                 );
-                self.sync_browser_with_action(cx, &primary_action);
+                self.sync_browser_with_action(cx, &RouterAction::Replace(new_route));
             }
 
             self.redraw(cx);
@@ -410,14 +406,13 @@ impl RouterWidget {
         );
 
         if let Some(new_route) = self.router.current_route().cloned() {
-            let primary_action = RouterAction::Reset(new_route.clone());
             self.dispatch_route_change(cx, old_route.clone(), new_route.clone());
             self.queue_route_actions(
-                Some(primary_action.clone()),
+                Some(RouterAction::Reset(new_route.clone())),
                 old_route.as_ref().map(|r| r.id),
                 &new_route,
             );
-            self.sync_browser_with_action(cx, &primary_action);
+            self.sync_browser_with_action(cx, &RouterAction::Reset(new_route));
         }
 
         self.redraw(cx);
@@ -569,7 +564,6 @@ impl RouterWidget {
                 },
             );
         }
-        let ok = self.navigate_by_path_internal(cx, path, true);
-        ok
+        self.navigate_by_path_internal(cx, path, true)
     }
 }
