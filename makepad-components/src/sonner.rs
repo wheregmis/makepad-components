@@ -596,7 +596,7 @@ impl Widget for ShadSonner {
                         if entry.total_duration <= 0.0 {
                             return 0.0;
                         }
-                        let exp = entry.expires_at.unwrap();
+                        let exp = entry.expires_at.unwrap_or(now + entry.total_duration);
                         let remaining = if exp > now { exp - now } else { 0.0 };
                         (remaining / entry.total_duration).clamp(0.0, 1.0)
                     })
