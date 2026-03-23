@@ -16,20 +16,7 @@ pub const CONTEXT_MENU_PREVIEW_CODE: &str = r#"ShadContextMenu{
         ShadLabel{text: "Project brief.md"}
         ShadFieldDescription{text: "Right click this card to open the menu."}
     }
-}
-
-// Controller example (Rust):
-// let menu = self.ui.shad_context_menu(cx, ids!(context_menu_basic));
-//
-// if let Some(index) = menu.changed(actions) {
-//     match index {
-//         0 => self.open_file(),
-//         1 => self.duplicate_file(),
-//         2 => self.share_file(),
-//         3 => self.delete_file(),
-//         _ => {}
-//     }
-// }"#;
+}"#;
 pub const DIALOG_PREVIEW_CODE: &str = r#"open_rename_dialog_btn := ShadButton{
     text: "Rename project"
 }
@@ -83,24 +70,7 @@ publish_dialog := ShadDialogAlert{
             }
         }
     }
-}
-
-// Controller example (Rust):
-// let dialog = self.ui.shad_dialog(cx, ids!(rename_dialog));
-//
-// if self.ui.button(cx, ids!(open_rename_dialog_btn)).clicked(actions) {
-//     dialog.open(cx);
-// }
-//
-// if self.ui.button(cx, ids!(rename_cancel_btn)).clicked(actions)
-//     || self.ui.button(cx, ids!(rename_save_btn)).clicked(actions)
-// {
-//     dialog.close(cx);
-// }
-//
-// if let Some(is_open) = dialog.open_changed(actions) {
-//     log!("Dialog open: {}", is_open);
-// }"#;
+}"#;
 pub const POPOVER_PREVIEW_CODE: &str = r#"profile_popover := ShadPopover{
     side: "bottom"
     align: "start"
@@ -133,20 +103,7 @@ pub const POPOVER_PREVIEW_CODE: &str = r#"profile_popover := ShadPopover{
             }
         }
     }
-}
-
-// Controller example (Rust):
-// let popover = self.view.shad_popover(cx, ids!(profile_popover));
-// let content = popover.content_widget();
-//
-// if content.button(cx, ids!(popover_apply_btn)).clicked(actions) {
-//     self.save_profile_changes();
-//     popover.close(cx);
-// }
-//
-// if let Some(is_open) = popover.open_changed(actions) {
-//     log!("Popover open: {}", is_open);
-// }"#;
+}"#;
 pub const SHEET_PREVIEW_CODE: &str = r#"open_right_sheet_btn := ShadButton{
     text: "Open editor"
 }
@@ -182,24 +139,4 @@ right_sheet := ShadSheet{
             }
         }
     }
-}
-
-// Controller example (Rust):
-// let sheet = self.ui.shad_sheet(cx, ids!(right_sheet));
-//
-// if self.ui.button(cx, ids!(open_right_sheet_btn)).clicked(actions) {
-//     sheet.open(cx);
-// }
-//
-// if self.ui.button(cx, ids!(close_right_sheet_btn)).clicked(actions)
-//     || self.ui.button(cx, ids!(save_right_sheet_btn)).clicked(actions)
-// {
-//     sheet.close(cx);
-// }
-//
-// if let Some(is_open) = sheet.open_changed(actions) {
-//     log!("Sheet open: {}", is_open);
-// }
-//
-// side and sheet_size are declarative configuration.
-// The page opens and closes the sheet; backdrop dismissal and Escape stay inside ShadSheet."#;
+}"#;

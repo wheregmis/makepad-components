@@ -62,16 +62,7 @@ pub const MENUBAR_PREVIEW_CODE: &str = r#"app_menubar := ShadMenubar{
             edit_redo_btn := ShadMenubarItem{text: "Redo"}
         }
     }
-}
-
-// Controller example (Rust):
-// let file_menu = self.view.shad_popover(cx, ids!(file_menu));
-// let file_content = file_menu.content_widget();
-//
-// if file_content.button(cx, ids!(file_new_btn)).clicked(actions) {
-//     file_menu.close(cx);
-//     self.status = "Selected File -> New file".to_string();
-// }"#;
+}"#;
 pub const NAVIGATION_MENU_PREVIEW_CODE: &str = r#"site_nav := ShadNavigationMenu{
     navigation_list := ShadNavigationMenuList{
         products_menu := ShadNavigationMenuItem{
@@ -97,50 +88,16 @@ pub const NAVIGATION_MENU_PREVIEW_CODE: &str = r#"site_nav := ShadNavigationMenu
             }
         }
     }
-}
-
-// Controller example (Rust):
-// let products = self.view.shad_popover(cx, ids!(products_menu));
-// let content = products.content_widget();
-//
-// if content.button(cx, ids!(products_sdk_btn)).clicked(actions) {
-//     products.close(cx);
-//     self.selected_destination = "SDKs".to_string();
-// }"#;
+}"#;
 pub const PAGINATION_PREVIEW_CODE: &str = r#"projects_pagination := ShadPagination{
     current_page: 5
     page_count: 12
-}
-
-// Controller example (Rust):
-// let pagination = self.view.shad_pagination(cx, ids!(projects_pagination));
-//
-// if let Some(page) = pagination.changed(actions) {
-//     self.current_page = page;
-//     self.reload_rows_for(page);
-// }
-//
-// if self.view.button(cx, ids!(next_page_btn)).clicked(actions) {
-//     pagination.next(cx);
-// }
-//
-// pagination.set_page(cx, 1);
-// let active_page = pagination.page();
-// let total_pages = pagination.page_count();"#;
+}"#;
 pub const SIDEBAR_PREVIEW_CODE: &str = r#"mod.widgets.ShadSidebar{
     nav_playground := ShadSidebarItem{text: "Playground"}
     nav_history := ShadSidebarItem{text: "History"}
     nav_settings := ShadSidebarItem{text: "Settings"}
-}
-
-// Controller example (Rust):
-// if self.ui.button(cx, ids!(nav_playground)).clicked(actions) {
-//     self.router.go_to_route(cx, live_id!(playground));
-// }
-//
-// Sidebar items are button actions with navigation styling. Keep the selected
-// route or active section in page/app state, then render the matching item as
-// active from that state."#;
+}"#;
 pub const TABS_PREVIEW_CODE: &str = r#"ShadTabs{
     ShadTabsList{
         ShadTabsTrigger{text: "Overview"}
