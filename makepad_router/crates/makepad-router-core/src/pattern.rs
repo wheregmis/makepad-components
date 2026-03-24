@@ -40,11 +40,13 @@ fn normalize_remaining_tail(rest: &str) -> String {
         return String::new();
     }
     if !rest.contains("//") && !rest.ends_with('/') {
-        let mut out = String::with_capacity(rest.len() + 1);
         // Optimization: root-prefix matches leave `remaining` without a leading slash.
         // Preserve the documented contract here by returning either `""` or a slash-prefixed
         // tail, while still avoiding the slower split/rebuild path for normalized suffixes.
-        out.push('/');
+        let mut out = String::with_capacity(rest.len() + usize::from(!rest.starts_with('/')));
+        if !rest.starts_with('/') {
+            out.push('/');
+        }
         out.push_str(rest);
         return out;
     }
@@ -663,6 +665,15 @@ mod tests {
             .matches_prefix_with_tail("/admin/dashboard")
             .unwrap();
         assert!(params.is_empty());
+        assert_eq!(tail, "/dashboard");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_static_does_not_double_prefix_slash() {
+        let pattern = RoutePattern::parse("/admin").unwrap();
+        let (_params, tail) = pattern
+            .matches_prefix_with_tail("/admin/dashboard")
+            .unwrap();
         assert_eq!(tail, "/dashboard");
     }
 
