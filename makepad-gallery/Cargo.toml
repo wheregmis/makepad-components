@@ -10,6 +10,3 @@ makepad-widgets = { workspace = true }
 makepad-code-editor = { workspace = true }
 makepad-components = { workspace = true }
 makepad-router = { workspace = true }
-
-[build-dependencies]
-makepad-icon = { workspace = true }

@@ -323,7 +323,6 @@ version = "1.0.0"
 dependencies = [
  "makepad-code-editor",
  "makepad-components",
- "makepad-icon",
  "makepad-router",
  "makepad-widgets",
 ]
