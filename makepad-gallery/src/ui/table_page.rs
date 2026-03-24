@@ -118,6 +118,7 @@ impl GalleryTablePage {
         self.view
             .label(cx, ids!(table_status))
             .set_text(cx, &format!("Showing {title}. Selected row: none."));
+        self.sync_controls(cx);
         self.view.redraw(cx);
     }
 
@@ -156,7 +157,21 @@ impl GalleryTablePage {
                 end = end
             ),
         );
+        self.sync_controls(cx);
         self.view.redraw(cx);
+    }
+
+    fn sync_controls(&self, cx: &mut Cx) {
+        let has_selection = self.view.shad_table(cx, ids!(table_demo)).selected_row().is_some();
+        self.view
+            .button(cx, ids!(table_prev_btn))
+            .set_enabled(cx, self.virtual_mode && self.virtual_start > 0);
+        self.view
+            .button(cx, ids!(table_next_btn))
+            .set_enabled(cx, self.virtual_mode && self.virtual_start < Self::VIRTUAL_TOTAL - 1);
+        self.view
+            .button(cx, ids!(table_clear_btn))
+            .set_enabled(cx, has_selection);
     }
 
     fn selected_primary_cell(&self, selected_row: Option<usize>) -> String {
@@ -193,6 +208,7 @@ impl GalleryTablePage {
         self.view
             .label(cx, ids!(table_status))
             .set_text(cx, &format!("Showing {title}. {prefix}: {selected_text}."));
+        self.sync_controls(cx);
     }
 }
 
