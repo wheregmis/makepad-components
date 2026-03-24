@@ -25,7 +25,8 @@ script_mod! {
             side: "bottom"
             align: "start"
 
-            trigger := ShadButtonOutline{
+            trigger := ShadButton{
+                variant: ShadButtonVariant.Outline
                 width: Fill
                 align: Align{x: 0.0, y: 0.5}
                 text: "Pick a date"

@@ -7,9 +7,21 @@ use crate::internal::script_args::bool_arg;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Script, ScriptHook)]
+#[repr(u32)]
+pub enum ShadDialogAlertTone {
+    #[pick]
+    #[default]
+    Default,
+    Destructive,
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
+
+    let ShadDialogAlertTone = set_type_default() do #(ShadDialogAlertTone::script_api(vm))
+    mod.widgets.ShadDialogAlertTone = ShadDialogAlertTone
 
     let DialogPanel = mod.widgets.RoundedView{
         width: Fill
@@ -79,6 +91,22 @@ script_mod! {
         width: Fill
         height: Fit
         open: false
+        alert_mode: true
+        alert_tone: ShadDialogAlertTone.Default
+        alert_title_text: "Alert title"
+        alert_description_text: "Alert description"
+        alert_confirm_text: "Continue"
+        alert_cancel_text: "Cancel"
+        default_border_color: (shad_theme.color_outline_border)
+        default_title_color: (shad_theme.color_primary)
+        default_description_color: (shad_theme.color_muted_foreground)
+        destructive_border_color: (shad_theme.color_destructive)
+        destructive_title_color: (shad_theme.color_destructive)
+        destructive_description_color: (shad_theme.color_destructive)
+        destructive_confirm_bg: (shad_theme.color_destructive)
+        destructive_confirm_bg_hover: (shad_theme.color_destructive_hover)
+        destructive_confirm_bg_down: (shad_theme.color_destructive_down)
+        destructive_confirm_text: (shad_theme.color_destructive_foreground)
 
         overlay: Modal{
             bg_view +: {
@@ -92,15 +120,16 @@ script_mod! {
                 dialog_panel := DialogPanel{
                     dialog_body := mod.widgets.ShadDialogHeader{
                         title_label := mod.widgets.ShadDialogTitle{
-                            text: "Are you absolutely sure?"
+                            text: "Alert title"
                         }
                         description_label := mod.widgets.ShadDialogDescription{
-                            text: "This action cannot be undone. This will permanently delete your account and remove your data from our servers."
+                            text: "Alert description"
                         }
                     }
 
                     footer := mod.widgets.ShadDialogFooter{
-                        cancel := ShadButtonOutline{
+                        cancel := ShadButton{
+                            variant: ShadButtonVariant.Outline
                             text: "Cancel"
                         }
 
@@ -113,43 +142,6 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadDialogAlertDestructive = set_type_default() do mod.widgets.ShadDialogBase{
-        width: Fill
-        height: Fit
-        open: false
-
-        overlay: Modal{
-            bg_view +: {
-                draw_bg.color: (shad_theme.color_overlay)
-            }
-
-            content +: {
-                width: 360
-                height: Fit
-
-                dialog_panel := DialogPanel{
-                    dialog_body := mod.widgets.ShadDialogHeader{
-                        title_label := mod.widgets.ShadDialogTitle{
-                            text: "Are you absolutely sure?"
-                        }
-                        description_label := mod.widgets.ShadDialogDescription{
-                            text: "This action cannot be undone. This will permanently delete your account and remove your data from our servers."
-                        }
-                    }
-
-                    footer := mod.widgets.ShadDialogFooter{
-                        cancel := ShadButtonOutline{
-                            text: "Cancel"
-                        }
-
-                        confirm := ShadButtonDestructive{
-                            text: "Delete"
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -159,7 +151,7 @@ pub enum ShadDialogAction {
     None,
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct ShadDialog {
     #[uid]
     uid: WidgetUid,
@@ -173,6 +165,38 @@ pub struct ShadDialog {
 
     #[live]
     open: bool,
+    #[live(false)]
+    alert_mode: bool,
+    #[live(ShadDialogAlertTone::Default)]
+    alert_tone: ShadDialogAlertTone,
+    #[live]
+    alert_title_text: ArcStringMut,
+    #[live]
+    alert_description_text: ArcStringMut,
+    #[live]
+    alert_confirm_text: ArcStringMut,
+    #[live]
+    alert_cancel_text: ArcStringMut,
+    #[live]
+    default_border_color: Vec4,
+    #[live]
+    default_title_color: Vec4,
+    #[live]
+    default_description_color: Vec4,
+    #[live]
+    destructive_border_color: Vec4,
+    #[live]
+    destructive_title_color: Vec4,
+    #[live]
+    destructive_description_color: Vec4,
+    #[live]
+    destructive_confirm_bg: Vec4,
+    #[live]
+    destructive_confirm_bg_hover: Vec4,
+    #[live]
+    destructive_confirm_bg_down: Vec4,
+    #[live]
+    destructive_confirm_text: Vec4,
     #[rust]
     is_synced_open: bool,
     #[action_data]
@@ -183,6 +207,111 @@ pub struct ShadDialog {
     layout: Layout,
     #[walk]
     walk: Walk,
+}
+
+impl ScriptHook for ShadDialog {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        if !self.alert_mode {
+            return;
+        }
+
+        let title_text = self.alert_title_text.as_ref().to_string();
+        let description_text = self.alert_description_text.as_ref().to_string();
+        let confirm_text = self.alert_confirm_text.as_ref().to_string();
+        let cancel_text = self.alert_cancel_text.as_ref().to_string();
+        let (border_color, title_color, description_color) = match self.alert_tone {
+            ShadDialogAlertTone::Default => (
+                self.default_border_color,
+                self.default_title_color,
+                self.default_description_color,
+            ),
+            ShadDialogAlertTone::Destructive => (
+                self.destructive_border_color,
+                self.destructive_title_color,
+                self.destructive_description_color,
+            ),
+        };
+
+        vm.with_cx_mut(|cx| {
+            let mut dialog_panel = self
+                .overlay
+                .widget(cx, ids!(content.dialog_panel));
+            script_apply_eval!(cx, dialog_panel, {
+                draw_bg +: {
+                    border_color: #(border_color)
+                }
+            });
+
+            let mut title = self
+                .overlay
+                .widget(cx, ids!(content.dialog_panel.dialog_body.title_label));
+            if !title_text.is_empty() {
+                script_apply_eval!(cx, title, {
+                    text: #(title_text.clone())
+                    draw_text.color: #(title_color)
+                });
+            } else {
+                script_apply_eval!(cx, title, {
+                    draw_text.color: #(title_color)
+                });
+            }
+
+            let mut description = self
+                .overlay
+                .widget(cx, ids!(content.dialog_panel.dialog_body.description_label));
+            if !description_text.is_empty() {
+                script_apply_eval!(cx, description, {
+                    text: #(description_text.clone())
+                    draw_text.color: #(description_color)
+                });
+            } else {
+                script_apply_eval!(cx, description, {
+                    draw_text.color: #(description_color)
+                });
+            }
+
+            if !cancel_text.is_empty() {
+                let mut cancel = self
+                    .overlay
+                    .widget(cx, ids!(content.dialog_panel.footer.cancel));
+                script_apply_eval!(cx, cancel, {
+                    text: #(cancel_text.clone())
+                });
+            }
+
+            if !confirm_text.is_empty() {
+                let mut confirm = self
+                    .overlay
+                    .widget(cx, ids!(content.dialog_panel.footer.confirm));
+                script_apply_eval!(cx, confirm, {
+                    text: #(confirm_text.clone())
+                });
+
+                if matches!(self.alert_tone, ShadDialogAlertTone::Destructive) {
+                    script_apply_eval!(cx, confirm, {
+                        draw_bg +: {
+                            color: #(self.destructive_confirm_bg)
+                            color_hover: #(self.destructive_confirm_bg_hover)
+                            color_down: #(self.destructive_confirm_bg_down)
+                            color_focus: #(self.destructive_confirm_bg_hover)
+                        }
+                        draw_text +: {
+                            color: #(self.destructive_confirm_text)
+                            color_hover: #(self.destructive_confirm_text)
+                            color_down: #(self.destructive_confirm_text)
+                            color_focus: #(self.destructive_confirm_text)
+                        }
+                    });
+                }
+            }
+        });
+    }
 }
 
 impl ShadDialog {

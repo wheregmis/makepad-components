@@ -42,7 +42,7 @@ gallery_static_page! {
                             surface +: {
                                 text_col +: {
                                     eyebrow +: {
-                                        label +: {text: "Launch week"}
+                                        text: "Launch week"
                                     }
                                     title +: {text: "Launch reliable realtime delivery from one surface"}
                                     description +: {text: "Pair product highlights with a live media panel so release notes, event status, and rollout messaging stay aligned."}
@@ -60,7 +60,7 @@ gallery_static_page! {
                             surface +: {
                                 text_col +: {
                                     eyebrow +: {
-                                        label +: {text: "Automation"}
+                                        text: "Automation"
                                     }
                                     title +: {text: "Stage onboarding and approvals without breaking the story"}
                                     description +: {text: "Keep one focused message per panel: explain the workflow, show the supporting visual, then let the user move forward."}
@@ -78,7 +78,7 @@ gallery_static_page! {
                             surface +: {
                                 text_col +: {
                                     eyebrow +: {
-                                        label +: {text: "Insights"}
+                                        text: "Insights"
                                     }
                                     title +: {text: "Close the loop with one outcome-focused summary"}
                                     description +: {text: "The final slide should reinforce the sequence with proof, recap, or next-step context instead of starting a new thread."}

@@ -220,7 +220,8 @@ script_mod! {
                             show_clear_button: false
                         }
 
-                        clear_search_btn := ShadButtonGhost{
+                        clear_search_btn := ShadButton{
+                            variant: ShadButtonVariant.Ghost
                             text: "Close"
                         }
                     }

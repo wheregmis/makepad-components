@@ -78,7 +78,8 @@ pub const NAVIGATION_MENU_PREVIEW_CODE: &str = r#"site_nav := ShadNavigationMenu
             trigger := ShadNavigationMenuTrigger{text: "Products"}
             content: ShadNavigationMenuContent{
                 products_trial_btn := ShadButton{text: "Start trial"}
-                products_sdk_btn := ShadButtonGhost{
+                products_sdk_btn := ShadButton{
+                    variant: ShadButtonVariant.Ghost
                     width: Fill
                     align: Align{x: 0.0, y: 0.5}
                     text: "SDKs"
@@ -89,7 +90,8 @@ pub const NAVIGATION_MENU_PREVIEW_CODE: &str = r#"site_nav := ShadNavigationMenu
         resources_menu := ShadNavigationMenuItem{
             trigger := ShadNavigationMenuTrigger{text: "Resources"}
             content: ShadNavigationMenuContent{
-                guides_btn := ShadButtonGhost{
+                guides_btn := ShadButton{
+                    variant: ShadButtonVariant.Ghost
                     width: Fill
                     align: Align{x: 0.0, y: 0.5}
                     text: "Guides"

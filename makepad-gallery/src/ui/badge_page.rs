@@ -11,7 +11,8 @@ gallery_static_page! {
     preview: {
         ShadSectionHeader{ text: "In Context" }
 
-        ShadSurfaceMuted{
+        ShadSurface{
+            variant: ShadSurfaceVariant.Muted
             width: Fill
             height: Fit
             flow: Down
@@ -39,8 +40,9 @@ gallery_static_page! {
                     ShadFieldDescription{text: "Production webhook delivery is enabled for connected workspaces."}
                 }
 
-                ShadBadgeSuccess{
-                    label := ShadBadgeSuccessLabel{text: "Live"}
+                ShadBadge{
+                    tone: ShadBadgeTone.Success
+                    text: "Live"
                 }
             }
 
@@ -70,11 +72,13 @@ gallery_static_page! {
                     align: Align{y: 0.5}
                     spacing: 8.0
 
-                    ShadBadgeWarning{
-                        label := ShadBadgeWarningLabel{text: "Beta"}
+                    ShadBadge{
+                        tone: ShadBadgeTone.Warning
+                        text: "Beta"
                     }
-                    ShadBadgeSecondary{
-                        label := ShadBadgeSecondaryLabel{text: "Internal"}
+                    ShadBadge{
+                        tone: ShadBadgeTone.Secondary
+                        text: "Internal"
                     }
                 }
             }
@@ -105,11 +109,13 @@ gallery_static_page! {
                     align: Align{y: 0.5}
                     spacing: 8.0
 
-                    ShadBadgeDestructive{
-                        label := ShadBadgeDestructiveLabel{text: "Deprecated"}
+                    ShadBadge{
+                        tone: ShadBadgeTone.Destructive
+                        text: "Deprecated"
                     }
-                    ShadBadgeOutline{
-                        label := ShadBadgeOutlineLabel{text: "Archived"}
+                    ShadBadge{
+                        tone: ShadBadgeTone.Outline
+                        text: "Archived"
                     }
                 }
             }
@@ -117,7 +123,8 @@ gallery_static_page! {
 
         ShadSectionHeader{ text: "Variants" }
 
-        ShadSurfaceMuted{
+        ShadSurface{
+            variant: ShadSurfaceVariant.Muted
             width: Fill
             height: Fit
             flow: Down
@@ -134,15 +141,9 @@ gallery_static_page! {
                 flow: Right
                 spacing: 8.0
 
-                ShadBadge{
-                    label := ShadBadgeLabel{text: "Default"}
-                }
-                ShadBadgeSecondary{
-                    label := ShadBadgeSecondaryLabel{text: "Secondary"}
-                }
-                ShadBadgeOutline{
-                    label := ShadBadgeOutlineLabel{text: "Outline"}
-                }
+                ShadBadge{text: "Default"}
+                ShadBadge{ tone: ShadBadgeTone.Secondary text: "Secondary" }
+                ShadBadge{ tone: ShadBadgeTone.Outline text: "Outline" }
             }
 
             View{
@@ -151,15 +152,9 @@ gallery_static_page! {
                 flow: Right
                 spacing: 8.0
 
-                ShadBadgeSuccess{
-                    label := ShadBadgeSuccessLabel{text: "Success"}
-                }
-                ShadBadgeWarning{
-                    label := ShadBadgeWarningLabel{text: "Warning"}
-                }
-                ShadBadgeDestructive{
-                    label := ShadBadgeDestructiveLabel{text: "Destructive"}
-                }
+                ShadBadge{ tone: ShadBadgeTone.Success text: "Success" }
+                ShadBadge{ tone: ShadBadgeTone.Warning text: "Warning" }
+                ShadBadge{ tone: ShadBadgeTone.Destructive text: "Destructive" }
             }
 
             ShadFieldDescription{

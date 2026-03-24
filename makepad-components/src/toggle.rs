@@ -1,12 +1,24 @@
+use crate::button::ShadControlSize;
 use makepad_widgets::*;
 
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.ShadToggle = mod.widgets.CheckBoxFlat{
+    mod.widgets.ShadToggleBase = set_type_default() do #(ShadToggle::register_widget(vm)){
         width: Fit
         height: 36
+        size: ShadControlSize.Default
+        size_is_managed: true
+        size_small_height: 28
+        size_default_height: 36
+        size_large_height: 44
+        size_small_padding_x: 10
+        size_default_padding_x: 12
+        size_large_padding_x: 16
+        size_small_font_size: 10
+        size_default_font_size: 11
+        size_large_font_size: 12
         padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
         align: Align{x: 0.5, y: 0.5}
         icon_walk: Walk{width: 0.0, height: 0.0}
@@ -112,17 +124,7 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadToggleSm = mod.widgets.ShadToggle{
-        height: 28
-        padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 10
-    }
-
-    mod.widgets.ShadToggleLg = mod.widgets.ShadToggle{
-        height: 44
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 12
-    }
+    mod.widgets.ShadToggle = mod.widgets.ShadToggleBase{}
 
     mod.widgets.ShadToggleGroup = mod.widgets.RoundedView{
         width: Fit
@@ -152,15 +154,164 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadToggleGroupItemSm = mod.widgets.ShadToggleGroupItem{
-        height: 28
-        padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 10
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct ManagedToggleSize {
+    height: f64,
+    padding_x: f64,
+    font_size: f64,
+}
+
+#[derive(Script, Widget)]
+pub struct ShadToggle {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    check_box: CheckBox,
+    #[live(ShadControlSize::Default)]
+    size: ShadControlSize,
+    #[live(false)]
+    size_is_managed: bool,
+    #[live(28.0)]
+    size_small_height: f64,
+    #[live(36.0)]
+    size_default_height: f64,
+    #[live(44.0)]
+    size_large_height: f64,
+    #[live(10.0)]
+    size_small_padding_x: f64,
+    #[live(12.0)]
+    size_default_padding_x: f64,
+    #[live(16.0)]
+    size_large_padding_x: f64,
+    #[live(10.0)]
+    size_small_font_size: f64,
+    #[live(11.0)]
+    size_default_font_size: f64,
+    #[live(12.0)]
+    size_large_font_size: f64,
+    #[rust]
+    applied_size: Option<ManagedToggleSize>,
+}
+
+impl ScriptHook for ShadToggle {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| {
+            self.sync_managed_size(cx);
+        });
+    }
+}
+
+impl ShadToggle {
+    fn managed_size(&self) -> Option<ManagedToggleSize> {
+        if !self.size_is_managed {
+            return None;
+        }
+
+        Some(match self.size {
+            ShadControlSize::Small => ManagedToggleSize {
+                height: self.size_small_height,
+                padding_x: self.size_small_padding_x,
+                font_size: self.size_small_font_size,
+            },
+            ShadControlSize::Default => ManagedToggleSize {
+                height: self.size_default_height,
+                padding_x: self.size_default_padding_x,
+                font_size: self.size_default_font_size,
+            },
+            ShadControlSize::Large => ManagedToggleSize {
+                height: self.size_large_height,
+                padding_x: self.size_large_padding_x,
+                font_size: self.size_large_font_size,
+            },
+        })
     }
 
-    mod.widgets.ShadToggleGroupItemLg = mod.widgets.ShadToggleGroupItem{
-        height: 44
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 12
+    fn sync_managed_size(&mut self, cx: &mut Cx) {
+        let Some(size) = self.managed_size() else {
+            return;
+        };
+
+        if self.applied_size == Some(size) {
+            return;
+        }
+
+        let padding = Inset {
+            left: size.padding_x,
+            right: size.padding_x,
+            top: 0.0,
+            bottom: 0.0,
+        };
+
+        script_apply_eval!(cx, self.check_box, {
+            height: #(size.height)
+            padding: #(padding)
+            draw_text.text_style.font_size: #(size.font_size)
+        });
+
+        self.applied_size = Some(size);
+    }
+
+    pub fn changed(&self, actions: &Actions) -> Option<bool> {
+        self.check_box.changed(actions)
+    }
+
+    pub fn active(&self, cx: &Cx) -> bool {
+        self.check_box.active(cx)
+    }
+
+    pub fn set_active(&mut self, cx: &mut Cx, value: bool) {
+        self.check_box.set_active(cx, value);
+    }
+}
+
+impl Widget for ShadToggle {
+    fn set_disabled(&mut self, cx: &mut Cx, disabled: bool) {
+        self.check_box.set_disabled(cx, disabled);
+    }
+
+    fn disabled(&self, cx: &Cx) -> bool {
+        self.check_box.disabled(cx)
+    }
+
+    fn script_call(
+        &mut self,
+        vm: &mut ScriptVm,
+        method: LiveId,
+        args: ScriptValue,
+    ) -> ScriptAsyncResult {
+        self.check_box.script_call(vm, method, args)
+    }
+
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.check_box.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.sync_managed_size(&mut *cx);
+        self.check_box.draw_walk(cx, scope, walk)
+    }
+}
+
+impl ShadToggleRef {
+    pub fn changed(&self, actions: &Actions) -> Option<bool> {
+        self.borrow().and_then(|inner| inner.changed(actions))
+    }
+
+    pub fn active(&self, cx: &Cx) -> bool {
+        self.borrow().is_some_and(|inner| inner.active(cx))
+    }
+
+    pub fn set_active(&self, cx: &mut Cx, value: bool) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.set_active(cx, value);
+        }
     }
 }

@@ -359,21 +359,22 @@ pub const TOGGLE_PREVIEW_CODE: &str = r#"View{
         height: Fit
         flow: Right
         spacing: 8.0
-        ShadToggle{text: "Bold"}
+        ShadToggle{size: ShadControlSize.Small text: "Bold"}
         ShadToggle{text: "Italic" active: true}
-        ShadToggle{text: "Underline"}
+        ShadToggle{size: ShadControlSize.Large text: "Underline"}
     }
     ShadToggleGroup{
-        ShadToggleGroupItem{text: "Left"}
+        ShadToggleGroupItem{size: ShadControlSize.Small text: "Left"}
         ShadToggleGroupItem{text: "Center" active: true}
-        ShadToggleGroupItem{text: "Right"}
+        ShadToggleGroupItem{size: ShadControlSize.Large text: "Right"}
     }
 }
 
 // Toggle flow in practice:
 // 1. Treat the selected/pressed value as page state.
 // 2. On trigger click, update that page state.
-// 3. Re-render the matching ShadToggle / ShadToggleGroupItem with active: true.
+// 3. Use size: ShadControlSize.* instead of the old Sm/Lg aliases when you need scale changes.
+// 4. Re-render the matching ShadToggle / ShadToggleGroupItem with active: true.
 //
 // This is the same pattern used by the Tabs demo: page-owned state,
 // widget tree reflects that state."#;

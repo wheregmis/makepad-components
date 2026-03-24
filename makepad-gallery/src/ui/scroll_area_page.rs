@@ -49,12 +49,12 @@ gallery_static_page! {
                     flow: Right
                     spacing: 12.0
 
-                    ShadBadge{ label := ShadBadgeLabel{text: "Analytics"} }
-                    ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Retention"} }
-                    ShadBadgeOutline{ label := ShadBadgeOutlineLabel{text: "Growth"} }
-                    ShadBadge{ label := ShadBadgeLabel{text: "Revenue"} }
-                    ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Operations"} }
-                    ShadBadgeOutline{ label := ShadBadgeOutlineLabel{text: "Launch Week"} }
+                    ShadBadge{ text: "Analytics" }
+                    ShadBadge{ tone: ShadBadgeTone.Secondary text: "Retention" }
+                    ShadBadge{ tone: ShadBadgeTone.Outline text: "Growth" }
+                    ShadBadge{ text: "Revenue" }
+                    ShadBadge{ tone: ShadBadgeTone.Secondary text: "Operations" }
+                    ShadBadge{ tone: ShadBadgeTone.Outline text: "Launch Week" }
                 }
             }
         }

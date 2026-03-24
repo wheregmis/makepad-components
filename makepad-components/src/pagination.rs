@@ -47,12 +47,14 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.ShadPaginationNavButton = mod.widgets.ShadButtonOutline{
+    mod.widgets.ShadPaginationNavButton = mod.widgets.ShadButton{
+        variant: ShadButtonVariant.Outline
         height: 36
         padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
     }
 
-    mod.widgets.ShadPaginationPageButton = mod.widgets.ShadButtonGhost{
+    mod.widgets.ShadPaginationPageButton = mod.widgets.ShadButton{
+        variant: ShadButtonVariant.Ghost
         width: 36
         height: 36
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}

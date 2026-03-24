@@ -57,7 +57,10 @@ rename_dialog := ShadDialog{
                 }
 
                 dialog_footer := ShadDialogFooter{
-                    rename_cancel_btn := ShadButtonOutline{text: "Cancel"}
+                    rename_cancel_btn := ShadButton{
+                        variant: ShadButtonVariant.Outline
+                        text: "Cancel"
+                    }
                     rename_save_btn := ShadButton{text: "Save changes"}
                 }
             }
@@ -66,23 +69,10 @@ rename_dialog := ShadDialog{
 }
 
 publish_dialog := ShadDialogAlert{
-    overlay +: {
-        content +: {
-            dialog_panel +: {
-                dialog_body +: {
-                    title_label +: {text: "Publish changes?"}
-                    description_label +: {
-                        text: "Push the latest updates live for every workspace."
-                    }
-                }
-
-                footer +: {
-                    cancel +: {text: "Keep editing"}
-                    confirm +: {text: "Publish now"}
-                }
-            }
-        }
-    }
+    alert_title_text: "Publish changes?"
+    alert_description_text: "Push the latest updates live for every workspace."
+    alert_cancel_text: "Keep editing"
+    alert_confirm_text: "Publish now"
 }
 
 // Controller example (Rust):
@@ -105,7 +95,8 @@ pub const POPOVER_PREVIEW_CODE: &str = r#"profile_popover := ShadPopover{
     side: "bottom"
     align: "start"
 
-    trigger := ShadButtonOutline{
+    trigger := ShadButton{
+        variant: ShadButtonVariant.Outline
         text: "Open profile editor"
     }
 
@@ -124,7 +115,8 @@ pub const POPOVER_PREVIEW_CODE: &str = r#"profile_popover := ShadPopover{
             flow: Right
             spacing: 8.0
 
-            popover_close_btn := ShadButtonGhost{
+            popover_close_btn := ShadButton{
+                variant: ShadButtonVariant.Ghost
                 text: "Cancel"
             }
 
@@ -176,7 +168,10 @@ right_sheet := ShadSheet{
                 }
 
                 footer +: {
-                    close_right_sheet_btn := ShadButtonOutline{text: "Cancel"}
+                    close_right_sheet_btn := ShadButton{
+                        variant: ShadButtonVariant.Outline
+                        text: "Cancel"
+                    }
                     save_right_sheet_btn := ShadButton{text: "Save changes"}
                 }
             }

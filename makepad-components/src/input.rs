@@ -88,9 +88,7 @@ script_mod! {
         padding: Inset{left: 0, right: 0, top: 12, bottom: 12}
     }
 
-    // A composite View containing an Icon and a borderless Input field.
-    // The View itself provides the Shadcn standard borders and focus rings.
-    mod.widgets.ShadInputWithIcon = mod.widgets.View {
+    mod.widgets.ShadInputShell = mod.widgets.View {
         width: Fill
         height: Fit
         flow: Right
@@ -106,7 +104,25 @@ script_mod! {
             border_color: (shad_theme.color_outline_border)
         }
 
-        icon := mod.widgets.IconSearch {
+        leading := mod.widgets.View{
+            width: Fit
+            height: Fit
+        }
+
+        input := mod.widgets.ShadInputBorderless {
+            width: Fill
+        }
+
+        trailing := mod.widgets.View{
+            width: Fit
+            height: Fit
+        }
+    }
+
+    // A composite View containing an Icon and a borderless Input field.
+    // The shell provides borders and focus rings; callers can override slots.
+    mod.widgets.ShadInputWithIcon = mod.widgets.ShadInputShell {
+        leading := mod.widgets.IconSearch {
             draw_icon.color: (shad_theme.color_muted_foreground)
         }
 
@@ -123,11 +139,7 @@ script_mod! {
         clear_button_text: "Clear"
         show_clear_button: true
 
-        search_shell := mod.widgets.ShadSurface{
-            width: Fill
-            height: Fit
-            flow: Right
-            align: Align{y: 0.5}
+        search_shell := mod.widgets.ShadInputShell{
             padding: Inset{left: 14, right: 8, top: 0, bottom: 0}
             spacing: 10.0
 
@@ -138,7 +150,7 @@ script_mod! {
                 border_color: (shad_theme.color_outline_border)
             }
 
-            IconSearch{
+            leading := IconSearch{
                 icon_walk: Walk{width: 18, height: 18}
                 draw_icon.color: (shad_theme.color_muted_foreground)
             }
@@ -150,8 +162,14 @@ script_mod! {
                 draw_text.color_empty: (shad_theme.color_muted_foreground)
             }
 
-            clear_btn := ShadButtonGhost{
-                text: "Clear"
+            trailing := View{
+                width: Fit
+                height: Fit
+
+                clear_btn := ShadButton{
+                    variant: ShadButtonVariant.Ghost
+                    text: "Clear"
+                }
             }
         }
     }
@@ -197,7 +215,7 @@ impl ScriptHook for ShadSearchInput {
             self.input_ref(cx)
                 .set_empty_text(cx, self.empty_text.as_ref().to_string());
             self.view
-                .button(cx, ids!(search_shell.clear_btn))
+                .widget(cx, ids!(search_shell.trailing.clear_btn))
                 .set_text(cx, self.clear_button_text.as_ref());
             self.sync_clear_button(cx);
         });
@@ -209,14 +227,14 @@ impl ShadSearchInput {
         self.view.text_input(cx, ids!(search_shell.input))
     }
 
-    fn clear_button_ref(&self, cx: &Cx) -> ButtonRef {
-        self.view.button(cx, ids!(search_shell.clear_btn))
+    fn clear_button_ref(&self, cx: &Cx) -> WidgetRef {
+        self.view.widget(cx, ids!(search_shell.trailing.clear_btn))
     }
 
     fn sync_clear_button(&self, cx: &mut Cx) {
         let clear = self.clear_button_ref(cx);
         clear.set_visible(cx, self.show_clear_button);
-        clear.set_enabled(cx, self.show_clear_button && !self.text_cache.is_empty());
+        clear.set_disabled(cx, !(self.show_clear_button && !self.text_cache.is_empty()));
     }
 
     fn clear_internal(&mut self, cx: &mut Cx) {
@@ -329,7 +347,9 @@ impl Widget for ShadSearchInput {
             }
 
             if self.show_clear_button
-                && self.clear_button_ref(cx).clicked(actions)
+                && actions
+                    .find_widget_action(self.clear_button_ref(cx).widget_uid())
+                    .is_some_and(|action| matches!(action.cast(), ButtonAction::Clicked(_)))
                 && !self.text_cache.is_empty()
             {
                 self.clear_internal(cx);

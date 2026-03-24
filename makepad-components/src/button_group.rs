@@ -20,67 +20,29 @@ script_mod! {
 
     mod.widgets.ShadButtonGroupItem = set_type_default() do mod.widgets.ShadNavButtonBase{
         width: Fit
-        height: 36
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
+        size_is_managed: true
+        variant_is_managed: true
+        variant: ShadButtonVariant.Ghost
+        managed_radius: 0.0
+        size_small_height: 28
+        size_default_height: 36
+        size_large_height: 44
+        size_small_padding_x: 12
+        size_default_padding_x: 16
+        size_large_padding_x: 20
+        size_small_font_size: 10
+        size_default_font_size: 11
+        size_large_font_size: 13
+        destructive_fill: #0000
+        destructive_fill_hover: (shad_theme.color_destructive_hover)
+        destructive_fill_down: (shad_theme.color_destructive_down)
+        destructive_fill_focus: (shad_theme.color_destructive_hover)
+        destructive_text: (shad_theme.color_destructive)
+        destructive_text_hover: (shad_theme.color_destructive)
+        destructive_text_down: (shad_theme.color_destructive_foreground)
+        destructive_text_focus: (shad_theme.color_destructive)
         reset_hover_on_click: true
-        draw_bg +: {
-            color: #0000
-            color_hover: (shad_theme.color_ghost_hover)
-            color_down: (shad_theme.color_ghost_down)
-            color_focus: (shad_theme.color_ghost_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
-            border_radius: 0.0
-            border_color: #0000
-        }
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.color_down: (shad_theme.color_primary)
-        draw_text.color_focus: (shad_theme.color_primary)
-        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
         draw_text.text_style.font_size: 11
-    }
-
-    mod.widgets.ShadButtonGroupItemDestructive = mod.widgets.ShadButtonGroupItem{
-        draw_bg +: {
-            color: #0000
-            color_hover: (shad_theme.color_destructive_hover)
-            color_down: (shad_theme.color_destructive_down)
-            color_focus: (shad_theme.color_destructive_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
-            border_radius: 0.0
-            border_color: #0000
-        }
-        draw_text.color: (shad_theme.color_destructive)
-        draw_text.color_hover: (shad_theme.color_destructive)
-        draw_text.color_down: (shad_theme.color_destructive_foreground)
-        draw_text.color_focus: (shad_theme.color_destructive)
-        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-    }
-
-    mod.widgets.ShadButtonGroupItemDestructiveSm = mod.widgets.ShadButtonGroupItemDestructive{
-        height: 28
-        padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 10
-    }
-
-    mod.widgets.ShadButtonGroupItemDestructiveLg = mod.widgets.ShadButtonGroupItemDestructive{
-        height: 44
-        padding: Inset{left: 20, right: 20, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 13
-    }
-
-    mod.widgets.ShadButtonGroupItemSm = mod.widgets.ShadButtonGroupItem{
-        height: 28
-        padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 10
-    }
-
-    mod.widgets.ShadButtonGroupItemLg = mod.widgets.ShadButtonGroupItem{
-        height: 44
-        padding: Inset{left: 20, right: 20, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 13
     }
 
     mod.widgets.ShadButtonGroupSeparator = mod.widgets.View{

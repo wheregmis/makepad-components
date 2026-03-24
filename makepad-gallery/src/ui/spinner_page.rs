@@ -52,7 +52,7 @@ gallery_static_page! {
                             border_color: (shad_theme.color_outline_border)
                         }
 
-                        ShadSpinnerSm{}
+                        ShadSpinner{size: ShadControlSize.Small}
                         ShadLabel{
                             draw_text.color: (shad_theme.color_primary)
                             draw_text.text_style.font_size: 11
@@ -98,7 +98,7 @@ gallery_static_page! {
                         border_color: (shad_theme.color_outline_border)
                     }
 
-                    ShadSpinnerLg{}
+                    ShadSpinner{size: ShadControlSize.Large}
                     ShadLabel{
                         draw_text.color: (shad_theme.color_primary)
                         draw_text.text_style.font_size: 13
@@ -135,7 +135,7 @@ gallery_static_page! {
                         spacing: 8.0
                         align: Align{x: 0.5}
 
-                        ShadSpinnerSm{}
+                        ShadSpinner{size: ShadControlSize.Small}
                         ShadFieldDescription{text: "Sm"}
                     }
 
@@ -157,7 +157,7 @@ gallery_static_page! {
                         spacing: 8.0
                         align: Align{x: 0.5}
 
-                        ShadSpinnerLg{}
+                        ShadSpinner{size: ShadControlSize.Large}
                         ShadFieldDescription{text: "Lg"}
                     }
                 }

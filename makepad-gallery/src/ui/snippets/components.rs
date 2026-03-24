@@ -10,7 +10,7 @@ pub const ACCORDION_PREVIEW_CODE: &str = r#"mod.widgets.ShadAccordion{
             flow: Down
             spacing: 8
             mod.widgets.ShadLabel{text: "Yes. It supports rich content inside the body."}
-            mod.widgets.ShadToggle{text: "Enable feature" selected: true}
+            mod.widgets.ShadToggle{text: "Enable feature" active: true}
             mod.widgets.ShadCheckbox{label: "Accept terms" checked: true}
         }
     }
@@ -43,27 +43,31 @@ View{
     spacing: 12.0
 
     mod.widgets.ShadAvatar{
+        size: ShadAvatarSize.Small
+        status: ShadAvatarPresence.Online
         fallback := mod.widgets.ShadAvatarFallback{text: "ML"}
         image := mod.widgets.ShadAvatarImage{
             src: crate_resource("self://resources/avatar/portrait-a.jpg")
         }
-        status := mod.widgets.ShadAvatarStatusOnline{}
     }
 
     mod.widgets.ShadAvatar{
+        size: ShadAvatarSize.Default
         fallback := mod.widgets.ShadAvatarFallback{text: "JD"}
     }
 
-    mod.widgets.ShadAvatarLg{
+    mod.widgets.ShadAvatar{
+        size: ShadAvatarSize.Large
+        status: ShadAvatarPresence.Busy
         fallback := mod.widgets.ShadAvatarFallback{text: "AB"}
         image := mod.widgets.ShadAvatarImage{
             src: crate_resource("self://resources/avatar/portrait-b.jpg")
         }
-        status := mod.widgets.ShadAvatarStatusBusy{}
     }
 }"#;
 pub const BADGE_PREVIEW_CODE: &str = r#"// Put badges beside the content they annotate.
-mod.widgets.ShadSurfaceMuted{
+mod.widgets.ShadSurface{
+    variant: ShadSurfaceVariant.Muted
     width: 320
     height: Fit
     padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
@@ -89,8 +93,9 @@ mod.widgets.ShadSurfaceMuted{
             mod.widgets.ShadFieldDescription{text: "Production webhook delivery is enabled."}
         }
 
-        mod.widgets.ShadBadgeSuccess{
-            label := mod.widgets.ShadBadgeSuccessLabel{text: "Live"}
+        mod.widgets.ShadBadge{
+            tone: ShadBadgeTone.Success
+            text: "Live"
         }
     }
 }"#;
@@ -117,8 +122,14 @@ pub const BUTTON_PREVIEW_CODE: &str = r#"View{
     flow: Right
     spacing: 8.0
     save_btn := mod.widgets.ShadButton{text: "Save"}
-    delete_btn := mod.widgets.ShadButtonDestructive{text: "Delete"}
-    more_btn := mod.widgets.ShadButtonGhost{text: "More"}
+    delete_btn := mod.widgets.ShadButton{
+        variant: ShadButtonVariant.Destructive
+        text: "Delete"
+    }
+    more_btn := mod.widgets.ShadButton{
+        variant: ShadButtonVariant.Ghost
+        text: "More"
+    }
 }
 
 // Controller example (Rust):
@@ -158,8 +169,9 @@ pub const CARD_PREVIEW_CODE: &str = r#"mod.widgets.ShadCard{
                 mod.widgets.ShadFieldDescription{text: "Pro workspace with advanced sharing controls."}
             }
 
-            mod.widgets.ShadBadgeSecondary{
-                label := mod.widgets.ShadBadgeSecondaryLabel{text: "Pro"}
+            mod.widgets.ShadBadge{
+                tone: ShadBadgeTone.Secondary
+                text: "Pro"
             }
         }
 
@@ -170,7 +182,10 @@ pub const CARD_PREVIEW_CODE: &str = r#"mod.widgets.ShadCard{
     }
 
     footer := mod.widgets.ShadCardFooter{
-        mod.widgets.ShadButtonGhost{text: "Cancel"}
+        mod.widgets.ShadButton{
+            variant: ShadButtonVariant.Ghost
+            text: "Cancel"
+        }
         mod.widgets.ShadButton{text: "Review changes"}
     }
 }"#;

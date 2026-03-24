@@ -137,9 +137,7 @@ script_mod! {
                             flow: Down
                             spacing: 10.0
 
-                            eyebrow := ShadBadge{
-                                label := ShadBadgeLabel{text: "Realtime"}
-                            }
+                            eyebrow := ShadBadge{text: "Realtime"}
 
                             title := Label{
                                 width: Fill
@@ -208,8 +206,9 @@ script_mod! {
                             flow: Down
                             spacing: 10.0
 
-                            eyebrow := ShadBadgeSecondary{
-                                label := ShadBadgeSecondaryLabel{text: "Automation"}
+                            eyebrow := ShadBadge{
+                                tone: ShadBadgeTone.Secondary
+                                text: "Automation"
                             }
 
                             title := Label{
@@ -279,8 +278,9 @@ script_mod! {
                             flow: Down
                             spacing: 10.0
 
-                            eyebrow := ShadBadgeOutline{
-                                label := ShadBadgeOutlineLabel{text: "Insights"}
+                            eyebrow := ShadBadge{
+                                tone: ShadBadgeTone.Outline
+                                text: "Insights"
                             }
 
                             title := Label{

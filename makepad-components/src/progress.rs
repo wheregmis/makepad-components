@@ -49,10 +49,6 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadProgress33 = mod.widgets.ShadProgress{ value: 0.33 }
-    mod.widgets.ShadProgress66 = mod.widgets.ShadProgress{ value: 0.66 }
-    mod.widgets.ShadProgressFull = mod.widgets.ShadProgress{ value: 1.0 }
-
     mod.widgets.ShadProgressIndeterminateBase = #(ShadProgressIndeterminate::register_widget(vm))
     mod.widgets.ShadProgressIndeterminate = set_type_default() do mod.widgets.ShadProgressIndeterminateBase{
         width: Fill

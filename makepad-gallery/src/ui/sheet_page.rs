@@ -104,7 +104,10 @@ gallery_stateful_page_shell! {
                                 width: Fill
                                 text: "Use for secondary navigation or drill-in menus that should slide in without replacing the working view."
                             }
-                            open_left_sheet_btn := ShadButtonOutline{text: "Open navigation"}
+                            open_left_sheet_btn := ShadButton{
+                                variant: ShadButtonVariant.Outline
+                                text: "Open navigation"
+                            }
                         }
                     }
 
@@ -131,7 +134,10 @@ gallery_stateful_page_shell! {
                                 width: Fill
                                 text: "Use for lightweight filter bars or global controls that need width more than vertical space."
                             }
-                            open_top_sheet_btn := ShadButtonOutline{text: "Open filters"}
+                            open_top_sheet_btn := ShadButton{
+                                variant: ShadButtonVariant.Outline
+                                text: "Open filters"
+                            }
                         }
 
                         ShadSurface{
@@ -151,7 +157,10 @@ gallery_stateful_page_shell! {
                                 width: Fill
                                 text: "Use for activity, playback queues, or supporting context that should stay close to the active surface."
                             }
-                            open_bottom_sheet_btn := ShadButtonOutline{text: "Open activity"}
+                            open_bottom_sheet_btn := ShadButton{
+                                variant: ShadButtonVariant.Outline
+                                text: "Open activity"
+                            }
                         }
                     }
                 }
@@ -186,7 +195,10 @@ gallery_stateful_page_shell! {
                             }
                         }
                         footer +: {
-                            close_right_sheet_btn := ShadButtonOutline{text: "Cancel"}
+                            close_right_sheet_btn := ShadButton{
+                                variant: ShadButtonVariant.Outline
+                                text: "Cancel"
+                            }
                             save_right_sheet_btn := ShadButton{text: "Save changes"}
                         }
                     }
@@ -212,7 +224,10 @@ gallery_stateful_page_shell! {
                             ShadSidebarItem{text: "Postmortems"}
                         }
                         footer +: {
-                            close_left_sheet_btn := ShadButtonOutline{text: "Close"}
+                            close_left_sheet_btn := ShadButton{
+                                variant: ShadButtonVariant.Outline
+                                text: "Close"
+                            }
                         }
                     }
                 }
@@ -250,7 +265,10 @@ gallery_stateful_page_shell! {
                             }
                         }
                         footer +: {
-                            close_top_sheet_btn := ShadButtonOutline{text: "Close"}
+                            close_top_sheet_btn := ShadButton{
+                                variant: ShadButtonVariant.Outline
+                                text: "Close"
+                            }
                             apply_top_sheet_btn := ShadButton{text: "Apply filters"}
                         }
                     }
@@ -275,7 +293,10 @@ gallery_stateful_page_shell! {
                             ShadFieldDescription{text: "Design review notes were added to Project Atlas."}
                         }
                         footer +: {
-                            close_bottom_sheet_btn := ShadButtonOutline{text: "Dismiss"}
+                            close_bottom_sheet_btn := ShadButton{
+                                variant: ShadButtonVariant.Outline
+                                text: "Dismiss"
+                            }
                             mark_bottom_sheet_btn := ShadButton{text: "Mark all read"}
                         }
                     }

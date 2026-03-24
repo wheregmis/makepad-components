@@ -22,13 +22,15 @@ macro_rules! define_gallery_sidebar {
             use mod.prelude.widgets.*
             use mod.widgets.*
 
-            mod.widgets.GalleryMobileSidebarMenuButton = ShadButtonOutline{
+            mod.widgets.GalleryMobileSidebarMenuButton = ShadButton{
+                variant: ShadButtonVariant.Outline
                 width: Fit
                 height: 36
                 text: "Menu"
             }
 
-            mod.widgets.GalleryMobileSidebarCloseButton = ShadButtonOutline{
+            mod.widgets.GalleryMobileSidebarCloseButton = ShadButton{
+                variant: ShadButtonVariant.Outline
                 width: Fit
                 height: 36
                 text: "Close menu"

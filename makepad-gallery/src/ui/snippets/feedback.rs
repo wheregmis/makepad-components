@@ -1,8 +1,6 @@
 pub const ALERT_PREVIEW_CODE: &str = r#"// Alerts are inline callouts, not overlay state.
-// Compose them from:
-// 1. an outer shell (`ShadAlert` or `ShadAlertDestructive`)
-// 2. a sibling icon beside the content stack
-// 3. a `ShadAlertContent` stack for title + description
+// Configure the shell with tone + text props and let the component own the
+// internal icon/text layout.
 View{
     width: Fill
     height: Fit
@@ -11,23 +9,18 @@ View{
 
     mod.widgets.ShadAlert{
         width: Fill
-        mod.widgets.ShadAlertIcon{}
-        mod.widgets.ShadAlertContent{
-            mod.widgets.ShadAlertTitle{text: "Heads up!"}
-            mod.widgets.ShadAlertDescription{text: "You can add components and dependencies to your app using the cli."}
-        }
+        title_text: "Heads up!"
+        description_text: "You can add components and dependencies to your app using the cli."
     }
 
-    mod.widgets.ShadAlertDestructive{
+    mod.widgets.ShadAlert{
         width: Fill
-        mod.widgets.ShadAlertDestructiveIcon{}
-        mod.widgets.ShadAlertContent{
-            mod.widgets.ShadAlertDestructiveTitle{text: "Error"}
-            mod.widgets.ShadAlertDestructiveDescription{text: "Your session has expired. Please log in again."}
-        }
+        tone: ShadAlertTone.Destructive
+        title_text: "Error"
+        description_text: "Your session has expired. Please log in again."
     }
 }"#;
-pub const PROGRESS_PREVIEW_CODE: &str = "View{\n    width: Fill\n    height: Fit\n    flow: Down\n    spacing: 12.0\n    ShadProgress33{}\n    ShadProgress66{}\n    ShadProgressFull{}\n    ShadProgressIndeterminate{}\n}";
+pub const PROGRESS_PREVIEW_CODE: &str = "View{\n    width: Fill\n    height: Fit\n    flow: Down\n    spacing: 12.0\n    ShadProgress{value: 0.33}\n    ShadProgress{value: 0.66}\n    ShadProgress{value: 1.0}\n    ShadProgressIndeterminate{}\n}";
 pub const SKELETON_PREVIEW_CODE: &str = r#"View{
     width: Fill
     height: Fit
@@ -110,7 +103,7 @@ pub const SPINNER_PREVIEW_CODE: &str = r#"View{
     spacing: 10.0
     align: Align{x: 0.0, y: 0.5}
 
-    ShadSpinnerSm{}
+    ShadSpinner{size: ShadControlSize.Small}
 
     ShadLabel{
         draw_text.color: (shad_theme.color_primary)
@@ -119,7 +112,8 @@ pub const SPINNER_PREVIEW_CODE: &str = r#"View{
     }
 }
 
-ShadSurfaceMuted{
+ShadSurface{
+    variant: ShadSurfaceVariant.Muted
     width: Fill
     height: Fit
     flow: Right

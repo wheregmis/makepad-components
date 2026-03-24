@@ -18,11 +18,11 @@ gallery_static_page! {
             spacing: 8.0
 
             ShadButton{text: "Default"}
-            ShadButtonDestructive{text: "Destructive"}
-            ShadButtonOutline{text: "Outline"}
-            ShadButtonSecondary{text: "Secondary"}
-            ShadButtonGhost{text: "Ghost"}
-            ShadButtonLink{text: "Link"}
+            ShadButton{variant: ShadButtonVariant.Destructive text: "Destructive"}
+            ShadButton{variant: ShadButtonVariant.Outline text: "Outline"}
+            ShadButton{variant: ShadButtonVariant.Secondary text: "Secondary"}
+            ShadButton{variant: ShadButtonVariant.Ghost text: "Ghost"}
+            ShadButton{variant: ShadButtonVariant.Link text: "Link"}
         }
 
         ShadSectionHeader{ text: "Sizes" }
@@ -34,9 +34,9 @@ gallery_static_page! {
             align: Align{y: 0.5}
             spacing: 8.0
 
-            ShadButtonSm{text: "Small"}
+            ShadButton{size: ShadControlSize.Small text: "Small"}
             ShadButton{text: "Default"}
-            ShadButtonLg{text: "Large"}
+            ShadButton{size: ShadControlSize.Large text: "Large"}
         }
 
         ShadSectionHeader{ text: "Destructive Sizes" }
@@ -48,9 +48,17 @@ gallery_static_page! {
             align: Align{y: 0.5}
             spacing: 8.0
 
-            GalleryButtonDestructiveSm{text: "Small"}
-            ShadButtonDestructive{text: "Default"}
-            GalleryButtonDestructiveLg{text: "Large"}
+            ShadButton{
+                variant: ShadButtonVariant.Destructive
+                size: ShadControlSize.Small
+                text: "Small"
+            }
+            ShadButton{variant: ShadButtonVariant.Destructive text: "Default"}
+            ShadButton{
+                variant: ShadButtonVariant.Destructive
+                size: ShadControlSize.Large
+                text: "Large"
+            }
         }
 
         ShadSectionHeader{ text: "Outline Variations" }
@@ -62,9 +70,9 @@ gallery_static_page! {
             align: Align{y: 0.5}
             spacing: 8.0
 
-            ShadButtonOutline{text: "Outline"}
-            ShadButtonGhost{text: "Ghost"}
-            ShadButtonLink{text: "Link"}
+            ShadButton{variant: ShadButtonVariant.Outline text: "Outline"}
+            ShadButton{variant: ShadButtonVariant.Ghost text: "Ghost"}
+            ShadButton{variant: ShadButtonVariant.Link text: "Link"}
         }
 
         ShadSectionHeader{ text: "Icons" }
@@ -98,13 +106,77 @@ gallery_static_page! {
             ShadButtonIcon{text: "✓"}
             ShadButtonIconLg{text: "✓"}
 
-            GalleryButtonIconChevronLeft{}
+            IconButtonChevronLeft{
+                width: 36
+                height: 36
+                spacing: 0.0
+                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                draw_bg +: {
+                    color: #0000
+                    color_hover: (shad_theme.color_ghost_hover)
+                    color_down: (shad_theme.color_ghost_down)
+                    color_focus: (shad_theme.color_ghost_hover)
+                    color_disabled: (shad_theme.color_disabled)
+                    border_size: 1.0
+                    border_radius: (shad_theme.radius)
+                    border_color: (shad_theme.color_outline_border)
+                }
+                draw_icon.color: (shad_theme.color_primary)
+            }
 
-            GalleryButtonIconChevronRight{}
+            IconButtonChevronRight{
+                width: 36
+                height: 36
+                spacing: 0.0
+                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                draw_bg +: {
+                    color: #0000
+                    color_hover: (shad_theme.color_ghost_hover)
+                    color_down: (shad_theme.color_ghost_down)
+                    color_focus: (shad_theme.color_ghost_hover)
+                    color_disabled: (shad_theme.color_disabled)
+                    border_size: 1.0
+                    border_radius: (shad_theme.radius)
+                    border_color: (shad_theme.color_outline_border)
+                }
+                draw_icon.color: (shad_theme.color_primary)
+            }
 
-            GalleryButtonIconX{}
+            IconButtonX{
+                width: 36
+                height: 36
+                spacing: 0.0
+                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                draw_bg +: {
+                    color: #0000
+                    color_hover: (shad_theme.color_ghost_hover)
+                    color_down: (shad_theme.color_ghost_down)
+                    color_focus: (shad_theme.color_ghost_hover)
+                    color_disabled: (shad_theme.color_disabled)
+                    border_size: 0.0
+                    border_radius: (shad_theme.radius)
+                    border_color: #0000
+                }
+                draw_icon.color: (shad_theme.color_muted_foreground)
+            }
 
-            GalleryButtonIconMoreHorizontal{}
+            IconButtonMoreHorizontal{
+                width: 36
+                height: 36
+                spacing: 0.0
+                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                draw_bg +: {
+                    color: #0000
+                    color_hover: (shad_theme.color_ghost_hover)
+                    color_down: (shad_theme.color_ghost_down)
+                    color_focus: (shad_theme.color_ghost_hover)
+                    color_disabled: (shad_theme.color_disabled)
+                    border_size: 0.0
+                    border_radius: (shad_theme.radius)
+                    border_color: #0000
+                }
+                draw_icon.color: (shad_theme.color_primary)
+            }
         }
     },
     action_flow: {

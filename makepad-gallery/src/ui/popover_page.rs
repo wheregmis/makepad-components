@@ -16,7 +16,8 @@ gallery_stateful_page_shell! {
             side: "bottom"
             align: "start"
 
-            trigger := ShadButtonOutline{
+            trigger := ShadButton{
+                variant: ShadButtonVariant.Outline
                 text: "Open profile editor"
             }
 
@@ -36,7 +37,8 @@ gallery_stateful_page_shell! {
                     spacing: 8.0
                     margin: Inset{top: 8}
 
-                    popover_close_btn := ShadButtonGhost{
+                    popover_close_btn := ShadButton{
+                        variant: ShadButtonVariant.Ghost
                         text: "Cancel"
                     }
 
@@ -59,7 +61,8 @@ gallery_stateful_page_shell! {
             side: "top"
             align: "end"
 
-            trigger := ShadButtonGhost{
+            trigger := ShadButton{
+                variant: ShadButtonVariant.Ghost
                 text: "Open top-end help"
             }
 

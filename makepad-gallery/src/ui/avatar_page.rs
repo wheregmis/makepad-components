@@ -17,9 +17,9 @@ gallery_static_page! {
             flow: Down
             spacing: 6.0
 
-            ShadFieldDescription{text: "ShadAvatar is a compositional circular surface. The fallback text sits behind the image child, and the image covers it when a real photo is present."}
+            ShadFieldDescription{text: "ShadAvatar is a compositional circular surface. Set `size: ShadAvatarSize.Small/Default/Large` and keep the fallback text or image children inside the same avatar."}
             ShadFieldDescription{text: "Use ShadAvatarImage for a fill-sized, cover-cropped photo. Keep ShadAvatarFallback in the same avatar so empty or loading states still have a readable identity."}
-            ShadFieldDescription{text: "Add ShadAvatarStatusOnline, ShadAvatarStatusAway, or ShadAvatarStatusBusy when you need a small presence marker anchored to the avatar edge."}
+            ShadFieldDescription{text: "Set `status: ShadAvatarPresence.Online/Away/Busy` when you need a small presence marker anchored to the avatar edge. The legacy status-dot aliases still work for older code."}
         }
 
         ShadHr{}
@@ -40,7 +40,8 @@ gallery_static_page! {
                 spacing: 8.0
                 align: Align{x: 0.5, y: 0.0}
 
-                ShadAvatarSm{
+                ShadAvatar{
+                    size: ShadAvatarSize.Small
                     fallback := ShadAvatarFallback{text: "ML"}
                     image := ShadAvatarImage{
                         src: crate_resource("self://resources/avatar/portrait-a.jpg")
@@ -62,6 +63,7 @@ gallery_static_page! {
                 align: Align{x: 0.5, y: 0.0}
 
                 ShadAvatar{
+                    size: ShadAvatarSize.Default
                     fallback := ShadAvatarFallback{text: "CN"}
                     image := ShadAvatarImage{
                         src: crate_resource("self://resources/avatar/portrait-a.jpg")
@@ -82,7 +84,8 @@ gallery_static_page! {
                 spacing: 8.0
                 align: Align{x: 0.5, y: 0.0}
 
-                ShadAvatarLg{
+                ShadAvatar{
+                    size: ShadAvatarSize.Large
                     fallback := ShadAvatarFallback{text: "AB"}
                     image := ShadAvatarImage{
                         src: crate_resource("self://resources/avatar/portrait-b.jpg")
@@ -114,6 +117,7 @@ gallery_static_page! {
                 align: Align{x: 0.5, y: 0.0}
 
                 ShadAvatar{
+                    size: ShadAvatarSize.Default
                     fallback := ShadAvatarFallback{text: "JD"}
                 }
 
@@ -132,6 +136,7 @@ gallery_static_page! {
                 align: Align{x: 0.5, y: 0.0}
 
                 ShadAvatar{
+                    size: ShadAvatarSize.Default
                     fallback := ShadAvatarFallback{text: "AB"}
                 }
 
@@ -150,6 +155,7 @@ gallery_static_page! {
                 align: Align{x: 0.5, y: 0.0}
 
                 ShadAvatar{
+                    size: ShadAvatarSize.Default
                     fallback := ShadAvatarFallback{text: "?"}
                 }
 
@@ -178,11 +184,12 @@ gallery_static_page! {
                 align: Align{x: 0.5, y: 0.0}
 
                 ShadAvatar{
+                    size: ShadAvatarSize.Default
                     fallback := ShadAvatarFallback{text: "ML"}
                     image := ShadAvatarImage{
                         src: crate_resource("self://resources/avatar/portrait-a.jpg")
                     }
-                    status := ShadAvatarStatusOnline{}
+                    status: ShadAvatarPresence.Online
                 }
 
                 ShadFieldLabel{text: "Online"}
@@ -200,11 +207,12 @@ gallery_static_page! {
                 align: Align{x: 0.5, y: 0.0}
 
                 ShadAvatar{
+                    size: ShadAvatarSize.Default
                     fallback := ShadAvatarFallback{text: "AB"}
                     image := ShadAvatarImage{
                         src: crate_resource("self://resources/avatar/portrait-b.jpg")
                     }
-                    status := ShadAvatarStatusAway{}
+                    status: ShadAvatarPresence.Away
                 }
 
                 ShadFieldLabel{text: "Away"}
@@ -222,11 +230,12 @@ gallery_static_page! {
                 align: Align{x: 0.5, y: 0.0}
 
                 ShadAvatar{
+                    size: ShadAvatarSize.Default
                     fallback := ShadAvatarFallback{text: "CN"}
                     image := ShadAvatarImage{
                         src: crate_resource("self://resources/avatar/portrait-a.jpg")
                     }
-                    status := ShadAvatarStatusBusy{}
+                    status: ShadAvatarPresence.Busy
                 }
 
                 ShadFieldLabel{text: "Busy"}
@@ -238,9 +247,9 @@ gallery_static_page! {
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. Start with ShadAvatar, ShadAvatarSm, or ShadAvatarLg depending on the layout density you need."}
+        mod.widgets.GalleryActionFlowStep{text: "1. Start with ShadAvatar and set `size: ShadAvatarSize.Small/Default/Large` depending on the layout density you need."}
         mod.widgets.GalleryActionFlowStep{text: "2. Keep ShadAvatarFallback in the avatar for identity-safe empty states, then add ShadAvatarImage when a real profile photo is available."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Add ShadAvatarStatusOnline, ShadAvatarStatusAway, or ShadAvatarStatusBusy only when presence matters to the workflow."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Add `status: ShadAvatarPresence.Online/Away/Busy` only when presence matters to the workflow."}
         mod.widgets.GalleryActionFlowStep{text: "4. Keep avatar groups, notification counts, and richer profile metadata outside the primitive so the base avatar stays small and composable."}
     },
 }

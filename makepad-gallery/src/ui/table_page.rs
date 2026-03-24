@@ -20,23 +20,28 @@ gallery_stateful_page_shell! {
                 text: "Team roster"
             }
 
-            table_ops_btn := ShadButtonOutline{
+            table_ops_btn := ShadButton{
+                variant: ShadButtonVariant.Outline
                 text: "Ops queue"
             }
 
-            table_virtual_btn := ShadButtonSecondary{
+            table_virtual_btn := ShadButton{
+                variant: ShadButtonVariant.Secondary
                 text: "Virtualized 10k"
             }
 
-            table_prev_btn := ShadButtonGhost{
+            table_prev_btn := ShadButton{
+                variant: ShadButtonVariant.Ghost
                 text: "Prev window"
             }
 
-            table_next_btn := ShadButtonGhost{
+            table_next_btn := ShadButton{
+                variant: ShadButtonVariant.Ghost
                 text: "Next window"
             }
 
-            table_clear_btn := ShadButtonGhost{
+            table_clear_btn := ShadButton{
+                variant: ShadButtonVariant.Ghost
                 text: "Clear selection"
             }
         }

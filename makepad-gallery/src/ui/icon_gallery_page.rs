@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::input::ShadSearchInputWidgetExt;
 use makepad_components::makepad_icon::{IconMetadata, ICON_METADATA};
 use makepad_components::makepad_widgets::*;
 use makepad_components::table::ShadTableWidgetExt;
@@ -27,18 +28,16 @@ macro_rules! icon_gallery_page_generated {
                         flow: Right
                         spacing: 8.0
 
-                        search_field := ShadInputWithIcon{
+                        search_field := ShadSearchInput{
                             width: Fill
-                            input +: {
-                                empty_text: "Search icons or widget names..."
-                            }
+                            empty_text: "Search icons or widget names..."
+                            clear_button_text: "Clear"
                         }
 
-                        clear_search_btn := ShadButtonOutline{
-                            text: "Clear"
+                        icon_search_btn := ShadButton{
+                            size: ShadControlSize.Small
+                            text: "Focus search"
                         }
-
-                        icon_search_btn := ShadButtonSm{text: "Focus search"}
                     }
                 }
 
@@ -50,7 +49,8 @@ macro_rules! icon_gallery_page_generated {
                     text: "Showing all generated icons."
                 }
 
-                usage_card := ShadSurfaceMuted{
+                usage_card := ShadSurface{
+                    variant: ShadSurfaceVariant.Muted
                     width: Fill
                     height: Fit
                     flow: Down
@@ -291,8 +291,8 @@ impl GalleryIconGalleryPage {
         }
 
         self.view
-            .button(cx, ids!(clear_search_btn))
-            .set_enabled(cx, !query.is_empty());
+            .shad_search_input(cx, ids!(search_field))
+            .set_text(cx, &display_query);
 
         match first_match_index {
             Some(target_entry_index) => {
@@ -336,31 +336,20 @@ impl Widget for GalleryIconGalleryPage {
         self.view.handle_event(cx, event, scope);
 
         if let Event::Actions(actions) = event {
-            let search_input = self.view.text_input(cx, ids!(search_field.input));
+            let search_input = self.view.shad_search_input(cx, ids!(search_field));
             let mut next_query = None;
 
             if let Some(text) = search_input.changed(actions) {
                 next_query = Some(text);
             }
-            if let Some((text, _modifiers)) = search_input.returned(actions) {
+            if let Some(text) = search_input.submitted(actions) {
                 next_query = Some(text);
             }
-            if search_input.escaped(actions) && !self.query.is_empty() {
-                search_input.set_text(cx, "");
-                search_input.set_key_focus(cx);
+            if search_input.cleared(actions) && !self.query.is_empty() {
                 next_query = Some(String::new());
             }
             if self.view.button(cx, ids!(icon_search_btn)).clicked(actions) {
-                search_input.set_key_focus(cx);
-            }
-            if self
-                .view
-                .button(cx, ids!(clear_search_btn))
-                .clicked(actions)
-            {
-                search_input.set_text(cx, "");
-                search_input.set_key_focus(cx);
-                next_query = Some(String::new());
+                search_input.focus(cx);
             }
 
             if let Some(query) = next_query {

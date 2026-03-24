@@ -3,9 +3,36 @@ use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::sync::Arc;
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Script, ScriptHook)]
+#[repr(u32)]
+pub enum ShadAvatarSize {
+    #[pick]
+    #[default]
+    Default,
+    Small,
+    Large,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Script, ScriptHook)]
+#[repr(u32)]
+pub enum ShadAvatarPresence {
+    #[pick]
+    #[default]
+    None,
+    Online,
+    Away,
+    Busy,
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
+
+    let ShadAvatarSize = set_type_default() do #(ShadAvatarSize::script_api(vm))
+    mod.widgets.ShadAvatarSize = ShadAvatarSize
+
+    let ShadAvatarPresence = set_type_default() do #(ShadAvatarPresence::script_api(vm))
+    mod.widgets.ShadAvatarPresence = ShadAvatarPresence
 
     set_type_default() do #(DrawAvatarImage::script_shader(vm)){
         ..mod.draw.DrawQuad
@@ -65,24 +92,16 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadAvatarStatusOnline = mod.widgets.ShadAvatarStatus{
-        visible: true
-        dot.draw_bg.color: (shad_theme.color_success)
-    }
+    mod.widgets.ShadAvatarBase = #(ShadAvatar::register_widget(vm))
 
-    mod.widgets.ShadAvatarStatusAway = mod.widgets.ShadAvatarStatus{
-        visible: true
-        dot.draw_bg.color: (shad_theme.color_muted_foreground)
-    }
-
-    mod.widgets.ShadAvatarStatusBusy = mod.widgets.ShadAvatarStatus{
-        visible: true
-        dot.draw_bg.color: (shad_theme.color_destructive)
-    }
-
-    mod.widgets.ShadAvatar = mod.widgets.ViewBase {
+    mod.widgets.ShadAvatar = set_type_default() do mod.widgets.ShadAvatarBase {
         width: 40
         height: 40
+        size: ShadAvatarSize.Default
+        status: ShadAvatarPresence.None
+        online_color: (shad_theme.color_success)
+        away_color: (shad_theme.color_muted_foreground)
+        busy_color: (shad_theme.color_destructive)
         flow: Overlay
         align: Align{x: 0.5, y: 0.5}
 
@@ -110,24 +129,154 @@ script_mod! {
         status := mod.widgets.ShadAvatarStatus{}
     }
 
-    mod.widgets.ShadAvatarSm = mod.widgets.ShadAvatar {
-        width: 32
-        height: 32
-        fallback.draw_text.text_style.font_size: 10
-        status.padding: Inset{right: -1.0, bottom: -1.0}
-        status.dot.width: 10
-        status.dot.height: 10
-        status.dot.draw_bg.border_size: 1.5
+}
+
+#[derive(Clone, Copy, Debug)]
+struct AvatarMetrics {
+    size: f64,
+    fallback_font_size: f64,
+    status_padding: Inset,
+    status_dot_size: f64,
+    status_dot_border_size: f64,
+}
+
+impl ShadAvatarSize {
+    fn metrics(self) -> AvatarMetrics {
+        match self {
+            ShadAvatarSize::Small => AvatarMetrics {
+                size: 32.0,
+                fallback_font_size: 10.0,
+                status_padding: Inset {
+                    left: 0.0,
+                    right: -1.0,
+                    top: 0.0,
+                    bottom: -1.0,
+                },
+                status_dot_size: 10.0,
+                status_dot_border_size: 1.5,
+            },
+            ShadAvatarSize::Default => AvatarMetrics {
+                size: 40.0,
+                fallback_font_size: 12.0,
+                status_padding: Inset {
+                    left: 0.0,
+                    right: -2.0,
+                    top: 0.0,
+                    bottom: -2.0,
+                },
+                status_dot_size: 14.0,
+                status_dot_border_size: 2.0,
+            },
+            ShadAvatarSize::Large => AvatarMetrics {
+                size: 56.0,
+                fallback_font_size: 16.0,
+                status_padding: Inset {
+                    left: 0.0,
+                    right: -3.0,
+                    top: 0.0,
+                    bottom: -3.0,
+                },
+                status_dot_size: 18.0,
+                status_dot_border_size: 2.5,
+            },
+        }
+    }
+}
+
+#[derive(Script, Widget)]
+pub struct ShadAvatar {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+    #[live(ShadAvatarSize::Default)]
+    size: ShadAvatarSize,
+    #[live(ShadAvatarPresence::None)]
+    status: ShadAvatarPresence,
+    #[live]
+    online_color: Vec4,
+    #[live]
+    away_color: Vec4,
+    #[live]
+    busy_color: Vec4,
+    #[rust]
+    applied_size: Option<ShadAvatarSize>,
+    #[rust]
+    applied_status: Option<ShadAvatarPresence>,
+}
+
+impl ShadAvatar {
+    fn status_color(&self) -> Option<Vec4> {
+        match self.status {
+            ShadAvatarPresence::None => None,
+            ShadAvatarPresence::Online => Some(self.online_color),
+            ShadAvatarPresence::Away => Some(self.away_color),
+            ShadAvatarPresence::Busy => Some(self.busy_color),
+        }
     }
 
-    mod.widgets.ShadAvatarLg = mod.widgets.ShadAvatar {
-        width: 56
-        height: 56
-        fallback.draw_text.text_style.font_size: 16
-        status.padding: Inset{right: -3.0, bottom: -3.0}
-        status.dot.width: 18
-        status.dot.height: 18
-        status.dot.draw_bg.border_size: 2.5
+    fn sync_managed_props(&mut self, cx: &mut Cx) {
+        let metrics = self.size.metrics();
+        let status_color = self.status_color();
+        let status_visible = status_color.is_some();
+
+        if self.applied_size == Some(self.size) && self.applied_status == Some(self.status) {
+            return;
+        }
+
+        self.view.walk.width = Size::Fixed(metrics.size);
+        self.view.walk.height = Size::Fixed(metrics.size);
+
+        let mut fallback = self.view.widget(cx, ids!(fallback));
+        script_apply_eval!(cx, fallback, {
+            draw_text.text_style.font_size: #(metrics.fallback_font_size)
+        });
+
+        let mut status = self.view.widget(cx, ids!(status));
+        script_apply_eval!(cx, status, {
+            visible: #(status_visible)
+            padding: #(metrics.status_padding)
+        });
+
+        if let Some(status_color) = status_color {
+            let mut dot = self.view.widget(cx, ids!(status.dot));
+            script_apply_eval!(cx, dot, {
+                width: #(metrics.status_dot_size)
+                height: #(metrics.status_dot_size)
+                draw_bg +: {
+                    color: #(status_color)
+                    border_size: #(metrics.status_dot_border_size)
+                }
+            });
+        }
+
+        self.applied_size = Some(self.size);
+        self.applied_status = Some(self.status);
+        self.view.redraw(cx);
+    }
+}
+
+impl ScriptHook for ShadAvatar {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| {
+            self.sync_managed_props(cx);
+        });
+    }
+}
+
+impl Widget for ShadAvatar {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
     }
 }
 

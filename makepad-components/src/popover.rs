@@ -45,7 +45,8 @@ script_mod! {
             }
         }
 
-        trigger := mod.widgets.ShadButtonOutline{
+        trigger := mod.widgets.ShadButton{
+            variant: ShadButtonVariant.Outline
             text: "Open popover"
         }
 

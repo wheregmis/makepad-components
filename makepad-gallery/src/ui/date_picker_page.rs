@@ -40,7 +40,8 @@ gallery_stateful_page_shell! {
             flow: Right{wrap: true}
             spacing: 8.0
 
-            date_picker_open_btn := ShadButtonOutline{
+            date_picker_open_btn := ShadButton{
+                variant: ShadButtonVariant.Outline
                 text: "Open"
             }
 
@@ -48,7 +49,8 @@ gallery_stateful_page_shell! {
                 text: "Set deadline"
             }
 
-            date_picker_clear_btn := ShadButtonGhost{
+            date_picker_clear_btn := ShadButton{
+                variant: ShadButtonVariant.Ghost
                 text: "Clear date"
             }
         }

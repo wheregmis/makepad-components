@@ -11,7 +11,8 @@ script_mod! {
         height: Fit
         code: ""
 
-        container := ShadSurfaceMuted{
+        container := ShadSurface{
+            variant: ShadSurfaceVariant.Muted
             width: Fill
             height: Fit
             padding: Inset{top: 12, right: 12, bottom: 12, left: 12}
@@ -35,97 +36,8 @@ script_mod! {
         width: Fill
     }
 
-    mod.widgets.GalleryButtonDestructiveSm = ShadButtonDestructive{
-        height: 28
-        padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 10
-    }
-
-    mod.widgets.GalleryButtonDestructiveLg = ShadButtonDestructive{
-        height: 44
-        padding: Inset{left: 32, right: 32, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 13
-    }
-
-    mod.widgets.GalleryButtonGroupItemIcon = ShadButtonGroupItem{
-        width: 36
-        spacing: 0.0
-        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-    }
-
-    mod.widgets.GalleryButtonIconChevronLeft = IconButtonChevronLeft{
-        width: 36
-        height: 36
-        spacing: 0.0
-        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-        draw_bg +: {
-            color: #0000
-            color_hover: (shad_theme.color_ghost_hover)
-            color_down: (shad_theme.color_ghost_down)
-            color_focus: (shad_theme.color_ghost_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 1.0
-            border_radius: (shad_theme.radius)
-            border_color: (shad_theme.color_outline_border)
-        }
-        draw_icon.color: (shad_theme.color_primary)
-    }
-
-    mod.widgets.GalleryButtonIconChevronRight = IconButtonChevronRight{
-        width: 36
-        height: 36
-        spacing: 0.0
-        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-        draw_bg +: {
-            color: #0000
-            color_hover: (shad_theme.color_ghost_hover)
-            color_down: (shad_theme.color_ghost_down)
-            color_focus: (shad_theme.color_ghost_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 1.0
-            border_radius: (shad_theme.radius)
-            border_color: (shad_theme.color_outline_border)
-        }
-        draw_icon.color: (shad_theme.color_primary)
-    }
-
-    mod.widgets.GalleryButtonIconX = IconButtonX{
-        width: 36
-        height: 36
-        spacing: 0.0
-        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-        draw_bg +: {
-            color: #0000
-            color_hover: (shad_theme.color_ghost_hover)
-            color_down: (shad_theme.color_ghost_down)
-            color_focus: (shad_theme.color_ghost_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
-            border_radius: (shad_theme.radius)
-            border_color: #0000
-        }
-        draw_icon.color: (shad_theme.color_muted_foreground)
-    }
-
-    mod.widgets.GalleryButtonIconMoreHorizontal = IconButtonMoreHorizontal{
-        width: 36
-        height: 36
-        spacing: 0.0
-        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-        draw_bg +: {
-            color: #0000
-            color_hover: (shad_theme.color_ghost_hover)
-            color_down: (shad_theme.color_ghost_down)
-            color_focus: (shad_theme.color_ghost_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
-            border_radius: (shad_theme.radius)
-            border_color: #0000
-        }
-        draw_icon.color: (shad_theme.color_primary)
-    }
-
-    mod.widgets.GalleryActionFlow = ShadSurfaceMuted{
+    mod.widgets.GalleryActionFlow = ShadSurface{
+        variant: ShadSurfaceVariant.Muted
         width: Fill
         height: Fit
         flow: Down

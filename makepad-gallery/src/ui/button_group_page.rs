@@ -18,7 +18,23 @@ gallery_static_page! {
             spacing: 10.0
             align: Align{y: 0.5}
 
-            GalleryButtonIconChevronLeft{}
+            IconButtonChevronLeft{
+                width: 36
+                height: 36
+                spacing: 0.0
+                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                draw_bg +: {
+                    color: #0000
+                    color_hover: (shad_theme.color_ghost_hover)
+                    color_down: (shad_theme.color_ghost_down)
+                    color_focus: (shad_theme.color_ghost_hover)
+                    color_disabled: (shad_theme.color_disabled)
+                    border_size: 1.0
+                    border_radius: (shad_theme.radius)
+                    border_color: (shad_theme.color_outline_border)
+                }
+                draw_icon.color: (shad_theme.color_primary)
+            }
 
             ShadButtonGroup{
                 ShadButtonGroupItem{text: "Archive"}
@@ -29,11 +45,27 @@ gallery_static_page! {
             ShadButtonGroup{
                 ShadButtonGroupItem{text: "Snooze"}
                 ShadButtonGroupSeparator{}
-                GalleryButtonIconMoreHorizontal{}
+                IconButtonMoreHorizontal{
+                    width: 36
+                    height: 36
+                    spacing: 0.0
+                    padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                    draw_bg +: {
+                        color: #0000
+                        color_hover: (shad_theme.color_ghost_hover)
+                        color_down: (shad_theme.color_ghost_down)
+                        color_focus: (shad_theme.color_ghost_hover)
+                        color_disabled: (shad_theme.color_disabled)
+                        border_size: 0.0
+                        border_radius: (shad_theme.radius)
+                        border_color: #0000
+                    }
+                    draw_icon.color: (shad_theme.color_primary)
+                }
             }
         }
 
-        ShadSectionHeader{ text: "Sizes" }
+        ShadSectionHeader{ text: "Sizes via size" }
 
         View{
             width: Fill
@@ -42,11 +74,11 @@ gallery_static_page! {
             spacing: 10.0
 
             ShadButtonGroup{
-                ShadButtonGroupItemSm{text: "Day"}
+                ShadButtonGroupItem{size: ShadControlSize.Small text: "Day"}
                 ShadButtonGroupSeparator{}
-                ShadButtonGroupItemSm{text: "Week"}
+                ShadButtonGroupItem{size: ShadControlSize.Small text: "Week"}
                 ShadButtonGroupSeparator{}
-                ShadButtonGroupItemSm{text: "Month"}
+                ShadButtonGroupItem{size: ShadControlSize.Small text: "Month"}
             }
 
             ShadButtonGroup{
@@ -58,11 +90,11 @@ gallery_static_page! {
             }
 
             ShadButtonGroup{
-                ShadButtonGroupItemLg{text: "Day"}
+                ShadButtonGroupItem{size: ShadControlSize.Large text: "Day"}
                 ShadButtonGroupSeparator{}
-                ShadButtonGroupItemLg{text: "Week"}
+                ShadButtonGroupItem{size: ShadControlSize.Large text: "Week"}
                 ShadButtonGroupSeparator{}
-                ShadButtonGroupItemLg{text: "Month"}
+                ShadButtonGroupItem{size: ShadControlSize.Large text: "Month"}
             }
         }
 
@@ -75,11 +107,22 @@ gallery_static_page! {
             spacing: 10.0
 
             ShadButtonGroup{
-                ShadButtonGroupItemDestructiveSm{text: "Small"}
+                ShadButtonGroupItem{
+                    variant: ShadButtonVariant.Destructive
+                    size: ShadControlSize.Small
+                    text: "Small"
+                }
                 ShadButtonGroupSeparator{}
-                ShadButtonGroupItemDestructive{text: "Default"}
+                ShadButtonGroupItem{
+                    variant: ShadButtonVariant.Destructive
+                    text: "Default"
+                }
                 ShadButtonGroupSeparator{}
-                ShadButtonGroupItemDestructiveLg{text: "Large"}
+                ShadButtonGroupItem{
+                    variant: ShadButtonVariant.Destructive
+                    size: ShadControlSize.Large
+                    text: "Large"
+                }
             }
         }
 
@@ -101,9 +144,19 @@ gallery_static_page! {
             }
 
             ShadButtonGroup{
-                GalleryButtonGroupItemIcon{text: "A-"}
+                ShadButtonGroupItem{
+                    width: 36
+                    spacing: 0.0
+                    padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                    text: "A-"
+                }
                 ShadButtonGroupSeparator{}
-                GalleryButtonGroupItemIcon{text: "A+"}
+                ShadButtonGroupItem{
+                    width: 36
+                    spacing: 0.0
+                    padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+                    text: "A+"
+                }
             }
         }
     },

@@ -20,11 +20,13 @@ gallery_stateful_page_shell! {
                 text: "Growth data"
             }
 
-            chart_ops_btn := ShadButtonOutline{
+            chart_ops_btn := ShadButton{
+                variant: ShadButtonVariant.Outline
                 text: "Ops data"
             }
 
-            chart_revenue_btn := ShadButtonOutline{
+            chart_revenue_btn := ShadButton{
+                variant: ShadButtonVariant.Outline
                 text: "Revenue data"
             }
         }

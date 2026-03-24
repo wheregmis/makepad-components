@@ -59,8 +59,9 @@ gallery_static_page! {
                             ShadFieldDescription{text: "Pro workspace with advanced sharing controls."}
                         }
 
-                        ShadBadgeSecondary{
-                            label := ShadBadgeSecondaryLabel{text: "Pro"}
+                        ShadBadge{
+                            tone: ShadBadgeTone.Secondary
+                            text: "Pro"
                         }
                     }
 
@@ -117,7 +118,10 @@ gallery_static_page! {
                 }
 
                 footer := mod.widgets.ShadCardFooter{
-                    mod.widgets.ShadButtonGhost{text: "Cancel"}
+                    mod.widgets.ShadButton{
+                        variant: ShadButtonVariant.Ghost
+                        text: "Cancel"
+                    }
                     mod.widgets.ShadButton{text: "Review changes"}
                 }
             }
@@ -145,8 +149,9 @@ gallery_static_page! {
                             text: "3.4M"
                         }
 
-                        ShadBadgeSuccess{
-                            label := ShadBadgeSuccessLabel{text: "Live"}
+                        ShadBadge{
+                            tone: ShadBadgeTone.Success
+                            text: "Live"
                         }
                     }
 

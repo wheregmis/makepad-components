@@ -6,6 +6,11 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
+    let ShadControlSize = set_type_default() do #(ShadControlSize::script_api(vm))
+    mod.widgets.ShadControlSize = ShadControlSize
+    let ShadButtonVariant = set_type_default() do #(ShadButtonVariant::script_api(vm))
+    mod.widgets.ShadButtonVariant = ShadButtonVariant
+
     mod.widgets.ShadNavButtonBase = set_type_default() do #(ShadNavButton::register_widget(vm)){
         text: "Button"
         width: Fit
@@ -274,114 +279,85 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadButton = mod.widgets.ButtonFlat{
-        height: 36
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-        draw_bg +: {
-            color: (shad_theme.color_primary_foreground)
-            color_hover: (shad_theme.color_secondary)
-            color_down: (shad_theme.color_secondary_hover)
-            color_focus: (shad_theme.color_secondary)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
-            border_radius: (shad_theme.radius)
-            border_color: #0000
-        }
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.color_down: (shad_theme.color_primary)
-        draw_text.color_focus: (shad_theme.color_primary)
-        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
+    mod.widgets.ShadButtonBase = set_type_default() do mod.widgets.ShadNavButtonBase{
+        width: Fit
+        size_is_managed: true
+        variant_is_managed: true
+        size: ShadControlSize.Default
+        variant: ShadButtonVariant.Primary
+        size_small_height: 28
+        size_default_height: 36
+        size_large_height: 44
+        size_small_padding_x: 12
+        size_default_padding_x: 16
+        size_large_padding_x: 32
+        size_small_font_size: 10
+        size_default_font_size: 11
+        size_large_font_size: 13
+        variant_link_small_padding_x: 4
+        variant_link_default_padding_x: 4
+        variant_link_large_padding_x: 6
+        managed_radius: (shad_theme.radius)
+        managed_link_radius: 0.0
+        managed_disabled_fill: (shad_theme.color_disabled)
+        managed_disabled_text: (shad_theme.color_disabled_foreground)
+        managed_disabled_border: (shad_theme.color_disabled_border)
+        primary_fill: (shad_theme.color_primary_foreground)
+        primary_fill_hover: (shad_theme.color_secondary)
+        primary_fill_down: (shad_theme.color_secondary_hover)
+        primary_fill_focus: (shad_theme.color_secondary)
+        primary_text: (shad_theme.color_primary)
+        primary_text_hover: (shad_theme.color_primary)
+        primary_text_down: (shad_theme.color_primary)
+        primary_text_focus: (shad_theme.color_primary)
+        secondary_fill: (shad_theme.color_secondary)
+        secondary_fill_hover: (shad_theme.color_secondary_hover)
+        secondary_fill_down: (shad_theme.color_secondary_down)
+        secondary_fill_focus: (shad_theme.color_secondary_hover)
+        secondary_text: (shad_theme.color_secondary_foreground)
+        secondary_text_hover: (shad_theme.color_secondary_foreground)
+        secondary_text_down: (shad_theme.color_secondary_foreground)
+        secondary_text_focus: (shad_theme.color_secondary_foreground)
+        outline_fill: #0000
+        outline_fill_hover: (shad_theme.color_ghost_hover)
+        outline_fill_down: (shad_theme.color_ghost_down)
+        outline_fill_focus: (shad_theme.color_ghost_hover)
+        outline_border: (shad_theme.color_outline_border)
+        outline_border_hover: (shad_theme.color_outline_border_hover)
+        outline_border_down: (shad_theme.color_outline_border_down)
+        outline_border_focus: (shad_theme.color_primary)
+        outline_text: (shad_theme.color_primary)
+        outline_text_hover: (shad_theme.color_primary)
+        outline_text_down: (shad_theme.color_primary)
+        outline_text_focus: (shad_theme.color_primary)
+        ghost_fill: #0000
+        ghost_fill_hover: (shad_theme.color_ghost_hover)
+        ghost_fill_down: (shad_theme.color_ghost_down)
+        ghost_fill_focus: (shad_theme.color_ghost_hover)
+        ghost_text: (shad_theme.color_primary)
+        ghost_text_hover: (shad_theme.color_primary)
+        ghost_text_down: (shad_theme.color_primary)
+        ghost_text_focus: (shad_theme.color_primary)
+        destructive_fill: (shad_theme.color_destructive)
+        destructive_fill_hover: (shad_theme.color_destructive_hover)
+        destructive_fill_down: (shad_theme.color_destructive_down)
+        destructive_fill_focus: (shad_theme.color_destructive_hover)
+        destructive_text: (shad_theme.color_destructive_foreground)
+        destructive_text_hover: (shad_theme.color_destructive_foreground)
+        destructive_text_down: (shad_theme.color_destructive_foreground)
+        destructive_text_focus: (shad_theme.color_destructive_foreground)
+        link_fill: #0000
+        link_fill_hover: #0000
+        link_fill_down: #0000
+        link_fill_focus: #0000
+        link_fill_disabled: #0000
+        link_text: (shad_theme.color_muted_foreground)
+        link_text_hover: (shad_theme.color_primary)
+        link_text_down: (shad_theme.color_primary_down)
+        link_text_focus: (shad_theme.color_primary)
     }
 
-    mod.widgets.ShadButtonDestructive = mod.widgets.ButtonFlat{
-        height: 36
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-        draw_bg +: {
-            color: (shad_theme.color_destructive)
-            color_hover: (shad_theme.color_destructive_hover)
-            color_down: (shad_theme.color_destructive_down)
-            color_focus: (shad_theme.color_destructive_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
-            border_radius: (shad_theme.radius)
-            border_color: #0000
-        }
-        draw_text.color: (shad_theme.color_destructive_foreground)
-        draw_text.color_hover: (shad_theme.color_destructive_foreground)
-        draw_text.color_down: (shad_theme.color_destructive_foreground)
-        draw_text.color_focus: (shad_theme.color_destructive_foreground)
-        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
-    }
-
-    mod.widgets.ShadButtonOutline = mod.widgets.ButtonFlat{
-        height: 36
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-        draw_bg +: {
-            color: #0000
-            color_hover: (shad_theme.color_ghost_hover)
-            color_down: (shad_theme.color_ghost_down)
-            color_focus: (shad_theme.color_ghost_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 1.0
-            border_radius: (shad_theme.radius)
-            border_color: (shad_theme.color_outline_border)
-            border_color_hover: (shad_theme.color_outline_border_hover)
-            border_color_down: (shad_theme.color_outline_border_down)
-            border_color_focus: (shad_theme.color_primary)
-            border_color_disabled: (shad_theme.color_disabled_border)
-        }
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.color_down: (shad_theme.color_primary)
-        draw_text.color_focus: (shad_theme.color_primary)
-        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
-    }
-
-    mod.widgets.ShadButtonSecondary = mod.widgets.ButtonFlat{
-        height: 36
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-        draw_bg +: {
-            color: (shad_theme.color_secondary)
-            color_hover: (shad_theme.color_secondary_hover)
-            color_down: (shad_theme.color_secondary_down)
-            color_focus: (shad_theme.color_secondary_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
-            border_radius: (shad_theme.radius)
-            border_color: #0000
-        }
-        draw_text.color: (shad_theme.color_secondary_foreground)
-        draw_text.color_hover: (shad_theme.color_secondary_foreground)
-        draw_text.color_down: (shad_theme.color_secondary_foreground)
-        draw_text.color_focus: (shad_theme.color_secondary_foreground)
-        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
-    }
-
-    mod.widgets.ShadButtonGhost = mod.widgets.ButtonFlat{
-        height: 36
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
-        draw_bg +: {
-            color: #0000
-            color_hover: (shad_theme.color_ghost_hover)
-            color_down: (shad_theme.color_ghost_down)
-            color_focus: (shad_theme.color_ghost_hover)
-            color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
-            border_radius: (shad_theme.radius)
-            border_color: #0000
-        }
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.color_down: (shad_theme.color_primary)
-        draw_text.color_focus: (shad_theme.color_primary)
-        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
-    }
+    mod.widgets.ShadButton = mod.widgets.ShadButtonBase{}
 
     mod.widgets.ShadPreviewTab = mod.widgets.ShadTabsTrigger{
         height: 36
@@ -395,60 +371,73 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadButtonLink = mod.widgets.ButtonFlat{
-        height: 36
-        padding: Inset{left: 4, right: 4, top: 0, bottom: 0}
-        draw_bg +: {
-            color: #0000
-            color_hover: #0000
-            color_down: #0000
-            color_focus: #0000
-            color_disabled: #0000
-            border_size: 0.0
-            border_radius: 0.0
-            border_color: #0000
-        }
-        draw_text.color: (shad_theme.color_muted_foreground)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.color_down: (shad_theme.color_primary_down)
-        draw_text.color_focus: (shad_theme.color_primary)
-        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
-    }
-
-    mod.widgets.ShadButtonSm = mod.widgets.ShadButton{
-        height: 28
-        padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 10
-    }
-
-    mod.widgets.ShadButtonLg = mod.widgets.ShadButton{
-        height: 44
-        padding: Inset{left: 32, right: 32, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 13
-    }
-
-    mod.widgets.ShadButtonIcon = mod.widgets.ShadButton{
+    mod.widgets.ShadButtonIcon = mod.widgets.ShadButtonBase{
         width: 36
-        height: 36
         spacing: 0.0
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
     }
 
     mod.widgets.ShadButtonIconSm = mod.widgets.ShadButtonIcon{
         width: 28
-        height: 28
+        size: ShadControlSize.Small
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 10
     }
 
     mod.widgets.ShadButtonIconLg = mod.widgets.ShadButtonIcon{
         width: 44
-        height: 44
+        size: ShadControlSize.Large
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 13
     }
 
+}
+
+#[derive(Script, ScriptHook, Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ShadControlSize {
+    Small,
+    #[pick]
+    #[default]
+    Default,
+    Large,
+}
+
+#[derive(Script, ScriptHook, Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ShadButtonVariant {
+    #[pick]
+    #[default]
+    Primary,
+    Secondary,
+    Outline,
+    Ghost,
+    Destructive,
+    Link,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct ManagedButtonSize {
+    height: f64,
+    padding_x: f64,
+    font_size: f64,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct ManagedButtonVariantStyle {
+    fill: Vec4,
+    fill_hover: Vec4,
+    fill_down: Vec4,
+    fill_focus: Vec4,
+    fill_disabled: Vec4,
+    border_size: f64,
+    border_radius: f64,
+    border_color: Vec4,
+    border_color_hover: Vec4,
+    border_color_down: Vec4,
+    border_color_focus: Vec4,
+    border_color_disabled: Vec4,
+    text: Vec4,
+    text_hover: Vec4,
+    text_down: Vec4,
+    text_focus: Vec4,
+    text_disabled: Vec4,
 }
 
 #[derive(Script, Widget, Animator)]
@@ -488,10 +477,160 @@ pub struct ShadNavButton {
     visible: bool,
     #[live]
     reset_hover_on_click: bool,
+    #[live(ShadControlSize::Default)]
+    size: ShadControlSize,
+    #[live(false)]
+    size_is_managed: bool,
+    #[live(28.0)]
+    size_small_height: f64,
+    #[live(36.0)]
+    size_default_height: f64,
+    #[live(44.0)]
+    size_large_height: f64,
+    #[live(12.0)]
+    size_small_padding_x: f64,
+    #[live(16.0)]
+    size_default_padding_x: f64,
+    #[live(20.0)]
+    size_large_padding_x: f64,
+    #[live(10.0)]
+    size_small_font_size: f64,
+    #[live(11.0)]
+    size_default_font_size: f64,
+    #[live(13.0)]
+    size_large_font_size: f64,
+    #[live(ShadButtonVariant::Primary)]
+    variant: ShadButtonVariant,
+    #[live(false)]
+    variant_is_managed: bool,
+    #[live(4.0)]
+    variant_link_small_padding_x: f64,
+    #[live(4.0)]
+    variant_link_default_padding_x: f64,
+    #[live(6.0)]
+    variant_link_large_padding_x: f64,
+    #[live(6.0)]
+    managed_radius: f64,
+    #[live(0.0)]
+    managed_link_radius: f64,
+    #[live]
+    managed_disabled_fill: Vec4,
+    #[live]
+    managed_disabled_text: Vec4,
+    #[live]
+    managed_disabled_border: Vec4,
+    #[live]
+    primary_fill: Vec4,
+    #[live]
+    primary_fill_hover: Vec4,
+    #[live]
+    primary_fill_down: Vec4,
+    #[live]
+    primary_fill_focus: Vec4,
+    #[live]
+    primary_text: Vec4,
+    #[live]
+    primary_text_hover: Vec4,
+    #[live]
+    primary_text_down: Vec4,
+    #[live]
+    primary_text_focus: Vec4,
+    #[live]
+    secondary_fill: Vec4,
+    #[live]
+    secondary_fill_hover: Vec4,
+    #[live]
+    secondary_fill_down: Vec4,
+    #[live]
+    secondary_fill_focus: Vec4,
+    #[live]
+    secondary_text: Vec4,
+    #[live]
+    secondary_text_hover: Vec4,
+    #[live]
+    secondary_text_down: Vec4,
+    #[live]
+    secondary_text_focus: Vec4,
+    #[live]
+    outline_fill: Vec4,
+    #[live]
+    outline_fill_hover: Vec4,
+    #[live]
+    outline_fill_down: Vec4,
+    #[live]
+    outline_fill_focus: Vec4,
+    #[live]
+    outline_border: Vec4,
+    #[live]
+    outline_border_hover: Vec4,
+    #[live]
+    outline_border_down: Vec4,
+    #[live]
+    outline_border_focus: Vec4,
+    #[live]
+    outline_text: Vec4,
+    #[live]
+    outline_text_hover: Vec4,
+    #[live]
+    outline_text_down: Vec4,
+    #[live]
+    outline_text_focus: Vec4,
+    #[live]
+    ghost_fill: Vec4,
+    #[live]
+    ghost_fill_hover: Vec4,
+    #[live]
+    ghost_fill_down: Vec4,
+    #[live]
+    ghost_fill_focus: Vec4,
+    #[live]
+    ghost_text: Vec4,
+    #[live]
+    ghost_text_hover: Vec4,
+    #[live]
+    ghost_text_down: Vec4,
+    #[live]
+    ghost_text_focus: Vec4,
+    #[live]
+    destructive_fill: Vec4,
+    #[live]
+    destructive_fill_hover: Vec4,
+    #[live]
+    destructive_fill_down: Vec4,
+    #[live]
+    destructive_fill_focus: Vec4,
+    #[live]
+    destructive_text: Vec4,
+    #[live]
+    destructive_text_hover: Vec4,
+    #[live]
+    destructive_text_down: Vec4,
+    #[live]
+    destructive_text_focus: Vec4,
+    #[live]
+    link_fill: Vec4,
+    #[live]
+    link_fill_hover: Vec4,
+    #[live]
+    link_fill_down: Vec4,
+    #[live]
+    link_fill_focus: Vec4,
+    #[live]
+    link_fill_disabled: Vec4,
+    #[live]
+    link_text: Vec4,
+    #[live]
+    link_text_hover: Vec4,
+    #[live]
+    link_text_down: Vec4,
+    #[live]
+    link_text_focus: Vec4,
     #[live]
     text: ArcStringMut,
     #[live]
     on_click: ScriptFnRef,
+    #[rust]
+    applied_variant: Option<ShadButtonVariant>,
 
     #[action_data]
     #[rust]
@@ -502,6 +641,19 @@ impl ScriptHook for ShadNavButton {
     fn on_after_new(&mut self, vm: &mut ScriptVm) {
         vm.with_cx_mut(|cx| {
             self.sync_active_state_if_needed(cx, Animate::No);
+        });
+    }
+
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        self.applied_variant = None;
+        vm.with_cx_mut(|cx| {
+            self.sync_managed_size(cx);
         });
     }
 }
@@ -635,6 +787,7 @@ impl Widget for ShadNavButton {
             return DrawStep::done();
         }
 
+        self.sync_managed_variant(&mut *cx);
         self.sync_active_state_if_needed(&mut *cx, Animate::No);
         self.draw_bg.begin(cx, walk, self.layout);
         self.draw_text
@@ -660,6 +813,239 @@ impl Widget for ShadNavButton {
 }
 
 impl ShadNavButton {
+    fn managed_size(&self) -> Option<ManagedButtonSize> {
+        if !self.size_is_managed {
+            return None;
+        }
+
+        Some(match self.size {
+            ShadControlSize::Small => ManagedButtonSize {
+                height: self.size_small_height,
+                padding_x: self.size_small_padding_x,
+                font_size: self.size_small_font_size,
+            },
+            ShadControlSize::Default => ManagedButtonSize {
+                height: self.size_default_height,
+                padding_x: self.size_default_padding_x,
+                font_size: self.size_default_font_size,
+            },
+            ShadControlSize::Large => ManagedButtonSize {
+                height: self.size_large_height,
+                padding_x: self.size_large_padding_x,
+                font_size: self.size_large_font_size,
+            },
+        })
+    }
+
+    fn managed_variant_style(&self) -> Option<ManagedButtonVariantStyle> {
+        if !self.variant_is_managed {
+            return None;
+        }
+
+        let transparent = vec4(0.0, 0.0, 0.0, 0.0);
+        Some(match self.variant {
+            ShadButtonVariant::Primary => ManagedButtonVariantStyle {
+                fill: self.primary_fill,
+                fill_hover: self.primary_fill_hover,
+                fill_down: self.primary_fill_down,
+                fill_focus: self.primary_fill_focus,
+                fill_disabled: self.managed_disabled_fill,
+                border_size: 0.0,
+                border_radius: self.managed_radius,
+                border_color: transparent,
+                border_color_hover: transparent,
+                border_color_down: transparent,
+                border_color_focus: transparent,
+                border_color_disabled: transparent,
+                text: self.primary_text,
+                text_hover: self.primary_text_hover,
+                text_down: self.primary_text_down,
+                text_focus: self.primary_text_focus,
+                text_disabled: self.managed_disabled_text,
+            },
+            ShadButtonVariant::Secondary => ManagedButtonVariantStyle {
+                fill: self.secondary_fill,
+                fill_hover: self.secondary_fill_hover,
+                fill_down: self.secondary_fill_down,
+                fill_focus: self.secondary_fill_focus,
+                fill_disabled: self.managed_disabled_fill,
+                border_size: 0.0,
+                border_radius: self.managed_radius,
+                border_color: transparent,
+                border_color_hover: transparent,
+                border_color_down: transparent,
+                border_color_focus: transparent,
+                border_color_disabled: transparent,
+                text: self.secondary_text,
+                text_hover: self.secondary_text_hover,
+                text_down: self.secondary_text_down,
+                text_focus: self.secondary_text_focus,
+                text_disabled: self.managed_disabled_text,
+            },
+            ShadButtonVariant::Outline => ManagedButtonVariantStyle {
+                fill: self.outline_fill,
+                fill_hover: self.outline_fill_hover,
+                fill_down: self.outline_fill_down,
+                fill_focus: self.outline_fill_focus,
+                fill_disabled: self.managed_disabled_fill,
+                border_size: 1.0,
+                border_radius: self.managed_radius,
+                border_color: self.outline_border,
+                border_color_hover: self.outline_border_hover,
+                border_color_down: self.outline_border_down,
+                border_color_focus: self.outline_border_focus,
+                border_color_disabled: self.managed_disabled_border,
+                text: self.outline_text,
+                text_hover: self.outline_text_hover,
+                text_down: self.outline_text_down,
+                text_focus: self.outline_text_focus,
+                text_disabled: self.managed_disabled_text,
+            },
+            ShadButtonVariant::Ghost => ManagedButtonVariantStyle {
+                fill: self.ghost_fill,
+                fill_hover: self.ghost_fill_hover,
+                fill_down: self.ghost_fill_down,
+                fill_focus: self.ghost_fill_focus,
+                fill_disabled: self.managed_disabled_fill,
+                border_size: 0.0,
+                border_radius: self.managed_radius,
+                border_color: transparent,
+                border_color_hover: transparent,
+                border_color_down: transparent,
+                border_color_focus: transparent,
+                border_color_disabled: transparent,
+                text: self.ghost_text,
+                text_hover: self.ghost_text_hover,
+                text_down: self.ghost_text_down,
+                text_focus: self.ghost_text_focus,
+                text_disabled: self.managed_disabled_text,
+            },
+            ShadButtonVariant::Destructive => ManagedButtonVariantStyle {
+                fill: self.destructive_fill,
+                fill_hover: self.destructive_fill_hover,
+                fill_down: self.destructive_fill_down,
+                fill_focus: self.destructive_fill_focus,
+                fill_disabled: self.managed_disabled_fill,
+                border_size: 0.0,
+                border_radius: self.managed_radius,
+                border_color: transparent,
+                border_color_hover: transparent,
+                border_color_down: transparent,
+                border_color_focus: transparent,
+                border_color_disabled: transparent,
+                text: self.destructive_text,
+                text_hover: self.destructive_text_hover,
+                text_down: self.destructive_text_down,
+                text_focus: self.destructive_text_focus,
+                text_disabled: self.managed_disabled_text,
+            },
+            ShadButtonVariant::Link => ManagedButtonVariantStyle {
+                fill: self.link_fill,
+                fill_hover: self.link_fill_hover,
+                fill_down: self.link_fill_down,
+                fill_focus: self.link_fill_focus,
+                fill_disabled: self.link_fill_disabled,
+                border_size: 0.0,
+                border_radius: self.managed_link_radius,
+                border_color: transparent,
+                border_color_hover: transparent,
+                border_color_down: transparent,
+                border_color_focus: transparent,
+                border_color_disabled: transparent,
+                text: self.link_text,
+                text_hover: self.link_text_hover,
+                text_down: self.link_text_down,
+                text_focus: self.link_text_focus,
+                text_disabled: self.managed_disabled_text,
+            },
+        })
+    }
+
+    fn sync_managed_variant(&mut self, cx: &mut Cx) {
+        let Some(style) = self.managed_variant_style() else {
+            return;
+        };
+        if self.applied_variant == Some(self.variant) {
+            return;
+        }
+        script_apply_eval!(cx, self, {
+            draw_bg +: {
+                color: #(style.fill)
+                color_hover: #(style.fill_hover)
+                color_down: #(style.fill_down)
+                color_focus: #(style.fill_focus)
+                color_active: #(style.fill_focus)
+                color_disabled: #(style.fill_disabled)
+                border_size: #(style.border_size)
+                border_radius: #(style.border_radius)
+                border_color: #(style.border_color)
+                border_color_hover: #(style.border_color_hover)
+                border_color_down: #(style.border_color_down)
+                border_color_focus: #(style.border_color_focus)
+                border_color_active: #(style.border_color_focus)
+                border_color_disabled: #(style.border_color_disabled)
+            }
+            draw_text +: {
+                color: #(style.text)
+                color_hover: #(style.text_hover)
+                color_down: #(style.text_down)
+                color_focus: #(style.text_focus)
+                color_active: #(style.text_focus)
+                color_disabled: #(style.text_disabled)
+            }
+        });
+        self.applied_variant = Some(self.variant);
+    }
+
+    fn managed_padding_x(&self, default_padding_x: f64) -> f64 {
+        if self.variant_is_managed && matches!(self.variant, ShadButtonVariant::Link) {
+            return match self.size {
+                ShadControlSize::Small => self.variant_link_small_padding_x,
+                ShadControlSize::Default => self.variant_link_default_padding_x,
+                ShadControlSize::Large => self.variant_link_large_padding_x,
+            };
+        }
+        default_padding_x
+    }
+
+    fn sync_managed_size(&mut self, cx: &mut Cx) {
+        let Some(size) = self.managed_size() else {
+            return;
+        };
+        let padding_x = self.managed_padding_x(size.padding_x);
+
+        let mut changed = false;
+
+        if !matches!(self.walk.height, Size::Fixed(value) if (value - size.height).abs() <= f64::EPSILON) {
+            self.walk.height = Size::Fixed(size.height);
+            changed = true;
+        }
+
+        let current_padding = self.layout.padding;
+        if (current_padding.left - padding_x).abs() > f64::EPSILON
+            || (current_padding.right - padding_x).abs() > f64::EPSILON
+            || current_padding.top.abs() > f64::EPSILON
+            || current_padding.bottom.abs() > f64::EPSILON
+        {
+            self.layout.padding = Inset {
+                left: padding_x,
+                right: padding_x,
+                top: 0.0,
+                bottom: 0.0,
+            };
+            changed = true;
+        }
+
+        if (self.draw_text.text_style.font_size as f64 - size.font_size).abs() > f64::EPSILON {
+            self.draw_text.text_style.font_size = size.font_size as f32;
+            changed = true;
+        }
+
+        if changed {
+            self.area.redraw(cx);
+        }
+    }
+
     fn sync_active_state_if_needed(&mut self, cx: &mut Cx, animate: Animate) {
         if self.animator_in_state(cx, ids!(active.on)) == self.active {
             return;

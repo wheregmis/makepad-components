@@ -35,11 +35,13 @@ gallery_stateful_page_shell! {
                         text: "Rename project"
                     }
 
-                    open_publish_dialog_btn := ShadButtonOutline{
+                    open_publish_dialog_btn := ShadButton{
+                        variant: ShadButtonVariant.Outline
                         text: "Publish changes"
                     }
 
-                    open_delete_dialog_btn := ShadButtonDestructive{
+                    open_delete_dialog_btn := ShadButton{
+                        variant: ShadButtonVariant.Destructive
                         text: "Delete project"
                     }
                 }
@@ -93,7 +95,8 @@ gallery_stateful_page_shell! {
                         }
 
                         dialog_footer := ShadDialogFooter{
-                            rename_cancel_btn := ShadButtonOutline{
+                            rename_cancel_btn := ShadButton{
+                                variant: ShadButtonVariant.Outline
                                 text: "Cancel"
                             }
 
@@ -107,55 +110,18 @@ gallery_stateful_page_shell! {
         }
 
         publish_dialog := ShadDialogAlert{
-            overlay +: {
-                content +: {
-                    dialog_panel +: {
-                        dialog_body +: {
-                            title_label +: {
-                                text: "Publish changes?"
-                            }
-                            description_label +: {
-                                text: "Push the latest pricing copy and onboarding updates live for every workspace."
-                            }
-                        }
-
-                        footer +: {
-                            cancel +: {
-                                text: "Keep editing"
-                            }
-                            confirm +: {
-                                text: "Publish now"
-                            }
-                        }
-                    }
-                }
-            }
+            alert_title_text: "Publish changes?"
+            alert_description_text: "Push the latest pricing copy and onboarding updates live for every workspace."
+            alert_cancel_text: "Keep editing"
+            alert_confirm_text: "Publish now"
         }
 
-        delete_dialog := ShadDialogAlertDestructive{
-            overlay +: {
-                content +: {
-                    dialog_panel +: {
-                        dialog_body +: {
-                            title_label +: {
-                                text: "Delete project?"
-                            }
-                            description_label +: {
-                                text: "This permanently removes the project, API keys, and release history from your workspace."
-                            }
-                        }
-
-                        footer +: {
-                            cancel +: {
-                                text: "Cancel"
-                            }
-                            confirm +: {
-                                text: "Delete project"
-                            }
-                        }
-                    }
-                }
-            }
+        delete_dialog := ShadDialogAlert{
+            alert_tone: ShadDialogAlertTone.Destructive
+            alert_title_text: "Delete project?"
+            alert_description_text: "This permanently removes the project, API keys, and release history from your workspace."
+            alert_cancel_text: "Cancel"
+            alert_confirm_text: "Delete project"
         }
     },
 }

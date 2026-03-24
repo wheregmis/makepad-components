@@ -37,7 +37,8 @@ gallery_stateful_page_shell! {
                                 spacing: 10.0
 
                                 sdk_panel := ShadNavigationMenuPanel{
-                                    products_sdk_btn := ShadButtonGhost{
+                                    products_sdk_btn := ShadButton{
+                                        variant: ShadButtonVariant.Ghost
                                         width: Fill
                                         align: Align{x: 0.0, y: 0.5}
                                         text: "SDKs"
@@ -46,7 +47,8 @@ gallery_stateful_page_shell! {
                                 }
 
                                 dashboard_panel := ShadNavigationMenuPanel{
-                                    products_dashboard_btn := ShadButtonGhost{
+                                    products_dashboard_btn := ShadButton{
+                                        variant: ShadButtonVariant.Ghost
                                         width: Fill
                                         align: Align{x: 0.0, y: 0.5}
                                         text: "Dashboards"
@@ -63,13 +65,15 @@ gallery_stateful_page_shell! {
 
                     content: ShadNavigationMenuContent{
                         ShadNavigationMenuSectionLabel{text: "Learn"}
-                        guides_btn := ShadButtonGhost{
+                        guides_btn := ShadButton{
+                            variant: ShadButtonVariant.Ghost
                             width: Fill
                             align: Align{x: 0.0, y: 0.5}
                             text: "Guides"
                         }
                         ShadFieldDescription{text: "Architecture notes, implementation walkthroughs, and migration recipes."}
-                        examples_btn := ShadButtonGhost{
+                        examples_btn := ShadButton{
+                            variant: ShadButtonVariant.Ghost
                             width: Fill
                             align: Align{x: 0.0, y: 0.5}
                             text: "Examples"
@@ -78,7 +82,8 @@ gallery_stateful_page_shell! {
                     }
                 }
 
-                pricing_link := ShadButtonGhost{
+                pricing_link := ShadButton{
+                    variant: ShadButtonVariant.Ghost
                     text: "Pricing"
                 }
             }

@@ -28,21 +28,20 @@ macro_rules! define_gallery_root {
             use mod.draw.KeyCode
             use mod.widgets.*
 
-            mod.widgets.GalleryThemeToggle = ShadButtonOutline{
+            mod.widgets.GalleryThemeToggle = ShadButton{
+                variant: ShadButtonVariant.Outline
                 width: Fit
                 height: 36
                 text: "Light theme"
             }
 
-            mod.widgets.GalleryMobileThemeToggle = ShadButtonOutline{
+            mod.widgets.GalleryMobileThemeToggle = ShadButton{
+                variant: ShadButtonVariant.Outline
                 width: Fit
                 height: 36
                 padding: Inset{left: 10, right: 12, top: 0, bottom: 0}
                 spacing: 6.0
                 text: "Theme"
-                icon_walk: Walk{width: 16, height: 16}
-                draw_icon.svg: crate_resource("self://resources/icons/sun-moon.svg")
-                draw_icon.color: (shad_theme.color_primary)
             }
 
             mod.widgets.GalleryCommandPaletteHeaderTrigger = View{
@@ -52,7 +51,10 @@ macro_rules! define_gallery_root {
                 align: Align{y: 0.5}
                 spacing: 8.0
 
-                desktop_command_palette_trigger := ShadButtonOutline{text: "Search components"}
+                desktop_command_palette_trigger := ShadButton{
+                    variant: ShadButtonVariant.Outline
+                    text: "Search components"
+                }
 
                 ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
                 ShadKbdSeparator{}
@@ -176,7 +178,8 @@ macro_rules! define_gallery_root {
                         mobile_theme_toggle := mod.widgets.GalleryMobileThemeToggle{}
                     }
 
-                    mobile_command_palette_trigger := ShadButtonGhost{
+                    mobile_command_palette_trigger := ShadButton{
+                        variant: ShadButtonVariant.Ghost
                         width: Fill
                         text: "Search components"
                     }

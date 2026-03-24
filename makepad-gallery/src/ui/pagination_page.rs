@@ -23,15 +23,18 @@ gallery_stateful_page_shell! {
             flow: Right
             spacing: 8.0
 
-            prev_external_btn := ShadButtonOutline{
+            prev_external_btn := ShadButton{
+                variant: ShadButtonVariant.Outline
                 text: "Previous"
             }
 
-            next_external_btn := ShadButtonOutline{
+            next_external_btn := ShadButton{
+                variant: ShadButtonVariant.Outline
                 text: "Next"
             }
 
-            jump_last_btn := ShadButtonGhost{
+            jump_last_btn := ShadButton{
+                variant: ShadButtonVariant.Ghost
                 text: "Jump to last"
             }
         }

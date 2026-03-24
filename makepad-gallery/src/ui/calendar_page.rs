@@ -22,7 +22,8 @@ gallery_stateful_page_shell! {
             flow: Right
             spacing: 8.0
 
-            calendar_prev_btn := ShadButtonOutline{
+            calendar_prev_btn := ShadButton{
+                variant: ShadButtonVariant.Outline
                 text: "Previous month"
             }
 
@@ -30,11 +31,13 @@ gallery_stateful_page_shell! {
                 text: "Jump to March 13"
             }
 
-            calendar_next_btn := ShadButtonOutline{
+            calendar_next_btn := ShadButton{
+                variant: ShadButtonVariant.Outline
                 text: "Next month"
             }
 
-            calendar_clear_btn := ShadButtonGhost{
+            calendar_clear_btn := ShadButton{
+                variant: ShadButtonVariant.Ghost
                 text: "Clear"
             }
         }
