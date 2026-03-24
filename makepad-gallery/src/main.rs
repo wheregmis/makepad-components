@@ -355,7 +355,6 @@ impl AppMain for App {
             Event::MacosMenuCommand(command) => {
                 if *command == live_id!(command_palette_menu) {
                     self.open_command_palette(cx);
-                    return;
                 }
             }
             Event::WindowGeomChange(geom) => {
@@ -365,8 +364,10 @@ impl AppMain for App {
                 if key_event.key_code == KeyCode::KeyK
                     && (key_event.modifiers.logo || key_event.modifiers.control)
                 {
+                    // Keep forwarding the shortcut event through the UI tree so the
+                    // palette's overlay state settles in the same dispatch cycle as
+                    // button-driven opens.
                     self.toggle_command_palette(cx);
-                    return;
                 }
             }
             _ => {}
