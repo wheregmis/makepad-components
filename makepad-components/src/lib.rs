@@ -26,6 +26,7 @@ pub mod carousel;
 pub mod chart;
 pub mod checkbox;
 pub mod collapsible;
+pub mod command_palette;
 pub mod context_menu;
 pub mod date_picker;
 pub mod dialog;
@@ -71,6 +72,7 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::tabs::script_mod(vm);
     crate::button::script_mod(vm);
     crate::button_group::script_mod(vm);
+    crate::surface::script_mod(vm);
     crate::calendar::script_mod(vm);
     crate::card::script_mod(vm);
     crate::carousel::script_mod(vm);
@@ -80,13 +82,14 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::context_menu::script_mod(vm);
     crate::dialog::script_mod(vm);
 
-    crate::skeleton::script_mod(vm);
-    crate::kbd::script_mod(vm);
     crate::hr::script_mod(vm);
     crate::image::script_mod(vm);
+    crate::label::script_mod(vm);
+    crate::skeleton::script_mod(vm);
+    crate::kbd::script_mod(vm);
     crate::input::script_mod(vm);
     crate::input_otp::script_mod(vm);
-    crate::label::script_mod(vm);
+    crate::command_palette::script_mod(vm);
     crate::popover::script_mod(vm);
     crate::date_picker::script_mod(vm);
     crate::menubar::script_mod(vm);
@@ -104,7 +107,6 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::slider::script_mod(vm);
     crate::sonner::script_mod(vm);
     crate::spinner::script_mod(vm);
-    crate::surface::script_mod(vm);
     crate::switch::script_mod(vm);
     crate::table::script_mod(vm);
     crate::textarea::script_mod(vm);

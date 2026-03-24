@@ -17,7 +17,7 @@ gallery_static_page! {
 
             ShadFieldDescription{
                 width: Fill
-                text: "Use Kbd chips anywhere you need shortcut copy: menu rows, dialog footers, onboarding hints, or command overlays."
+                text: "Use Kbd chips anywhere you need shortcut copy: menu rows, dialog footers, onboarding hints, or command overlays. Wrap inline combinations in ShadShortcut so the alignment stays consistent."
             }
 
             ShadSurface{
@@ -44,13 +44,9 @@ gallery_static_page! {
                         text: "Keep single keys as separate caps so layouts can mix Mac and Windows copy without changing the component."
                     }
 
-                    View{
+                    ShadShortcut{
                         width: Fit
                         height: Fit
-                        flow: Right{wrap: true}
-                        spacing: 6.0
-                        align: Align{y: 0.5}
-
                         ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
                         ShadKbd{ label := ShadKbdLabel{text: "Shift"} }
                         ShadKbd{ label := ShadKbdLabel{text: "Option"} }
@@ -88,25 +84,17 @@ gallery_static_page! {
                                 text: "Open command palette"
                             }
 
-                            View{
+                            ShadShortcut{
                                 width: Fit
                                 height: Fit
-                                flow: Right{wrap: true}
-                                spacing: 6.0
-                                align: Align{y: 0.5}
-
                                 ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
                                 ShadKbdSeparator{}
                                 ShadKbd{ label := ShadKbdLabel{text: "K"} }
                             }
 
-                            View{
+                            ShadShortcut{
                                 width: Fit
                                 height: Fit
-                                flow: Right
-                                spacing: 6.0
-                                align: Align{y: 0.5}
-
                                 ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
                                 ShadKbdSeparator{}
                                 ShadKbd{ label := ShadKbdLabel{text: "K"} }
@@ -125,13 +113,9 @@ gallery_static_page! {
                                 text: "Duplicate current row"
                             }
 
-                            View{
+                            ShadShortcut{
                                 width: Fit
                                 height: Fit
-                                flow: Right
-                                spacing: 6.0
-                                align: Align{y: 0.5}
-
                                 ShadKbd{ label := ShadKbdLabel{text: "Shift"} }
                                 ShadKbdSeparator{}
                                 ShadKbd{ label := ShadKbdLabel{text: "Alt"} }

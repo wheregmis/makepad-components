@@ -53,8 +53,8 @@ gallery_stateful_page_shell! {
     },
     action_flow: {
         mod.widgets.GalleryActionFlowStep{text: "1. For regular datasets, keep headers and rows in app state, then call `set_headers(cx, ...)` and `set_rows(cx, ...)` when data changes."}
-        mod.widgets.GalleryActionFlowStep{text: "2. Listen to `row_clicked(actions)` or `selection_changed(actions)` when surrounding details panes need to react."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Use `set_selected_row(cx, ...)` when other controls should move the current selection."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Listen to `row_clicked(actions)`, `selection_changed(actions)`, or `selection_cleared(actions)` when surrounding details panes need to react."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Use `set_selected_row(cx, ...)` when other controls should move or clear the current selection."}
         mod.widgets.GalleryActionFlowStep{text: "4. For huge data, call `set_virtual_total_rows(cx, ...)` and then `set_virtual_window(cx, start, rows)` to render only a loaded window."}
     },
 }
@@ -99,7 +99,11 @@ impl GalleryTablePage {
                     &format!("JOB-{index:05}"),
                     if index & 1 == 0 { "Batch" } else { "Realtime" },
                     if index % 3 == 0 { "Remote" } else { "Toronto" },
-                    if index % 5 == 0 { "Investigating" } else { "Running" },
+                    if index % 5 == 0 {
+                        "Investigating"
+                    } else {
+                        "Running"
+                    },
                 )
             })
             .collect()
@@ -146,7 +150,9 @@ impl GalleryTablePage {
         }
         let remaining = Self::VIRTUAL_TOTAL.saturating_sub(self.virtual_start);
         let window_len = remaining.min(Self::VIRTUAL_WINDOW_SIZE).max(1);
-        let end = self.virtual_start.saturating_add(window_len.saturating_sub(1));
+        let end = self
+            .virtual_start
+            .saturating_add(window_len.saturating_sub(1));
         self.view.label(cx, ids!(table_status)).set_text(
             cx,
             &format!(
@@ -211,15 +217,17 @@ impl Widget for GalleryTablePage {
                 self.apply_dataset(cx);
                 return;
             }
-            if self.view.button(cx, ids!(table_virtual_btn)).clicked(actions) {
+            if self
+                .view
+                .button(cx, ids!(table_virtual_btn))
+                .clicked(actions)
+            {
                 self.apply_virtual_dataset(cx);
                 return;
             }
             if self.view.button(cx, ids!(table_prev_btn)).clicked(actions) {
                 if self.virtual_mode {
-                    let start = self
-                        .virtual_start
-                        .saturating_sub(Self::VIRTUAL_WINDOW_SIZE);
+                    let start = self.virtual_start.saturating_sub(Self::VIRTUAL_WINDOW_SIZE);
                     self.sync_virtual_window(cx, start, true);
                 }
                 return;
@@ -248,6 +256,8 @@ impl Widget for GalleryTablePage {
             if let Some(index) = table.row_clicked(actions) {
                 self.sync_status(cx, Some(index));
             } else if table.selection_changed(actions).is_some() {
+                self.sync_status(cx, None);
+            } else if table.selection_cleared(actions) {
                 self.sync_status(cx, None);
             }
         }

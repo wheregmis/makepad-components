@@ -1,5 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
-use makepad_components::chart::{AreaChart, BarChart, DataPoint, LineChart};
+use makepad_components::chart::{DataPoint, ShadChartWidgetExt};
 use makepad_components::makepad_widgets::*;
 
 gallery_stateful_page_shell! {
@@ -79,27 +79,15 @@ impl GalleryChartPage {
     fn apply_dataset(&mut self, cx: &mut Cx) {
         let (title, line_points, area_points, bar_points) = chart_dataset(self.dataset_index);
 
-        if let Some(mut chart) = self
-            .view
-            .widget_flood(cx, ids!(line_chart_demo))
-            .borrow_mut::<LineChart>()
-        {
-            chart.set_data(line_points);
-        }
-        if let Some(mut chart) = self
-            .view
-            .widget_flood(cx, ids!(area_chart_demo))
-            .borrow_mut::<AreaChart>()
-        {
-            chart.set_data(area_points);
-        }
-        if let Some(mut chart) = self
-            .view
-            .widget_flood(cx, ids!(bar_chart_demo))
-            .borrow_mut::<BarChart>()
-        {
-            chart.set_data(bar_points);
-        }
+        self.view
+            .shad_line_chart(cx, ids!(line_chart_demo))
+            .set_data(line_points);
+        self.view
+            .shad_area_chart(cx, ids!(area_chart_demo))
+            .set_data(area_points);
+        self.view
+            .shad_bar_chart(cx, ids!(bar_chart_demo))
+            .set_data(bar_points);
 
         self.view
             .label(cx, ids!(chart_status))

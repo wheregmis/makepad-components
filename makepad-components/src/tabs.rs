@@ -1,4 +1,5 @@
 use makepad_widgets::*;
+use std::sync::Arc;
 
 script_mod! {
     use mod.prelude.widgets.*
@@ -67,5 +68,76 @@ script_mod! {
             border_size: 1.0
             border_color: (shad_theme.color_outline_border)
         }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ShadTabSpec {
+    pub value: LiveId,
+    trigger_path: Arc<[LiveId]>,
+    indicator_path: Arc<[LiveId]>,
+}
+
+impl ShadTabSpec {
+    pub fn new(value: LiveId, trigger_path: &[LiveId], indicator_path: &[LiveId]) -> Self {
+        Self {
+            value,
+            trigger_path: Arc::from(trigger_path),
+            indicator_path: Arc::from(indicator_path),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct ShadTabsController {
+    selected: LiveId,
+    tabs: Arc<[ShadTabSpec]>,
+}
+
+impl ShadTabsController {
+    pub fn new(selected: LiveId, tabs: Vec<ShadTabSpec>) -> Self {
+        Self {
+            selected,
+            tabs: Arc::from(tabs),
+        }
+    }
+
+    pub fn selected(&self) -> LiveId {
+        self.selected
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.tabs.is_empty()
+    }
+
+    pub fn set_selected(&mut self, cx: &mut Cx, root: &WidgetRef, selected: LiveId) -> bool {
+        if self.selected == selected {
+            self.sync(cx, root);
+            return false;
+        }
+        self.selected = selected;
+        self.sync(cx, root);
+        true
+    }
+
+    pub fn sync(&self, cx: &mut Cx, root: &WidgetRef) {
+        for tab in self.tabs.iter() {
+            root.view(cx, tab.indicator_path.as_ref())
+                .set_visible(cx, tab.value == self.selected);
+        }
+    }
+
+    pub fn changed(&mut self, cx: &mut Cx, root: &WidgetRef, actions: &Actions) -> Option<LiveId> {
+        let selected = self.tabs.iter().find_map(|tab| {
+            root.button(cx, tab.trigger_path.as_ref())
+                .clicked(actions)
+                .then_some(tab.value)
+        });
+
+        if let Some(selected) = selected {
+            self.set_selected(cx, root, selected);
+        }
+
+        selected
     }
 }

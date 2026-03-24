@@ -6,32 +6,32 @@ gallery_static_page! {
     widget: GalleryRadioGroupPage,
     page: radio_group_page,
     title: "Radio Group",
-    subtitle: "Radio groups are page-owned single-choice state: use RadioButtonSet::selected(cx, actions) to map clicks back into a domain value.",
+    subtitle: "Radio groups expose a typed `ShadRadioGroupRef` so single-choice state no longer has to reach down to `RadioButtonSet` directly.",
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
         ShadSectionHeader{ text: "Stacked options" }
         ShadPanel{
             ShadRadioGroup{
-                ShadRadioItem{text: "Starter"}
-                ShadRadioItem{text: "Pro"}
-                ShadRadioItem{text: "Enterprise"}
+                starter_plan := ShadRadioItem{text: "Starter"}
+                pro_plan := ShadRadioItem{text: "Pro"}
+                enterprise_plan := ShadRadioItem{text: "Enterprise"}
             }
         }
 
         ShadSectionHeader{ text: "Inline options" }
         ShadPanel{
             ShadRadioGroupInline{
-                ShadRadioItem{text: "Weekly"}
-                ShadRadioItem{text: "Monthly"}
-                ShadRadioItem{text: "Yearly"}
+                weekly_interval := ShadRadioItem{text: "Weekly"}
+                monthly_interval := ShadRadioItem{text: "Monthly"}
+                yearly_interval := ShadRadioItem{text: "Yearly"}
             }
         }
     },
     action_flow: {
         mod.widgets.GalleryActionFlowStep{text: "1. Name the individual radio items that belong to one logical group."}
-        mod.widgets.GalleryActionFlowStep{text: "2. Read the selected index with view.radio_button_set(ids!(starter_plan, pro_plan, enterprise_plan)).selected(cx, actions)."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Convert that index into your domain enum or model value in the page controller."}
-        mod.widgets.GalleryActionFlowStep{text: "4. When restoring state, call set_active(cx, ...) on the matching item so the UI reflects the domain value again."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Build a typed group with view.shad_radio_group(cx, [ids!(starter_plan), ids!(pro_plan), ids!(enterprise_plan)])."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Read the selected index with group.selected(cx, actions) and convert it into your domain enum or model value."}
+        mod.widgets.GalleryActionFlowStep{text: "4. When restoring state, call group.set_selected(cx, Some(index)) so the UI reflects the domain value again."}
     },
 }

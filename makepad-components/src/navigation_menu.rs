@@ -102,6 +102,7 @@ script_mod! {
         viewport_padding: 16.0
         can_dismiss: true
         open_on_hover: true
+        hover_group: "navigation_menu"
 
         trigger := mod.widgets.ShadNavigationMenuTrigger{
             text: "Overview"

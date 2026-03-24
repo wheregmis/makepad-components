@@ -14,8 +14,7 @@ pub enum RouterBlockReason {
     RedirectLimit,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[derive(Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct RouterCapabilities {
     pub guards_sync: bool,
     pub guards_async: bool,

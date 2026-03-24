@@ -48,19 +48,9 @@ gallery_static_page! {
             align: Align{y: 0.5}
             spacing: 8.0
 
-            ShadButtonDestructive{
-                height: 28
-                padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
-                draw_text.text_style.font_size: 10
-                text: "Small"
-            }
+            GalleryButtonDestructiveSm{text: "Small"}
             ShadButtonDestructive{text: "Default"}
-            ShadButtonDestructive{
-                height: 44
-                padding: Inset{left: 32, right: 32, top: 0, bottom: 0}
-                draw_text.text_style.font_size: 13
-                text: "Large"
-            }
+            GalleryButtonDestructiveLg{text: "Large"}
         }
 
         ShadSectionHeader{ text: "Outline Variations" }
@@ -100,52 +90,21 @@ gallery_static_page! {
         View{
             width: Fill
             height: Fit
-            flow: Right
+            flow: Right{wrap: true}
             align: Align{y: 0.5}
             spacing: 8.0
 
+            ShadButtonIconSm{text: "✓"}
             ShadButtonIcon{text: "✓"}
+            ShadButtonIconLg{text: "✓"}
 
-            IconButtonChevronLeft{
-                width: 36
-                height: 36
-                draw_bg +: {
-                    color: #0000
-                    color_hover: (shad_theme.color_ghost_hover)
-                    color_down: (shad_theme.color_ghost_down)
-                    border_size: 1.0
-                    border_radius: (shad_theme.radius)
-                    border_color: (shad_theme.color_outline_border)
-                }
-                draw_icon.color: (shad_theme.color_primary)
-            }
+            GalleryButtonIconChevronLeft{}
 
-            IconButtonChevronRight{
-                width: 36
-                height: 36
-                draw_bg +: {
-                    color: #0000
-                    color_hover: (shad_theme.color_ghost_hover)
-                    color_down: (shad_theme.color_ghost_down)
-                    border_size: 1.0
-                    border_radius: (shad_theme.radius)
-                    border_color: (shad_theme.color_outline_border)
-                }
-                draw_icon.color: (shad_theme.color_primary)
-            }
+            GalleryButtonIconChevronRight{}
 
-            IconButtonX{
-                width: 36
-                height: 36
-                draw_bg +: {
-                    color: #0000
-                    color_hover: (shad_theme.color_ghost_hover)
-                    color_down: (shad_theme.color_ghost_down)
-                    border_size: 0.0
-                    border_radius: (shad_theme.radius)
-                }
-                draw_icon.color: (shad_theme.color_muted_foreground)
-            }
+            GalleryButtonIconX{}
+
+            GalleryButtonIconMoreHorizontal{}
         }
     },
     action_flow: {

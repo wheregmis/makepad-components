@@ -1,5 +1,11 @@
 use makepad_widgets::*;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct IconMetadata {
+    pub widget_name: &'static str,
+    pub icon_name: &'static str,
+}
+
 // Expands to a script_mod with one icon widget per Lucide SVG binding.
 // Input format: IconTypeName => "self://resources/icons/name.svg"
 macro_rules! define_lucide_icons {

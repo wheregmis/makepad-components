@@ -9,13 +9,11 @@ pub const CHART_PREVIEW_CODE: &str = r#"View{
 }
 
 // Controller example (Rust):
-// if let Some(mut line) = self.ui.widget_flood(cx, ids!(line_chart)).borrow_mut::<LineChart>() {
-//     line.set_data(vec![
-//         DataPoint{x: 0.0, y: 18.0},
-//         DataPoint{x: 1.0, y: 26.0},
-//         DataPoint{x: 2.0, y: 31.0},
-//     ]);
-// }"#;
+// self.ui.shad_line_chart(cx, ids!(line_chart)).set_data(vec![
+//     DataPoint{x: 0.0, y: 18.0},
+//     DataPoint{x: 1.0, y: 26.0},
+//     DataPoint{x: 2.0, y: 31.0},
+// ]);"#;
 pub const TABLE_PREVIEW_CODE: &str = r#"tasks_table := ShadTable{
     caption: "Tasks"
     headers: ["Name" "Owner" "Status"]
@@ -37,4 +35,6 @@ pub const TABLE_PREVIEW_CODE: &str = r#"tasks_table := ShadTable{
 //
 // if let Some(row) = table.selection_changed(actions) {
 //     self.selected_task = Some(row);
+// } else if table.selection_cleared(actions) {
+//     self.selected_task = None;
 // }"#;

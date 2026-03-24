@@ -18,15 +18,7 @@ gallery_static_page! {
             spacing: 10.0
             align: Align{y: 0.5}
 
-            IconButtonChevronLeft{
-                draw_bg +: {
-                    color: (shad_theme.color_secondary)
-                    border_size: 1.0
-                    border_radius: (shad_theme.radius)
-                    border_color: (shad_theme.color_outline_border)
-                }
-                draw_icon.color: (shad_theme.color_primary)
-            }
+            GalleryButtonIconChevronLeft{}
 
             ShadButtonGroup{
                 ShadButtonGroupItem{text: "Archive"}
@@ -37,20 +29,7 @@ gallery_static_page! {
             ShadButtonGroup{
                 ShadButtonGroupItem{text: "Snooze"}
                 ShadButtonGroupSeparator{}
-                IconButtonMoreHorizontal{
-                    width: 36
-                    height: 36
-                    draw_bg +: {
-                        color: #0000
-                        color_hover: (shad_theme.color_ghost_hover)
-                        color_down: (shad_theme.color_ghost_down)
-                        color_focus: (shad_theme.color_ghost_hover)
-                        border_size: 0.0
-                        border_radius: 0.0
-                        border_color: #0000
-                    }
-                    draw_icon.color: (shad_theme.color_primary)
-                }
+                GalleryButtonIconMoreHorizontal{}
             }
         }
 
@@ -87,6 +66,23 @@ gallery_static_page! {
             }
         }
 
+        ShadSectionHeader{ text: "Destructive" }
+
+        View{
+            width: Fill
+            height: Fit
+            flow: Down
+            spacing: 10.0
+
+            ShadButtonGroup{
+                ShadButtonGroupItemDestructiveSm{text: "Small"}
+                ShadButtonGroupSeparator{}
+                ShadButtonGroupItemDestructive{text: "Default"}
+                ShadButtonGroupSeparator{}
+                ShadButtonGroupItemDestructiveLg{text: "Large"}
+            }
+        }
+
         ShadSectionHeader{ text: "Toolbar" }
 
         View{
@@ -105,9 +101,9 @@ gallery_static_page! {
             }
 
             ShadButtonGroup{
-                ShadButtonGroupItemIcon{text: "A-"}
+                GalleryButtonGroupItemIcon{text: "A-"}
                 ShadButtonGroupSeparator{}
-                ShadButtonGroupItemIcon{text: "A+"}
+                GalleryButtonGroupItemIcon{text: "A+"}
             }
         }
     },

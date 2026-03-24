@@ -91,3 +91,49 @@ script_mod! {
         popup_menu: mod.widgets.ShadSelectPopupMenu{}
     }
 }
+
+#[derive(Clone, Default)]
+pub struct ShadSelectRef(pub WidgetRef);
+
+pub trait ShadSelectWidgetExt: Widget {
+    fn shad_select(&self, cx: &Cx, path: &[LiveId]) -> ShadSelectRef {
+        ShadSelectRef(self.widget(cx, path))
+    }
+}
+
+impl<T: Widget + ?Sized> ShadSelectWidgetExt for T {}
+
+impl ShadSelectRef {
+    pub fn changed(&self, actions: &Actions) -> Option<usize> {
+        if let Some(item) = actions.find_widget_action(self.0.widget_uid()) {
+            if let DropDownAction::Select(index) = item.cast() {
+                return Some(index);
+            }
+        }
+        None
+    }
+
+    pub fn changed_label(&self, cx: &Cx, actions: &Actions) -> Option<String> {
+        self.0.drop_down(cx, &[]).changed_label(actions)
+    }
+
+    pub fn set_selected_item(&self, cx: &mut Cx, item: usize) {
+        self.0.drop_down(cx, &[]).set_selected_item(cx, item);
+    }
+
+    pub fn selected_item(&self, cx: &Cx) -> usize {
+        self.0.drop_down(cx, &[]).selected_item()
+    }
+
+    pub fn selected_label(&self, cx: &Cx) -> String {
+        self.0.drop_down(cx, &[]).selected_label()
+    }
+
+    pub fn set_selected_by_label(&self, label: &str, cx: &mut Cx) {
+        self.0.drop_down(cx, &[]).set_selected_by_label(label, cx);
+    }
+
+    pub fn set_labels(&self, cx: &mut Cx, labels: Vec<String>) {
+        self.0.drop_down(cx, &[]).set_labels(cx, labels);
+    }
+}

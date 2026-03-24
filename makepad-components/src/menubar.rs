@@ -107,6 +107,7 @@ script_mod! {
         viewport_padding: 10.0
         can_dismiss: true
         open_on_hover: true
+        hover_group: "menubar"
 
         trigger := mod.widgets.ShadMenubarTrigger{
             text: "Menu"

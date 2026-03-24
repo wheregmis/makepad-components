@@ -5,7 +5,7 @@ gallery_static_page! {
     widget: GallerySidebarPage,
     page: sidebar_page,
     title: "Sidebar",
-    subtitle: "Sidebar primitives are navigation-flavored button actions. Name the items you care about, then route or swap page state from their clicks.",
+    subtitle: "Sidebar items expose an optional active state so route-driven navigation can stay in the component instead of script-level color patching.",
     divider: { ShadHr{} },
     preview_spacing: 12.0,
     preview: {
@@ -24,7 +24,7 @@ gallery_static_page! {
                     draw_text.text_style.font_size: 12
                 }
                 ShadSidebarSectionLabel{text: "Platform"}
-                ShadSidebarItem{text: "Playground"}
+                ShadSidebarItem{text: "Playground" active: true}
                 ShadSidebarItem{text: "History"}
                 ShadSidebarItem{text: "Settings"}
             }
@@ -40,9 +40,9 @@ gallery_static_page! {
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. Treat each ShadSidebarItem like a named button action with sidebar styling."}
-        mod.widgets.GalleryActionFlowStep{text: "2. Read clicks with ui.button(cx, ids!(nav_playground)).clicked(actions), then route or swap the selected page."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Keep the active route in page or app state, not inside the sidebar primitive."}
-        mod.widgets.GalleryActionFlowStep{text: "4. Render the active item from that route state so sidebar, router, and content stay in sync."}
+        mod.widgets.GalleryActionFlowStep{text: "1. Treat each ShadSidebarItem like a named button action with sidebar styling and optional active state."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Read clicks with ui.shad_sidebar_item(cx, ids!(nav_playground)).clicked(actions), then route or swap the selected page."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Keep the active route in page or app state, then call view.shad_sidebar_item(cx, ids!(nav_playground)).set_active(cx, true) for the matching item."}
+        mod.widgets.GalleryActionFlowStep{text: "4. That route-driven active state keeps sidebar, router, and content in sync without manual color overrides."}
     },
 }

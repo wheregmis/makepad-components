@@ -1,14 +1,8 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::makepad_icon::{IconMetadata, ICON_METADATA};
 use makepad_components::makepad_widgets::*;
 use makepad_components::table::ShadTableWidgetExt;
 use std::sync::Arc;
-
-#[derive(Clone, Copy)]
-struct IconGalleryEntry {
-    template_id: &'static str,
-    icon_name: &'static str,
-    widget_name: &'static str,
-}
 
 macro_rules! icon_gallery_page_generated {
     ($($icon_rows:tt)*) => {
@@ -132,7 +126,7 @@ macro_rules! icon_gallery_page_generated {
             },
             action_flow: {
                 mod.widgets.GalleryActionFlowStep{text: "1. Run `python3 makepad-icon/scripts/download_lucide_icons.py --clean` to refresh SVG assets from Lucide."}
-                mod.widgets.GalleryActionFlowStep{text: "2. Build `makepad-icon` or `makepad-gallery`; build.rs scans icons and regenerates the virtualized list rows plus the search metadata automatically."}
+                mod.widgets.GalleryActionFlowStep{text: "2. Build `makepad-icon` or `makepad-gallery`; build.rs consumes the exported icon metadata and regenerates the virtualized list rows automatically."}
                 mod.widgets.GalleryActionFlowStep{text: "3. Search by Lucide asset name like `search` or by Rust widget name like `IconSearch` to narrow the virtualized list quickly."}
                 mod.widgets.GalleryActionFlowStep{text: "4. Use the widget name shown on each tile directly in script_mod!, and start from the usage snippet panel when you need sizing or color overrides."}
             },
@@ -170,15 +164,25 @@ impl GalleryIconGalleryPage {
         query.trim().to_ascii_lowercase()
     }
 
-    fn summary_text(query: &str, matches_count: usize) -> String {
+    fn to_id_name(prefix: &str, icon_stem: &str) -> String {
+        let mut id = String::from(prefix);
+        for part in icon_stem
+            .split(|c: char| !c.is_ascii_alphanumeric())
+            .filter(|part| !part.is_empty())
+        {
+            id.push('_');
+            id.push_str(&part.to_ascii_lowercase());
+        }
+        id
+    }
+
+    fn summary_text(query: &str, total: usize, matches_count: usize) -> String {
         if query.is_empty() {
-            format!("Showing all {ICON_GALLERY_TOTAL} generated icons.")
+            format!("Showing all {total} generated icons.")
         } else if matches_count == 0 {
             format!("No icons matched \"{query}\". Press Esc to clear the search.")
         } else {
-            format!(
-                "Showing {matches_count} of {ICON_GALLERY_TOTAL} icons for \"{query}\"."
-            )
+            format!("Showing {matches_count} of {total} icons for \"{query}\".")
         }
     }
 
@@ -208,7 +212,7 @@ impl GalleryIconGalleryPage {
             );
     }
 
-    fn sync_usage_preview(&self, cx: &mut Cx, entry: &IconGalleryEntry) {
+    fn sync_usage_preview(&self, cx: &mut Cx, entry: &IconMetadata) {
         self.view
             .label(cx, ids!(icon_usage_title))
             .set_text(cx, &format!("Using {}", entry.widget_name));
@@ -227,34 +231,35 @@ impl GalleryIconGalleryPage {
     }
 
     fn ensure_filter_cache(&mut self) {
-        if self.template_live_ids.len() == ICON_GALLERY_ENTRIES.len()
-            && self.widget_name_lower.len() == ICON_GALLERY_ENTRIES.len()
+        if self.template_live_ids.len() == ICON_METADATA.len()
+            && self.widget_name_lower.len() == ICON_METADATA.len()
         {
             return;
         }
 
-        self.template_live_ids = ICON_GALLERY_ENTRIES
+        self.template_live_ids = ICON_METADATA
             .iter()
-            .map(|entry| LiveId::from_str(entry.template_id))
+            .map(|entry| LiveId::from_str(&Self::to_id_name("icon_entry", entry.icon_name)))
             .collect();
-        self.widget_name_lower = ICON_GALLERY_ENTRIES
+        self.widget_name_lower = ICON_METADATA
             .iter()
             .map(|entry| entry.widget_name.to_ascii_lowercase())
             .collect();
         self.filtered_template_ids = Arc::default();
-        self.filtered_template_ids_scratch = Vec::with_capacity(ICON_GALLERY_ENTRIES.len());
+        self.filtered_template_ids_scratch = Vec::with_capacity(ICON_METADATA.len());
     }
 
     fn apply_filter(&mut self, cx: &mut Cx) {
         self.ensure_filter_cache();
         let display_query = self.query.trim().to_string();
         let query = Self::normalize_query(&self.query);
+        let total = ICON_METADATA.len();
         let mut matches_count = 0;
         let mut first_match_index = None;
         let mut changed = false;
         self.filtered_template_ids_scratch.clear();
 
-        for (index, entry) in ICON_GALLERY_ENTRIES.iter().enumerate() {
+        for (index, entry) in ICON_METADATA.iter().enumerate() {
             let matches = query.is_empty()
                 || entry.icon_name.contains(&query)
                 || self.widget_name_lower[index].contains(&query);
@@ -269,15 +274,14 @@ impl GalleryIconGalleryPage {
         }
 
         if self.filtered_template_ids.as_ref() != self.filtered_template_ids_scratch.as_slice() {
-            self.filtered_template_ids =
-                Arc::from(self.filtered_template_ids_scratch.as_slice());
+            self.filtered_template_ids = Arc::from(self.filtered_template_ids_scratch.as_slice());
             self.view
                 .shad_table(cx, ids!(icon_table))
                 .set_custom_row_templates(cx, Arc::clone(&self.filtered_template_ids));
             changed = true;
         }
 
-        let summary = Self::summary_text(&display_query, matches_count);
+        let summary = Self::summary_text(&display_query, total, matches_count);
         if self.summary_cache != summary {
             self.summary_cache = summary;
             self.view
@@ -294,7 +298,7 @@ impl GalleryIconGalleryPage {
             Some(target_entry_index) => {
                 if self.usage_entry_cache != Some(target_entry_index) {
                     self.usage_entry_cache = Some(target_entry_index);
-                    self.sync_usage_preview(cx, &ICON_GALLERY_ENTRIES[target_entry_index]);
+                    self.sync_usage_preview(cx, &ICON_METADATA[target_entry_index]);
                     changed = true;
                 }
             }
@@ -349,7 +353,11 @@ impl Widget for GalleryIconGalleryPage {
             if self.view.button(cx, ids!(icon_search_btn)).clicked(actions) {
                 search_input.set_key_focus(cx);
             }
-            if self.view.button(cx, ids!(clear_search_btn)).clicked(actions) {
+            if self
+                .view
+                .button(cx, ids!(clear_search_btn))
+                .clicked(actions)
+            {
                 search_input.set_text(cx, "");
                 search_input.set_key_focus(cx);
                 next_query = Some(String::new());

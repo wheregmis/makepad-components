@@ -17,7 +17,7 @@ gallery_static_page! {
             flow: Down
             spacing: 6.0
 
-            ShadFieldDescription{text: "ShadAspectRatio owns the frame dimensions. Give it a width or height and a ratio, then let the child fill that frame."}
+            ShadFieldDescription{text: "ShadAspectRatio owns the frame dimensions. Pass an explicit `ratio` for the shape you need, then let the child fill the frame."}
             ShadFieldDescription{text: "For media, wrap the child in a clipped rounded container and let ShadImage use an explicit fit mode. ImageFit.Biggest gives you a cover-style crop."}
             ShadFieldDescription{text: "Bound larger demos with a deliberate width. A fill-width hero technically works, but it overwhelms the page and weakens the component story."}
         }

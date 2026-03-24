@@ -70,6 +70,7 @@ const DAY_LABELS: [&str; 31] = [
 #[derive(Clone, Debug, Default)]
 pub enum ShadCalendarAction {
     Changed(ShadDate),
+    VisibleMonthChanged(i32, u8),
     #[default]
     None,
 }
@@ -205,6 +206,14 @@ impl ScriptHook for ShadCalendar {
 }
 
 impl ShadCalendar {
+    fn emit_visible_month_changed(&self, cx: &mut Cx) {
+        cx.widget_action_with_data(
+            &self.action_data,
+            self.widget_uid(),
+            ShadCalendarAction::VisibleMonthChanged(self.visible_year, self.visible_month),
+        );
+    }
+
     fn layout_info(&self, rect: Rect) -> CalendarLayoutInfo {
         let padding = 12.0;
         let gap = 4.0;
@@ -367,10 +376,15 @@ impl ShadCalendar {
         }
         self.value_date = value;
         if let Some(date) = value {
+            let visible_month_changed =
+                self.visible_year != date.year || self.visible_month != date.month;
             self.visible_year = date.year;
             self.visible_month = date.month;
             self.update_month_title_cache();
             self.ensure_month_grid_cache();
+            if visible_month_changed {
+                self.emit_visible_month_changed(cx);
+            }
             cx.widget_action_with_data(
                 &self.action_data,
                 self.widget_uid(),
@@ -399,6 +413,7 @@ impl ShadCalendar {
         self.visible_month = clamped_month;
         self.update_month_title_cache();
         self.ensure_month_grid_cache();
+        self.emit_visible_month_changed(cx);
         self.area.redraw(cx);
     }
 
@@ -420,6 +435,15 @@ impl ShadCalendar {
         if let Some(item) = actions.find_widget_action(self.widget_uid()) {
             if let ShadCalendarAction::Changed(value) = item.cast() {
                 return Some(value);
+            }
+        }
+        None
+    }
+
+    pub fn visible_month_changed(&self, actions: &Actions) -> Option<(i32, u8)> {
+        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
+            if let ShadCalendarAction::VisibleMonthChanged(year, month) = item.cast() {
+                return Some((year, month));
             }
         }
         None
@@ -628,6 +652,11 @@ impl ShadCalendarRef {
 
     pub fn changed(&self, actions: &Actions) -> Option<ShadDate> {
         self.borrow().and_then(|inner| inner.changed(actions))
+    }
+
+    pub fn visible_month_changed(&self, actions: &Actions) -> Option<(i32, u8)> {
+        self.borrow()
+            .and_then(|inner| inner.visible_month_changed(actions))
     }
 }
 

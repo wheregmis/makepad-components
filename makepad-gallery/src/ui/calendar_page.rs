@@ -46,7 +46,7 @@ gallery_stateful_page_shell! {
     action_flow: {
         mod.widgets.GalleryActionFlowStep{text: "1. Use `changed(actions)` when the page cares about the chosen date."}
         mod.widgets.GalleryActionFlowStep{text: "2. Use `set_value(cx, Some(date))` to restore a saved date or select one from another control."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Use `prev_month(cx)`, `next_month(cx)`, or `set_month(cx, year, month)` when outer buttons or shortcuts should steer the calendar."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Use `prev_month(cx)`, `next_month(cx)`, or `set_month(cx, year, month)`, then react to `visible_month_changed(actions)` when the surrounding page tracks the visible window."}
         mod.widgets.GalleryActionFlowStep{text: "4. Use `clear(cx)` when the field above or the surrounding form should return to an unset state."}
     },
 }
@@ -128,7 +128,9 @@ impl Widget for GalleryCalendarPage {
                 return;
             }
 
-            if calendar.changed(actions).is_some() {
+            if calendar.changed(actions).is_some()
+                || calendar.visible_month_changed(actions).is_some()
+            {
                 self.sync_status(cx);
             }
         }

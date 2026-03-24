@@ -6,7 +6,7 @@ gallery_static_page! {
     widget: GallerySelectPage,
     page: select_page,
     title: "Select",
-    subtitle: "Select uses the dropdown ref API: read changed(actions) or changed_label(actions), then store the chosen index or label in page state.",
+    subtitle: "Select exposes a typed `ShadSelectRef`: read changed(actions) or changed_label(cx, actions), then store the chosen index or label in page state.",
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
@@ -56,9 +56,9 @@ gallery_static_page! {
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. Give the select an id, then get the dropdown ref with view.drop_down(cx, ids!(status_select))."}
-        mod.widgets.GalleryActionFlowStep{text: "2. Use changed(actions) when you want the selected index, or changed_label(actions) when the label is enough."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Persist the chosen item in page state, then restore it with set_selected_item(cx, ...) or set_selected_by_label(..., cx)."}
+        mod.widgets.GalleryActionFlowStep{text: "1. Give the select an id, then get the typed ref with view.shad_select(cx, ids!(status_select))."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Use changed(actions) when you want the selected index, or changed_label(cx, actions) when the label is enough."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Persist the chosen item in page state, then restore it with set_selected_item(cx, ...), set_selected_by_label(..., cx), or inspect selected_label(cx)."}
         mod.widgets.GalleryActionFlowStep{text: "4. The popup interaction stays inside the component; the page only reacts to the semantic selection result."}
     },
 }

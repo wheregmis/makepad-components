@@ -285,10 +285,13 @@ pub const RADIO_GROUP_PREVIEW_CODE: &str = r#"ShadRadioGroup{
 }
 
 // Controller example (Rust):
-// if let Some(index) = self.view
-//     .radio_button_set(ids!(starter_plan, pro_plan, enterprise_plan))
-//     .selected(cx, actions)
-// {
+// let plans = self.view.shad_radio_group(cx, [
+//     ids!(starter_plan),
+//     ids!(pro_plan),
+//     ids!(enterprise_plan),
+// ]);
+//
+// if let Some(index) = plans.selected(cx, actions) {
 //     self.selected_plan = match index {
 //         0 => Plan::Starter,
 //         1 => Plan::Pro,
@@ -296,25 +299,24 @@ pub const RADIO_GROUP_PREVIEW_CODE: &str = r#"ShadRadioGroup{
 //     };
 // }
 //
-// When you restore state, call set_active(cx, ...) on the individual radio
-// items that should match the current domain value."#;
+// plans.set_selected(cx, Some(1));"#;
 pub const SELECT_PREVIEW_CODE: &str = r#"status_select := ShadSelect{
     labels: ["Pending" "In Progress" "Done"]
 }
 
 // Controller example (Rust):
-// let status = self.view.drop_down(cx, ids!(status_select));
+// let status = self.view.shad_select(cx, ids!(status_select));
 //
 // if let Some(index) = status.changed(actions) {
 //     self.status_index = index;
 // }
 //
-// if let Some(label) = status.changed_label(actions) {
+// if let Some(label) = status.changed_label(cx, actions) {
 //     self.status_label = label;
 // }
 //
 // status.set_selected_item(cx, 2);
-// let current_label = status.selected_label();"#;
+// let current_label = status.selected_label(cx);"#;
 pub const TEXTAREA_PREVIEW_CODE: &str = r#"ShadField{
     ShadFieldLabel{text: "Bio"}
     bio_input := ShadTextarea{
@@ -336,7 +338,7 @@ pub const TEXTAREA_PREVIEW_CODE: &str = r#"ShadField{
 pub const SWITCH_PREVIEW_CODE: &str = r#"email_alerts_switch := ShadSwitch{text: "Email alerts"}
 
 // Controller example (Rust):
-// let email_alerts = self.view.check_box(cx, ids!(email_alerts_switch));
+// let email_alerts = self.view.shad_switch(cx, ids!(email_alerts_switch));
 //
 // if let Some(enabled) = email_alerts.changed(actions) {
 //     self.email_alerts_enabled = enabled;

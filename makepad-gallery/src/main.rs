@@ -4,9 +4,10 @@ pub use makepad_widgets;
 mod ui;
 
 use crate::ui::catalog;
-use crate::ui::command_palette::GalleryCommandPalette;
 use crate::ui::command_palette_page::GalleryCommandPalettePageWidgetRefExt;
+use makepad_components::command_palette::ShadCommandPaletteWidgetRefExt;
 use makepad_components::makepad_widgets::*;
+use makepad_components::sidebar::ShadSidebarItemRef;
 use makepad_router::RouterWidgetWidgetRefExt;
 
 app_main!(App);
@@ -59,23 +60,15 @@ impl App {
     }
 
     fn toggle_command_palette(&mut self, cx: &mut Cx) {
-        if let Some(mut palette) = self
-            .ui
-            .widget_flood(cx, ids!(command_palette))
-            .borrow_mut::<GalleryCommandPalette>()
-        {
-            palette.toggle(cx);
-        }
+        let palette = self.ui.shad_command_palette(cx, ids!(command_palette));
+        palette.set_items(cx, crate::ui::command_palette::catalog_command_items());
+        palette.toggle(cx);
     }
 
     fn open_command_palette(&mut self, cx: &mut Cx) {
-        if let Some(mut palette) = self
-            .ui
-            .widget_flood(cx, ids!(command_palette))
-            .borrow_mut::<GalleryCommandPalette>()
-        {
-            palette.open(cx);
-        }
+        let palette = self.ui.shad_command_palette(cx, ids!(command_palette));
+        palette.set_items(cx, crate::ui::command_palette::catalog_command_items());
+        palette.open(cx);
     }
 
     fn sync_mobile_sidebar_button(&self, cx: &mut Cx) {
@@ -120,7 +113,7 @@ impl App {
         let allow_sidebar_focus = !self.is_small_screen;
 
         for entry in catalog::entries() {
-            let mut item = self.ui.button(cx, &[entry.sidebar_id]);
+            let mut item = self.ui.widget(cx, &[entry.sidebar_id]);
             script_apply_eval!(cx, item, {
                 grab_key_focus: #(allow_sidebar_focus)
             });
@@ -128,60 +121,9 @@ impl App {
     }
 
     fn sync_sidebar_selection(&self, cx: &mut Cx) {
-        let (
-            active_bg,
-            active_bg_hover,
-            active_bg_down,
-            active_text,
-            inactive_bg_hover,
-            inactive_bg_down,
-            inactive_text,
-            inactive_focus_bg,
-            inactive_focus_text,
-        ) = if self.is_light_theme {
-            (
-                Vec4f::from_u32(0xe4e4e7ff),
-                Vec4f::from_u32(0xd4d4d8ff),
-                Vec4f::from_u32(0xa1a1aaff),
-                Vec4f::from_u32(0x09090bff),
-                Vec4f::from_u32(0xf4f4f5ff),
-                Vec4f::from_u32(0xe4e4e7ff),
-                Vec4f::from_u32(0x71717aff),
-                Vec4f::from_u32(0xf4f4f5ff),
-                Vec4f::from_u32(0x09090bff),
-            )
-        } else {
-            (
-                Vec4f::from_u32(0x3f3f46ff),
-                Vec4f::from_u32(0x52525bff),
-                Vec4f::from_u32(0x71717aff),
-                Vec4f::from_u32(0xfafafaff),
-                Vec4f::from_u32(0x27272aff),
-                Vec4f::from_u32(0x3f3f46ff),
-                Vec4f::from_u32(0xfafafaff),
-                Vec4f::from_u32(0x27272aff),
-                Vec4f::from_u32(0xfafafaff),
-            )
-        };
-
         for entry in catalog::entries() {
-            let is_active = entry.page == self.current_page;
-            let mut item = self.ui.widget(cx, &[entry.sidebar_id]);
-            script_apply_eval!(cx, item, {
-                draw_bg +: {
-                    color: #(if is_active { active_bg } else { Vec4f::all(0.0) })
-                    color_hover: #(if is_active { active_bg_hover } else { inactive_bg_hover })
-                    color_down: #(if is_active { active_bg_down } else { inactive_bg_down })
-                    color_focus: #(if is_active { active_bg_hover } else { inactive_focus_bg })
-                }
-                draw_text +: {
-                    color: #(if is_active { active_text } else { inactive_text })
-                    color_hover: #(active_text)
-                    color_down: #(active_text)
-                    color_focus: #(if is_active { active_text } else { inactive_focus_text })
-                }
-            });
-            item.redraw(cx);
+            ShadSidebarItemRef(self.ui.widget(cx, &[entry.sidebar_id]))
+                .set_active(cx, entry.page == self.current_page);
         }
     }
 
@@ -241,7 +183,7 @@ impl App {
 
     fn handle_sidebar_navigation(&mut self, cx: &mut Cx, actions: &Actions) {
         for entry in catalog::entries() {
-            if self.ui.button(cx, &[entry.sidebar_id]).clicked(actions) {
+            if ShadSidebarItemRef(self.ui.widget(cx, &[entry.sidebar_id])).clicked(actions) {
                 self.set_current_page(cx, entry.page);
                 break;
             }
@@ -269,15 +211,11 @@ pub struct App {
 
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
-        let palette = self.ui.widget_flood(cx, ids!(command_palette));
-        if let Some(page) = actions
-            .find_widget_action(palette.widget_uid())
-            .and_then(|action| match action.cast() {
-                ui::command_palette::GalleryCommandPaletteAction::Selected(page) => Some(page),
-                _ => None,
-            })
-        {
-            self.set_current_page(cx, page);
+        let palette = self.ui.shad_command_palette(cx, ids!(command_palette));
+        if let Some(index) = palette.selected(actions) {
+            if let Some(entry) = catalog::entries().get(index) {
+                self.set_current_page(cx, entry.page);
+            }
         }
         if self.is_small_screen
             && (self

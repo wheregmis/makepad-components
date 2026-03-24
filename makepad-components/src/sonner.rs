@@ -165,6 +165,9 @@ script_mod! {
             }
         }
     }
+
+    mod.widgets.ShadSonnerWithDescription = mod.widgets.ShadSonner{}
+    mod.widgets.ShadSonnerWithClose = mod.widgets.ShadSonner{}
 }
 
 #[derive(Clone, Debug, Default)]

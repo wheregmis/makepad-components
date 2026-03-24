@@ -36,6 +36,7 @@ fn icon_bindings(icons_dir: &Path) -> std::io::Result<String> {
          // Do not edit manually.\n\
          define_lucide_icons! {\n",
     );
+    let mut metadata = String::from("\npub const ICON_METADATA: &[IconMetadata] = &[\n");
     for path in entries {
         println!("cargo:rerun-if-changed={}", path.display());
         let stem = path
@@ -49,9 +50,14 @@ fn icon_bindings(icons_dir: &Path) -> std::io::Result<String> {
             output.push_str(&format!(
                 "    {widget} => \"{ICON_RESOURCE_PREFIX}{file_name}\",\n"
             ));
+            metadata.push_str(&format!(
+                "    IconMetadata {{ widget_name: \"{widget}\", icon_name: \"{stem}\" }},\n"
+            ));
         }
     }
     output.push_str("}\n");
+    metadata.push_str("];\n");
+    output.push_str(&metadata);
     Ok(output)
 }
 

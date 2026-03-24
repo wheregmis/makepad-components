@@ -1,4 +1,5 @@
 use makepad_widgets::*;
+use std::sync::Arc;
 
 script_mod! {
     use mod.prelude.widgets.*
@@ -56,6 +57,49 @@ script_mod! {
             color_focus: (shad_theme.color_primary)
             color_disabled: (shad_theme.color_muted_foreground)
             text_style.font_size: 11.0
+        }
+    }
+}
+
+#[derive(Clone, Default)]
+pub struct ShadRadioGroupRef {
+    root: WidgetRef,
+    item_paths: Vec<Arc<[LiveId]>>,
+}
+
+pub trait ShadRadioGroupWidgetExt: Widget {
+    fn shad_radio_group<'a, I>(&self, cx: &Cx, item_paths: I) -> ShadRadioGroupRef
+    where
+        I: IntoIterator<Item = &'a [LiveId]>,
+    {
+        ShadRadioGroupRef {
+            root: self.widget(cx, &[]),
+            item_paths: item_paths.into_iter().map(Arc::from).collect(),
+        }
+    }
+}
+
+impl<T: Widget + ?Sized> ShadRadioGroupWidgetExt for T {}
+
+impl ShadRadioGroupRef {
+    pub fn selected(&self, cx: &mut Cx, actions: &Actions) -> Option<usize> {
+        let paths: Vec<&[LiveId]> = self.item_paths.iter().map(|path| path.as_ref()).collect();
+        self.root
+            .radio_button_set(cx, paths.as_slice())
+            .selected(cx, actions)
+    }
+
+    pub fn active_index(&self, cx: &Cx) -> Option<usize> {
+        self.item_paths
+            .iter()
+            .position(|path| self.root.radio_button(cx, path.as_ref()).active(cx))
+    }
+
+    pub fn set_selected(&self, cx: &mut Cx, selected: Option<usize>) {
+        for (index, path) in self.item_paths.iter().enumerate() {
+            self.root
+                .radio_button(cx, path.as_ref())
+                .set_active(cx, selected == Some(index));
         }
     }
 }

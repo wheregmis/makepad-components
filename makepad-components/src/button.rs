@@ -20,12 +20,14 @@ script_mod! {
             hover: 0.0
             down: instance(0.0)
             focus: instance(0.0)
+            active: instance(0.0)
             disabled: instance(0.0)
 
             color: theme.color_label_inner
             color_hover: theme.color_label_inner_hover
             color_down: uniform(theme.color_label_inner_down)
             color_focus: uniform(theme.color_label_inner_focus)
+            color_active: uniform(theme.color_label_inner_focus)
             color_disabled: uniform(theme.color_label_inner_disabled)
 
             text_style: theme.font_regular{
@@ -33,6 +35,7 @@ script_mod! {
             }
             get_color: fn() {
                 return self.color
+                    .mix(self.color_active, self.active)
                     .mix(self.color_focus, self.focus)
                     .mix(self.color_hover, self.hover)
                     .mix(self.color_down, self.down)
@@ -44,6 +47,7 @@ script_mod! {
             hover: instance(0.0)
             focus: instance(0.0)
             down: instance(0.0)
+            active: instance(0.0)
             disabled: instance(0.0)
 
             border_size: uniform(theme.beveling)
@@ -57,24 +61,28 @@ script_mod! {
             color_hover: uniform(theme.color_outset_hover)
             color_down: uniform(theme.color_outset_down)
             color_focus: uniform(theme.color_outset_focus)
+            color_active: uniform(theme.color_outset_focus)
             color_disabled: uniform(theme.color_outset_disabled)
 
             color_2: uniform(vec4(-1.0, -1.0, -1.0, -1.0))
             color_2_hover: uniform(theme.color_outset_2_hover)
             color_2_down: uniform(theme.color_outset_2_down)
             color_2_focus: uniform(theme.color_outset_2_focus)
+            color_2_active: uniform(theme.color_outset_2_focus)
             color_2_disabled: uniform(theme.color_outset_2_disabled)
 
             border_color: uniform(theme.color_bevel)
             border_color_hover: uniform(theme.color_bevel_hover)
             border_color_down: uniform(theme.color_bevel_down)
             border_color_focus: uniform(theme.color_bevel_focus)
+            border_color_active: uniform(theme.color_bevel_focus)
             border_color_disabled: uniform(theme.color_bevel_disabled)
 
             border_color_2: uniform(vec4(-1.0, -1.0, -1.0, -1.0))
             border_color_2_hover: uniform(theme.color_bevel_outset_2_hover)
             border_color_2_down: uniform(theme.color_bevel_outset_2_down)
             border_color_2_focus: uniform(theme.color_bevel_outset_2_focus)
+            border_color_2_active: uniform(theme.color_bevel_outset_2_focus)
             border_color_2_disabled: uniform(theme.color_bevel_outset_2_disabled)
 
             pixel: fn() {
@@ -107,6 +115,7 @@ script_mod! {
                 let mut color_fill_hover = self.color_hover
                 let mut color_fill_down = self.color_down
                 let mut color_fill_focus = self.color_focus
+                let mut color_fill_active = self.color_active
                 let mut color_fill_disabled = self.color_disabled
 
                 if self.color_2.x > -0.5 {
@@ -120,6 +129,7 @@ script_mod! {
                     color_fill_hover = mix(self.color_hover, self.color_2_hover, dir)
                     color_fill_down = mix(self.color_down, self.color_2_down, dir)
                     color_fill_focus = mix(self.color_focus, self.color_2_focus, dir)
+                    color_fill_active = mix(self.color_active, self.color_2_active, dir)
                     color_fill_disabled = mix(self.color_disabled, self.color_2_disabled, dir)
                 }
 
@@ -127,6 +137,7 @@ script_mod! {
                 let mut color_stroke_hover = self.border_color_hover
                 let mut color_stroke_down = self.border_color_down
                 let mut color_stroke_focus = self.border_color_focus
+                let mut color_stroke_active = self.border_color_active
                 let mut color_stroke_disabled = self.border_color_disabled
 
                 if self.border_color_2.x > -0.5 {
@@ -140,16 +151,19 @@ script_mod! {
                     color_stroke_hover = mix(self.border_color_hover, self.border_color_2_hover, dir)
                     color_stroke_down = mix(self.border_color_down, self.border_color_2_down, dir)
                     color_stroke_focus = mix(self.border_color_focus, self.border_color_2_focus, dir)
+                    color_stroke_active = mix(self.border_color_active, self.border_color_2_active, dir)
                     color_stroke_disabled = mix(self.border_color_disabled, self.border_color_2_disabled, dir)
                 }
 
                 let fill = color_fill
+                    .mix(color_fill_active, self.active)
                     .mix(color_fill_focus, self.focus)
                     .mix(color_fill_hover, self.hover)
                     .mix(color_fill_down, self.down)
                     .mix(color_fill_disabled, self.disabled)
 
                 let stroke = color_stroke
+                    .mix(color_stroke_active, self.active)
                     .mix(color_stroke_focus, self.focus)
                     .mix(color_stroke_hover, self.hover)
                     .mix(color_stroke_down, self.down)
@@ -237,6 +251,23 @@ script_mod! {
                     apply: {
                         draw_bg: {focus: 1.0}
                         draw_text: {focus: 1.0}
+                    }
+                }
+            }
+            active: {
+                default: @off
+                off: AnimatorState{
+                    from: {all: Forward {duration: 0.12}}
+                    apply: {
+                        draw_bg: {active: 0.0}
+                        draw_text: {active: 0.0}
+                    }
+                }
+                on: AnimatorState{
+                    from: {all: Forward {duration: 0.12}}
+                    apply: {
+                        draw_bg: {active: 1.0}
+                        draw_text: {active: 1.0}
                     }
                 }
             }
@@ -403,9 +434,24 @@ script_mod! {
         spacing: 0.0
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
     }
+
+    mod.widgets.ShadButtonIconSm = mod.widgets.ShadButtonIcon{
+        width: 28
+        height: 28
+        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+        draw_text.text_style.font_size: 10
+    }
+
+    mod.widgets.ShadButtonIconLg = mod.widgets.ShadButtonIcon{
+        width: 44
+        height: 44
+        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+        draw_text.text_style.font_size: 13
+    }
+
 }
 
-#[derive(Script, ScriptHook, Widget, Animator)]
+#[derive(Script, Widget, Animator)]
 pub struct ShadNavButton {
     #[uid]
     uid: WidgetUid,
@@ -435,6 +481,8 @@ pub struct ShadNavButton {
     grab_key_focus: bool,
     #[live(true)]
     enabled: bool,
+    #[live(false)]
+    active: bool,
     #[live(true)]
     #[visible]
     visible: bool,
@@ -448,6 +496,14 @@ pub struct ShadNavButton {
     #[action_data]
     #[rust]
     action_data: WidgetActionData,
+}
+
+impl ScriptHook for ShadNavButton {
+    fn on_after_new(&mut self, vm: &mut ScriptVm) {
+        vm.with_cx_mut(|cx| {
+            self.sync_active_state_if_needed(cx, Animate::No);
+        });
+    }
 }
 
 impl Widget for ShadNavButton {
@@ -579,6 +635,7 @@ impl Widget for ShadNavButton {
             return DrawStep::done();
         }
 
+        self.sync_active_state_if_needed(&mut *cx, Animate::No);
         self.draw_bg.begin(cx, walk, self.layout);
         self.draw_text
             .draw_walk(cx, self.label_walk, Align::default(), self.text.as_ref());
@@ -603,8 +660,32 @@ impl Widget for ShadNavButton {
 }
 
 impl ShadNavButton {
+    fn sync_active_state_if_needed(&mut self, cx: &mut Cx, animate: Animate) {
+        if self.animator_in_state(cx, ids!(active.on)) == self.active {
+            return;
+        }
+        self.sync_active_state(cx, animate);
+    }
+
+    fn sync_active_state(&mut self, cx: &mut Cx, animate: Animate) {
+        self.animator_toggle(cx, self.active, animate, ids!(active.on), ids!(active.off));
+        self.area.redraw(cx);
+    }
+
     fn emit_click(&self, cx: &mut Cx, uid: WidgetUid, modifiers: KeyModifiers) {
         cx.widget_action_with_data(&self.action_data, uid, ButtonAction::Clicked(modifiers));
         cx.widget_to_script_call(uid, NIL, self.source.clone(), self.on_click.clone(), &[]);
+    }
+
+    pub fn set_active(&mut self, cx: &mut Cx, active: bool, animate: Animate) {
+        if self.active == active {
+            return;
+        }
+        self.active = active;
+        self.sync_active_state(cx, animate);
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.active
     }
 }

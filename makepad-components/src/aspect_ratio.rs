@@ -14,6 +14,7 @@ script_mod! {
         align: Align{x: 0.5, y: 0.5}
         draw_bg.color: #0000
     }
+
 }
 
 #[derive(Script, ScriptHook, Widget)]

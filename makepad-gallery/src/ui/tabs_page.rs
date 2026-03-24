@@ -1,5 +1,6 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
 use makepad_components::makepad_widgets::*;
+use makepad_components::tabs::{ShadTabSpec, ShadTabsController};
 use makepad_router::widget::RouterWidgetWidgetExt;
 
 gallery_stateful_page_shell! {
@@ -7,7 +8,7 @@ gallery_stateful_page_shell! {
     widget: GalleryTabsPage,
     page: tabs_page,
     title: "Tabs",
-    subtitle: "Composable trigger and content styles for app-level tab state. This gallery page keeps tab clicks local and routes content through a RouterWidget.",
+    subtitle: "Composable tab primitives plus an optional `ShadTabsController` for keeping trigger state and content routing in sync.",
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
@@ -63,47 +64,80 @@ gallery_stateful_page_shell! {
                 usage_page := mod.widgets.RouterRoute{
                     route_pattern: "/usage"
                     ShadSectionHeader{text: "Usage"}
-                    ShadFieldDescription{text: "Pair `ShadTabsTrigger` with `PageFlip` or another state holder in app code."}
+                    ShadFieldDescription{text: "Pair `ShadTabsController` with `PageFlip`, RouterWidget, or another app-owned content switcher."}
                 }
 
                 settings_page := mod.widgets.RouterRoute{
                     route_pattern: "/settings"
                     ShadSectionHeader{text: "Settings"}
-                    ShadFieldDescription{text: "This first pass focuses on composition and styling, not a fully stateful tab controller."}
+                    ShadFieldDescription{text: "The controller is optional: keep composition when you want it, or centralize selection syncing when the page needs it."}
                 }
             }
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. The selected tab is page-owned state, not app-shell glue and not hidden inside the visual trigger widgets."}
-        mod.widgets.GalleryActionFlowStep{text: "2. The page controller listens to trigger clicks locally and updates one source of truth for the active tab."}
-        mod.widgets.GalleryActionFlowStep{text: "3. That selected value drives both the RouterWidget content and the active indicator visibility."}
-        mod.widgets.GalleryActionFlowStep{text: "4. This keeps ShadTabs primitives composable while the page decides how content switching behaves."}
+        mod.widgets.GalleryActionFlowStep{text: "1. Keep the selected tab in page-owned state and initialize a `ShadTabsController` with trigger and indicator ids."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Call controller.changed(cx, &view, actions) to update one source of truth for the active tab."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Use controller.selected() to drive RouterWidget, PageFlip, or any other content switcher."}
+        mod.widgets.GalleryActionFlowStep{text: "4. This keeps the visual tab primitives composable while still offering a reusable state-sync layer."}
     },
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct GalleryTabsPage {
     #[source]
     source: ScriptObjectRef,
     #[deref]
     view: View,
+    #[rust]
+    tabs: ShadTabsController,
 }
 
 impl GalleryTabsPage {
+    fn make_tabs_controller() -> ShadTabsController {
+        ShadTabsController::new(
+            live_id!(overview_page),
+            vec![
+                ShadTabSpec::new(
+                    live_id!(overview_page),
+                    ids!(tabs_overview_trigger),
+                    ids!(tabs_overview_indicator),
+                ),
+                ShadTabSpec::new(
+                    live_id!(usage_page),
+                    ids!(tabs_usage_trigger),
+                    ids!(tabs_usage_indicator),
+                ),
+                ShadTabSpec::new(
+                    live_id!(settings_page),
+                    ids!(tabs_settings_trigger),
+                    ids!(tabs_settings_indicator),
+                ),
+            ],
+        )
+    }
+
     fn set_selected_tab(&mut self, cx: &mut Cx, page: LiveId) {
+        let root = self.view.widget(cx, &[]);
+        self.tabs.set_selected(cx, &root, page);
         self.view
             .router_widget(cx, ids!(tabs_content_flip))
             .go_to_route(cx, page);
-        self.view
-            .view(cx, ids!(tabs_overview_indicator))
-            .set_visible(cx, page == live_id!(overview_page));
-        self.view
-            .view(cx, ids!(tabs_usage_indicator))
-            .set_visible(cx, page == live_id!(usage_page));
-        self.view
-            .view(cx, ids!(tabs_settings_indicator))
-            .set_visible(cx, page == live_id!(settings_page));
+    }
+}
+
+impl ScriptHook for GalleryTabsPage {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        if self.tabs.is_empty() {
+            self.tabs = Self::make_tabs_controller();
+        }
+        vm.with_cx_mut(|cx| self.set_selected_tab(cx, self.tabs.selected()));
     }
 }
 
@@ -112,26 +146,9 @@ impl Widget for GalleryTabsPage {
         self.view.handle_event(cx, event, scope);
 
         if let Event::Actions(actions) = event {
-            if self
-                .view
-                .button(cx, ids!(tabs_overview_trigger))
-                .clicked(actions)
-            {
-                self.set_selected_tab(cx, live_id!(overview_page));
-            }
-            if self
-                .view
-                .button(cx, ids!(tabs_usage_trigger))
-                .clicked(actions)
-            {
-                self.set_selected_tab(cx, live_id!(usage_page));
-            }
-            if self
-                .view
-                .button(cx, ids!(tabs_settings_trigger))
-                .clicked(actions)
-            {
-                self.set_selected_tab(cx, live_id!(settings_page));
+            let root = self.view.widget(cx, &[]);
+            if let Some(page) = self.tabs.changed(cx, &root, actions) {
+                self.set_selected_tab(cx, page);
             }
         }
     }

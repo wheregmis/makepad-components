@@ -227,6 +227,7 @@ pub enum ShadTableRowAction {
 pub enum ShadTableAction {
     RowClicked(usize),
     SelectionChanged(usize),
+    SelectionCleared,
     VirtualWindowRequest(usize),
     #[default]
     None,
@@ -1042,6 +1043,12 @@ impl ShadTable {
                 self.widget_uid(),
                 ShadTableAction::SelectionChanged(row),
             );
+        } else {
+            cx.widget_action_with_data(
+                &self.action_data,
+                self.widget_uid(),
+                ShadTableAction::SelectionCleared,
+            );
         }
         self.view.redraw(cx);
     }
@@ -1068,6 +1075,13 @@ impl ShadTable {
                 None
             }
         })
+    }
+
+    pub fn selection_cleared(&self, actions: &Actions) -> bool {
+        widget_action_map::<ShadTableAction, _, _>(actions, self.widget_uid(), |action| {
+            matches!(action, ShadTableAction::SelectionCleared).then_some(())
+        })
+        .is_some()
     }
 
     pub fn virtual_window_request(&self, actions: &Actions) -> Option<usize> {
@@ -1226,6 +1240,11 @@ impl ShadTableRef {
     pub fn selection_changed(&self, actions: &Actions) -> Option<usize> {
         self.borrow()
             .and_then(|inner| inner.selection_changed(actions))
+    }
+
+    pub fn selection_cleared(&self, actions: &Actions) -> bool {
+        self.borrow()
+            .is_some_and(|inner| inner.selection_cleared(actions))
     }
 
     pub fn virtual_window_request(&self, actions: &Actions) -> Option<usize> {

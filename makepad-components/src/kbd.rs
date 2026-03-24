@@ -33,4 +33,12 @@ script_mod! {
         draw_text.text_style.font_size: 11
         text: " + "
     }
+
+    mod.widgets.ShadShortcut = mod.widgets.View{
+        width: Fit
+        height: Fit
+        flow: Right{wrap: true}
+        align: Align{y: 0.5}
+        spacing: 6.0
+    }
 }

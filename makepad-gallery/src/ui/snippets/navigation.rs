@@ -128,36 +128,44 @@ pub const PAGINATION_PREVIEW_CODE: &str = r#"projects_pagination := ShadPaginati
 // let active_page = pagination.page();
 // let total_pages = pagination.page_count();"#;
 pub const SIDEBAR_PREVIEW_CODE: &str = r#"mod.widgets.ShadSidebar{
-    nav_playground := ShadSidebarItem{text: "Playground"}
+    nav_playground := ShadSidebarItem{text: "Playground" active: true}
     nav_history := ShadSidebarItem{text: "History"}
     nav_settings := ShadSidebarItem{text: "Settings"}
 }
 
 // Controller example (Rust):
-// if self.ui.button(cx, ids!(nav_playground)).clicked(actions) {
+// if self.ui.shad_sidebar_item(cx, ids!(nav_playground)).clicked(actions) {
 //     self.router.go_to_route(cx, live_id!(playground));
 // }
 //
-// Sidebar items are button actions with navigation styling. Keep the selected
-// route or active section in page/app state, then render the matching item as
-// active from that state."#;
+// self.ui
+//     .shad_sidebar_item(cx, ids!(nav_playground))
+//     .set_active(cx, self.current_page == live_id!(playground));"#;
 pub const TABS_PREVIEW_CODE: &str = r#"ShadTabs{
     ShadTabsList{
-        ShadTabsTrigger{text: "Overview"}
-        ShadTabsTrigger{text: "Usage"}
-        ShadTabsTrigger{text: "Settings"}
+        overview_group := View{
+            flow: Down
+            tabs_overview_trigger := ShadTabsTrigger{text: "Overview"}
+            tabs_overview_indicator := ShadTabsIndicator{}
+        }
+        usage_group := View{
+            flow: Down
+            tabs_usage_trigger := ShadTabsTrigger{text: "Usage"}
+            tabs_usage_indicator := ShadTabsIndicator{visible: false}
+        }
+        settings_group := View{
+            flow: Down
+            tabs_settings_trigger := ShadTabsTrigger{text: "Settings"}
+            tabs_settings_indicator := ShadTabsIndicator{visible: false}
+        }
     }
     ShadTabsContent{
-        ShadLabel{text: "Switch content in app code with PageFlip or another state holder."}
+        ShadLabel{text: "Switch content in app code with RouterWidget, PageFlip, or another state holder."}
     }
 }
 
 // Page-controller example (Rust):
-// if self.ui.button(cx, ids!(tabs_usage_trigger)).clicked(actions) {
-//     self.set_selected_tab(cx, live_id!(usage));
-// }
-//
-// fn set_selected_tab(&mut self, cx: &mut Cx, page: LiveId) {
+// let page = self.tabs.changed(cx, &self.view, actions);
+// if let Some(page) = page {
 //     self.view.router_widget(cx, ids!(tabs_content_flip)).go_to_route(cx, page);
-//     // Also update the active indicator visibility here.
 // }"#;

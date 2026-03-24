@@ -5,7 +5,7 @@ gallery_static_page! {
     widget: GallerySwitchPage,
     page: switch_page,
     title: "Switch",
-    subtitle: "Switches are boolean page state with toggle styling. Read changed(actions), then push external state back with set_active(cx, bool).",
+    subtitle: "Switches expose a typed `ShadSwitchRef` for boolean page state. Read changed(actions), then push external state back with set_active(cx, bool).",
     divider: { ShadHr{} },
     preview_spacing: 12.0,
     preview: {
@@ -40,8 +40,8 @@ gallery_static_page! {
         ShadHr{}
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. ShadSwitch is styled like a switch, but the runtime ref is the same boolean check-box/toggle family."}
-        mod.widgets.GalleryActionFlowStep{text: "2. Read changes with view.check_box(cx, ids!(email_alerts_switch)).changed(actions)."}
+        mod.widgets.GalleryActionFlowStep{text: "1. ShadSwitch is styled like a switch and exposes a typed `ShadSwitchRef` on top of the toggle/check-box runtime."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Read changes with view.shad_switch(cx, ids!(email_alerts_switch)).changed(actions)."}
         mod.widgets.GalleryActionFlowStep{text: "3. Store that boolean in page state or preferences, not in the app shell."}
         mod.widgets.GalleryActionFlowStep{text: "4. Restore the switch from external state with set_active(cx, bool), and inspect active(cx) when reconciling state."}
     },

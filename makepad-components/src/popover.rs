@@ -3,6 +3,7 @@ use crate::internal::script_args::bool_arg;
 use makepad_widgets::event::TouchState;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
+use std::collections::HashMap;
 
 script_mod! {
     use mod.prelude.widgets.*
@@ -36,6 +37,7 @@ script_mod! {
         viewport_padding: 12.0
         can_dismiss: true
         open_on_hover: false
+        hover_group: ""
 
         draw_bg +: {
             pixel: fn() {
@@ -66,6 +68,11 @@ pub enum ShadPopoverAction {
     None,
 }
 
+#[derive(Default)]
+struct ShadPopoverHoverGroupRegistry {
+    open_by_group: HashMap<String, WidgetUid>,
+}
+
 #[derive(Script, Widget)]
 pub struct ShadPopover {
     #[source]
@@ -89,6 +96,8 @@ pub struct ShadPopover {
     can_dismiss: bool,
     #[live(false)]
     open_on_hover: bool,
+    #[live]
+    hover_group: ArcStringMut,
 
     #[live]
     draw_bg: DrawQuad,
@@ -333,13 +342,62 @@ impl ShadPopover {
         );
     }
 
+    fn close_other_group_member(&self, cx: &mut Cx) {
+        let group = self.hover_group.as_ref();
+        if group.is_empty() {
+            return;
+        }
+
+        let other_uid = {
+            cx.global::<ShadPopoverHoverGroupRegistry>()
+                .open_by_group
+                .get(group)
+                .copied()
+        };
+
+        let Some(other_uid) = other_uid else {
+            return;
+        };
+
+        if other_uid == self.widget_uid() {
+            return;
+        }
+
+        let other = cx.widget_tree().widget(other_uid);
+        if !other.is_empty() {
+            ShadPopoverRef(other).close(cx);
+        }
+    }
+
+    fn sync_hover_group_registry(&self, cx: &mut Cx, open: bool) {
+        let group = self.hover_group.as_ref();
+        if group.is_empty() {
+            return;
+        }
+
+        let registry = &mut cx.global::<ShadPopoverHoverGroupRegistry>().open_by_group;
+        if open {
+            registry.insert(group.to_string(), self.widget_uid());
+        } else if registry
+            .get(group)
+            .is_some_and(|current_uid| *current_uid == self.widget_uid())
+        {
+            registry.remove(group);
+        }
+    }
+
     pub fn set_open(&mut self, cx: &mut Cx, open: bool) {
         if self.open == open {
             return;
         }
 
+        if open {
+            self.close_other_group_member(cx);
+        }
+
         self.open = open;
         self.redraw_overlay(cx);
+        self.sync_hover_group_registry(cx, open);
         self.emit_open_state(cx, open);
     }
 
