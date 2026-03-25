@@ -236,33 +236,52 @@ impl RouterWidget {
         self.inferred_browser_base_path = self.infer_browser_base_path(pathname);
     }
 
+    fn route_url_from_clean_browser_parts(
+        pathname: &str,
+        base_path: &str,
+        search: &str,
+        hash: &str,
+    ) -> String {
+        // Optimization: browser sync already allocates the stripped route path.
+        // Reuse that buffer for query/hash suffixes instead of formatting a second String.
+        let mut route_url = Self::strip_browser_base_path(pathname, base_path);
+        route_url.reserve(search.len() + hash.len());
+        route_url.push_str(search);
+        route_url.push_str(hash);
+        route_url
+    }
+
+    fn route_url_from_hash_fragment(hash: &str) -> String {
+        let route = hash.trim().trim_start_matches('#');
+        if route.is_empty() {
+            return "/".to_string();
+        }
+        if route.starts_with('/') {
+            return route.to_string();
+        }
+
+        let mut normalized = String::with_capacity(route.len() + 1);
+        normalized.push('/');
+        normalized.push_str(route);
+        normalized
+    }
+
     fn browser_url_from_os(&mut self, cx: &Cx) -> Option<String> {
         let OsType::Web(params) = cx.os_type() else {
             return None;
         };
 
-        let pathname = Self::normalized_browser_path(&params.pathname);
-        self.refresh_inferred_browser_base_path(&pathname);
+        let pathname = Self::normalized_browser_path_cow(&params.pathname);
+        self.refresh_inferred_browser_base_path(pathname.as_ref());
 
         match self.browser_url_mode {
-            BrowserUrlMode::CleanPath => {
-                let route_path =
-                    Self::strip_browser_base_path(&pathname, self.effective_browser_base_path());
-                Some(format!("{}{}{}", route_path, params.search, params.hash))
-            }
-            BrowserUrlMode::HashPath => {
-                let hash = params.hash.trim();
-                if hash.is_empty() || hash == "#" {
-                    Some("/".to_string())
-                } else {
-                    let route = hash.trim_start_matches('#');
-                    if route.starts_with('/') {
-                        Some(route.to_string())
-                    } else {
-                        Some(format!("/{}", route))
-                    }
-                }
-            }
+            BrowserUrlMode::CleanPath => Some(Self::route_url_from_clean_browser_parts(
+                pathname.as_ref(),
+                self.effective_browser_base_path(),
+                &params.search,
+                &params.hash,
+            )),
+            BrowserUrlMode::HashPath => Some(Self::route_url_from_hash_fragment(&params.hash)),
         }
     }
 
@@ -587,6 +606,20 @@ mod tests {
     }
 
     #[test]
+    fn route_url_from_hash_fragment_normalizes_hash_paths() {
+        assert_eq!(RouterWidget::route_url_from_hash_fragment(""), "/");
+        assert_eq!(RouterWidget::route_url_from_hash_fragment("#"), "/");
+        assert_eq!(
+            RouterWidget::route_url_from_hash_fragment("#reports/detail"),
+            "/reports/detail"
+        );
+        assert_eq!(
+            RouterWidget::route_url_from_hash_fragment("#/reports/detail"),
+            "/reports/detail"
+        );
+    }
+
+    #[test]
     fn infer_browser_base_path_normalizes_duplicate_slash_suffixes() {
         assert_eq!(
             new_infer_browser_base_path(
@@ -630,6 +663,44 @@ mod tests {
         let new_elapsed = new_start.elapsed();
 
         println!("strip_browser_base_path benchmark: old={old_elapsed:?}, new={new_elapsed:?}");
+    }
+
+    #[test]
+    #[ignore = "micro-benchmark; run explicitly in release mode for stable numbers"]
+    fn route_url_from_browser_parts_direct_append_benchmark() {
+        fn old_browser_route_url(
+            pathname: &str,
+            base_path: &str,
+            search: &str,
+            hash: &str,
+        ) -> String {
+            let route_path = RouterWidget::strip_browser_base_path(pathname, base_path);
+            format!("{}{}{}", route_path, search, hash)
+        }
+
+        const BENCHMARK_ITERATIONS: usize = 200_000;
+        const PATHNAME: &str = "/makepad-components/examples/router/alert/details";
+        const BASE_PATH: &str = "/makepad-components";
+        const SEARCH: &str = "?tab=active&region=ca";
+        const HASH: &str = "#job-42";
+
+        let old_start = Instant::now();
+        for _ in 0..BENCHMARK_ITERATIONS {
+            black_box(old_browser_route_url(PATHNAME, BASE_PATH, SEARCH, HASH));
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        for _ in 0..BENCHMARK_ITERATIONS {
+            black_box(RouterWidget::route_url_from_clean_browser_parts(
+                PATHNAME, BASE_PATH, SEARCH, HASH,
+            ));
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!(
+            "route_url_from_browser_parts benchmark: old={old_elapsed:?}, new={new_elapsed:?}"
+        );
     }
 
     #[test]
