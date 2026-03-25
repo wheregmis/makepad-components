@@ -1,0 +1,48 @@
+use mod.std.*
+use mod.hub;
+
+let RunItem = {
+    on_run: nil,
+    name: ""
+    in_studio: true
+}
+
+let Desktop = RunItem{
+    on_run: fn(id){
+        hub.run(
+            {"STUDIO": hub.studio_local(id)},
+            "cargo",
+            [
+                "run"
+                "-p" "makepad-gallery"
+                "--release"
+                "--"
+                "--message-format=json"
+                "--stdin-loop"
+            ],
+        )
+    }
+}
+
+let Web = RunItem{
+    on_run: fn(id){
+        hub.run(
+            {"STUDIO": hub.studio_local(id)},
+            "cargo",
+            [
+                "makepad"
+                "wasm"
+                "run"
+                "-p" "makepad-gallery"
+                "--bindgen"
+                "--no-threads"
+                "--release"
+            ],
+        )
+    }
+}
+
+hub.set_run_items([
+    Desktop{name: "makepad-gallery desktop"}
+    Web{name: "makepad-gallery web"}
+])

@@ -15,9 +15,20 @@ pub const CHART_PREVIEW_CODE: &str = r#"View{
 //     DataPoint{x: 2.0, y: 31.0},
 // ]);"#;
 pub const TABLE_PREVIEW_CODE: &str = r#"tasks_table := ShadTable{
+    height: 420.0
     caption: "Tasks"
     headers: ["Name" "Owner" "Status"]
     rows: []
+}
+
+View{
+    width: Fit
+    height: Fit
+    flow: Right
+    spacing: 8.0
+
+    tasks_prev_btn := ShadButton{text: "Prev"}
+    tasks_next_btn := ShadButton{text: "Next"}
 }
 
 // Controller example (Rust):

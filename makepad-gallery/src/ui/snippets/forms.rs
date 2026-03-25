@@ -9,7 +9,7 @@ pub const CALENDAR_PREVIEW_CODE: &str = r#"calendar_demo := ShadCalendar{
 //     self.selected_due_date = Some(date);
 // }
 //
-// if self.ui.button(cx, ids!(next_month_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(next_month_btn)).clicked(actions) {
 //     calendar.next_month(cx);
 // }
 //
@@ -42,7 +42,7 @@ pub const DATE_PICKER_PREVIEW_CODE: &str = r#"deadline_picker := ShadDatePicker{
 // Controller example (Rust):
 // let picker = self.ui.shad_date_picker(cx, ids!(deadline_picker));
 //
-// if self.ui.button(cx, ids!(open_picker_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(open_picker_btn)).clicked(actions) {
 //     picker.set_open(cx, true);
 // }
 //
@@ -373,7 +373,7 @@ pub const TOGGLE_PREVIEW_CODE: &str = r#"View{
 // Toggle flow in practice:
 // 1. Treat the selected/pressed value as page state.
 // 2. On trigger click, update that page state.
-// 3. Use size: ShadControlSize.* instead of the old Sm/Lg aliases when you need scale changes.
+// 3. Control scale directly with size: ShadControlSize.Small, Default, or Large.
 // 4. Re-render the matching ShadToggle / ShadToggleGroupItem with active: true.
 //
 // This is the same pattern used by the Tabs demo: page-owned state,

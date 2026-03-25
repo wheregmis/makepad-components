@@ -22,11 +22,13 @@ script_mod! {
                 border_size: 0.0
             }
 
-            code_view := CodeView{
-                text: ""
-                editor +: {
-                    width: Fill
-                    height: Fit
+            body +: {
+                code_view := CodeView{
+                    text: ""
+                    editor +: {
+                        width: Fill
+                        height: Fit
+                    }
                 }
             }
         }

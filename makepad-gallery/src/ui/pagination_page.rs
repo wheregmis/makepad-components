@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::makepad_widgets::*;
 use makepad_components::pagination::ShadPaginationWidgetExt;
 
@@ -108,7 +109,7 @@ impl Widget for GalleryPaginationPage {
 
             if self
                 .view
-                .button(cx, ids!(prev_external_btn))
+                .shad_button(cx, ids!(prev_external_btn))
                 .clicked(actions)
             {
                 pagination.prev(cx);
@@ -117,14 +118,14 @@ impl Widget for GalleryPaginationPage {
             }
             if self
                 .view
-                .button(cx, ids!(next_external_btn))
+                .shad_button(cx, ids!(next_external_btn))
                 .clicked(actions)
             {
                 pagination.next(cx);
                 self.sync_status_labels(cx);
                 return;
             }
-            if self.view.button(cx, ids!(jump_last_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(jump_last_btn)).clicked(actions) {
                 pagination.set_page(cx, pagination.page_count());
                 self.sync_status_labels(cx);
                 return;

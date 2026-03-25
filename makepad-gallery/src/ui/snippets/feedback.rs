@@ -156,13 +156,13 @@ ShadSonnerWithClose{open: false}
 // let desc_toast = self.ui.shad_sonner(cx, ids!(toast_desc));
 // let close_toast = self.ui.shad_sonner(cx, ids!(toast_close));
 //
-// if self.ui.button(cx, ids!(toast_event_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(toast_event_btn)).clicked(actions) {
 //     event_toast.open(cx);
 // }
-// if self.ui.button(cx, ids!(toast_desc_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(toast_desc_btn)).clicked(actions) {
 //     desc_toast.open(cx);
 // }
-// if self.ui.button(cx, ids!(toast_close_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(toast_close_btn)).clicked(actions) {
 //     close_toast.open(cx);
 // }
 //

@@ -5,7 +5,7 @@ gallery_static_page! {
     widget: GalleryButtonGroupPage,
     page: button_group_page,
     title: "Button Group",
-    subtitle: "Button groups are grouped leaf actions: the container is presentational, while each named child button still emits its own clicked(actions) event.",
+    subtitle: "Button groups are grouped leaf actions: the container is presentational, while each ShadButtonGroupItem still uses `variant:` and `size:` like a regular button and emits its own clicked(actions) event.",
     divider: { ShadHr{} },
     preview_spacing: 12.0,
     preview: {
@@ -162,8 +162,9 @@ gallery_static_page! {
     },
     action_flow: {
         mod.widgets.GalleryActionFlowStep{text: "1. Treat ShadButtonGroup as layout and visual grouping, not as a separate state machine."}
-        mod.widgets.GalleryActionFlowStep{text: "2. Name the child buttons you care about, then listen to each with ui.button(cx, ids!(archive_btn)).clicked(actions)."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Keep the selected tool or toolbar mode in page state, then re-render whichever button should look active."}
-        mod.widgets.GalleryActionFlowStep{text: "4. This scales because business identity stays in your state model, not in the group container."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Configure each ShadButtonGroupItem with `variant:` and `size:` just like a standalone button when the grouped action needs emphasis or density changes."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Name the child buttons you care about, then listen to each with ui.shad_button(cx, ids!(archive_btn)).clicked(actions)."}
+        mod.widgets.GalleryActionFlowStep{text: "4. Keep the selected tool or toolbar mode in page state, then re-render whichever button should look active."}
+        mod.widgets.GalleryActionFlowStep{text: "5. This scales because business identity stays in your state model, not in the group container."}
     },
 }

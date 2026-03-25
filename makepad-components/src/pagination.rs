@@ -1,4 +1,5 @@
 use crate::internal::script_args::number_arg;
+use crate::button::{ShadButtonRef, ShadButtonWidgetExt};
 use crate::models::pagination::{
     clamped_current_page, clamped_max_visible_pages, compute_window, normalized_page_count,
     PaginationWindow,
@@ -164,7 +165,7 @@ impl ShadPagination {
     fn sync_page_button_text(
         &mut self,
         cx: &mut Cx,
-        button: &mut ButtonRef,
+        button: &mut ShadButtonRef,
         index: usize,
         page: usize,
     ) {
@@ -277,15 +278,15 @@ impl ShadPagination {
             clamped_current_page(self.current_page, normalized_page_count(self.page_count)) as u32;
     }
 
-    fn page_button_ref(&self, cx: &Cx, index: usize) -> ButtonRef {
+    fn page_button_ref(&self, cx: &Cx, index: usize) -> ShadButtonRef {
         match index {
-            0 => self.view.button(cx, ids!(page_0)),
-            1 => self.view.button(cx, ids!(page_1)),
-            2 => self.view.button(cx, ids!(page_2)),
-            3 => self.view.button(cx, ids!(page_3)),
-            4 => self.view.button(cx, ids!(page_4)),
-            5 => self.view.button(cx, ids!(page_5)),
-            _ => self.view.button(cx, ids!(page_6)),
+            0 => self.view.shad_button(cx, ids!(page_0)),
+            1 => self.view.shad_button(cx, ids!(page_1)),
+            2 => self.view.shad_button(cx, ids!(page_2)),
+            3 => self.view.shad_button(cx, ids!(page_3)),
+            4 => self.view.shad_button(cx, ids!(page_4)),
+            5 => self.view.shad_button(cx, ids!(page_5)),
+            _ => self.view.shad_button(cx, ids!(page_6)),
         }
     }
 
@@ -305,7 +306,7 @@ impl ShadPagination {
         )
     }
 
-    fn apply_page_button_style(&self, cx: &mut Cx, button: &mut ButtonRef, is_active: bool) {
+    fn apply_page_button_style(&self, cx: &mut Cx, button: &mut ShadButtonRef, is_active: bool) {
         let style = self.theme_style;
         if is_active {
             script_apply_eval!(cx, button, {
@@ -361,14 +362,14 @@ impl ShadPagination {
         let prev_disabled = current_page <= 1;
         if force || self.prev_disabled != prev_disabled {
             self.view
-                .button(cx, ids!(prev_btn))
+                .shad_button(cx, ids!(prev_btn))
                 .set_disabled(cx, prev_disabled);
             self.prev_disabled = prev_disabled;
         }
         let next_disabled = current_page >= page_count;
         if force || self.next_disabled != next_disabled {
             self.view
-                .button(cx, ids!(next_btn))
+                .shad_button(cx, ids!(next_btn))
                 .set_disabled(cx, next_disabled);
             self.next_disabled = next_disabled;
         }
@@ -506,11 +507,11 @@ impl Widget for ShadPagination {
         self.view.handle_event(cx, event, scope);
 
         if let Event::Actions(actions) = event {
-            if self.view.button(cx, ids!(prev_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(prev_btn)).clicked(actions) {
                 self.prev(cx);
                 return;
             }
-            if self.view.button(cx, ids!(next_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(next_btn)).clicked(actions) {
                 self.next(cx);
                 return;
             }

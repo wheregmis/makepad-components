@@ -1,4 +1,4 @@
-use crate::animation::{AnimationStep, AnimationTicker};
+use crate::animation::{advance_phase, AnimationStep, AnimationTicker};
 use crate::button::ShadControlSize;
 use makepad_widgets::*;
 
@@ -12,6 +12,7 @@ script_mod! {
 
         draw_bg +: {
             color: uniform(shad_theme.color_primary)
+            rotation_phase: instance(0.0)
             rotation_speed: uniform(1.0)
             stroke_width: uniform(2.5)
             arc_gap: uniform(0.25)
@@ -20,7 +21,7 @@ script_mod! {
                 let sdf = Sdf2d.viewport(self.pos * self.rect_size)
                 let radius = min(self.rect_size.x * 0.5, self.rect_size.y * 0.5) - self.stroke_width * 0.5
                 let center = self.rect_size * 0.5
-                let rotation = self.draw_pass.time * self.rotation_speed * 2.0 * PI
+                let rotation = self.rotation_phase * self.rotation_speed * 2.0 * PI
                 let gap_radians = self.arc_gap * 2.0 * PI
                 let start_angle = rotation
                 sdf.arc_round_caps(
@@ -109,6 +110,8 @@ pub struct ShadSpinner {
     applied_size: Option<ManagedSpinnerSize>,
     #[rust]
     ticker: AnimationTicker,
+    #[rust]
+    rotation_phase: f32,
 }
 
 impl ShadSpinner {
@@ -144,6 +147,15 @@ impl ShadSpinner {
         self.view.redraw(cx);
     }
 
+    fn sync_phase_to_shader(&mut self, cx: &mut Cx) {
+        let mut spinner_body = self.view.widget(cx, ids!(spinner_body));
+        script_apply_eval!(cx, spinner_body, {
+            draw_bg +: {
+                rotation_phase: #(self.rotation_phase)
+            }
+        });
+    }
+
     fn is_visible(&self, cx: &Cx) -> bool {
         let area = self.view.area();
         if !area.is_valid(cx) {
@@ -162,7 +174,10 @@ impl ScriptHook for ShadSpinner {
         _scope: &mut Scope,
         _value: ScriptValue,
     ) {
-        vm.with_cx_mut(|cx| self.sync_managed_size(cx));
+        vm.with_cx_mut(|cx| {
+            self.sync_managed_size(cx);
+            self.sync_phase_to_shader(cx);
+        });
     }
 }
 
@@ -171,10 +186,12 @@ impl Widget for ShadSpinner {
         self.view.handle_event(cx, event, scope);
 
         let animate = self.animate && self.animation_fps > 0.0 && self.is_visible(cx);
-        if let AnimationStep::Redraw { .. } =
+        if let AnimationStep::Redraw { delta } =
             self.ticker
                 .handle_event(cx, event, animate, self.animation_fps)
         {
+            self.rotation_phase = advance_phase(self.rotation_phase, delta, 1.0);
+            self.sync_phase_to_shader(cx);
             self.view.redraw(cx);
         }
     }
@@ -184,6 +201,7 @@ impl Widget for ShadSpinner {
         let should_tick =
             self.animate && self.animation_fps > 0.0 && cx.walk_turtle_would_be_visible(walk);
         self.ticker.ensure_started(cx, should_tick);
+        self.sync_phase_to_shader(&mut *cx);
         self.view.draw_walk(cx, scope, walk)
     }
 }

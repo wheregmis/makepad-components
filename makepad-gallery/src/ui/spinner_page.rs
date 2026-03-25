@@ -5,7 +5,7 @@ gallery_static_page! {
     widget: GallerySpinnerPage,
     page: spinner_page,
     title: "Spinner",
-    subtitle: "Inline loading indicator for indeterminate waits, compact async actions, and small busy surfaces.",
+    subtitle: "Inline loading indicator for indeterminate waits, compact async actions, and small busy surfaces. Use `size: ShadControlSize.*` when the spinner needs to scale.",
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
@@ -61,7 +61,8 @@ gallery_static_page! {
                     }
                 }
 
-                ShadSurfaceMuted{
+                ShadSurface{
+                    variant: ShadSurfaceVariant.Muted
                     width: Fill
                     height: Fit
                     flow: Right
@@ -86,7 +87,8 @@ gallery_static_page! {
                     }
                 }
 
-                ShadSurfaceMuted{
+                ShadSurface{
+                    variant: ShadSurfaceVariant.Muted
                     width: Fill
                     height: Fit
                     flow: Down
@@ -136,7 +138,7 @@ gallery_static_page! {
                         align: Align{x: 0.5}
 
                         ShadSpinner{size: ShadControlSize.Small}
-                        ShadFieldDescription{text: "Sm"}
+                        ShadFieldDescription{text: "Small"}
                     }
 
                     View{
@@ -158,7 +160,7 @@ gallery_static_page! {
                         align: Align{x: 0.5}
 
                         ShadSpinner{size: ShadControlSize.Large}
-                        ShadFieldDescription{text: "Lg"}
+                        ShadFieldDescription{text: "Large"}
                     }
                 }
             }

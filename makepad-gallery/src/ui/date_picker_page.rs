@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::calendar::ShadDate;
 use makepad_components::date_picker::ShadDatePickerWidgetExt;
 use makepad_components::makepad_widgets::*;
@@ -86,7 +87,7 @@ impl GalleryDatePickerPage {
             .unwrap_or_else(|| "No date selected.".to_string());
         let open_state = if picker.is_open() { "open" } else { "closed" };
         self.view
-            .button(cx, ids!(date_picker_clear_btn))
+            .shad_button(cx, ids!(date_picker_clear_btn))
             .set_enabled(cx, picker.value().is_some());
         self.view
             .label(cx, ids!(date_picker_status))
@@ -115,7 +116,7 @@ impl Widget for GalleryDatePickerPage {
 
             if self
                 .view
-                .button(cx, ids!(date_picker_open_btn))
+                .shad_button(cx, ids!(date_picker_open_btn))
                 .clicked(actions)
             {
                 picker.set_open(cx, true);
@@ -124,7 +125,7 @@ impl Widget for GalleryDatePickerPage {
             }
             if self
                 .view
-                .button(cx, ids!(date_picker_deadline_btn))
+                .shad_button(cx, ids!(date_picker_deadline_btn))
                 .clicked(actions)
             {
                 picker.set_value(
@@ -140,7 +141,7 @@ impl Widget for GalleryDatePickerPage {
             }
             if self
                 .view
-                .button(cx, ids!(date_picker_clear_btn))
+                .shad_button(cx, ids!(date_picker_clear_btn))
                 .clicked(actions)
             {
                 picker.clear(cx);

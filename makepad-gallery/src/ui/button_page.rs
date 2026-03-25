@@ -5,7 +5,7 @@ gallery_static_page! {
     widget: GalleryButtonPage,
     page: button_page,
     title: "Button",
-    subtitle: "Buttons are leaf actions: attach an id to the specific button you care about, then listen for clicked(actions) in the page or feature controller.",
+    subtitle: "Buttons are prop-driven leaf actions: set `variant:` and `size:` on the instance you need, then listen for clicked(actions) in the page or feature controller.",
     divider: { ShadHr{} },
     preview_spacing: 12.0,
     preview: {
@@ -180,9 +180,10 @@ gallery_static_page! {
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. Give each button that matters its own id, like save_btn or delete_btn."}
-        mod.widgets.GalleryActionFlowStep{text: "2. Read button clicks with ui.button(cx, ids!(save_btn)).clicked(actions) in the page or feature controller."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Keep business state outside the button itself; buttons emit the intent, the page decides what to do next."}
-        mod.widgets.GalleryActionFlowStep{text: "4. Derive disabled, loading, or confirm variants from page state instead of branching in the app shell."}
+        mod.widgets.GalleryActionFlowStep{text: "1. Start with ShadButton, then set `variant:` and `size:` on the instance instead of reaching for variant-specific widget names."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Give each button that matters its own id, like save_btn or delete_btn."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Read button clicks with ui.shad_button(cx, ids!(save_btn)).clicked(actions) in the page or feature controller."}
+        mod.widgets.GalleryActionFlowStep{text: "4. Keep business state outside the button itself; buttons emit the intent, the page decides what to do next."}
+        mod.widgets.GalleryActionFlowStep{text: "5. Derive disabled, loading, or confirm variants from page state instead of branching in the app shell."}
     },
 }

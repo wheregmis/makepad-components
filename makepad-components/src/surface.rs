@@ -67,18 +67,75 @@ pub struct ShadSurface {
     border_color: Vec4,
 }
 
+#[derive(Default)]
+struct SurfaceDrawBgOverrides {
+    color: Option<Vec4f>,
+    border_color: Option<Vec4f>,
+    border_radius: Option<f64>,
+    border_size: Option<f64>,
+}
+
+fn script_number(value: ScriptValue) -> Option<f64> {
+    value
+        .as_f64()
+        .or_else(|| value.as_f32().map(|v| v as f64))
+        .or_else(|| value.as_u40().map(|v| v as f64))
+}
+
+fn source_draw_bg_overrides(vm: &ScriptVm, value: ScriptValue) -> SurfaceDrawBgOverrides {
+    let Some(mut current) = value.as_object() else {
+        return SurfaceDrawBgOverrides::default();
+    };
+
+    loop {
+        let draw_bg = vm
+            .bx
+            .heap
+            .map_ref(current)
+            .get(&id!(draw_bg).into())
+            .map(|entry| entry.value);
+
+        if let Some(draw_bg) = draw_bg {
+            let Some(draw_bg_obj) = draw_bg.as_object() else {
+                return SurfaceDrawBgOverrides::default();
+            };
+            let draw_bg_map = vm.bx.heap.map_ref(draw_bg_obj);
+            return SurfaceDrawBgOverrides {
+                color: draw_bg_map
+                    .get(&id!(color).into())
+                    .and_then(|entry| entry.value.as_color().map(Vec4f::from_u32)),
+                border_color: draw_bg_map
+                    .get(&id!(border_color).into())
+                    .and_then(|entry| entry.value.as_color().map(Vec4f::from_u32)),
+                border_radius: draw_bg_map
+                    .get(&id!(border_radius).into())
+                    .and_then(|entry| script_number(entry.value)),
+                border_size: draw_bg_map
+                    .get(&id!(border_size).into())
+                    .and_then(|entry| script_number(entry.value)),
+            };
+        }
+
+        let Some(proto) = vm.bx.heap.proto(current).as_object() else {
+            return SurfaceDrawBgOverrides::default();
+        };
+        current = proto;
+    }
+}
+
 impl ScriptHook for ShadSurface {
     fn on_after_apply(
         &mut self,
         vm: &mut ScriptVm,
         _apply: &Apply,
         _scope: &mut Scope,
-        _value: ScriptValue,
+        value: ScriptValue,
     ) {
         let color = match self.variant {
             ShadSurfaceVariant::Default => self.default_color,
             ShadSurfaceVariant::Muted => self.muted_color,
         };
+        let draw_bg_overrides = source_draw_bg_overrides(vm, value);
         vm.with_cx_mut(|cx| {
             let mut body = self.view.widget(cx, ids!(body));
             script_apply_eval!(cx, body, {
@@ -87,6 +144,34 @@ impl ScriptHook for ShadSurface {
                     border_color: #(self.border_color)
                 }
             });
+            if let Some(color) = draw_bg_overrides.color {
+                script_apply_eval!(cx, body, {
+                    draw_bg +: {
+                        color: #(color)
+                    }
+                });
+            }
+            if let Some(border_color) = draw_bg_overrides.border_color {
+                script_apply_eval!(cx, body, {
+                    draw_bg +: {
+                        border_color: #(border_color)
+                    }
+                });
+            }
+            if let Some(border_radius) = draw_bg_overrides.border_radius {
+                script_apply_eval!(cx, body, {
+                    draw_bg +: {
+                        border_radius: #(border_radius)
+                    }
+                });
+            }
+            if let Some(border_size) = draw_bg_overrides.border_size {
+                script_apply_eval!(cx, body, {
+                    draw_bg +: {
+                        border_size: #(border_size)
+                    }
+                });
+            }
         });
     }
 }

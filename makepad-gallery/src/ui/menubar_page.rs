@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::makepad_widgets::*;
 use makepad_components::popover::ShadPopoverWidgetExt;
 
@@ -81,13 +82,13 @@ impl Widget for GalleryMenubarPage {
         if let Event::Actions(actions) = event {
             let file_menu = self.view.shad_popover(cx, ids!(file_menu));
             let file_content = file_menu.content_widget();
-            if file_content.button(cx, ids!(file_new_btn)).clicked(actions) {
+            if file_content.shad_button(cx, ids!(file_new_btn)).clicked(actions) {
                 file_menu.close(cx);
                 self.set_status(cx, "Selected File -> New file");
                 return;
             }
             if file_content
-                .button(cx, ids!(file_open_btn))
+                .shad_button(cx, ids!(file_open_btn))
                 .clicked(actions)
             {
                 file_menu.close(cx);
@@ -95,7 +96,7 @@ impl Widget for GalleryMenubarPage {
                 return;
             }
             if file_content
-                .button(cx, ids!(file_share_btn))
+                .shad_button(cx, ids!(file_share_btn))
                 .clicked(actions)
             {
                 file_menu.close(cx);
@@ -106,7 +107,7 @@ impl Widget for GalleryMenubarPage {
             let edit_menu = self.view.shad_popover(cx, ids!(edit_menu));
             let edit_content = edit_menu.content_widget();
             if edit_content
-                .button(cx, ids!(edit_undo_btn))
+                .shad_button(cx, ids!(edit_undo_btn))
                 .clicked(actions)
             {
                 edit_menu.close(cx);
@@ -114,7 +115,7 @@ impl Widget for GalleryMenubarPage {
                 return;
             }
             if edit_content
-                .button(cx, ids!(edit_redo_btn))
+                .shad_button(cx, ids!(edit_redo_btn))
                 .clicked(actions)
             {
                 edit_menu.close(cx);
@@ -122,7 +123,7 @@ impl Widget for GalleryMenubarPage {
                 return;
             }
             if edit_content
-                .button(cx, ids!(edit_find_btn))
+                .shad_button(cx, ids!(edit_find_btn))
                 .clicked(actions)
             {
                 edit_menu.close(cx);
@@ -133,7 +134,7 @@ impl Widget for GalleryMenubarPage {
             let view_menu = self.view.shad_popover(cx, ids!(view_menu));
             let view_content = view_menu.content_widget();
             if view_content
-                .button(cx, ids!(view_toggle_sidebar_btn))
+                .shad_button(cx, ids!(view_toggle_sidebar_btn))
                 .clicked(actions)
             {
                 view_menu.close(cx);
@@ -141,7 +142,7 @@ impl Widget for GalleryMenubarPage {
                 return;
             }
             if view_content
-                .button(cx, ids!(view_zen_mode_btn))
+                .shad_button(cx, ids!(view_zen_mode_btn))
                 .clicked(actions)
             {
                 view_menu.close(cx);

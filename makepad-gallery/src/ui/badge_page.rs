@@ -5,7 +5,7 @@ gallery_static_page! {
     widget: GalleryBadgePage,
     page: badge_page,
     title: "Badge",
-    subtitle: "Short, non-interactive tags for state and metadata that sit beside the content they annotate.",
+    subtitle: "Short, non-interactive tags for state and metadata that sit beside the content they annotate. Configure emphasis with `tone:` on the badge itself.",
     divider: { ShadHr{} },
     preview_spacing: 16.0,
     preview: {

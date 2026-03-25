@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::makepad_widgets::*;
 use makepad_components::sonner::{ShadSonnerWidgetExt, SonnerItem, SonnerKind};
 
@@ -83,7 +84,7 @@ impl Widget for GallerySonnerPage {
         if let Event::Actions(actions) = event {
             let sonner = self.view.shad_sonner(cx, ids!(toast_close));
 
-            if self.view.button(cx, ids!(toast_event_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(toast_event_btn)).clicked(actions) {
                 sonner.enqueue(
                     cx,
                     SonnerItem {
@@ -95,7 +96,7 @@ impl Widget for GallerySonnerPage {
                     },
                 );
             }
-            if self.view.button(cx, ids!(toast_desc_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(toast_desc_btn)).clicked(actions) {
                 sonner.enqueue(
                     cx,
                     SonnerItem {
@@ -107,7 +108,7 @@ impl Widget for GallerySonnerPage {
                     },
                 );
             }
-            if self.view.button(cx, ids!(toast_close_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(toast_close_btn)).clicked(actions) {
                 sonner.enqueue(
                     cx,
                     SonnerItem {

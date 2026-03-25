@@ -19,7 +19,8 @@ gallery_static_page! {
                 height: Fill
                 axis: SplitterAxis.Horizontal
                 align: SplitterAlign.FromA(180.0)
-                a: ShadSurfaceMuted{
+                a: ShadSurface{
+                    variant: ShadSurfaceVariant.Muted
                     width: Fill
                     height: Fill
                     padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
@@ -53,7 +54,8 @@ gallery_static_page! {
                 height: Fill
                 axis: SplitterAxis.Vertical
                 align: SplitterAlign.FromA(120.0)
-                a: ShadSurfaceMuted{
+                a: ShadSurface{
+                    variant: ShadSurfaceVariant.Muted
                     width: Fill
                     height: Fill
                     padding: Inset{left: 16, right: 16, top: 16, bottom: 16}

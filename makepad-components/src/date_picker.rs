@@ -1,5 +1,6 @@
 use crate::calendar::ShadCalendarWidgetRefExt;
 use crate::calendar::ShadDate;
+use crate::button::ShadButtonWidgetExt;
 use crate::internal::actions::{emit_widget_action, widget_action_map};
 use crate::internal::script_args::{bool_arg, string_arg};
 use crate::popover::ShadPopoverWidgetExt;
@@ -110,7 +111,7 @@ impl ShadDatePicker {
             return;
         }
         self.view
-            .button(cx, ids!(popover.trigger))
+            .shad_button(cx, ids!(popover.trigger))
             .set_text(cx, &next_text);
         self.trigger_text_cache = next_text;
     }

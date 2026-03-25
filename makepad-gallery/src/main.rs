@@ -5,12 +5,15 @@ mod ui;
 
 use crate::ui::catalog;
 use crate::ui::command_palette_page::GalleryCommandPalettePageWidgetRefExt;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::command_palette::ShadCommandPaletteWidgetRefExt;
 use makepad_components::makepad_widgets::*;
 use makepad_components::sidebar::ShadSidebarItemRef;
 use makepad_router::RouterWidgetWidgetRefExt;
 
 app_main!(App);
+
+const GALLERY_GITHUB_URL: &str = "https://github.com/wheregmis/makepad-components";
 
 script_mod! {
     use mod.prelude.widgets.*
@@ -74,10 +77,10 @@ impl App {
     fn sync_mobile_sidebar_button(&self, cx: &mut Cx) {
         let show_close = self.is_small_screen && self.sidebar_open;
         self.ui
-            .button(cx, ids!(mobile_sidebar_menu_button))
+            .shad_button(cx, ids!(mobile_sidebar_menu_button))
             .set_visible(cx, !show_close);
         self.ui
-            .button(cx, ids!(mobile_sidebar_close_button))
+            .shad_button(cx, ids!(mobile_sidebar_close_button))
             .set_visible(cx, show_close);
     }
 
@@ -89,10 +92,10 @@ impl App {
         };
         let mobile_label = if self.is_light_theme { "Dark" } else { "Light" };
         self.ui
-            .button(cx, ids!(desktop_theme_toggle))
+            .shad_button(cx, ids!(desktop_theme_toggle))
             .set_text(cx, desktop_label);
         self.ui
-            .button(cx, ids!(mobile_theme_toggle))
+            .shad_button(cx, ids!(mobile_theme_toggle))
             .set_text(cx, mobile_label);
     }
 
@@ -220,11 +223,11 @@ impl MatchEvent for App {
         if self.is_small_screen
             && (self
                 .ui
-                .button(cx, ids!(mobile_sidebar_menu_button))
+                .shad_button(cx, ids!(mobile_sidebar_menu_button))
                 .clicked(actions)
                 || self
                     .ui
-                    .button(cx, ids!(mobile_sidebar_close_button))
+                    .shad_button(cx, ids!(mobile_sidebar_close_button))
                     .clicked(actions))
         {
             self.sidebar_open = !self.sidebar_open;
@@ -232,25 +235,36 @@ impl MatchEvent for App {
         }
         if self
             .ui
-            .button(cx, ids!(desktop_theme_toggle))
+            .shad_button(cx, ids!(desktop_theme_toggle))
             .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_theme_toggle))
+                .shad_button(cx, ids!(mobile_theme_toggle))
                 .clicked(actions)
         {
             self.queue_theme_change(cx, !self.is_light_theme);
         }
         if self
             .ui
-            .button(cx, ids!(desktop_command_palette_trigger))
+            .shad_button(cx, ids!(desktop_command_palette_trigger))
             .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_command_palette_trigger))
+                .shad_button(cx, ids!(mobile_command_palette_trigger))
                 .clicked(actions)
         {
             self.open_command_palette(cx);
+        }
+        if self
+            .ui
+            .shad_button(cx, ids!(desktop_github_button))
+            .clicked(actions)
+            || self
+                .ui
+                .shad_button(cx, ids!(mobile_github_button))
+                .clicked(actions)
+        {
+            cx.open_url(GALLERY_GITHUB_URL, OpenUrlInPlace::No);
         }
 
         self.handle_sidebar_navigation(cx, actions);

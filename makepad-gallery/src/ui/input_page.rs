@@ -5,7 +5,7 @@ gallery_stateful_page_shell! {
     widget: GalleryInputPage,
     page: input_page,
     title: "Input",
-    subtitle: "Inputs are page-owned draft state: keep a visible label, use placeholder text as a hint, and use TextInputRef methods for live changes or submit-on-return.",
+    subtitle: "Inputs are page-owned draft state: keep a visible label, use placeholder text as a hint, and reach for ShadSearchInput or ShadInputShell when the field needs search chrome or custom adornments.",
     divider: { ShadHr{} },
     preview_spacing: 12.0,
     preview: {
@@ -59,7 +59,7 @@ gallery_stateful_page_shell! {
             ShadInput{ empty_text: "Email" }
         }
 
-        ShadSectionHeader{ text: "With Leading Icon" }
+        ShadSectionHeader{ text: "Search Input" }
 
         View{
             width: Fill
@@ -68,21 +68,20 @@ gallery_stateful_page_shell! {
             spacing: 6.0
 
             ShadFieldLabel{ text: "Search components" }
-            ShadInputWithIcon{
-                input +: {
-                    empty_text: "Search components"
-                }
+            ShadSearchInput{
+                empty_text: "Search components"
             }
             ShadFieldDescription{
-                text: "Leading icons help with recognition, but the visible label keeps the search scope explicit."
+                text: "Use ShadSearchInput for the common search pattern. Drop to ShadInputShell when you need custom leading/trailing widgets around the same borderless input core."
             }
         }
     },
     action_flow: {
         mod.widgets.GalleryActionFlowStep{text: "1. Give any input you need to drive an id, like email_input := ShadInput{...}."}
-        mod.widgets.GalleryActionFlowStep{text: "2. Read live edits with view.text_input(cx, ids!(email_input)).changed(actions)."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Use returned(actions) when Enter should submit or confirm the current draft."}
-        mod.widgets.GalleryActionFlowStep{text: "4. When external state changes, push it back into the field with set_text(cx, ...)."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Use ShadSearchInput when the field is really a search box, or ShadInputShell when you need custom adornments around the shared input core."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Read live edits with view.text_input(cx, ids!(email_input)).changed(actions), or use the typed changed/submitted/cleared helpers on ShadSearchInputRef."}
+        mod.widgets.GalleryActionFlowStep{text: "4. Use returned(actions) when Enter should submit or confirm the current draft."}
+        mod.widgets.GalleryActionFlowStep{text: "5. When external state changes, push it back into the field with set_text(cx, ...)."}
     },
 }
 

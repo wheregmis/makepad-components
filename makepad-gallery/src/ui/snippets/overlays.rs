@@ -78,12 +78,12 @@ publish_dialog := ShadDialogAlert{
 // Controller example (Rust):
 // let dialog = self.ui.shad_dialog(cx, ids!(rename_dialog));
 //
-// if self.ui.button(cx, ids!(open_rename_dialog_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(open_rename_dialog_btn)).clicked(actions) {
 //     dialog.open(cx);
 // }
 //
-// if self.ui.button(cx, ids!(rename_cancel_btn)).clicked(actions)
-//     || self.ui.button(cx, ids!(rename_save_btn)).clicked(actions)
+// if self.ui.shad_button(cx, ids!(rename_cancel_btn)).clicked(actions)
+//     || self.ui.shad_button(cx, ids!(rename_save_btn)).clicked(actions)
 // {
 //     dialog.close(cx);
 // }
@@ -131,7 +131,7 @@ pub const POPOVER_PREVIEW_CODE: &str = r#"profile_popover := ShadPopover{
 // let popover = self.view.shad_popover(cx, ids!(profile_popover));
 // let content = popover.content_widget();
 //
-// if content.button(cx, ids!(popover_apply_btn)).clicked(actions) {
+// if content.shad_button(cx, ids!(popover_apply_btn)).clicked(actions) {
 //     self.save_profile_changes();
 //     popover.close(cx);
 // }
@@ -182,12 +182,12 @@ right_sheet := ShadSheet{
 // Controller example (Rust):
 // let sheet = self.ui.shad_sheet(cx, ids!(right_sheet));
 //
-// if self.ui.button(cx, ids!(open_right_sheet_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(open_right_sheet_btn)).clicked(actions) {
 //     sheet.open(cx);
 // }
 //
-// if self.ui.button(cx, ids!(close_right_sheet_btn)).clicked(actions)
-//     || self.ui.button(cx, ids!(save_right_sheet_btn)).clicked(actions)
+// if self.ui.shad_button(cx, ids!(close_right_sheet_btn)).clicked(actions)
+//     || self.ui.shad_button(cx, ids!(save_right_sheet_btn)).clicked(actions)
 // {
 //     sheet.close(cx);
 // }

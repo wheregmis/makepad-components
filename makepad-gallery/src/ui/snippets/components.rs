@@ -19,11 +19,11 @@ pub const ACCORDION_PREVIEW_CODE: &str = r#"mod.widgets.ShadAccordion{
 // Controller example (Rust):
 // let faq = self.ui.shad_accordion_item(cx, ids!(item_accessible));
 //
-// if self.ui.button(cx, ids!(expand_faq_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(expand_faq_btn)).clicked(actions) {
 //     faq.set_open(cx, true, animator::Animate::Yes);
 // }
 //
-// if self.ui.button(cx, ids!(collapse_faq_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(collapse_faq_btn)).clicked(actions) {
 //     faq.set_open(cx, false, animator::Animate::Yes);
 // }
 //
@@ -106,11 +106,11 @@ pub const BUTTON_GROUP_PREVIEW_CODE: &str = r#"ShadButtonGroup{
 }
 
 // Controller example (Rust):
-// if self.ui.button(cx, ids!(archive_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(archive_btn)).clicked(actions) {
 //     self.toolbar_action = ToolbarAction::Archive;
 // }
 //
-// if self.ui.button(cx, ids!(report_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(report_btn)).clicked(actions) {
 //     self.toolbar_action = ToolbarAction::Report;
 // }
 //
@@ -133,11 +133,11 @@ pub const BUTTON_PREVIEW_CODE: &str = r#"View{
 }
 
 // Controller example (Rust):
-// if self.ui.button(cx, ids!(save_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(save_btn)).clicked(actions) {
 //     self.save_document();
 // }
 //
-// if self.ui.button(cx, ids!(delete_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(delete_btn)).clicked(actions) {
 //     self.confirm_delete = true;
 // }
 //
@@ -200,11 +200,11 @@ pub const CAROUSEL_PREVIEW_CODE: &str = r#"featured_carousel := mod.widgets.Shad
 // Controller example (Rust):
 // let carousel = self.ui.shad_carousel(cx, ids!(featured_carousel));
 //
-// if self.ui.button(cx, ids!(open_next_highlight_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(open_next_highlight_btn)).clicked(actions) {
 //     carousel.next(cx);
 // }
 //
-// if self.ui.button(cx, ids!(jump_to_first_highlight_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(jump_to_first_highlight_btn)).clicked(actions) {
 //     carousel.go_to(cx, 0);
 // }
 //
@@ -226,7 +226,7 @@ pub const COLLAPSIBLE_PREVIEW_CODE: &str = r#"mod.widgets.ShadCollapsible{
 // Controller example (Rust):
 // let details = self.ui.shad_collapsible(cx, ids!(order_details));
 //
-// if self.ui.button(cx, ids!(toggle_details_btn)).clicked(actions) {
+// if self.ui.shad_button(cx, ids!(toggle_details_btn)).clicked(actions) {
 //     details.set_open(cx, !details.is_open(cx), animator::Animate::Yes);
 // }
 //

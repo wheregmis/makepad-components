@@ -5,7 +5,7 @@ gallery_static_page! {
     widget: GalleryAspectRatioPage,
     page: aspect_ratio_page,
     title: "Aspect Ratio",
-    subtitle: "Ratio-constrained frames for photos, video, and media surfaces. Let the shell own the shape, then let the child content fill it.",
+    subtitle: "Ratio-constrained frames for photos, video, and media surfaces. Pass an explicit `ratio:` to the shell, then let the child content fill it.",
     divider: { ShadHr{} },
     preview_spacing: 16.0,
     preview: {

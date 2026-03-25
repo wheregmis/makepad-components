@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::input::ShadSearchInputWidgetExt;
 use makepad_components::makepad_icon::{IconMetadata, ICON_METADATA};
 use makepad_components::makepad_widgets::*;
@@ -348,7 +349,7 @@ impl Widget for GalleryIconGalleryPage {
             if search_input.cleared(actions) && !self.query.is_empty() {
                 next_query = Some(String::new());
             }
-            if self.view.button(cx, ids!(icon_search_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(icon_search_btn)).clicked(actions) {
                 search_input.focus(cx);
             }
 

@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::makepad_widgets::*;
 use makepad_components::popover::ShadPopoverWidgetExt;
 
@@ -132,7 +133,7 @@ impl Widget for GalleryPopoverPage {
             let profile_content = profile.content_widget();
 
             if profile_content
-                .button(cx, ids!(popover_close_btn))
+                .shad_button(cx, ids!(popover_close_btn))
                 .clicked(actions)
             {
                 profile.close(cx);
@@ -141,7 +142,7 @@ impl Widget for GalleryPopoverPage {
             }
 
             if profile_content
-                .button(cx, ids!(popover_apply_btn))
+                .shad_button(cx, ids!(popover_apply_btn))
                 .clicked(actions)
             {
                 profile.close(cx);

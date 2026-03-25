@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::makepad_widgets::*;
 use makepad_components::table::ShadTableWidgetExt;
 
@@ -10,6 +11,15 @@ gallery_stateful_page_shell! {
     divider: { ShadHr{} },
     preview_spacing: 16.0,
     preview: {
+        table_demo := ShadTable{
+            // Keep the table preview near the top so the default gallery viewport shows rows
+            // without requiring a manual scroll.
+            height: 420.0
+            caption: "Team roster"
+            headers: ["Name" "Role" "Location" "Status"]
+            rows: []
+        }
+
         View{
             width: Fit
             height: Fit
@@ -48,12 +58,6 @@ gallery_stateful_page_shell! {
 
         table_status := ShadFieldDescription{
             text: "Showing team roster. Selected row: none."
-        }
-
-        table_demo := ShadTable{
-            caption: "Team roster"
-            headers: ["Name" "Role" "Location" "Status"]
-            rows: []
         }
     },
     action_flow: {
@@ -212,32 +216,32 @@ impl Widget for GalleryTablePage {
         self.view.handle_event(cx, event, scope);
 
         if let Event::Actions(actions) = event {
-            if self.view.button(cx, ids!(table_team_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(table_team_btn)).clicked(actions) {
                 self.dataset_index = 0;
                 self.apply_dataset(cx);
                 return;
             }
-            if self.view.button(cx, ids!(table_ops_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(table_ops_btn)).clicked(actions) {
                 self.dataset_index = 1;
                 self.apply_dataset(cx);
                 return;
             }
             if self
                 .view
-                .button(cx, ids!(table_virtual_btn))
+                .shad_button(cx, ids!(table_virtual_btn))
                 .clicked(actions)
             {
                 self.apply_virtual_dataset(cx);
                 return;
             }
-            if self.view.button(cx, ids!(table_prev_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(table_prev_btn)).clicked(actions) {
                 if self.virtual_mode {
                     let start = self.virtual_start.saturating_sub(Self::VIRTUAL_WINDOW_SIZE);
                     self.sync_virtual_window(cx, start, true);
                 }
                 return;
             }
-            if self.view.button(cx, ids!(table_next_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(table_next_btn)).clicked(actions) {
                 if self.virtual_mode {
                     let max_start = Self::VIRTUAL_TOTAL.saturating_sub(1);
                     let start = (self.virtual_start + Self::VIRTUAL_WINDOW_SIZE).min(max_start);
@@ -245,7 +249,7 @@ impl Widget for GalleryTablePage {
                 }
                 return;
             }
-            if self.view.button(cx, ids!(table_clear_btn)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(table_clear_btn)).clicked(actions) {
                 self.view
                     .shad_table(cx, ids!(table_demo))
                     .set_selected_row(cx, None);

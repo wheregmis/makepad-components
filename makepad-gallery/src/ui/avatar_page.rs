@@ -5,7 +5,7 @@ gallery_static_page! {
     widget: GalleryAvatarPage,
     page: avatar_page,
     title: "Avatar",
-    subtitle: "Circular avatar surfaces for photos, fallback initials, and presence states from makepad-components.",
+    subtitle: "Circular avatar surfaces for photos, fallback initials, and presence states. Configure each avatar with `size:` and optional `status:`.",
     divider: { ShadHr{} },
     preview_spacing: 16.0,
     preview: {
@@ -19,7 +19,7 @@ gallery_static_page! {
 
             ShadFieldDescription{text: "ShadAvatar is a compositional circular surface. Set `size: ShadAvatarSize.Small/Default/Large` and keep the fallback text or image children inside the same avatar."}
             ShadFieldDescription{text: "Use ShadAvatarImage for a fill-sized, cover-cropped photo. Keep ShadAvatarFallback in the same avatar so empty or loading states still have a readable identity."}
-            ShadFieldDescription{text: "Set `status: ShadAvatarPresence.Online/Away/Busy` when you need a small presence marker anchored to the avatar edge. The legacy status-dot aliases still work for older code."}
+            ShadFieldDescription{text: "Set `status: ShadAvatarPresence.Online/Away/Busy` when you need a small presence marker anchored to the avatar edge."}
         }
 
         ShadHr{}

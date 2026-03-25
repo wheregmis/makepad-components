@@ -1075,3 +1075,127 @@ impl ShadNavButton {
         self.active
     }
 }
+
+#[derive(Clone, Default)]
+pub struct ShadButtonRef(pub WidgetRef);
+
+impl std::ops::Deref for ShadButtonRef {
+    type Target = WidgetRef;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for ShadButtonRef {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+pub trait ShadButtonWidgetExt {
+    fn shad_button(&self, cx: &Cx, path: &[LiveId]) -> ShadButtonRef;
+}
+
+impl ShadButtonWidgetExt for View {
+    fn shad_button(&self, cx: &Cx, path: &[LiveId]) -> ShadButtonRef {
+        ShadButtonRef(self.widget(cx, path))
+    }
+}
+
+impl ShadButtonWidgetExt for WidgetRef {
+    fn shad_button(&self, cx: &Cx, path: &[LiveId]) -> ShadButtonRef {
+        ShadButtonRef(self.widget(cx, path))
+    }
+}
+
+impl ShadButtonWidgetExt for ViewRef {
+    fn shad_button(&self, cx: &Cx, path: &[LiveId]) -> ShadButtonRef {
+        ShadButtonRef(self.widget(cx, path))
+    }
+}
+
+impl ShadButtonRef {
+    pub fn clicked(&self, actions: &Actions) -> bool {
+        self.clicked_modifiers(actions).is_some()
+    }
+
+    pub fn pressed(&self, actions: &Actions) -> bool {
+        self.pressed_modifiers(actions).is_some()
+    }
+
+    pub fn released(&self, actions: &Actions) -> bool {
+        self.released_modifiers(actions).is_some()
+    }
+
+    pub fn long_pressed(&self, actions: &Actions) -> bool {
+        actions
+            .find_widget_action(self.0.widget_uid())
+            .is_some_and(|action| matches!(action.cast(), ButtonAction::LongPressed))
+    }
+
+    pub fn clicked_modifiers(&self, actions: &Actions) -> Option<KeyModifiers> {
+        actions
+            .find_widget_action(self.0.widget_uid())
+            .and_then(|action| match action.cast() {
+                ButtonAction::Clicked(modifiers) => Some(modifiers),
+                _ => None,
+            })
+    }
+
+    pub fn pressed_modifiers(&self, actions: &Actions) -> Option<KeyModifiers> {
+        actions
+            .find_widget_action(self.0.widget_uid())
+            .and_then(|action| match action.cast() {
+                ButtonAction::Pressed(modifiers) => Some(modifiers),
+                _ => None,
+            })
+    }
+
+    pub fn released_modifiers(&self, actions: &Actions) -> Option<KeyModifiers> {
+        actions
+            .find_widget_action(self.0.widget_uid())
+            .and_then(|action| match action.cast() {
+                ButtonAction::Released(modifiers) => Some(modifiers),
+                _ => None,
+            })
+    }
+
+    pub fn set_text(&self, cx: &mut Cx, text: &str) {
+        if let Some(mut inner) = self.0.borrow_mut::<ShadNavButton>() {
+            inner.set_text(cx, text);
+        }
+    }
+
+    pub fn set_visible(&self, cx: &mut Cx, visible: bool) {
+        if let Some(mut inner) = self.0.borrow_mut::<ShadNavButton>() {
+            inner.visible = visible;
+            inner.redraw(cx);
+        }
+    }
+
+    pub fn set_enabled(&self, cx: &mut Cx, enabled: bool) {
+        if let Some(mut inner) = self.0.borrow_mut::<ShadNavButton>() {
+            inner.enabled = enabled;
+            inner.redraw(cx);
+        }
+    }
+
+    pub fn reset_hover(&self, cx: &mut Cx) {
+        if let Some(mut inner) = self.0.borrow_mut::<ShadNavButton>() {
+            inner.animator_cut(cx, ids!(hover.off));
+        }
+    }
+
+    pub fn set_active(&self, cx: &mut Cx, active: bool, animate: Animate) {
+        if let Some(mut inner) = self.0.borrow_mut::<ShadNavButton>() {
+            inner.set_active(cx, active, animate);
+        }
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.0
+            .borrow::<ShadNavButton>()
+            .is_some_and(|inner| inner.is_active())
+    }
+}

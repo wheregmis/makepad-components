@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::makepad_widgets::*;
 use makepad_components::sheet::ShadSheetWidgetExt;
 
@@ -368,7 +369,7 @@ impl Widget for GallerySheetPage {
         if let Event::Actions(actions) = event {
             if self
                 .view
-                .button(cx, ids!(open_right_sheet_btn))
+                .shad_button(cx, ids!(open_right_sheet_btn))
                 .clicked(actions)
             {
                 self.set_sheet_open(cx, ids!(right_sheet), true);
@@ -379,7 +380,7 @@ impl Widget for GallerySheetPage {
             }
             if self
                 .view
-                .button(cx, ids!(open_left_sheet_btn))
+                .shad_button(cx, ids!(open_left_sheet_btn))
                 .clicked(actions)
             {
                 self.set_sheet_open(cx, ids!(left_sheet), true);
@@ -390,7 +391,7 @@ impl Widget for GallerySheetPage {
             }
             if self
                 .view
-                .button(cx, ids!(open_top_sheet_btn))
+                .shad_button(cx, ids!(open_top_sheet_btn))
                 .clicked(actions)
             {
                 self.set_sheet_open(cx, ids!(top_sheet), true);
@@ -401,7 +402,7 @@ impl Widget for GallerySheetPage {
             }
             if self
                 .view
-                .button(cx, ids!(open_bottom_sheet_btn))
+                .shad_button(cx, ids!(open_bottom_sheet_btn))
                 .clicked(actions)
             {
                 self.set_sheet_open(cx, ids!(bottom_sheet), true);

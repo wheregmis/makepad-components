@@ -58,14 +58,16 @@ gallery_stateful_page_shell! {
                 ShadSectionHeader{text: "When to use dialog"}
                 ShadFieldDescription{text: "Choose dialog for blocking confirmations or one short workflow like renaming, publishing, or deleting. Use ShadSheet when the work can stay alongside the current screen, and use inline cards for content that should remain visible all the time."}
                 ShadFieldDescription{text: "The dialog component owns the backdrop, Escape dismissal, and alert confirm/cancel behavior. Page code should only open or close the specific dialog instance it controls."}
+                ShadFieldDescription{text: "Use ShadDialogAlert when the flow is just title, description, tone, and confirm/cancel copy. Drop to ShadDialog when the body or footer needs custom fields and actions."}
             }
         }
     },
     action_flow: {
         mod.widgets.GalleryActionFlowStep{text: "1. Keep one ShadDialogRef for each workflow your page can open, such as rename, publish, or delete."}
         mod.widgets.GalleryActionFlowStep{text: "2. Trigger `open(cx)` from the page button or row action that starts the workflow."}
-        mod.widgets.GalleryActionFlowStep{text: "3. For generic dialogs, wire your own footer actions and call `close(cx)` when the workflow completes or cancels."}
-        mod.widgets.GalleryActionFlowStep{text: "4. Use `open_changed(actions)` only when the surrounding page needs to react to the dialog lifecycle; backdrop and Escape dismissal stay component-owned."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Use ShadDialogAlert for prop-driven confirm flows, setting alert_tone, alert_title_text, alert_description_text, alert_confirm_text, and alert_cancel_text on the instance."}
+        mod.widgets.GalleryActionFlowStep{text: "4. For generic dialogs, wire your own footer actions and call `close(cx)` when the workflow completes or cancels."}
+        mod.widgets.GalleryActionFlowStep{text: "5. Use `open_changed(actions)` only when the surrounding page needs to react to the dialog lifecycle; backdrop and Escape dismissal stay component-owned."}
     },
     after_root: {
         rename_dialog := ShadDialog{

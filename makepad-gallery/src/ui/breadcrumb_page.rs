@@ -26,7 +26,8 @@ gallery_static_page! {
 
         ShadSectionHeader{ text: "Default Trail" }
 
-        ShadSurfaceMuted{
+        ShadSurface{
+            variant: ShadSurfaceVariant.Muted
             width: Fill
             height: Fit
             flow: Down
@@ -66,7 +67,8 @@ gallery_static_page! {
 
         ShadSectionHeader{ text: "Collapsed / Ellipsis" }
 
-        ShadSurfaceMuted{
+        ShadSurface{
+            variant: ShadSurfaceVariant.Muted
             width: Fill
             height: Fit
             flow: Down

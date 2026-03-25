@@ -18,7 +18,7 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadButtonGroupItem = set_type_default() do mod.widgets.ShadNavButtonBase{
+    mod.widgets.ShadButtonGroupItem = set_type_default() do mod.widgets.ShadButtonBase{
         width: Fit
         size_is_managed: true
         variant_is_managed: true

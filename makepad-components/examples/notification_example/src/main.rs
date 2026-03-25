@@ -1,3 +1,4 @@
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::sonner::{ShadSonnerWidgetRefExt, SonnerItem, SonnerKind};
 use makepad_widgets::*;
 
@@ -47,7 +48,7 @@ impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
         if self
             .ui
-            .button(cx, ids!(open_btn_with_close))
+            .shad_button(cx, ids!(open_btn_with_close))
             .clicked(actions)
         {
             let sonner = self.ui.shad_sonner(cx, ids!(toast));
@@ -62,7 +63,7 @@ impl MatchEvent for App {
                 },
             );
         }
-        if self.ui.button(cx, ids!(open_btn_no_close)).clicked(actions) {
+        if self.ui.shad_button(cx, ids!(open_btn_no_close)).clicked(actions) {
             let sonner = self.ui.shad_sonner(cx, ids!(toast));
             sonner.enqueue(
                 cx,

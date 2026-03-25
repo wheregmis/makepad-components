@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::calendar::{ShadCalendarWidgetExt, ShadDate};
 use makepad_components::makepad_widgets::*;
 
@@ -89,7 +90,7 @@ impl Widget for GalleryCalendarPage {
 
             if self
                 .view
-                .button(cx, ids!(calendar_prev_btn))
+                .shad_button(cx, ids!(calendar_prev_btn))
                 .clicked(actions)
             {
                 calendar.prev_month(cx);
@@ -98,7 +99,7 @@ impl Widget for GalleryCalendarPage {
             }
             if self
                 .view
-                .button(cx, ids!(calendar_today_btn))
+                .shad_button(cx, ids!(calendar_today_btn))
                 .clicked(actions)
             {
                 calendar.set_value(
@@ -114,7 +115,7 @@ impl Widget for GalleryCalendarPage {
             }
             if self
                 .view
-                .button(cx, ids!(calendar_next_btn))
+                .shad_button(cx, ids!(calendar_next_btn))
                 .clicked(actions)
             {
                 calendar.next_month(cx);
@@ -123,7 +124,7 @@ impl Widget for GalleryCalendarPage {
             }
             if self
                 .view
-                .button(cx, ids!(calendar_clear_btn))
+                .shad_button(cx, ids!(calendar_clear_btn))
                 .clicked(actions)
             {
                 calendar.clear(cx);

@@ -1,4 +1,5 @@
 use crate::input::ShadSearchInputWidgetRefExt;
+use crate::button::ShadButtonWidgetExt;
 use crate::internal::actions::{emit_widget_action, widget_action_map};
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
@@ -593,7 +594,7 @@ impl ShadCommandPalette {
                 ),
             );
         self.overlay
-            .button(cx, ids!(content.panel.search_row.clear_search_btn))
+            .shad_button(cx, ids!(content.panel.search_row.clear_search_btn))
             .set_text(cx, command_palette_secondary_action_label(&display_query));
         self.reset_results_position(cx);
         if results_changed || active_changed {
@@ -634,7 +635,7 @@ impl ShadCommandPalette {
             ) {
                 item.widget(cx, ids!(header)).set_visible(cx, show_header);
                 item.label(cx, ids!(header)).set_text(cx, &command.section);
-                item.button(cx, ids!(row.button))
+                item.shad_button(cx, ids!(row.button))
                     .set_text(cx, &command.title);
                 item.label(cx, ids!(row.shortcut))
                     .set_text(cx, &command.shortcut);
@@ -728,8 +729,8 @@ impl Widget for ShadCommandPalette {
 
                 if self
                     .overlay
-                    .button(cx, ids!(content.panel.search_row.clear_search_btn))
-                    .clicked(actions)
+                .shad_button(cx, ids!(content.panel.search_row.clear_search_btn))
+                .clicked(actions)
                 {
                     if self.normalize_query().is_empty() {
                         self.close(cx);
@@ -753,7 +754,7 @@ impl Widget for ShadCommandPalette {
                 }
 
                 for (item_id, item) in results.items_with_actions(actions) {
-                    if item.button(cx, ids!(row.button)).clicked(actions) {
+                    if item.shad_button(cx, ids!(row.button)).clicked(actions) {
                         self.active_index = item_id;
                         self.activate(cx);
                         return;

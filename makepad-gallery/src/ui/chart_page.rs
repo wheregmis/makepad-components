@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::chart::{DataPoint, ShadChartWidgetExt};
 use makepad_components::makepad_widgets::*;
 
@@ -105,15 +106,15 @@ impl Widget for GalleryChartPage {
         if let Event::Actions(actions) = event {
             let next = if self
                 .view
-                .button(cx, ids!(chart_growth_btn))
+                .shad_button(cx, ids!(chart_growth_btn))
                 .clicked(actions)
             {
                 Some(0)
-            } else if self.view.button(cx, ids!(chart_ops_btn)).clicked(actions) {
+            } else if self.view.shad_button(cx, ids!(chart_ops_btn)).clicked(actions) {
                 Some(1)
             } else if self
                 .view
-                .button(cx, ids!(chart_revenue_btn))
+                .shad_button(cx, ids!(chart_revenue_btn))
                 .clicked(actions)
             {
                 Some(2)

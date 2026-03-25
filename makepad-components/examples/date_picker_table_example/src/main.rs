@@ -1,3 +1,4 @@
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::calendar::ShadDate;
 use makepad_components::date_picker::ShadDatePickerWidgetRefExt;
 use makepad_components::table::ShadTableWidgetRefExt;
@@ -57,11 +58,13 @@ script_mod! {
                                 text: "Set 2026-03-13"
                             }
 
-                            set_april_btn := ShadButtonOutline{
+                            set_april_btn := ShadButton{
+                                variant: ShadButtonVariant.Outline
                                 text: "Set 2026-04-01"
                             }
 
-                            clear_btn := ShadButtonGhost{
+                            clear_btn := ShadButton{
+                                variant: ShadButtonVariant.Ghost
                                 text: "Clear"
                             }
                         }
@@ -178,17 +181,17 @@ impl App {
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
         let picker = self.ui.shad_date_picker(cx, ids!(deadline_picker));
-        if self.ui.button(cx, ids!(set_march_btn)).clicked(actions) {
+        if self.ui.shad_button(cx, ids!(set_march_btn)).clicked(actions) {
             picker.set_value(cx, Some(Self::DEFAULT_DATE));
             self.sync_table_for_picker(cx);
             return;
         }
-        if self.ui.button(cx, ids!(set_april_btn)).clicked(actions) {
+        if self.ui.shad_button(cx, ids!(set_april_btn)).clicked(actions) {
             picker.set_value(cx, Some(Self::SECONDARY_DATE));
             self.sync_table_for_picker(cx);
             return;
         }
-        if self.ui.button(cx, ids!(clear_btn)).clicked(actions) {
+        if self.ui.shad_button(cx, ids!(clear_btn)).clicked(actions) {
             picker.clear(cx);
             self.sync_table_for_picker(cx);
             return;

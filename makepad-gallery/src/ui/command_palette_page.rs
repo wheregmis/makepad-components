@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::makepad_widgets::widget::WidgetActionData;
 use makepad_components::makepad_widgets::*;
 
@@ -104,7 +105,7 @@ impl Widget for GalleryCommandPalettePage {
         if let Event::Actions(actions) = event {
             if self
                 .view
-                .button(cx, ids!(open_command_palette_btn))
+                .shad_button(cx, ids!(open_command_palette_btn))
                 .clicked(actions)
             {
                 cx.widget_action_with_data(

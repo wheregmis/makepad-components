@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::makepad_widgets::*;
 use makepad_components::popover::ShadPopoverWidgetExt;
 
@@ -143,7 +144,7 @@ impl Widget for GalleryNavigationMenuPage {
         self.view.handle_event(cx, event, scope);
 
         if let Event::Actions(actions) = event {
-            if self.view.button(cx, ids!(pricing_link)).clicked(actions) {
+            if self.view.shad_button(cx, ids!(pricing_link)).clicked(actions) {
                 self.set_selection_status(cx, "Selected destination: Pricing");
                 return;
             }
@@ -151,7 +152,7 @@ impl Widget for GalleryNavigationMenuPage {
             let products = self.view.shad_popover(cx, ids!(products_menu));
             let products_content = products.content_widget();
             if products_content
-                .button(cx, ids!(products_trial_btn))
+                .shad_button(cx, ids!(products_trial_btn))
                 .clicked(actions)
             {
                 products.close(cx);
@@ -160,7 +161,7 @@ impl Widget for GalleryNavigationMenuPage {
                 return;
             }
             if products_content
-                .button(cx, ids!(products_sdk_btn))
+                .shad_button(cx, ids!(products_sdk_btn))
                 .clicked(actions)
             {
                 products.close(cx);
@@ -169,7 +170,7 @@ impl Widget for GalleryNavigationMenuPage {
                 return;
             }
             if products_content
-                .button(cx, ids!(products_dashboard_btn))
+                .shad_button(cx, ids!(products_dashboard_btn))
                 .clicked(actions)
             {
                 products.close(cx);
@@ -181,7 +182,7 @@ impl Widget for GalleryNavigationMenuPage {
             let resources = self.view.shad_popover(cx, ids!(resources_menu));
             let resources_content = resources.content_widget();
             if resources_content
-                .button(cx, ids!(guides_btn))
+                .shad_button(cx, ids!(guides_btn))
                 .clicked(actions)
             {
                 resources.close(cx);
@@ -190,7 +191,7 @@ impl Widget for GalleryNavigationMenuPage {
                 return;
             }
             if resources_content
-                .button(cx, ids!(examples_btn))
+                .shad_button(cx, ids!(examples_btn))
                 .clicked(actions)
             {
                 resources.close(cx);

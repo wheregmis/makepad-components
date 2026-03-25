@@ -99,7 +99,9 @@ script_mod! {
                     header := mod.widgets.ShadTableHeaderView{}
                     list := PortalList{
                         width: Fill
-                        height: 208
+                        // Keep the table viewport responsive; this must grow with the container
+                        // instead of staying locked to the old demo-sized 208px default.
+                        height: Fill
                         flow: Down
                         max_pull_down: 0.0
                         capture_overload: true

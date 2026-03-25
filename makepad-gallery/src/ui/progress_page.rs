@@ -5,7 +5,7 @@ gallery_static_page! {
     widget: GalleryProgressPage,
     page: progress_page,
     title: "Progress",
-    subtitle: "Shadcn-inspired progress bars. Determinate bars expose a `value` in the 0-1 range, and indeterminate bars animate.",
+    subtitle: "Shadcn-inspired progress bars. Determinate bars expose `value:` in the 0-1 range, while indeterminate bars stay as a separate animated component.",
     divider: { ShadHr{} },
     preview_spacing: 12.0,
     preview: {

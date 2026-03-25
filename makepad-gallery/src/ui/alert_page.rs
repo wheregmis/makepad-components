@@ -19,7 +19,7 @@ gallery_static_page! {
 
             ShadFieldDescription{text: "Use ShadAlert with tone: ShadAlertTone.Default for guidance or ShadAlertTone.Destructive for error states."}
             ShadFieldDescription{text: "The alert owns its icon and text stack now, so the gallery can pass title_text and description_text directly on the component."}
-            ShadFieldDescription{text: "If you need custom layout, the legacy icon/content children still exist, but the prop-driven root is the preferred shape."}
+            ShadFieldDescription{text: "Treat the prop-driven root as the primary API. Reach for lower-level composition only when a page needs a layout the built-in title/description shell cannot express."}
         }
 
         ShadHr{}

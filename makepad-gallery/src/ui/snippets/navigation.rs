@@ -1,5 +1,6 @@
 pub const BREADCRUMB_PREVIEW_CODE: &str = r#"// Keep the breadcrumb close to the page title it describes.
-ShadSurfaceMuted{
+ShadSurface{
+    variant: ShadSurfaceVariant.Muted
     width: 360
     height: Fit
     flow: Down
@@ -68,7 +69,7 @@ pub const MENUBAR_PREVIEW_CODE: &str = r#"app_menubar := ShadMenubar{
 // let file_menu = self.view.shad_popover(cx, ids!(file_menu));
 // let file_content = file_menu.content_widget();
 //
-// if file_content.button(cx, ids!(file_new_btn)).clicked(actions) {
+// if file_content.shad_button(cx, ids!(file_new_btn)).clicked(actions) {
 //     file_menu.close(cx);
 //     self.status = "Selected File -> New file".to_string();
 // }"#;
@@ -105,7 +106,7 @@ pub const NAVIGATION_MENU_PREVIEW_CODE: &str = r#"site_nav := ShadNavigationMenu
 // let products = self.view.shad_popover(cx, ids!(products_menu));
 // let content = products.content_widget();
 //
-// if content.button(cx, ids!(products_sdk_btn)).clicked(actions) {
+// if content.shad_button(cx, ids!(products_sdk_btn)).clicked(actions) {
 //     products.close(cx);
 //     self.selected_destination = "SDKs".to_string();
 // }"#;
@@ -122,7 +123,7 @@ pub const PAGINATION_PREVIEW_CODE: &str = r#"projects_pagination := ShadPaginati
 //     self.reload_rows_for(page);
 // }
 //
-// if self.view.button(cx, ids!(next_page_btn)).clicked(actions) {
+// if self.view.shad_button(cx, ids!(next_page_btn)).clicked(actions) {
 //     pagination.next(cx);
 // }
 //

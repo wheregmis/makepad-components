@@ -1,4 +1,5 @@
 use crate::models::carousel::{next_index, normalize_index, prev_index};
+use crate::button::ShadButtonWidgetExt;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -552,10 +553,10 @@ impl ShadCarousel {
     }
 
     fn handle_component_actions(&mut self, cx: &mut Cx, actions: &Actions) {
-        if self.view.button(cx, ids!(prev_btn)).clicked(actions) {
+        if self.view.shad_button(cx, ids!(prev_btn)).clicked(actions) {
             self.prev(cx);
         }
-        if self.view.button(cx, ids!(next_btn)).clicked(actions) {
+        if self.view.shad_button(cx, ids!(next_btn)).clicked(actions) {
             self.next(cx);
         }
         self.ensure_cached_refs(cx);
