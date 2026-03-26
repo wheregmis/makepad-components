@@ -24,6 +24,7 @@ script_mod! {
         padding: Inset{left: 10, right: 10}
         align: Align{x: 0.0, y: 0.5}
         reset_hover_on_click: true
+        grab_key_focus: true
         draw_bg +: {
             color: #0000
             color_hover: (shad_theme.color_secondary_hover)
