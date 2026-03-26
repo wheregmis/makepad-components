@@ -66,7 +66,7 @@ macro_rules! define_gallery_root {
                 align: Align{y: 0.5}
                 spacing: 8.0
 
-                desktop_command_palette_trigger := ShadButton{
+                command_palette_trigger := ShadButton{
                     variant: ShadButtonVariant.Outline
                     text: "Search components"
                 }
@@ -95,129 +95,133 @@ macro_rules! define_gallery_root {
                 )*
             }
 
-            mod.widgets.GalleryDesktopHeader = View{
+            mod.widgets.GalleryHeader = AdaptiveView{
                 width: Fill
                 height: Fit
-                flow: Down
 
-                header_bar := View{
-                    width: Fill
-                    height: Fit
-                    flow: Right
-                    align: Align{y: 0.5}
-                    padding: Inset{left: 24, right: 24, top: 16, bottom: 14}
-                    spacing: 16.0
-                    draw_bg.color: (shad_theme.color_background)
-
-                    header_left := View{
-                        width: Fill
-                        height: Fit
-                        flow: Right
-                        align: Align{y: 0.5}
-
-                        desktop_header_meta := View{
-                            width: Fit
-                            height: Fit
-                            flow: Down
-                            spacing: 4.0
-
-                            desktop_header_caption := ShadSectionHeader{
-                                text: "Makepad Components Gallery"
-                            }
-
-                            desktop_page_label := ShadLabel{
-                                text: "Components"
-                                draw_text.text_style.font_size: 13
-                            }
-                        }
-                    }
-
-                    header_center := View{
-                        width: Fit
-                        height: Fit
-                        mod.widgets.GalleryCommandPaletteHeaderTrigger{}
-                    }
-
-                    header_right := View{
-                        width: Fill
-                        height: Fit
-                        flow: Right
-                        align: Align{x: 1.0, y: 0.5}
-                        spacing: 8.0
-
-                        desktop_github_button := mod.widgets.GalleryGithubButton{}
-                        desktop_theme_toggle := mod.widgets.GalleryThemeToggle{}
-                    }
-                }
-
-                ShadSeparator{}
-            }
-
-            mod.widgets.GalleryMobileHeader = View{
-                width: Fill
-                height: Fit
-                visible: false
-                flow: Down
-
-                header_bar := View{
+                Desktop := View{
                     width: Fill
                     height: Fit
                     flow: Down
-                    padding: Inset{left: 16, right: 16, top: 12, bottom: 12}
-                    spacing: 10.0
-                    draw_bg.color: (shad_theme.color_background)
 
-                    header_top_row := View{
+                    header_bar := View{
                         width: Fill
                         height: Fit
                         flow: Right
                         align: Align{y: 0.5}
-                        spacing: 12.0
+                        padding: Inset{left: 24, right: 24, top: 16, bottom: 14}
+                        spacing: 16.0
+                        draw_bg.color: (shad_theme.color_background)
 
-                        mobile_sidebar_menu_button := mod.widgets.GalleryMobileSidebarMenuButton{}
+                        header_left := View{
+                            width: Fill
+                            height: Fit
+                            flow: Right
+                            align: Align{y: 0.5}
 
-                        mobile_header_meta := View{
+                            header_meta := View{
+                                width: Fit
+                                height: Fit
+                                flow: Down
+                                spacing: 4.0
+
+                                header_caption := ShadSectionHeader{
+                                    text: "Makepad Components Gallery"
+                                }
+
+                                page_label := ShadLabel{
+                                    text: "Components"
+                                    draw_text.text_style.font_size: 13
+                                }
+                            }
+                        }
+
+                        header_center := View{
                             width: Fit
                             height: Fit
-                            flow: Down
-                            spacing: 2.0
-
-                            mobile_header_caption := ShadSectionHeader{
-                                text: "Gallery"
-                            }
-
-                            mobile_page_label := ShadLabel{
-                                text: "Components"
-                                draw_text.text_style.font_size: 12
-                            }
+                            mod.widgets.GalleryCommandPaletteHeaderTrigger{}
                         }
 
-                        View{
+                        header_right := View{
                             width: Fill
                             height: Fit
-                        }
+                            flow: Right
+                            align: Align{x: 1.0, y: 0.5}
+                            spacing: 8.0
 
-                        mobile_theme_toggle := mod.widgets.GalleryMobileThemeToggle{}
+                            github_button := mod.widgets.GalleryGithubButton{}
+                            theme_toggle := mod.widgets.GalleryThemeToggle{}
+                        }
                     }
 
-                    header_actions_row := View{
-                        width: Fill
-                        height: Fit
-                        flow: Right
-                        align: Align{y: 0.5}
-                        spacing: 8.0
-
-                        mobile_command_palette_trigger := ShadButton{
-                            variant: ShadButtonVariant.Ghost
-                            width: Fill
-                            text: "Search components"
-                        }
-
-                        mobile_github_button := mod.widgets.GalleryMobileGithubButton{}
-                    }
+                    ShadSeparator{}
                 }
 
-                ShadSeparator{}
+                Mobile := View{
+                    width: Fill
+                    height: Fit
+                    flow: Down
+
+                    header_bar := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        padding: Inset{left: 16, right: 16, top: 12, bottom: 12}
+                        spacing: 10.0
+                        draw_bg.color: (shad_theme.color_background)
+
+                        header_top_row := View{
+                            width: Fill
+                            height: Fit
+                            flow: Right
+                            align: Align{y: 0.5}
+                            spacing: 12.0
+
+                            mobile_sidebar_menu_button := mod.widgets.GalleryMobileSidebarMenuButton{}
+
+                            header_meta := View{
+                                width: Fit
+                                height: Fit
+                                flow: Down
+                                spacing: 2.0
+
+                                header_caption := ShadSectionHeader{
+                                    text: "Gallery"
+                                }
+
+                                page_label := ShadLabel{
+                                    text: "Components"
+                                    draw_text.text_style.font_size: 12
+                                }
+                            }
+
+                            View{
+                                width: Fill
+                                height: Fit
+                            }
+
+                            theme_toggle := mod.widgets.GalleryMobileThemeToggle{}
+                        }
+
+                        header_actions_row := View{
+                            width: Fill
+                            height: Fit
+                            flow: Right
+                            align: Align{y: 0.5}
+                            spacing: 8.0
+
+                            command_palette_trigger := ShadButton{
+                                variant: ShadButtonVariant.Ghost
+                                width: Fill
+                                text: "Search components"
+                            }
+
+                            github_button := mod.widgets.GalleryMobileGithubButton{}
+                        }
+                    }
+
+                    ShadSeparator{}
+                }
             }
 
             mod.widgets.GalleryMainContent = View{
@@ -225,8 +229,7 @@ macro_rules! define_gallery_root {
                 height: Fill
                 flow: Down
 
-                desktop_header := mod.widgets.GalleryDesktopHeader{}
-                mobile_header := mod.widgets.GalleryMobileHeader{}
+                header := mod.widgets.GalleryHeader{}
                 content_flip := mod.widgets.GalleryContentFlip{}
             }
 

@@ -23,6 +23,13 @@ enum PendingPaletteAction {
     None,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+enum PendingHeaderSync {
+    SyncState,
+    #[default]
+    None,
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
@@ -58,6 +65,23 @@ impl App {
         self.ui
             .router_widget(cx, ids!(content_flip))
             .go_to_route(cx, self.current_page);
+    }
+
+    fn configure_header_adaptive_view(&self, cx: &mut Cx) {
+        self.ui.adaptive_view(cx, ids!(header)).set_variant_selector(
+            |_cx, parent_size| {
+                if parent_size.x < Self::SMALL_SCREEN_WIDTH {
+                    live_id!(Mobile)
+                } else {
+                    live_id!(Desktop)
+                }
+            },
+        );
+    }
+
+    fn queue_header_state_sync(&mut self, cx: &mut Cx) {
+        self.pending_header_sync = PendingHeaderSync::SyncState;
+        self.header_sync_next_frame = cx.new_next_frame();
     }
 
     fn set_current_page(&mut self, cx: &mut Cx, page: LiveId) {
@@ -103,28 +127,19 @@ impl App {
     }
 
     fn sync_theme_toggle_copy(&self, cx: &mut Cx) {
-        let desktop_label = if self.is_light_theme {
+        let label = if self.is_small_screen {
+            if self.is_light_theme { "Dark" } else { "Light" }
+        } else if self.is_light_theme {
             "Dark theme"
         } else {
             "Light theme"
         };
-        let mobile_label = if self.is_light_theme { "Dark" } else { "Light" };
-        self.ui
-            .shad_button(cx, ids!(desktop_theme_toggle))
-            .set_text(cx, desktop_label);
-        self.ui
-            .shad_button(cx, ids!(mobile_theme_toggle))
-            .set_text(cx, mobile_label);
+        self.ui.shad_button(cx, ids!(theme_toggle)).set_text(cx, label);
     }
 
     fn sync_page_metadata(&self, cx: &mut Cx) {
         if let Some(entry) = catalog::entry_for_page(self.current_page) {
-            self.ui
-                .label(cx, ids!(desktop_page_label))
-                .set_text(cx, entry.title);
-            self.ui
-                .label(cx, ids!(mobile_page_label))
-                .set_text(cx, entry.title);
+            self.ui.label(cx, ids!(page_label)).set_text(cx, entry.title);
         }
         self.sync_sidebar_focus_behavior(cx);
         self.sync_sidebar_selection(cx);
@@ -159,9 +174,11 @@ impl App {
                 value,
             );
         });
+        self.configure_header_adaptive_view(cx);
         self.apply_responsive_visibility(cx);
         self.sync_theme_toggle_copy(cx);
         self.set_current_page(cx, self.current_page);
+        self.queue_header_state_sync(cx);
         self.ui.redraw(cx);
     }
 
@@ -177,18 +194,13 @@ impl App {
 
     fn apply_responsive_visibility(&mut self, cx: &mut Cx) {
         self.ui
-            .view(cx, ids!(desktop_header))
-            .set_visible(cx, !self.is_small_screen);
-        self.ui
-            .view(cx, ids!(mobile_header))
-            .set_visible(cx, self.is_small_screen);
-        self.ui
             .view(cx, ids!(sidebar))
             .set_visible(cx, !self.is_small_screen || self.sidebar_open);
         self.ui
             .view(cx, ids!(main_content))
             .set_visible(cx, !self.is_small_screen || !self.sidebar_open);
         self.sync_mobile_sidebar_button(cx);
+        self.sync_theme_toggle_copy(cx);
         self.sync_sidebar_focus_behavior(cx);
         self.sync_content_route(cx);
     }
@@ -198,6 +210,7 @@ impl App {
         if self.is_small_screen != is_small_screen {
             self.is_small_screen = is_small_screen;
             self.sidebar_open = !is_small_screen;
+            self.queue_header_state_sync(cx);
         }
         self.apply_responsive_visibility(cx);
     }
@@ -232,6 +245,10 @@ pub struct App {
     pending_palette_action: PendingPaletteAction,
     #[rust]
     palette_action_next_frame: NextFrame,
+    #[rust]
+    pending_header_sync: PendingHeaderSync,
+    #[rust]
+    header_sync_next_frame: NextFrame,
 }
 
 impl MatchEvent for App {
@@ -257,34 +274,22 @@ impl MatchEvent for App {
         }
         if self
             .ui
-            .shad_button(cx, ids!(desktop_theme_toggle))
+            .shad_button(cx, ids!(theme_toggle))
             .clicked(actions)
-            || self
-                .ui
-                .shad_button(cx, ids!(mobile_theme_toggle))
-                .clicked(actions)
         {
             self.queue_theme_change(cx, !self.is_light_theme);
         }
         if self
             .ui
-            .shad_button(cx, ids!(desktop_command_palette_trigger))
+            .shad_button(cx, ids!(command_palette_trigger))
             .clicked(actions)
-            || self
-                .ui
-                .shad_button(cx, ids!(mobile_command_palette_trigger))
-                .clicked(actions)
         {
             self.queue_open_command_palette(cx);
         }
         if self
             .ui
-            .shad_button(cx, ids!(desktop_github_button))
+            .shad_button(cx, ids!(github_button))
             .clicked(actions)
-            || self
-                .ui
-                .shad_button(cx, ids!(mobile_github_button))
-                .clicked(actions)
         {
             cx.open_url(GALLERY_GITHUB_URL, OpenUrlInPlace::No);
         }
@@ -315,9 +320,13 @@ impl AppMain for App {
                 self.theme_reload_next_frame = NextFrame::default();
                 self.pending_palette_action = PendingPaletteAction::None;
                 self.palette_action_next_frame = NextFrame::default();
+                self.pending_header_sync = PendingHeaderSync::None;
+                self.header_sync_next_frame = NextFrame::default();
+                self.configure_header_adaptive_view(cx);
                 self.apply_responsive_visibility(cx);
                 self.sync_theme_toggle_copy(cx);
                 self.set_current_page(cx, self.current_page);
+                self.queue_header_state_sync(cx);
             }
             Event::NextFrame(_) => {
                 if self.theme_reload_next_frame.is_event(event).is_some() {
@@ -332,6 +341,16 @@ impl AppMain for App {
                         PendingPaletteAction::Open => self.open_command_palette(cx),
                         PendingPaletteAction::Toggle => self.toggle_command_palette(cx),
                         PendingPaletteAction::None => {}
+                    }
+                }
+                if self.header_sync_next_frame.is_event(event).is_some() {
+                    self.header_sync_next_frame = NextFrame::default();
+                    match std::mem::take(&mut self.pending_header_sync) {
+                        PendingHeaderSync::SyncState => {
+                            self.sync_theme_toggle_copy(cx);
+                            self.sync_page_metadata(cx);
+                        }
+                        PendingHeaderSync::None => {}
                     }
                 }
             }

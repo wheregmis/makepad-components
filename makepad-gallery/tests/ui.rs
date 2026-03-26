@@ -8,14 +8,13 @@ use makepad_test::{makepad_test, Selector, TestApp};
 
 #[makepad_test]
 fn gallery_default_accordion_page_renders(app: TestApp) {
-    app.locator(Selector::id("desktop_page_label"))
-        .wait_text("Accordion");
+    app.locator(Selector::id("page_label")).wait_text("Accordion");
     assert_page_shell_and_code(&app, "ShadAccordion");
 }
 
 #[makepad_test]
 fn gallery_theme_toggle_round_trips(app: TestApp) {
-    app.locator(Selector::id("desktop_theme_toggle"))
+    app.locator(Selector::id("theme_toggle"))
         .wait_visible()
         .wait_text("Light theme")
         .click()
@@ -31,7 +30,7 @@ fn gallery_command_palette_opens_and_closes(app: TestApp) {
         .wait_visible()
         .wait_text("Close")
         .click();
-    app.locator(Selector::id("desktop_command_palette_trigger"))
+    app.locator(Selector::id("command_palette_trigger"))
         .wait_visible()
         .wait_text("Search components");
 }
