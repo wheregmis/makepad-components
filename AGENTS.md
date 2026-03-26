@@ -123,6 +123,24 @@ grep -r "texture_2d" widgets/src/
 RUST_BACKTRACE=1 cargo run -p makepad-example-splash --release & PID=$!; sleep 15; kill $PID 2>/dev/null; echo "Process $PID killed"
 ```
 
+For Studio `--stdin-loop` runs, include the Studio app endpoint in `STUDIO`:
+
+```bash
+STUDIO=127.0.0.1:8001/app/<build-id> cargo run -p makepad-gallery --release --message-format=json -- --message-format=json --stdin-loop
+```
+
+For visible `makepad_test` runs against Studio, use:
+
+```bash
+MAKEPAD_TEST_VISIBLE=1 \
+MAKEPAD_TEST_STUDIO=127.0.0.1:8001 \
+MAKEPAD_TEST_STUDIO_MOUNT=makepad \
+MAKEPAD_TEST_STARTUP_DELAY_MS=1000 \
+MAKEPAD_TEST_ACTION_DELAY_MS=750 \
+MAKEPAD_TEST_KEEP_OPEN_MS=3000 \
+cargo test -p makepad-gallery --test ui_visible -- --test-threads=1
+```
+
 ## Current Workspace Commands
 
 Use the package names from the local `Cargo.toml` files when repo docs disagree.
@@ -133,6 +151,18 @@ cargo check --workspace
 
 # Run the current gallery app package
 cargo run -p makepad-gallery --release
+
+# Run the gallery inside Studio stdin-loop mode
+STUDIO=127.0.0.1:8001/app/<build-id> cargo run -p makepad-gallery --release --message-format=json -- --message-format=json --stdin-loop
+
+# Run the visible gallery smoke test inside Studio
+MAKEPAD_TEST_VISIBLE=1 \
+MAKEPAD_TEST_STUDIO=127.0.0.1:8001 \
+MAKEPAD_TEST_STUDIO_MOUNT=makepad \
+MAKEPAD_TEST_STARTUP_DELAY_MS=1000 \
+MAKEPAD_TEST_ACTION_DELAY_MS=750 \
+MAKEPAD_TEST_KEEP_OPEN_MS=3000 \
+cargo test -p makepad-gallery --test ui_visible -- --test-threads=1
 
 # Run the standalone date-picker/table example
 cargo run -p makepad-example-date-picker-table --release

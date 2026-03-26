@@ -10,3 +10,6 @@ makepad-widgets = { workspace = true }
 makepad-code-editor = { workspace = true }
 makepad-components = { workspace = true }
 makepad-router = { workspace = true }
+
+[dev-dependencies]
+makepad-test = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "0.1.0" }

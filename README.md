@@ -73,6 +73,24 @@ cargo check --workspace
 cargo run -p makepad-gallery --release
 ```
 
+For Studio-backed `--stdin-loop` runs, use:
+
+```bash
+STUDIO=127.0.0.1:8001/app/<build-id> cargo run -p makepad-gallery --release --message-format=json -- --message-format=json --stdin-loop
+```
+
+For the visible Studio-backed gallery smoke test, use:
+
+```bash
+MAKEPAD_TEST_VISIBLE=1 \
+MAKEPAD_TEST_STUDIO=127.0.0.1:8001 \
+MAKEPAD_TEST_STUDIO_MOUNT=makepad \
+MAKEPAD_TEST_STARTUP_DELAY_MS=1000 \
+MAKEPAD_TEST_ACTION_DELAY_MS=750 \
+MAKEPAD_TEST_KEEP_OPEN_MS=3000 \
+cargo test -p makepad-gallery --test ui_visible -- --test-threads=1
+```
+
 ### 3) Build gallery for web (WASM)
 
 ```bash

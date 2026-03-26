@@ -15,6 +15,14 @@ app_main!(App);
 
 const GALLERY_GITHUB_URL: &str = "https://github.com/wheregmis/makepad-components";
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+enum PendingPaletteAction {
+    Open,
+    Toggle,
+    #[default]
+    None,
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
@@ -72,6 +80,16 @@ impl App {
         let palette = self.ui.shad_command_palette(cx, ids!(command_palette));
         palette.set_items(cx, crate::ui::command_palette::catalog_command_items());
         palette.open(cx);
+    }
+
+    fn queue_open_command_palette(&mut self, cx: &mut Cx) {
+        self.pending_palette_action = PendingPaletteAction::Open;
+        self.palette_action_next_frame = cx.new_next_frame();
+    }
+
+    fn queue_toggle_command_palette(&mut self, cx: &mut Cx) {
+        self.pending_palette_action = PendingPaletteAction::Toggle;
+        self.palette_action_next_frame = cx.new_next_frame();
     }
 
     fn sync_mobile_sidebar_button(&self, cx: &mut Cx) {
@@ -210,6 +228,10 @@ pub struct App {
     pending_theme: Option<bool>,
     #[rust]
     theme_reload_next_frame: NextFrame,
+    #[rust]
+    pending_palette_action: PendingPaletteAction,
+    #[rust]
+    palette_action_next_frame: NextFrame,
 }
 
 impl MatchEvent for App {
@@ -253,7 +275,7 @@ impl MatchEvent for App {
                 .shad_button(cx, ids!(mobile_command_palette_trigger))
                 .clicked(actions)
         {
-            self.open_command_palette(cx);
+            self.queue_open_command_palette(cx);
         }
         if self
             .ui
@@ -273,7 +295,7 @@ impl MatchEvent for App {
             .gallery_command_palette_page(cx, ids!(command_palette_page))
             .open_requested(actions)
         {
-            self.open_command_palette(cx);
+            self.queue_open_command_palette(cx);
         }
     }
 }
@@ -291,6 +313,8 @@ impl AppMain for App {
                 self.is_light_theme = false;
                 self.pending_theme = None;
                 self.theme_reload_next_frame = NextFrame::default();
+                self.pending_palette_action = PendingPaletteAction::None;
+                self.palette_action_next_frame = NextFrame::default();
                 self.apply_responsive_visibility(cx);
                 self.sync_theme_toggle_copy(cx);
                 self.set_current_page(cx, self.current_page);
@@ -300,13 +324,20 @@ impl AppMain for App {
                     self.theme_reload_next_frame = NextFrame::default();
                     if let Some(is_light_theme) = self.pending_theme.take() {
                         self.set_theme(cx, is_light_theme);
-                        return;
+                    }
+                }
+                if self.palette_action_next_frame.is_event(event).is_some() {
+                    self.palette_action_next_frame = NextFrame::default();
+                    match std::mem::take(&mut self.pending_palette_action) {
+                        PendingPaletteAction::Open => self.open_command_palette(cx),
+                        PendingPaletteAction::Toggle => self.toggle_command_palette(cx),
+                        PendingPaletteAction::None => {}
                     }
                 }
             }
             Event::MacosMenuCommand(command) => {
                 if *command == live_id!(command_palette_menu) {
-                    self.open_command_palette(cx);
+                    self.queue_open_command_palette(cx);
                 }
             }
             Event::WindowGeomChange(geom) => {
@@ -319,7 +350,7 @@ impl AppMain for App {
                     // Keep forwarding the shortcut event through the UI tree so the
                     // palette's overlay state settles in the same dispatch cycle as
                     // button-driven opens.
-                    self.toggle_command_palette(cx);
+                    self.queue_toggle_command_palette(cx);
                 }
             }
             _ => {}

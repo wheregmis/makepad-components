@@ -7,6 +7,28 @@ let RunItem = {
     in_studio: true
 }
 
+let RunIosDevice = RunItem{
+    on_run: fn(id){
+        hub.run(
+            nil,
+            "cargo",
+            [
+                "makepad"
+                "apple"
+                "ios"
+                "--org=" + self.org
+                "--app=" + self.app
+                "--profile=" + self.profile
+                "--cert=" + self.cert
+                "--device=" + self.device
+                "run-device"
+                "-p" self.package_name
+                "--release"
+            ],
+        )
+    }
+}
+
 let Desktop = RunItem{
     on_run: fn(id){
         hub.run(
@@ -16,6 +38,7 @@ let Desktop = RunItem{
                 "run"
                 "-p" "makepad-gallery"
                 "--release"
+                "--message-format=json"
                 "--"
                 "--message-format=json"
                 "--stdin-loop"
@@ -42,7 +65,58 @@ let Web = RunItem{
     }
 }
 
+let GalleryUiHeadless = RunItem{
+    in_studio: false
+    on_run: fn(id){
+        hub.run(
+            {},
+            "cargo",
+            [
+                "test"
+                "-p" "makepad-gallery"
+                "--test" "ui"
+                "--"
+                "--test-threads=1"
+            ],
+        )
+    }
+}
+
+let GalleryUiStudioVisible = RunItem{
+    on_run: fn(id){
+        hub.run(
+            {
+                "MAKEPAD_TEST_VISIBLE": "1"
+                "MAKEPAD_TEST_STUDIO": "127.0.0.1:8001"
+                "MAKEPAD_TEST_STUDIO_MOUNT": "makepad"
+                "MAKEPAD_TEST_STARTUP_DELAY_MS": "1000"
+                "MAKEPAD_TEST_ACTION_DELAY_MS": "750"
+                "MAKEPAD_TEST_KEEP_OPEN_MS": "3000"
+            },
+            "cargo",
+            [
+                "test"
+                "-p" "makepad-gallery"
+                "--test" "ui_visible"
+                "--"
+                "--test-threads=1"
+            ],
+        )
+    }
+}
+
 hub.set_run_items([
     Desktop{name: "makepad-gallery desktop"}
     Web{name: "makepad-gallery web"}
+    RunIosDevice{
+        name: "makepad-gallery ios device"
+        package_name: "makepad-gallery"
+        org: "com.get2sabin"
+        app: "gallery"
+        profile: "8eebf560-b1cf-4e7c-a4dc-4dd7a30e705b"
+        cert: "49EF784F08EC0310985B7C0D5C5553E9F18627A9"
+        device: "00008140-001C79212210801C"
+    }
+    GalleryUiHeadless{name: "makepad-gallery ui tests headless"}
+    GalleryUiStudioVisible{name: "makepad-gallery ui tests visible"}
 ])

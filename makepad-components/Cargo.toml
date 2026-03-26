@@ -8,3 +8,6 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 makepad-widgets = { workspace = true }
 makepad-icon = { workspace = true }
+
+[dev-dependencies]
+makepad-test = { path = "/Users/wheregmis/Documents/GitHub/makepad/libs/makepad_test", version = "0.1.0" }

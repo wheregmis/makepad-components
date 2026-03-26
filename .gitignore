@@ -1,4 +1,5 @@
 /target
+**/target/
 /.cocoindex_code
 # CocoIndex Code (ccc)
 /.cocoindex_code/
