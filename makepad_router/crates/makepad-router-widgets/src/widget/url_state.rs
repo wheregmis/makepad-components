@@ -35,7 +35,7 @@ impl RouterWidget {
         }
     }
 
-    fn current_path_for_route(&self, route: &crate::route::Route) -> String {
+    pub(super) fn current_path_for_route(&self, route: &crate::route::Route) -> String {
         // Keep unknown path visible while showing the configured not-found route.
         if self.not_found_route.0 != 0 && route.id == self.not_found_route {
             if let Some(path) = &self.url_path_override {
