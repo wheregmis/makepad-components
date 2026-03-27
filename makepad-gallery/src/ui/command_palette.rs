@@ -539,6 +539,13 @@ impl GalleryCommandPalette {
             .saturating_add_signed(delta as isize)
             .clamp(0, max_index);
         self.scroll_active_into_view(cx);
+        // Return focus to the search input so Enter always activates the
+        // highlighted (active_index) row, even when a row button currently
+        // holds Tab focus.  This prevents the mismatch where Tab-to-row-N
+        // followed by ArrowDown + Enter would open row N instead of N+1.
+        self.overlay
+            .text_input(cx, ids!(search_input))
+            .set_key_focus(cx);
         self.redraw(cx);
     }
 
