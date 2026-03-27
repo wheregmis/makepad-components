@@ -1,3 +1,7 @@
+## 2026-03-27 – [Disable no-op reset actions in demos]
+**Learning:** Gallery pages in this repo already use disabled reset buttons to show state honestly, but similar demo controls can drift and leave `Clear` actions clickable even when they do nothing.
+**Action:** When a Makepad demo page exposes `Clear`, `Reset`, or similar secondary actions, sync the enabled state from the underlying widget value on apply and after every interaction.
+
 ## 2024-05-24 - Accessibility improvements
 
 **Learning:** Buttons in the Makepad component library lack `cursor: MouseCursor.Hand` by default, making them feel less interactive. Also, buttons need aria labels.
