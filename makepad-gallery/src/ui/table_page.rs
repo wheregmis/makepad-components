@@ -12,9 +12,7 @@ gallery_stateful_page_shell! {
     preview_spacing: 16.0,
     preview: {
         table_demo := ShadTable{
-            // Keep the table preview near the top so the default gallery viewport shows rows
-            // without requiring a manual scroll.
-            height: 420.0
+            viewport_height: 240.0
             caption: "Team roster"
             headers: ["Name" "Role" "Location" "Status"]
             rows: []

@@ -15,7 +15,7 @@ pub const CHART_PREVIEW_CODE: &str = r#"View{
 //     DataPoint{x: 2.0, y: 31.0},
 // ]);"#;
 pub const TABLE_PREVIEW_CODE: &str = r#"tasks_table := ShadTable{
-    height: 420.0
+    viewport_height: 240.0
     caption: "Tasks"
     headers: ["Name" "Owner" "Status"]
     rows: []

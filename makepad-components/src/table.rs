@@ -63,6 +63,7 @@ script_mod! {
     mod.widgets.ShadTable = set_type_default() do mod.widgets.ShadTableBase{
         width: Fill
         height: Fit
+        align: Align{y: 0.0}
         caption: ""
         empty_message: "No rows available."
         selectable: true
@@ -76,6 +77,7 @@ script_mod! {
             width: Fill
             height: Fit
             flow: Down
+            align: Align{y: 0.0}
             spacing: 8.0
 
             caption_label := ShadFieldDescription{
@@ -90,22 +92,21 @@ script_mod! {
                 padding: Inset{left: 0.0, right: 0.0, top: 0.0, bottom: 0.0}
                 spacing: 0.0
 
-                content := View{
-                    width: Fit
-                    height: Fill
-                    flow: Down
-                    spacing: 6.0
-
-                    header := mod.widgets.ShadTableHeaderView{}
-                    list := PortalList{
-                        width: Fill
-                        // Keep the table viewport responsive; this must grow with the container
-                        // instead of staying locked to the old demo-sized 208px default.
-                        height: Fill
+                    content := View{
+                        width: Fit
+                        height: Fit
                         flow: Down
-                        max_pull_down: 0.0
-                        capture_overload: true
-                        grab_key_focus: false
+                        align: Align{y: 0.0}
+                        spacing: 6.0
+
+                        header := mod.widgets.ShadTableHeaderView{}
+                        list := PortalList{
+                            width: Fill
+                            height: 240.0
+                            flow: Down
+                            max_pull_down: 0.0
+                            capture_overload: true
+                            grab_key_focus: false
                         auto_tail: false
                         selectable: false
                         drag_scrolling: true
@@ -549,6 +550,8 @@ pub struct ShadTable {
     caption: ArcStringMut,
     #[live]
     empty_message: ArcStringMut,
+    #[live(240.0)]
+    viewport_height: f64,
     #[live(true)]
     selectable: bool,
     #[live(true)]
@@ -609,6 +612,11 @@ impl ScriptHook for ShadTable {
                 self.rows_source = self.rows;
             }
             invalidate_content_width_cache(&mut self.applied_content_width);
+            let mut list = self.view.portal_list(cx, ids!(table_view.scroll.content.list));
+            let viewport_height = self.viewport_height;
+            script_apply_eval!(cx, list, {
+                height: #(viewport_height)
+            });
             if self.virtual_total_rows == 0 {
                 self.virtual_window_start = 0;
             } else if self.virtual_window_start >= self.virtual_total_rows {
@@ -786,8 +794,7 @@ impl ShadTable {
         }
 
         let row_count = self.data_row_count();
-        let empty_rows = Self::empty_fill_rows(list, cx, row_count);
-        let item_count = row_count + empty_rows;
+        let item_count = row_count.max(1);
         let shared_widths = &self.resolved_widths_shared;
         list.set_item_range(cx, 0, item_count);
         while let Some(item_id) = list.next_visible_item(cx) {
@@ -844,9 +851,7 @@ impl ShadTable {
         }
 
         let row_count = self.data_row_count();
-        let empty_rows = Self::empty_fill_rows(list, cx, row_count);
-        let item_count = row_count + empty_rows;
-        list.set_item_range(cx, 0, item_count);
+        list.set_item_range(cx, 0, row_count.max(1));
         while let Some(item_id) = list.next_visible_item(cx) {
             if item_id >= row_count {
                 self.draw_empty_row(cx, list, item_id, "");
@@ -890,8 +895,7 @@ impl ShadTable {
             return;
         }
 
-        let empty_rows = Self::empty_fill_rows(list, cx, row_count);
-        list.set_item_range(cx, 0, row_count + empty_rows);
+        list.set_item_range(cx, 0, row_count.max(1));
         while let Some(item_id) = list.next_visible_item(cx) {
             if item_id >= row_count {
                 self.draw_empty_row(cx, list, item_id, "");
@@ -959,7 +963,10 @@ impl ShadTable {
         self.virtual_total_rows = 0;
         self.virtual_window_start = 0;
         self.rows_data = into_arc_rows(rows);
-        self.rows_source = ScriptValue::default();
+        // Keep the current scripted `rows` value marked as synced so the next
+        // `on_after_apply` pass does not immediately overwrite runtime data
+        // with the original `rows: []` preview value.
+        self.rows_source = self.rows;
         self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
         self.sync_layout(cx);
         self.view.redraw(cx);
@@ -973,7 +980,7 @@ impl ShadTable {
         }
         self.virtual_total_rows = total_rows;
         self.rows_data.clear();
-        self.rows_source = ScriptValue::default();
+        self.rows_source = self.rows;
         if total_rows == 0 {
             self.virtual_window_start = 0;
         } else if self.virtual_window_start >= total_rows {
@@ -992,7 +999,7 @@ impl ShadTable {
             return;
         }
         self.rows_data = into_arc_rows(rows);
-        self.rows_source = ScriptValue::default();
+        self.rows_source = self.rows;
         let row_count = self.data_row_count();
         let clamped_start = if row_count == 0 {
             0
@@ -1026,7 +1033,7 @@ impl ShadTable {
         self.virtual_total_rows = 0;
         self.virtual_window_start = 0;
         self.rows_data.clear();
-        self.rows_source = ScriptValue::default();
+        self.rows_source = self.rows;
         self.selected_row = None;
         if changed {
             self.sync_layout(cx);
