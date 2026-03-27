@@ -65,7 +65,7 @@ let Web = RunItem{
     }
 }
 
-let GalleryUiHeadless = RunItem{
+let GalleryPackageTests = RunItem{
     in_studio: false
     on_run: fn(id){
         hub.run(
@@ -74,7 +74,6 @@ let GalleryUiHeadless = RunItem{
             [
                 "test"
                 "-p" "makepad-gallery"
-                "--test" "ui"
                 "--"
                 "--test-threads=1"
             ],
@@ -97,8 +96,8 @@ let GalleryUiStudioVisible = RunItem{
             [
                 "test"
                 "-p" "makepad-gallery"
-                "--test" "ui_visible"
                 "--"
+                "--ignored"
                 "--test-threads=1"
             ],
         )
@@ -117,6 +116,6 @@ hub.set_run_items([
         cert: "49EF784F08EC0310985B7C0D5C5553E9F18627A9"
         device: "00008140-001C79212210801C"
     }
-    GalleryUiHeadless{name: "makepad-gallery ui tests headless"}
-    GalleryUiStudioVisible{name: "makepad-gallery ui tests visible"}
+    GalleryPackageTests{name: "makepad-gallery package tests"}
+    GalleryUiStudioVisible{name: "makepad-gallery package visible tests"}
 ])

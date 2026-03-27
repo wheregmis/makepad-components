@@ -42,6 +42,13 @@ script_mod! {
 impl App {
     const SMALL_SCREEN_WIDTH: f64 = 900.0;
 
+    fn initial_page_from_env() -> LiveId {
+        std::env::var("MAKEPAD_GALLERY_INITIAL_ROUTE")
+            .ok()
+            .and_then(|route| catalog::entry_for_route(&route).map(|entry| entry.page))
+            .unwrap_or_else(catalog::default_page)
+    }
+
     fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
         crate::makepad_widgets::script_mod(vm);
         makepad_components::theme::script_mod(vm);
@@ -314,7 +321,7 @@ impl AppMain for App {
         match event {
             Event::Startup => {
                 self.sidebar_open = true;
-                self.current_page = catalog::default_page();
+                self.current_page = Self::initial_page_from_env();
                 self.is_light_theme = false;
                 self.pending_theme = None;
                 self.theme_reload_next_frame = NextFrame::default();

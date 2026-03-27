@@ -85,45 +85,86 @@ impl Widget for GallerySonnerPage {
             let sonner = self.view.shad_sonner(cx, ids!(toast_close));
 
             if self.view.shad_button(cx, ids!(toast_event_btn)).clicked(actions) {
-                sonner.enqueue(
-                    cx,
-                    SonnerItem {
-                        title: "连接成功".to_string(),
-                        description: Some("服务器连接成功。".to_string()),
-                        kind: SonnerKind::Success,
-                        duration: Some(3.0),
-                        show_close: true,
-                    },
-                );
+                sonner.enqueue(cx, event_created_toast());
             }
             if self.view.shad_button(cx, ids!(toast_desc_btn)).clicked(actions) {
-                sonner.enqueue(
-                    cx,
-                    SonnerItem {
-                        title: "提示".to_string(),
-                        description: Some("网络连接不稳定，请稍后再试。".to_string()),
-                        kind: SonnerKind::Info,
-                        duration: Some(3.0),
-                        show_close: true,
-                    },
-                );
+                sonner.enqueue(cx, described_info_toast());
             }
             if self.view.shad_button(cx, ids!(toast_close_btn)).clicked(actions) {
-                sonner.enqueue(
-                    cx,
-                    SonnerItem {
-                        title: "错误".to_string(),
-                        description: Some("网络连接失败，请检查网络设置。".to_string()),
-                        kind: SonnerKind::Error,
-                        duration: Some(3.0),
-                        show_close: false,
-                    },
-                );
+                sonner.enqueue(cx, dismissible_error_toast());
             }
         }
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         self.view.draw_walk(cx, scope, walk)
+    }
+}
+
+fn event_created_toast() -> SonnerItem {
+    SonnerItem {
+        title: "连接成功".to_string(),
+        description: Some("服务器连接成功。".to_string()),
+        kind: SonnerKind::Success,
+        duration: Some(3.0),
+        show_close: true,
+    }
+}
+
+fn described_info_toast() -> SonnerItem {
+    SonnerItem {
+        title: "提示".to_string(),
+        description: Some("网络连接不稳定，请稍后再试。".to_string()),
+        kind: SonnerKind::Info,
+        duration: Some(3.0),
+        show_close: true,
+    }
+}
+
+fn dismissible_error_toast() -> SonnerItem {
+    SonnerItem {
+        title: "错误".to_string(),
+        description: Some("网络连接失败，请检查网络设置。".to_string()),
+        kind: SonnerKind::Error,
+        duration: Some(3.0),
+        show_close: true,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn event_created_toast_matches_success_copy() {
+        let toast = event_created_toast();
+
+        assert_eq!(toast.title, "连接成功");
+        assert_eq!(toast.description.as_deref(), Some("服务器连接成功。"));
+        assert_eq!(toast.kind, SonnerKind::Success);
+        assert_eq!(toast.duration, Some(3.0));
+        assert!(toast.show_close);
+    }
+
+    #[test]
+    fn described_info_toast_matches_info_copy() {
+        let toast = described_info_toast();
+
+        assert_eq!(toast.title, "提示");
+        assert_eq!(toast.description.as_deref(), Some("网络连接不稳定，请稍后再试。"));
+        assert_eq!(toast.kind, SonnerKind::Info);
+        assert_eq!(toast.duration, Some(3.0));
+        assert!(toast.show_close);
+    }
+
+    #[test]
+    fn dismissible_error_toast_exposes_close_button() {
+        let toast = dismissible_error_toast();
+
+        assert_eq!(toast.title, "错误");
+        assert_eq!(toast.description.as_deref(), Some("网络连接失败，请检查网络设置。"));
+        assert_eq!(toast.kind, SonnerKind::Error);
+        assert_eq!(toast.duration, Some(3.0));
+        assert!(toast.show_close);
     }
 }

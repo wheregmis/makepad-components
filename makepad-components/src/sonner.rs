@@ -686,3 +686,52 @@ impl ShadSonnerRef {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn entry(title: &str, expires_at: Option<f64>) -> SonnerToastEntry {
+        SonnerToastEntry {
+            item: SonnerItem {
+                title: title.to_string(),
+                description: None,
+                kind: SonnerKind::Info,
+                duration: Some(3.0),
+                show_close: true,
+            },
+            expires_at,
+            total_duration: 3.0,
+        }
+    }
+
+    #[test]
+    fn visible_toasts_snapshot_keeps_newest_first_and_caps_length() {
+        let mut state = SonnerGlobalState::default();
+        for index in 0..6 {
+            state.toasts.push_back(entry(&format!("toast-{index}"), None));
+        }
+
+        let visible = ShadSonner::visible_toasts_snapshot(&state);
+
+        assert_eq!(visible[0].as_ref().map(|item| item.title.as_str()), Some("toast-5"));
+        assert_eq!(visible[1].as_ref().map(|item| item.title.as_str()), Some("toast-4"));
+        assert_eq!(visible[2].as_ref().map(|item| item.title.as_str()), Some("toast-3"));
+        assert_eq!(visible[3].as_ref().map(|item| item.title.as_str()), Some("toast-2"));
+    }
+
+    #[test]
+    fn prune_expired_toasts_removes_only_elapsed_entries() {
+        let mut state = SonnerGlobalState::default();
+        state.toasts.push_back(entry("expired", Some(1.0)));
+        state.toasts.push_back(entry("active", Some(10.0)));
+        state.toasts.push_back(entry("manual", None));
+
+        let changed = ShadSonner::prune_expired_toasts(&mut state, 5.0);
+
+        assert!(changed);
+        assert_eq!(state.toasts.len(), 2);
+        assert_eq!(state.toasts[0].item.title, "active");
+        assert_eq!(state.toasts[1].item.title, "manual");
+    }
+}

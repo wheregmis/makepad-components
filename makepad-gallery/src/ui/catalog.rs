@@ -111,6 +111,10 @@ pub fn entry_for_page(page: LiveId) -> Option<&'static GalleryCatalogEntry> {
     GALLERY_CATALOG.iter().find(|entry| entry.page == page)
 }
 
+pub fn entry_for_route(route: &str) -> Option<&'static GalleryCatalogEntry> {
+    GALLERY_CATALOG.iter().find(|entry| entry.route == route)
+}
+
 #[cfg_attr(not(test), allow(dead_code))]
 pub fn entry_for_sidebar(sidebar_id: LiveId) -> Option<&'static GalleryCatalogEntry> {
     GALLERY_CATALOG
