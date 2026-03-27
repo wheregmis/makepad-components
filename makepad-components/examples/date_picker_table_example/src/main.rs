@@ -78,6 +78,7 @@ script_mod! {
                     tasks_table := ShadTable{
                         width: Fill
                         height: Fit
+                        viewport_height: 240.0
                         caption: "Tasks"
                         empty_message: "Pick a date to load schedule rows."
                         headers: ["Time" "Task" "Status"]

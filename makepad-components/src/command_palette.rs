@@ -320,6 +320,10 @@ pub struct ShadCommandPalette {
     overlay: WidgetRef,
     #[live]
     open: bool,
+    /// Height of the scrollable results viewport (PortalList) inside the modal.
+    /// Callers should size this instead of trying to force the overall widget height.
+    #[live(320.0)]
+    viewport_height: f64,
     #[walk]
     walk: Walk,
     #[layout]
@@ -364,6 +368,15 @@ impl ScriptHook for ShadCommandPalette {
         _value: ScriptValue,
     ) {
         vm.with_cx_mut(|cx| {
+            // Keep the widget reusable: callers own the results viewport height.
+            let viewport_height = self.viewport_height;
+            let mut results_list = self
+                .overlay
+                .portal_list(cx, ids!(content.panel.results_shell.results));
+            script_apply_eval!(cx, results_list, {
+                height: #(viewport_height)
+            });
+
             self.sync_modal_state(cx);
             self.refresh_results(cx);
         });

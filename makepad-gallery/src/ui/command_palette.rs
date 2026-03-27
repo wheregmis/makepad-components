@@ -24,6 +24,7 @@ script_mod! {
     mod.widgets.GalleryCommandPalette = mod.widgets.ShadCommandPalette{
         item_noun_plural: "gallery components"
         search_help: "Search by title, section, or shortcut tag."
+        viewport_height: 320.0
 
         overlay +: {
             content +: {
