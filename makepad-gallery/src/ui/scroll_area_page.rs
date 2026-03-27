@@ -1,6 +1,8 @@
 use crate::ui::page_macros::gallery_static_page;
 use makepad_components::makepad_widgets::*;
 
+const SCROLL_AREA_VERTICAL_HEIGHT: f64 = 220.0;
+
 gallery_static_page! {
     root: ShadScrollArea,
     widget: GalleryScrollAreaPage,
@@ -14,7 +16,7 @@ gallery_static_page! {
         ShadPanel{
             scroll_area_demo := ShadScrollArea{
                 width: Fill
-                height: 220
+                height: #(SCROLL_AREA_VERTICAL_HEIGHT)
 
                 View{
                     width: Fill

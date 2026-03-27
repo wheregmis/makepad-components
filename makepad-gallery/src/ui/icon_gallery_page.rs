@@ -6,6 +6,8 @@ use makepad_components::makepad_widgets::*;
 use makepad_components::table::ShadTableWidgetExt;
 use std::sync::Arc;
 
+const ICON_RESULTS_VIEWPORT_HEIGHT: f64 = 420.0;
+
 macro_rules! icon_gallery_page_generated {
     ($($icon_rows:tt)*) => {
         gallery_stateful_page_shell! {
@@ -107,7 +109,7 @@ macro_rules! icon_gallery_page_generated {
                                 header := mod.widgets.ShadTableHeaderView{}
                                 list := PortalList{
                                     width: Fill
-                                    height: 420.0
+                                    height: #(ICON_RESULTS_VIEWPORT_HEIGHT)
                                     flow: Down
                                     max_pull_down: 0.0
                                     capture_overload: true
