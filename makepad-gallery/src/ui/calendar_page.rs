@@ -51,7 +51,7 @@ gallery_stateful_page_shell! {
     },
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct GalleryCalendarPage {
     #[source]
     source: ScriptObjectRef,
@@ -60,20 +60,35 @@ pub struct GalleryCalendarPage {
 }
 
 impl GalleryCalendarPage {
-    fn sync_status(&self, cx: &mut Cx) {
+    fn sync_ui(&self, cx: &mut Cx) {
         let calendar = self.view.shad_calendar(cx, ids!(calendar_demo));
-        let selected = calendar
-            .value()
-            .map(|value| value.format_iso())
-            .unwrap_or_else(|| "None".to_string());
+        let selected = calendar.value().map(|value| value.format_iso());
         let visible = calendar
             .visible_month()
             .map(|(year, month)| format!("{year:04}-{month:02}"))
             .unwrap_or_else(|| "Unknown".to_string());
+        self.view
+            .button(cx, ids!(calendar_clear_btn))
+            .set_enabled(cx, selected.is_some());
         self.view.label(cx, ids!(calendar_status)).set_text(
             cx,
-            &format!("Selected: {selected}. Visible month: {visible}."),
+            &match selected {
+                Some(selected) => format!("Selected: {selected}. Visible month: {visible}."),
+                None => format!("No date selected. Visible month: {visible}."),
+            },
         );
+    }
+}
+
+impl ScriptHook for GalleryCalendarPage {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| self.sync_ui(cx));
     }
 }
 
@@ -90,7 +105,7 @@ impl Widget for GalleryCalendarPage {
                 .clicked(actions)
             {
                 calendar.prev_month(cx);
-                self.sync_status(cx);
+                self.sync_ui(cx);
                 return;
             }
             if self
@@ -106,7 +121,7 @@ impl Widget for GalleryCalendarPage {
                         day: 13,
                     }),
                 );
-                self.sync_status(cx);
+                self.sync_ui(cx);
                 return;
             }
             if self
@@ -115,7 +130,7 @@ impl Widget for GalleryCalendarPage {
                 .clicked(actions)
             {
                 calendar.next_month(cx);
-                self.sync_status(cx);
+                self.sync_ui(cx);
                 return;
             }
             if self
@@ -124,12 +139,12 @@ impl Widget for GalleryCalendarPage {
                 .clicked(actions)
             {
                 calendar.clear(cx);
-                self.sync_status(cx);
+                self.sync_ui(cx);
                 return;
             }
 
             if calendar.changed(actions).is_some() {
-                self.sync_status(cx);
+                self.sync_ui(cx);
             }
         }
     }

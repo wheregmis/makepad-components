@@ -233,7 +233,6 @@ script_mod! {
                     }
                 }
                 on: AnimatorState{
-                    cursor: MouseCursor.Arrow
                     from: {all: Forward {duration: 0.0}}
                     apply: {
                         draw_bg: {focus: 1.0}
