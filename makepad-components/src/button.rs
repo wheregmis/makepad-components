@@ -20,6 +20,7 @@ script_mod! {
         padding: theme.mspace_1{left: theme.space_2, right: theme.space_2}
         margin: theme.mspace_v_1
         label_walk: Walk{width: Fit, height: Fit}
+        grab_key_focus: true
 
         draw_text +: {
             hover: 0.0

@@ -17,23 +17,73 @@ fn next_non_empty_segment<'a>(segments: &mut std::str::Split<'a, char>) -> Optio
     segments.by_ref().find(|seg| !seg.is_empty())
 }
 
-fn collect_tail(first: Option<&str>, segments: &mut std::str::Split<'_, char>) -> String {
-    let mut out = String::new();
-    let push_segment = |segment: &str, out: &mut String| {
+fn next_non_empty_segment_with_rest(path: &str) -> Option<(&str, &str)> {
+    let bytes = path.as_bytes();
+    let mut start = 0;
+    while start < bytes.len() && bytes[start] == b'/' {
+        start += 1;
+    }
+    if start >= bytes.len() {
+        return None;
+    }
+
+    let end = bytes[start..]
+        .iter()
+        .position(|&b| b == b'/')
+        .map(|offset| start + offset)
+        .unwrap_or(bytes.len());
+    Some((&path[start..end], &path[end..]))
+}
+
+fn normalize_remaining_tail(rest: &str) -> String {
+    if rest.is_empty() || rest.bytes().all(|b| b == b'/') {
+        return String::new();
+    }
+    if !rest.contains("//") && !rest.ends_with('/') {
+        // Optimization: root-prefix matches leave `remaining` without a leading slash.
+        // Preserve the documented contract here by returning either `""` or a slash-prefixed
+        // tail, while still avoiding the slower split/rebuild path for normalized suffixes.
+        let mut out = String::with_capacity(rest.len() + usize::from(!rest.starts_with('/')));
+        if !rest.starts_with('/') {
+            out.push('/');
+        }
+        out.push_str(rest);
+        return out;
+    }
+
+    let mut out = String::with_capacity(rest.len());
+    for segment in rest.split('/').filter(|segment| !segment.is_empty()) {
         out.push('/');
         out.push_str(segment);
-    };
+    }
+    out
+}
 
-    if let Some(first) = first {
-        if !first.is_empty() {
-            push_segment(first, &mut out);
-        }
+fn normalize_tail_with_head(first: &str, rest: &str) -> String {
+    if rest.is_empty() {
+        let mut out = String::with_capacity(first.len() + 1);
+        out.push('/');
+        out.push_str(first);
+        return out;
+    }
+    if !rest.contains("//") && !rest.ends_with('/') {
+        let mut out = String::with_capacity(first.len() + rest.len() + 1);
+        // Optimization: nested routers call `matches_prefix_with_tail` during path resolution.
+        // For already-normalized paths, copy the remaining suffix in one shot instead of
+        // rebuilding it segment-by-segment through `split()` and repeated `push_str()` calls.
+        out.push('/');
+        out.push_str(first);
+        out.push_str(rest);
+        return out;
     }
 
-    while let Some(seg) = next_non_empty_segment(segments) {
-        push_segment(seg, &mut out);
+    let mut out = String::with_capacity(first.len() + rest.len() + 1);
+    out.push('/');
+    out.push_str(first);
+    for segment in rest.split('/').filter(|segment| !segment.is_empty()) {
+        out.push('/');
+        out.push_str(segment);
     }
-
     out
 }
 
@@ -271,52 +321,43 @@ impl RoutePattern {
     pub fn matches_prefix_with_tail(&self, path: &str) -> Option<(RouteParams, String)> {
         let path = path.trim();
         let path = path.strip_prefix('/').unwrap_or(path);
-        let mut path_segments = path.split('/');
+        let mut remaining = path;
 
         let mut params = RouteParams::new();
-        let mut tail: Option<String> = None;
         let last_idx = self.segments.len().saturating_sub(1);
 
         for (pattern_idx, segment) in self.segments.iter().enumerate() {
             match segment {
                 RouteSegment::Static(expected) => {
-                    let actual = next_non_empty_segment(&mut path_segments)?;
+                    let (actual, rest) = next_non_empty_segment_with_rest(remaining)?;
                     if actual != expected {
                         return None;
                     }
+                    remaining = rest;
                 }
                 RouteSegment::Dynamic { key, .. } => {
-                    let value = next_non_empty_segment(&mut path_segments)?;
+                    let (value, rest) = next_non_empty_segment_with_rest(remaining)?;
                     use makepad_live_id::InternLiveId;
                     let param_value = LiveId::from_str_with_intern(value, InternLiveId::Yes);
                     params.add(*key, param_value);
+                    remaining = rest;
                 }
                 RouteSegment::WildcardSingle => {
-                    let matched = next_non_empty_segment(&mut path_segments)?;
+                    let (matched, rest) = next_non_empty_segment_with_rest(remaining)?;
                     // For nested routing we capture the tail if wildcard is trailing.
                     if pattern_idx == last_idx {
-                        tail = Some(collect_tail(Some(matched), &mut path_segments));
+                        return Some((params, normalize_tail_with_head(matched, rest)));
                     }
+                    remaining = rest;
                 }
                 RouteSegment::WildcardMulti => {
                     // Must be last (enforced by parser). Capture the rest (could be empty).
-                    tail = Some(collect_tail(
-                        next_non_empty_segment(&mut path_segments),
-                        &mut path_segments,
-                    ));
-                    return Some((params, tail.unwrap_or_default()));
+                    return Some((params, normalize_remaining_tail(remaining)));
                 }
             }
         }
 
-        if tail.is_none() {
-            tail = Some(collect_tail(
-                next_non_empty_segment(&mut path_segments),
-                &mut path_segments,
-            ));
-        }
-
-        Some((params, tail.unwrap_or_default()))
+        Some((params, normalize_remaining_tail(remaining)))
     }
 
     /// Get the priority for route matching (lower = higher priority)
@@ -515,6 +556,7 @@ impl DeRon for RouteParams {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::hint::black_box;
 
     #[test]
     fn test_pattern_parse_static() {
@@ -627,6 +669,15 @@ mod tests {
     }
 
     #[test]
+    fn test_pattern_prefix_tail_static_does_not_double_prefix_slash() {
+        let pattern = RoutePattern::parse("/admin").unwrap();
+        let (_params, tail) = pattern
+            .matches_prefix_with_tail("/admin/dashboard")
+            .unwrap();
+        assert_eq!(tail, "/dashboard");
+    }
+
+    #[test]
     fn test_pattern_prefix_tail_wildcard_single() {
         let pattern = RoutePattern::parse("/admin/*").unwrap();
         let (_params, tail) = pattern
@@ -669,6 +720,38 @@ mod tests {
         let pattern = RoutePattern::parse("/a/*/c").unwrap();
         let (_params, tail) = pattern.matches_prefix_with_tail("/a/x/c/d").unwrap();
         assert_eq!(tail, "/d");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_root_pattern_keeps_leading_slash() {
+        let pattern = RoutePattern::parse("/").unwrap();
+        let (_params, tail) = pattern.matches_prefix_with_tail("/a/b").unwrap();
+        assert_eq!(tail, "/a/b");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_root_wildcard_keeps_leading_slash() {
+        let pattern = RoutePattern::parse("/**").unwrap();
+        let (_params, tail) = pattern.matches_prefix_with_tail("/a/b").unwrap();
+        assert_eq!(tail, "/a/b");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_trims_trailing_slashes() {
+        let pattern = RoutePattern::parse("/admin").unwrap();
+        let (_params, tail) = pattern
+            .matches_prefix_with_tail("/admin/dashboard/")
+            .unwrap();
+        assert_eq!(tail, "/dashboard");
+    }
+
+    #[test]
+    fn test_pattern_prefix_tail_normalizes_duplicate_slashes() {
+        let pattern = RoutePattern::parse("/admin/*").unwrap();
+        let (_params, tail) = pattern
+            .matches_prefix_with_tail("/admin//dashboard//details/")
+            .unwrap();
+        assert_eq!(tail, "/dashboard/details");
     }
 
     #[test]
@@ -819,6 +902,101 @@ mod tests {
         let start = std::time::Instant::now();
         for _ in 0..iterations {
             sink += RoutePattern::parse(pattern).unwrap().segments.len();
+        }
+        let optimized_elapsed = start.elapsed();
+
+        eprintln!("legacy={legacy_elapsed:?} optimized={optimized_elapsed:?} sink={sink}");
+    }
+
+    #[test]
+    #[ignore = "benchmark-style measurement for nested-tail allocation reduction"]
+    fn bench_matches_prefix_with_tail_suffix_fast_path() {
+        fn legacy_collect_tail(
+            first: Option<&str>,
+            segments: &mut std::str::Split<'_, char>,
+        ) -> String {
+            let mut out = String::new();
+            if let Some(first) = first.filter(|segment| !segment.is_empty()) {
+                out.push('/');
+                out.push_str(first);
+            }
+            for segment in segments.by_ref().filter(|segment| !segment.is_empty()) {
+                out.push('/');
+                out.push_str(segment);
+            }
+            out
+        }
+
+        fn legacy_matches_prefix_with_tail(
+            pattern: &RoutePattern,
+            path: &str,
+        ) -> Option<(RouteParams, String)> {
+            let path = path.trim();
+            let path = path.strip_prefix('/').unwrap_or(path);
+            let mut path_segments = path.split('/');
+            let mut params = RouteParams::new();
+            let mut tail = None;
+            let last_idx = pattern.segments.len().saturating_sub(1);
+
+            for (pattern_idx, segment) in pattern.segments.iter().enumerate() {
+                match segment {
+                    RouteSegment::Static(expected) => {
+                        let actual = path_segments.by_ref().find(|segment| !segment.is_empty())?;
+                        if actual != expected {
+                            return None;
+                        }
+                    }
+                    RouteSegment::Dynamic { key, .. } => {
+                        let value = path_segments.by_ref().find(|segment| !segment.is_empty())?;
+                        use makepad_live_id::InternLiveId;
+                        params.add(*key, LiveId::from_str_with_intern(value, InternLiveId::Yes));
+                    }
+                    RouteSegment::WildcardSingle => {
+                        let matched = path_segments.by_ref().find(|segment| !segment.is_empty())?;
+                        if pattern_idx == last_idx {
+                            tail = Some(legacy_collect_tail(Some(matched), &mut path_segments));
+                        }
+                    }
+                    RouteSegment::WildcardMulti => {
+                        tail = Some(legacy_collect_tail(
+                            path_segments.by_ref().find(|segment| !segment.is_empty()),
+                            &mut path_segments,
+                        ));
+                        return Some((params, tail.unwrap_or_default()));
+                    }
+                }
+            }
+
+            if tail.is_none() {
+                tail = Some(legacy_collect_tail(
+                    path_segments.by_ref().find(|segment| !segment.is_empty()),
+                    &mut path_segments,
+                ));
+            }
+
+            Some((params, tail.unwrap_or_default()))
+        }
+
+        let pattern = RoutePattern::parse("/team/:team/*").unwrap();
+        let path = "/team/alpha/member/beta/details";
+        let iterations = 200_000;
+
+        let start = std::time::Instant::now();
+        let mut sink = 0usize;
+        for _ in 0..iterations {
+            sink += black_box(legacy_matches_prefix_with_tail(&pattern, path))
+                .unwrap()
+                .1
+                .len();
+        }
+        let legacy_elapsed = start.elapsed();
+
+        let start = std::time::Instant::now();
+        for _ in 0..iterations {
+            sink += black_box(pattern.matches_prefix_with_tail(path))
+                .unwrap()
+                .1
+                .len();
         }
         let optimized_elapsed = start.elapsed();
 

@@ -1,3 +1,7 @@
+## 2026-03-27 – [Disable no-op reset actions in demos]
+**Learning:** Gallery pages in this repo already use disabled reset buttons to show state honestly, but similar demo controls can drift and leave `Clear` actions clickable even when they do nothing.
+**Action:** When a Makepad demo page exposes `Clear`, `Reset`, or similar secondary actions, sync the enabled state from the underlying widget value on apply and after every interaction.
+
 ## 2024-05-24 - Accessibility improvements
 
 **Learning:** Buttons in the Makepad component library lack `cursor: MouseCursor.Hand` by default, making them feel less interactive. Also, buttons need aria labels.
@@ -46,3 +50,7 @@
 ## 2026-03-23 – [Arrow-key pickers should not become tab traps]
 **Learning:** In the gallery command palette, every result row inherited `grab_key_focus: true`, which turned a single search modal into a long sequence of extra tab stops even though the UI already teaches arrow-key selection plus Enter to open.
 **Action:** For searchable overlays in this codebase, keep focus on the input and primary actions; remove virtualized result rows from the tab order when keyboard selection is handled centrally.
+
+## 2026-03-26 – [Gallery snippets must mirror labeled field patterns]
+**Learning:** In this codebase, gallery snippets are copied directly into apps. When a snippet instantiates a field-like control such as `ShadDatePicker` without `ShadFieldLabel`, it quietly teaches a placeholder-only pattern even if the live preview beside it is properly labeled.
+**Action:** Keep snippet examples aligned with the gallery preview and wrap field-like controls in `ShadField` with a persistent label and supporting description when the control represents named form data.

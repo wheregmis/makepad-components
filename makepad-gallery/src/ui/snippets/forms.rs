@@ -35,8 +35,18 @@ pub const CHECKBOX_PREVIEW_CODE: &str = r#"View{
 // if self.reset_requested {
 //     accept_terms.set_checked(cx, false, animator::Animate::No);
 // }"#;
-pub const DATE_PICKER_PREVIEW_CODE: &str = r#"deadline_picker := ShadDatePicker{
-    value: "2026-03-13"
+pub const DATE_PICKER_PREVIEW_CODE: &str = r#"ShadField{
+    width: Fill
+    ShadFieldLabel{text: "Deadline"}
+
+    deadline_picker := ShadDatePicker{
+        width: Fill
+        value: "2026-03-13"
+    }
+
+    ShadFieldDescription{
+        text: "Keep a visible label so the field purpose stays clear after a date is selected."
+    }
 }
 
 // Controller example (Rust):
