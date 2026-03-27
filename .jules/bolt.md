@@ -59,3 +59,7 @@
 ## 2026-03-20 - Router query serialization should stream percent-encoding
 **Learning:** `makepad-router-core` rebuilt query strings by percent-encoding each key and value into temporary `String`s before copying them into the final URL, which adds heap churn on every router URL update.
 **Action:** For hot URL serialization paths, collect borrowed `(&str, &str)` entries, sort those, and write percent-encoded bytes directly into one pre-sized output buffer.
+
+## 2026-03-26 - Browser clean-path prefixing should avoid temporary RouterUrl parsing
+**Learning:** `makepad-router-widgets::prefix_clean_browser_base_path` sits on the browser sync path and was allocating three temporary `String`s via `RouterUrl::parse` just to prepend the base path and copy the same parts back out.
+**Action:** When a router helper only needs to reassemble an already-normalized URL, split borrowed `&str` slices for path/query/hash and append directly into one destination `String` instead of round-tripping through an owned parsed struct.
