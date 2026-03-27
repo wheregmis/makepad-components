@@ -51,7 +51,7 @@ gallery_stateful_page_shell! {
     },
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct GalleryCalendarPage {
     #[source]
     source: ScriptObjectRef,
