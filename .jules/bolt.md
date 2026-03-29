@@ -63,3 +63,7 @@
 ## 2026-03-26 - Browser clean-path prefixing should avoid temporary RouterUrl parsing
 **Learning:** `makepad-router-widgets::prefix_clean_browser_base_path` sits on the browser sync path and was allocating three temporary `String`s via `RouterUrl::parse` just to prepend the base path and copy the same parts back out.
 **Action:** When a router helper only needs to reassemble an already-normalized URL, split borrowed `&str` slices for path/query/hash and append directly into one destination `String` instead of round-tripping through an owned parsed struct.
+
+## 2026-03-28 - Query decode fast paths matter on router navigation
+**Learning:** `makepad-router-core::parse_query_map` was paying the full percent-decoding path for every key/value, including the common case where query pairs were already plain ASCII. That added an avoidable `Vec<u8>` allocation plus UTF-8 reconstruction per component, and the map also rehashed as pairs were inserted.
+**Action:** In hot router parsing code, pre-reserve container capacity from delimiter counts and add a plain-input fast path before falling back to percent decoding.

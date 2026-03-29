@@ -147,7 +147,11 @@ pub fn parse_query_map(query: &str) -> HashMap<String, String> {
     if q.is_empty() {
         return HashMap::new();
     }
-    let mut out = HashMap::new();
+    // Optimization: reserve once for the approximate pair count before decoding.
+    // Previously: the map started empty and grew reactively while parsing each
+    // query pair, which adds rehashing churn on router navigation paths.
+    let pair_capacity = q.as_bytes().iter().filter(|&&b| b == b'&').count() + 1;
+    let mut out = HashMap::with_capacity(pair_capacity);
     for pair in q.split('&') {
         if pair.is_empty() {
             continue;
@@ -201,6 +205,13 @@ pub fn build_query_string(map: &HashMap<String, String>) -> String {
 }
 
 fn decode_www_form_component(input: &str) -> String {
+    // Optimization: most router query keys/values are already plain ASCII.
+    // Previously: every component allocated a Vec<u8> and ran UTF-8 conversion
+    // even when no '+' or '%' decoding was needed.
+    if !input.as_bytes().iter().any(|&b| matches!(b, b'+' | b'%')) {
+        return input.to_owned();
+    }
+
     let mut bytes = Vec::<u8>::with_capacity(input.len());
     let mut iter = input.as_bytes().iter().copied().peekable();
     while let Some(b) = iter.next() {
@@ -396,6 +407,78 @@ mod tests {
 
         println!(
             "old_build_query_string={:?} new_build_query_string={:?} improvement={:.2}%",
+            old_elapsed,
+            new_elapsed,
+            (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
+        );
+    }
+
+    #[test]
+    #[ignore = "micro-benchmark; run explicitly in release mode for stable numbers"]
+    fn parse_query_map_plain_component_fast_path_benchmark() {
+        fn old_decode_www_form_component(input: &str) -> String {
+            let mut bytes = Vec::<u8>::with_capacity(input.len());
+            let mut iter = input.as_bytes().iter().copied().peekable();
+            while let Some(b) = iter.next() {
+                match b {
+                    b'+' => bytes.push(b' '),
+                    b'%' => {
+                        let hi = iter.next();
+                        let lo = iter.next();
+                        if let (Some(hi), Some(lo)) = (hi, lo) {
+                            if let (Some(hi), Some(lo)) = (super::hex_val(hi), super::hex_val(lo)) {
+                                bytes.push((hi << 4) | lo);
+                            }
+                        }
+                    }
+                    _ => bytes.push(b),
+                }
+            }
+            String::from_utf8(bytes).unwrap_or_else(|_| input.to_string())
+        }
+
+        fn old_parse_query_map(query: &str) -> HashMap<String, String> {
+            let q = query.trim();
+            let q = q.strip_prefix('?').unwrap_or(q);
+            if q.is_empty() {
+                return HashMap::new();
+            }
+            let mut out = HashMap::new();
+            for pair in q.split('&') {
+                if pair.is_empty() {
+                    continue;
+                }
+                let (k, v) = match pair.split_once('=') {
+                    Some((k, v)) => (k, v),
+                    None => (pair, ""),
+                };
+                let key = old_decode_www_form_component(k);
+                if key.is_empty() {
+                    continue;
+                }
+                let val = old_decode_www_form_component(v);
+                out.insert(key, val);
+            }
+            out
+        }
+
+        const ITERATIONS: usize = 200_000;
+        let query = "?tab=overview&filter=admins&page=42&redirect=/settings/profile";
+
+        let old_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(old_parse_query_map(query));
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(super::parse_query_map(query));
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!(
+            "old_parse_query_map={:?} new_parse_query_map={:?} improvement={:.2}%",
             old_elapsed,
             new_elapsed,
             (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
