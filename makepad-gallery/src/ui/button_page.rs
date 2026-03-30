@@ -107,6 +107,7 @@ gallery_static_page! {
             ShadButtonIcon{text: "✓"}
 
             IconButtonChevronLeft{
+                aria_label: "Previous"
                 width: 36
                 height: 36
                 draw_bg +: {
@@ -121,6 +122,7 @@ gallery_static_page! {
             }
 
             IconButtonChevronRight{
+                aria_label: "Next"
                 width: 36
                 height: 36
                 draw_bg +: {
@@ -135,6 +137,7 @@ gallery_static_page! {
             }
 
             IconButtonX{
+                aria_label: "Close"
                 width: 36
                 height: 36
                 draw_bg +: {

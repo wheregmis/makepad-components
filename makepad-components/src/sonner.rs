@@ -125,6 +125,7 @@ script_mod! {
             }
 
             close_btn := mod.widgets.IconButtonX{
+                aria_label: "Close"
                 visible: false
                 width: 24
                 height: 24

@@ -19,6 +19,7 @@ gallery_static_page! {
             align: Align{y: 0.5}
 
             IconButtonChevronLeft{
+                aria_label: "Go back"
                 draw_bg +: {
                     color: (shad_theme.color_secondary)
                     border_size: 1.0
@@ -38,6 +39,7 @@ gallery_static_page! {
                 ShadButtonGroupItem{text: "Snooze"}
                 ShadButtonGroupSeparator{}
                 IconButtonMoreHorizontal{
+                    aria_label: "More options"
                     width: 36
                     height: 36
                     draw_bg +: {

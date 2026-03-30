@@ -62,6 +62,7 @@ script_mod! {
 
     // Named nav button types for prev/next, sharing the same outline styling.
     mod.widgets.ShadCarouselPrevBtn = mod.widgets.IconButtonChevronLeft{
+        aria_label: "Previous slide"
         width: 32
         height: 32
         draw_bg +: {
@@ -80,6 +81,7 @@ script_mod! {
     }
 
     mod.widgets.ShadCarouselNextBtn = mod.widgets.IconButtonChevronRight{
+        aria_label: "Next slide"
         width: 32
         height: 32
         draw_bg +: {
