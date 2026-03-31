@@ -63,3 +63,7 @@
 ## 2026-03-26 - Browser clean-path prefixing should avoid temporary RouterUrl parsing
 **Learning:** `makepad-router-widgets::prefix_clean_browser_base_path` sits on the browser sync path and was allocating three temporary `String`s via `RouterUrl::parse` just to prepend the base path and copy the same parts back out.
 **Action:** When a router helper only needs to reassemble an already-normalized URL, split borrowed `&str` slices for path/query/hash and append directly into one destination `String` instead of round-tripping through an owned parsed struct.
+
+## 2024-05-24 – Eliminate Unnecessary Rc Cloning in Hot Paths
+**Learning:** In Makepad codebases, referencing global state via `cx.global::<T>()` returns a reference. By default, attempting to hold this reference across mutable operations on `cx` will cause borrow-checker errors. A common, but inefficient, workaround is to `.clone()` the underlying `Rc`/`Arc` wrapper. This cloning increments/decrements the atomic reference counter, causing unnecessary heap-level churn, particularly when done inside event or draw loops (e.g. `on_after_apply`).
+**Action:** Always prefer borrowing the `RefCell` state directly from the `cx.global()` reference inside a tight block scope `{ let state = cx.global::<T>().state.borrow(); ... }`. This immediately drops the borrow guard and the reference to the global object before any subsequent mutable `cx` operations, completely eliminating the need to clone the `Rc`/`Arc`.
