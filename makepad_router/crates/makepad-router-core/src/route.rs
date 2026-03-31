@@ -111,6 +111,11 @@ impl Route {
         url::build_query_string(&self.query.data)
     }
 
+    /// Append the stored query string directly into an existing URL buffer.
+    pub fn append_query_string(&self, out: &mut String) {
+        url::append_query_string(out, &self.query.data);
+    }
+
     /// Get a query value by key.
     pub fn query_get(&self, key: &str) -> Option<&str> {
         self.query.get(key)

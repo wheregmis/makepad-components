@@ -171,6 +171,17 @@ pub fn build_query_string(map: &HashMap<String, String>) -> String {
     if map.is_empty() {
         return String::new();
     }
+    let mut out = String::new();
+    append_query_string(&mut out, map);
+    out
+}
+
+/// Append a stable, sorted query string directly into an existing buffer.
+pub fn append_query_string(out: &mut String, map: &HashMap<String, String>) {
+    if map.is_empty() {
+        return;
+    }
+
     let mut entries: Vec<(&str, &str)> = map
         .iter()
         .map(|(key, value)| (key.as_str(), value.as_str()))
@@ -181,23 +192,22 @@ pub fn build_query_string(map: &HashMap<String, String>) -> String {
         .iter()
         .map(|(key, value)| key.len() + value.len() + usize::from(!value.is_empty()) + 1)
         .sum::<usize>();
-    let mut out = String::with_capacity(estimated_len);
+    // Optimization: router URL assembly already owns the destination `String`.
+    // Previously: we built a temporary query `String` via `build_query_string` and then copied
+    // it into the final URL buffer. Appending directly keeps the stable/sorted output while
+    // removing one whole allocation/copy from current/preview URL generation.
+    out.reserve(estimated_len);
     out.push('?');
     for (i, (key, value)) in entries.iter().enumerate() {
         if i > 0 {
             out.push('&');
         }
-        // Optimization: write percent-encoded bytes directly into the final query buffer.
-        // Previously: each key/value called `encode_www_form_component`, which built a
-        // temporary String before copying it into `out`, multiplying heap churn for hot
-        // router URL updates. Streaming keeps the same output with one destination buffer.
-        encode_www_form_component_into(&mut out, key);
+        encode_www_form_component_into(out, key);
         if !value.is_empty() {
             out.push('=');
-            encode_www_form_component_into(&mut out, value);
+            encode_www_form_component_into(out, value);
         }
     }
-    out
 }
 
 fn decode_www_form_component(input: &str) -> String {
@@ -412,72 +422,33 @@ mod tests {
 
     #[test]
     #[ignore = "micro-benchmark; run explicitly in release mode for stable numbers"]
-    fn parse_query_map_fast_path_benchmark() {
-        fn old_decode_www_form_component(input: &str) -> String {
-            let mut bytes = Vec::<u8>::with_capacity(input.len());
-            let mut iter = input.as_bytes().iter().copied().peekable();
-            while let Some(b) = iter.next() {
-                match b {
-                    b'+' => bytes.push(b' '),
-                    b'%' => {
-                        let hi = iter.next();
-                        let lo = iter.next();
-                        if let (Some(hi), Some(lo)) = (hi, lo) {
-                            if let (Some(hi), Some(lo)) = (super::hex_val(hi), super::hex_val(lo)) {
-                                bytes.push((hi << 4) | lo);
-                            }
-                        }
-                    }
-                    _ => bytes.push(b),
-                }
-            }
-            String::from_utf8(bytes).unwrap_or_else(|_| input.to_string())
-        }
-
-        fn old_parse_query_map(query: &str) -> HashMap<String, String> {
-            let q = query.trim();
-            let q = q.strip_prefix('?').unwrap_or(q);
-            if q.is_empty() {
-                return HashMap::new();
-            }
-            let mut out = HashMap::new();
-            for pair in q.split('&') {
-                if pair.is_empty() {
-                    continue;
-                }
-                let (k, v) = match pair.split_once('=') {
-                    Some((k, v)) => (k, v),
-                    None => (pair, ""),
-                };
-                let key = old_decode_www_form_component(k);
-                if key.is_empty() {
-                    continue;
-                }
-                let val = old_decode_www_form_component(v);
-                out.insert(key, val);
-            }
-            out
-        }
-
+    fn append_query_string_avoids_temporary_copy_benchmark() {
+        let mut query = HashMap::new();
+        query.insert("tab".to_string(), "team members".to_string());
+        query.insert("filter".to_string(), "role=admin".to_string());
+        query.insert("page".to_string(), "42".to_string());
+        query.insert("empty".to_string(), String::new());
+        query.insert("redirect".to_string(), "/settings/profile".to_string());
         const ITERATIONS: usize = 200_000;
-        let query = "?tab=active&sort=desc&view=team-members&page=42&empty=";
 
         let old_start = Instant::now();
         for _ in 0..ITERATIONS {
-            black_box(old_parse_query_map(query));
+            let mut url = String::from("/dashboard/jobs");
+            url.push_str(&super::build_query_string(&query));
+            black_box(url);
         }
         let old_elapsed = old_start.elapsed();
 
         let new_start = Instant::now();
         for _ in 0..ITERATIONS {
-            black_box(super::parse_query_map(query));
+            let mut url = String::from("/dashboard/jobs");
+            super::append_query_string(&mut url, &query);
+            black_box(url);
         }
         let new_elapsed = new_start.elapsed();
 
         println!(
-            "old_parse_query_map={:?} new_parse_query_map={:?} improvement={:.2}%",
-            old_elapsed,
-            new_elapsed,
+            "append_query_string benchmark: old={old_elapsed:?} new={new_elapsed:?} improvement={:.2}%",
             (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
         );
     }

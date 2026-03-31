@@ -78,11 +78,13 @@ impl RouterWidget {
     }
 
     pub(super) fn url_for_route(&self, route: &crate::route::Route) -> String {
-        // Optimization: `current_path_for_route` already allocates the base URL path.
-        // Reuse that buffer for query/hash suffixes instead of formatting a second String.
+        // Optimization: `current_path_for_route` already allocates the destination URL buffer.
+        // Previously: query serialization built a temporary `String` and then copied it into
+        // `url`. Append the sorted query directly so current/preview URL generation does one
+        // less allocation on every navigation and browser-sync update.
         let mut url = self.current_path_for_route(route);
         if !route.query.data.is_empty() {
-            url.push_str(&route.query_string());
+            route.append_query_string(&mut url);
         }
         if !route.hash.is_empty() {
             url.push_str(&route.hash);
