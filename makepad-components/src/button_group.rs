@@ -24,15 +24,7 @@ script_mod! {
         variant_is_managed: true
         variant: ShadButtonVariant.Ghost
         managed_radius: 0.0
-        size_small_height: 28
-        size_default_height: 36
-        size_large_height: 44
-        size_small_padding_x: 12
-        size_default_padding_x: 16
         size_large_padding_x: 20
-        size_small_font_size: 10
-        size_default_font_size: 11
-        size_large_font_size: 13
         destructive_fill: #0000
         destructive_fill_hover: (shad_theme.color_destructive_hover)
         destructive_fill_down: (shad_theme.color_destructive_down)

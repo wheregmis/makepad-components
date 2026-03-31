@@ -655,6 +655,7 @@ impl ScriptHook for ShadNavButton {
         self.applied_variant = None;
         vm.with_cx_mut(|cx| {
             self.sync_managed_size(cx);
+            self.sync_managed_variant(cx);
         });
     }
 }
