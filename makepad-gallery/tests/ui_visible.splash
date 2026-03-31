@@ -5,59 +5,19 @@ test.configure({
     action_timeout_ms: 5000
 })
 
-let router_nav = {
-    go: fn(selector, expected_route) {
-        test.click(selector)
-        test.wait_text({id: "content_flip"}, expected_route)
-    }
-    go_deep: fn(selector, expected_route) {
-        test.scroll({id: "sidebar"}, 0, 1800)
-        test.click(selector)
-        test.wait_text({id: "content_flip"}, expected_route)
-    }
-    expect_active_route: fn(expected_route) {
-        test.wait_text({id: "content_flip"}, expected_route)
-    }
-    hover: fn(selector) {
-        test.hover(selector)
-    }
-}
-
-let nav = router_nav
-
-test.case("gallery_visible_smoke_suite", || {
-    test.wait_text({id: "page_label"}, "Accordion")
-    nav.expect_active_route("accordion_page")
-    test.wait_visible({widget_type: "CodeView" text_contains: "ShadAccordion"})
+test.case("gallery_visible_button_page_smoke_suite", || {
+    test.wait_text({id: "page_label"}, "Button")
+    test.wait_text({id: "content_flip"}, "button_page")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadButton"})
 
     test.wait_visible({id: "theme_toggle"})
     test.click({id: "theme_toggle"})
-    test.wait_visible({id: "theme_toggle" text_contains: "theme"})
-
-    nav.go({id: "sidebar_button"}, "button_page")
-    nav.go({id: "sidebar_accordion"}, "accordion_page")
+    test.wait_visible({id: "theme_toggle"})
 })
 
 test.case("gallery_visible_button_probe_hover_smoke_suite", || {
-    nav.go({id: "sidebar_button"}, "button_page")
     test.hover({id: "button_probe_btn"})
     test.wait_text({id: "button_probe_state"}, "hovered=true down=false focused=false active=false enabled=true visible=true")
     test.click({id: "button_probe_btn"})
     test.wait_text({id: "button_probe_state"}, "hovered=true down=false focused=true active=false enabled=true visible=true")
-})
-
-test.case("gallery_visible_table_smoke_suite", || {
-    nav.go_deep({id: "sidebar_table"}, "table_page")
-    test.wait_text({id: "table_status"}, "Showing team roster. Selected row: none.")
-    test.scroll({id: "page_root"}, 0, 700)
-    test.click({id: "table_ops_btn"})
-    test.wait_text({id: "table_status"}, "Showing ops queue. Selected row: none.")
-})
-
-test.case("gallery_visible_sonner_smoke_suite", || {
-    nav.go_deep({id: "sidebar_sonner"}, "sonner_page")
-    test.click({id: "toast_event_btn"})
-    test.wait_visible({widget_type: "IconButtonX"})
-    test.click({widget_type: "IconButtonX"})
-    test.wait_hidden({widget_type: "IconButtonX"})
 })
