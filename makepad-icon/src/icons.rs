@@ -22,31 +22,26 @@ macro_rules! define_lucide_icons {
             mod.widgets.IconButtonX = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
                 draw_icon.svg: crate_resource("self://resources/icons/x.svg")
-                aria_label: "Close"
             }
 
             mod.widgets.IconButtonChevronLeft = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
                 draw_icon.svg: crate_resource("self://resources/icons/chevron-left.svg")
-                aria_label: "Previous"
             }
 
             mod.widgets.IconButtonChevronRight = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
                 draw_icon.svg: crate_resource("self://resources/icons/chevron-right.svg")
-                aria_label: "Next"
             }
 
             mod.widgets.IconButtonMenu = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
                 draw_icon.svg: crate_resource("self://resources/icons/menu.svg")
-                aria_label: "Menu"
             }
 
             mod.widgets.IconButtonMoreHorizontal = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
                 draw_icon.svg: crate_resource("self://resources/icons/more-horizontal.svg")
-                aria_label: "More options"
             }
         }
     };

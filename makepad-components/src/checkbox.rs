@@ -273,6 +273,11 @@ impl Widget for ShadCheckbox {
         }
 
         cx.end_turtle_with_area(&mut self.area);
+
+        if self.grab_key_focus {
+            cx.add_nav_stop(self.area, NavRole::TextInput, Inset::default());
+        }
+
         DrawStep::done()
     }
 }

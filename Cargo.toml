@@ -27,10 +27,10 @@ makepad-router-core = { path = "makepad_router/crates/makepad-router-core", vers
 makepad-router-widgets = { path = "makepad_router/crates/makepad-router-widgets", version = "1.0.0" }
 
 [patch."https://github.com/wheregmis/makepad.git"]
-makepad-live-id = { path = "../makepad/libs/live_id" }
-makepad-micro-serde = { path = "../makepad/libs/micro_serde" }
-makepad-draw = { path = "../makepad/draw" }
-makepad-widgets = { path = "../makepad/widgets" }
+# makepad-live-id = { path = "../makepad/libs/live_id" }
+# makepad-micro-serde = { path = "../makepad/libs/micro_serde" }
+# makepad-draw = { path = "../makepad/draw" }
+# makepad-widgets = { path = "../makepad/widgets" }
 
 [profile.small]
 inherits = "release"
