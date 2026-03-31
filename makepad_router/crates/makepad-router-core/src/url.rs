@@ -147,7 +147,7 @@ pub fn parse_query_map(query: &str) -> HashMap<String, String> {
     if q.is_empty() {
         return HashMap::new();
     }
-    let mut out = HashMap::new();
+    let mut out = HashMap::with_capacity(q.as_bytes().iter().filter(|&&b| b == b'&').count() + 1);
     for pair in q.split('&') {
         if pair.is_empty() {
             continue;
@@ -211,6 +211,14 @@ pub fn append_query_string(out: &mut String, map: &HashMap<String, String>) {
 }
 
 fn decode_www_form_component(input: &str) -> String {
+    // Optimization: most router query keys/values are already plain ASCII.
+    // Previously: every component allocated a scratch `Vec<u8>` and rebuilt a `String`,
+    // even when there was nothing to decode. Fast-path those common inputs so query parsing
+    // only pays the byte-buffer cost for actual `%xx` or `+` decoding.
+    if !input.as_bytes().iter().any(|&b| matches!(b, b'+' | b'%')) {
+        return input.to_string();
+    }
+
     let mut bytes = Vec::<u8>::with_capacity(input.len());
     let mut iter = input.as_bytes().iter().copied().peekable();
     while let Some(b) = iter.next() {
