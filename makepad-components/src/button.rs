@@ -1199,6 +1199,7 @@ impl ShadButtonRef {
     pub fn set_enabled(&self, cx: &mut Cx, enabled: bool) {
         if let Some(mut inner) = self.0.borrow_mut::<ShadNavButton>() {
             inner.enabled = enabled;
+            inner.set_disabled(cx, !enabled);
             inner.redraw(cx);
         }
     }

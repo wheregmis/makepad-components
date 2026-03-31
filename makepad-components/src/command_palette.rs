@@ -680,6 +680,7 @@ impl ShadCommandPalette {
             .active_index
             .saturating_add_signed(delta as isize)
             .clamp(0, max_index);
+        self.search_input_ref(cx).focus(cx);
         self.scroll_active_into_view(cx);
         self.redraw(cx);
     }
