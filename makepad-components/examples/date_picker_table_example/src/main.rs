@@ -43,16 +43,28 @@ script_mod! {
                         flow: Down
                         spacing: 12.0
 
+                        deadline_field := ShadField{
+                            width: Fit
+
+                            ShadFieldLabel{
+                                text: "Task deadline"
+                            }
+
+                            deadline_picker := ShadDatePicker{
+                                value: "2026-03-13"
+                            }
+
+                            ShadFieldDescription{
+                                text: "Choose a date to load the matching schedule rows."
+                            }
+                        }
+
                         button_row := View{
                             width: Fill
                             height: Fit
                             flow: Right
                             spacing: 12.0
                             align: Align{y: 0.5}
-
-                            deadline_picker := ShadDatePicker{
-                                value: "2026-03-13"
-                            }
 
                             set_march_btn := ShadButton{
                                 text: "Set 2026-03-13"
@@ -63,9 +75,8 @@ script_mod! {
                                 text: "Set 2026-04-01"
                             }
 
-                            clear_btn := ShadButton{
-                                variant: ShadButtonVariant.Ghost
-                                text: "Clear"
+                            clear_btn := ShadButtonGhost{
+                                text: "Clear date"
                             }
                         }
 
@@ -168,6 +179,9 @@ impl App {
             .map(|value| value.format_iso())
             .unwrap_or_else(|| "none".to_string());
         let open_text = if picker.is_open() { "open" } else { "closed" };
+        self.ui
+            .button(cx, ids!(clear_btn))
+            .set_enabled(cx, selected.is_some());
 
         self.ui.label(cx, ids!(status)).set_text(
             cx,
