@@ -62,7 +62,7 @@ gallery_stateful_page_shell! {
     },
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct GalleryPaginationPage {
     #[source]
     source: ScriptObjectRef,
@@ -71,14 +71,10 @@ pub struct GalleryPaginationPage {
 }
 
 impl GalleryPaginationPage {
-    fn sync_status_labels(&self, cx: &mut Cx) {
+    fn sync_ui(&self, cx: &mut Cx) {
         let pagination = self.view.shad_pagination(cx, ids!(pagination_demo));
         let page = pagination.page();
         let page_count = pagination.page_count();
-        self.view.label(cx, ids!(pagination_status)).set_text(
-            cx,
-            &format!("Current page: {} of {}", page, page_count),
-        );
         self.view
             .button(cx, ids!(prev_external_btn))
             .set_enabled(cx, page > 1);
@@ -88,6 +84,10 @@ impl GalleryPaginationPage {
         self.view
             .button(cx, ids!(jump_last_btn))
             .set_enabled(cx, page < page_count);
+        self.view.label(cx, ids!(pagination_status)).set_text(
+            cx,
+            &format!("Current page: {page} of {page_count}"),
+        );
 
         let compact = self.view.shad_pagination(cx, ids!(pagination_compact));
         self.view
@@ -111,7 +111,7 @@ impl ScriptHook for GalleryPaginationPage {
         _scope: &mut Scope,
         _value: ScriptValue,
     ) {
-        vm.with_cx_mut(|cx| self.sync_status_labels(cx));
+        vm.with_cx_mut(|cx| self.sync_ui(cx));
     }
 }
 
@@ -128,7 +128,7 @@ impl Widget for GalleryPaginationPage {
                 .clicked(actions)
             {
                 pagination.prev(cx);
-                self.sync_status_labels(cx);
+                self.sync_ui(cx);
                 return;
             }
             if self
@@ -137,12 +137,12 @@ impl Widget for GalleryPaginationPage {
                 .clicked(actions)
             {
                 pagination.next(cx);
-                self.sync_status_labels(cx);
+                self.sync_ui(cx);
                 return;
             }
             if self.view.button(cx, ids!(jump_last_btn)).clicked(actions) {
                 pagination.set_page(cx, pagination.page_count());
-                self.sync_status_labels(cx);
+                self.sync_ui(cx);
                 return;
             }
 
@@ -153,7 +153,7 @@ impl Widget for GalleryPaginationPage {
                     .changed(actions)
                     .is_some()
             {
-                self.sync_status_labels(cx);
+                self.sync_ui(cx);
             }
         }
     }

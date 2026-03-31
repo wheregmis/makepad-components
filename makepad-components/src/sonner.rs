@@ -228,8 +228,10 @@ impl ScriptHook for ShadSonner {
             self.register_global_host(cx);
             if applied_open && self.last_applied_open != Some(true) {
                 let should_enqueue = {
-                    let global = cx.global::<SonnerGlobal>().clone();
-                    let state = global.state.borrow();
+                    // Optimization: avoid repeated cloning of the global Rc
+                    // Previously: cloned the Rc wrapper, then borrowed the RefCell
+                    // Now: directly borrow the RefCell from the global reference
+                    let state = cx.global::<SonnerGlobal>().state.borrow();
                     state.toasts.is_empty()
                 };
                 if should_enqueue {
@@ -306,8 +308,10 @@ impl ShadSonner {
     }
 
     fn is_global_host(&self, cx: &mut Cx) -> bool {
-        let global = cx.global::<SonnerGlobal>().clone();
-        let state = global.state.borrow();
+        // Optimization: avoid cloning the global Rc wrapper
+        // Previously: let global = cx.global::<SonnerGlobal>().clone();
+        // Now: borrow directly from the global state reference
+        let state = cx.global::<SonnerGlobal>().state.borrow();
         state.host_uid == Some(self.widget_uid())
     }
 
@@ -446,9 +450,11 @@ impl ShadSonner {
     }
 
     fn sync_overlay_open_state(&mut self, cx: &mut Cx) -> bool {
-        let global = cx.global::<SonnerGlobal>().clone();
+        // Optimization: avoid cloning the global Rc wrapper
+        // Previously: let global = cx.global::<SonnerGlobal>().clone(); let state = global.state.borrow();
+        // Now: borrow directly from the global state reference
         let (host_uid, open) = {
-            let state = global.state.borrow();
+            let state = cx.global::<SonnerGlobal>().state.borrow();
             (state.host_uid, !state.toasts.is_empty())
         };
         let is_host = host_uid == Some(self.widget_uid());
@@ -499,8 +505,10 @@ impl ShadSonner {
     // --- 核心推送方法 ---
     pub fn enqueue(&mut self, cx: &mut Cx, item: SonnerItem) {
         let (was_empty, needs_schedule) = {
-            let global = cx.global::<SonnerGlobal>().clone();
-            let mut state = global.state.borrow_mut();
+            // Optimization: avoid cloning the global Rc wrapper
+            // Previously: let global = cx.global::<SonnerGlobal>().clone(); let mut state = global.state.borrow_mut();
+            // Now: mutably borrow directly from the global state reference
+            let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
 
             let was_empty = state.toasts.is_empty();
 
@@ -529,8 +537,10 @@ impl ShadSonner {
 
     pub fn clear_global_toasts(&mut self, cx: &mut Cx, emit_action: bool) {
         let was_open = {
-            let global = cx.global::<SonnerGlobal>().clone();
-            let mut state = global.state.borrow_mut();
+            // Optimization: avoid cloning the global Rc wrapper
+            // Previously: let global = cx.global::<SonnerGlobal>().clone(); let mut state = global.state.borrow_mut();
+            // Now: mutably borrow directly from the global state reference
+            let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
             let was_open = !state.toasts.is_empty();
             state.toasts.clear();
             state.needs_next_frame = false;
@@ -545,8 +555,10 @@ impl ShadSonner {
 
     fn remove_visible_toast(&mut self, cx: &mut Cx, visible_index: usize) {
         let (was_open, is_open_now, needs_schedule) = {
-            let global = cx.global::<SonnerGlobal>().clone();
-            let mut state = global.state.borrow_mut();
+            // Optimization: avoid cloning the global Rc wrapper
+            // Previously: let global = cx.global::<SonnerGlobal>().clone(); let mut state = global.state.borrow_mut();
+            // Now: mutably borrow directly from the global state reference
+            let mut state = cx.global::<SonnerGlobal>().state.borrow_mut();
             if visible_index >= state.toasts.len() {
                 return;
             }
