@@ -5,16 +5,35 @@ test.configure({
     action_timeout_ms: 5000
 })
 
+let router_nav = {
+    go: fn(selector, expected_route) {
+        test.click(selector)
+        test.wait_text({id: "content_flip"}, expected_route)
+    }
+    go_deep: fn(selector, expected_route) {
+        test.scroll({id: "sidebar"}, 0, 1800)
+        test.click(selector)
+        test.wait_text({id: "content_flip"}, expected_route)
+    }
+    expect_active_route: fn(expected_route) {
+        test.wait_text({id: "content_flip"}, expected_route)
+    }
+    hover: fn(selector) {
+        test.hover(selector)
+    }
+}
+
+let nav = router_nav
+
 test.case("gallery_default_accordion_page_renders", || {
     test.wait_text({id: "page_label"}, "Accordion")
+    nav.expect_active_route("accordion_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadAccordion"})
 })
 
 test.case("gallery_sidebar_navigation_smoke", || {
-    test.click({id: "sidebar_button"})
-    test.wait_text({id: "page_label"}, "Button")
-    test.click({id: "sidebar_accordion"})
-    test.wait_text({id: "page_label"}, "Accordion")
+    nav.go({id: "sidebar_button"}, "button_page")
+    nav.go({id: "sidebar_accordion"}, "accordion_page")
 })
 
 test.case("gallery_theme_toggle_smoke", || {
@@ -26,65 +45,63 @@ test.case("gallery_theme_toggle_smoke", || {
 })
 
 test.case("gallery_button_page_routes_and_renders_preview", || {
-    test.click({id: "sidebar_button"})
-    test.wait_text({id: "page_label"}, "Button")
+    nav.go({id: "sidebar_button"}, "button_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadButton"})
 })
 
+test.case("gallery_button_probe_tracks_hover_focus_press_and_click_state", || {
+    nav.go({id: "sidebar_button"}, "button_page")
+    test.hover({id: "button_probe_btn"})
+    test.wait_text({id: "button_probe_state"}, "hovered=true down=false focused=false active=false enabled=true visible=true")
+    test.click({id: "button_probe_btn"})
+    test.wait_text({id: "button_probe_state"}, "hovered=true down=false focused=true active=false enabled=true visible=true")
+    test.hover({id: "page_label"})
+    test.wait_text({id: "button_probe_state"}, "hovered=false down=false focused=true active=false enabled=true visible=true")
+})
+
 test.case("gallery_badge_page_routes_and_renders_code", || {
-    test.click({id: "sidebar_badge"})
-    test.wait_text({id: "page_label"}, "Badge")
+    nav.go({id: "sidebar_badge"}, "badge_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadBadge"})
 })
 
 test.case("gallery_breadcrumb_page_routes_and_renders_code", || {
-    test.click({id: "sidebar_breadcrumb"})
-    test.wait_text({id: "page_label"}, "Breadcrumb")
+    nav.go({id: "sidebar_breadcrumb"}, "breadcrumb_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadBreadcrumb"})
 })
 
 test.case("gallery_button_group_page_routes_and_renders_code", || {
-    test.click({id: "sidebar_button_group"})
-    test.wait_text({id: "page_label"}, "Button Group")
+    nav.go({id: "sidebar_button_group"}, "button_group_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadButtonGroup"})
 })
 
 test.case("gallery_calendar_page_routes_and_renders_code", || {
-    test.click({id: "sidebar_calendar"})
-    test.wait_text({id: "page_label"}, "Calendar")
+    nav.go({id: "sidebar_calendar"}, "calendar_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadCalendar"})
 })
 
 test.case("gallery_card_page_routes_and_renders_code", || {
-    test.click({id: "sidebar_card"})
-    test.wait_text({id: "page_label"}, "Card")
+    nav.go({id: "sidebar_card"}, "card_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadCard"})
 })
 
 test.case("gallery_checkbox_page_routes_and_renders_code", || {
-    test.click({id: "sidebar_checkbox"})
-    test.wait_text({id: "page_label"}, "Checkbox")
+    nav.go({id: "sidebar_checkbox"}, "checkbox_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadCheckbox"})
 })
 
 test.case("gallery_collapsible_page_routes_and_renders_code", || {
-    test.click({id: "sidebar_collapsible"})
-    test.wait_text({id: "page_label"}, "Collapsible")
+    nav.go({id: "sidebar_collapsible"}, "collapsible_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadCollapsible"})
 })
 
 test.case("gallery_sonner_page_routes_and_renders_code", || {
-    test.scroll({id: "sidebar"}, 0, 1800)
-    test.click({id: "sidebar_sonner"})
-    test.wait_text({id: "page_label"}, "Sonner")
+    nav.go_deep({id: "sidebar_sonner"}, "sonner_page")
     test.wait_visible({id: "toast_event_btn"})
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadSonner"})
 })
 
 test.case("gallery_table_default_dataset_renders", || {
-    test.scroll({id: "sidebar"}, 0, 1800)
-    test.click({id: "sidebar_table"})
-    test.wait_text({id: "page_label"}, "Table")
+    nav.go_deep({id: "sidebar_table"}, "table_page")
     test.wait_visible({id: "table_demo"})
     test.scroll({id: "page_root"}, 0, 700)
     test.wait_text({id: "table_status"}, "Showing team roster. Selected row: none.")
@@ -92,9 +109,7 @@ test.case("gallery_table_default_dataset_renders", || {
 })
 
 test.case("gallery_table_switches_between_datasets", || {
-    test.scroll({id: "sidebar"}, 0, 1800)
-    test.click({id: "sidebar_table"})
-    test.wait_text({id: "page_label"}, "Table")
+    nav.go_deep({id: "sidebar_table"}, "table_page")
     test.scroll({id: "page_root"}, 0, 700)
     test.click({id: "table_ops_btn"})
     test.wait_text({id: "table_status"}, "Showing ops queue. Selected row: none.")
@@ -103,9 +118,7 @@ test.case("gallery_table_switches_between_datasets", || {
 })
 
 test.case("gallery_table_virtual_window_pages_forward_and_back", || {
-    test.scroll({id: "sidebar"}, 0, 1800)
-    test.click({id: "sidebar_table"})
-    test.wait_text({id: "page_label"}, "Table")
+    nav.go_deep({id: "sidebar_table"}, "table_page")
     test.scroll({id: "page_root"}, 0, 700)
     test.click({id: "table_virtual_btn"})
     test.wait_text({id: "table_status"}, "Showing virtual jobs 0..31 of 10000. Selected row: none.")

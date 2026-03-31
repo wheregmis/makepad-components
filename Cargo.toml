@@ -20,7 +20,7 @@ makepad-micro-serde = { git = "https://github.com/makepad/makepad.git", branch =
 makepad-draw = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "2.0.0" }
 makepad-widgets = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "2.0.0" }
 makepad-code-editor = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "2.0.0" }
-makepad-test = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "0.1.0" }
+makepad-test = { path = "../makepad/libs/makepad_test", version = "0.1.0" }
 makepad-components = { path = "makepad-components", version = "1.0.0" }
 makepad-icon = { path = "makepad-icon", version = "1.0.0" }
 makepad-router = { path = "makepad_router", version = "1.0.0" }

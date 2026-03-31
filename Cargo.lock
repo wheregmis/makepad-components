@@ -61,6 +61,10 @@ checksum = "5e764a1d40d510daf35e07be9eb06e75770908c27d411ee6c92109c9840eaaf7"
 [[package]]
 name = "bitflags"
 version = "2.10.0"
+
+[[package]]
+name = "bitflags"
+version = "2.10.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 
 [[package]]
@@ -262,9 +266,16 @@ dependencies = [
 [[package]]
 name = "makepad-apple-sys"
 version = "1.0.0"
+dependencies = [
+ "makepad-objc-sys 1.0.0",
+]
+
+[[package]]
+name = "makepad-apple-sys"
+version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-objc-sys",
+ "makepad-objc-sys 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -294,7 +305,7 @@ name = "makepad-derive-wasm-bridge"
 version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-micro-proc-macro",
+ "makepad-micro-proc-macro 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -302,8 +313,8 @@ name = "makepad-derive-widget"
 version = "2.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-live-id",
- "makepad-micro-proc-macro",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-micro-proc-macro 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -313,8 +324,8 @@ source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280
 dependencies = [
  "ab_glyph_rasterizer",
  "fxhash",
- "makepad-live-id",
- "makepad-math",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-math 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "makepad-platform",
  "makepad-svg",
  "makepad-webp",
@@ -330,9 +341,16 @@ dependencies = [
 [[package]]
 name = "makepad-error-log"
 version = "1.0.0"
+dependencies = [
+ "makepad-micro-serde 1.0.0",
+]
+
+[[package]]
+name = "makepad-error-log"
+version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-micro-serde",
+ "makepad-micro-serde 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -354,7 +372,10 @@ dependencies = [
 [[package]]
 name = "makepad-fast-inflate"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
+
+[[package]]
+name = "makepad-filesystem-watcher"
+version = "0.1.0"
 
 [[package]]
 name = "makepad-filesystem-watcher"
@@ -365,6 +386,10 @@ source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280
 name = "makepad-futures"
 version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
+
+[[package]]
+name = "makepad-futures-legacy"
+version = "1.0.0"
 
 [[package]]
 name = "makepad-futures-legacy"
@@ -385,7 +410,6 @@ dependencies = [
 [[package]]
 name = "makepad-git"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
  "makepad-fast-inflate",
 ]
@@ -393,9 +417,16 @@ dependencies = [
 [[package]]
 name = "makepad-html"
 version = "1.0.0"
+dependencies = [
+ "makepad-live-id 1.0.0",
+]
+
+[[package]]
+name = "makepad-html"
+version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-live-id",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -422,9 +453,23 @@ dependencies = [
 [[package]]
 name = "makepad-live-id"
 version = "1.0.0"
+dependencies = [
+ "makepad-live-id-macros 1.0.0",
+]
+
+[[package]]
+name = "makepad-live-id"
+version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-live-id-macros",
+ "makepad-live-id-macros 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "makepad-live-id-macros"
+version = "1.0.0"
+dependencies = [
+ "makepad-micro-proc-macro 1.0.0",
 ]
 
 [[package]]
@@ -432,7 +477,7 @@ name = "makepad-live-id-macros"
 version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-micro-proc-macro",
+ "makepad-micro-proc-macro 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -440,7 +485,14 @@ name = "makepad-live-reload-core"
 version = "0.1.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-filesystem-watcher",
+ "makepad-filesystem-watcher 0.1.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "makepad-math"
+version = "1.0.0"
+dependencies = [
+ "makepad-micro-serde 1.0.0",
 ]
 
 [[package]]
@@ -448,8 +500,12 @@ name = "makepad-math"
 version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-micro-serde",
+ "makepad-micro-serde 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
+
+[[package]]
+name = "makepad-micro-proc-macro"
+version = "1.0.0"
 
 [[package]]
 name = "makepad-micro-proc-macro"
@@ -459,10 +515,25 @@ source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280
 [[package]]
 name = "makepad-micro-serde"
 version = "1.0.0"
+dependencies = [
+ "makepad-live-id 1.0.0",
+ "makepad-micro-serde-derive 1.0.0",
+]
+
+[[package]]
+name = "makepad-micro-serde"
+version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-live-id",
- "makepad-micro-serde-derive",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-micro-serde-derive 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "makepad-micro-serde-derive"
+version = "1.0.0"
+dependencies = [
+ "makepad-micro-proc-macro 1.0.0",
 ]
 
 [[package]]
@@ -470,7 +541,20 @@ name = "makepad-micro-serde-derive"
 version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-micro-proc-macro",
+ "makepad-micro-proc-macro 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "makepad-network"
+version = "1.0.0"
+dependencies = [
+ "makepad-apple-sys 1.0.0",
+ "makepad-error-log 1.0.0",
+ "makepad-futures-legacy 1.0.0",
+ "makepad-live-id 1.0.0",
+ "makepad-micro-serde 1.0.0",
+ "makepad-script 1.0.0",
+ "windows 0.62.2",
 ]
 
 [[package]]
@@ -478,14 +562,18 @@ name = "makepad-network"
 version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-apple-sys",
- "makepad-error-log",
- "makepad-futures-legacy",
- "makepad-live-id",
- "makepad-micro-serde",
- "makepad-script",
- "windows",
+ "makepad-apple-sys 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-error-log 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-futures-legacy 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-micro-serde 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-script 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "windows 0.62.2 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
+
+[[package]]
+name = "makepad-objc-sys"
+version = "1.0.0"
 
 [[package]]
 name = "makepad-objc-sys"
@@ -498,20 +586,20 @@ version = "2.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
  "ash",
- "bitflags 2.10.0",
+ "bitflags 2.10.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "hilog-sys",
  "makepad-android-state",
- "makepad-apple-sys",
+ "makepad-apple-sys 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "makepad-futures",
- "makepad-futures-legacy",
+ "makepad-futures-legacy 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "makepad-jni-sys",
  "makepad-live-reload-core",
- "makepad-network",
- "makepad-objc-sys",
- "makepad-script",
- "makepad-script-std",
+ "makepad-network 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-objc-sys 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-script 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-script-std 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "makepad-shared-bytes",
- "makepad-studio-protocol",
+ "makepad-studio-protocol 0.1.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "makepad-tsdf",
  "makepad-wasm-bridge",
  "makepad-zune-png",
@@ -523,15 +611,18 @@ dependencies = [
  "wayland-client",
  "wayland-egl",
  "wayland-protocols",
- "windows",
- "windows-core",
+ "windows 0.62.2 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "windows-core 0.62.2 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "windows-targets",
 ]
 
 [[package]]
 name = "makepad-rabin-karp"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
+
+[[package]]
+name = "makepad-regex"
+version = "0.1.0"
 
 [[package]]
 name = "makepad-regex"
@@ -543,8 +634,8 @@ name = "makepad-router"
 version = "1.0.0"
 dependencies = [
  "makepad-draw",
- "makepad-live-id",
- "makepad-micro-serde",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-micro-serde 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "makepad-router-core",
  "makepad-router-widgets",
  "makepad-widgets",
@@ -554,8 +645,8 @@ dependencies = [
 name = "makepad-router-core"
 version = "1.0.0"
 dependencies = [
- "makepad-live-id",
- "makepad-micro-serde",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-micro-serde 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -563,8 +654,8 @@ name = "makepad-router-widgets"
 version = "1.0.0"
 dependencies = [
  "makepad-draw",
- "makepad-live-id",
- "makepad-micro-serde",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-micro-serde 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "makepad-router-core",
  "makepad-widgets",
 ]
@@ -572,15 +663,35 @@ dependencies = [
 [[package]]
 name = "makepad-script"
 version = "1.0.0"
+dependencies = [
+ "makepad-error-log 1.0.0",
+ "makepad-html 1.0.0",
+ "makepad-live-id 1.0.0",
+ "makepad-math 1.0.0",
+ "makepad-regex 0.1.0",
+ "makepad-script-derive 1.0.0",
+ "smallvec 1.15.1",
+]
+
+[[package]]
+name = "makepad-script"
+version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-error-log",
- "makepad-html",
- "makepad-live-id",
- "makepad-math",
- "makepad-regex",
- "makepad-script-derive",
+ "makepad-error-log 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-html 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-math 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-regex 0.1.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-script-derive 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "smallvec 1.15.1 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "makepad-script-derive"
+version = "1.0.0"
+dependencies = [
+ "makepad-micro-proc-macro 1.0.0",
 ]
 
 [[package]]
@@ -588,7 +699,15 @@ name = "makepad-script-derive"
 version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-micro-proc-macro",
+ "makepad-micro-proc-macro 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "makepad-script-std"
+version = "1.0.0"
+dependencies = [
+ "makepad-network 1.0.0",
+ "makepad-script 1.0.0",
 ]
 
 [[package]]
@@ -596,8 +715,8 @@ name = "makepad-script-std"
 version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-network",
- "makepad-script",
+ "makepad-network 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-script 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -608,18 +727,28 @@ source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280
 [[package]]
 name = "makepad-studio-hub"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-filesystem-watcher",
+ "makepad-filesystem-watcher 0.1.0",
  "makepad-git",
- "makepad-live-id",
- "makepad-micro-serde",
- "makepad-network",
+ "makepad-live-id 1.0.0",
+ "makepad-micro-serde 1.0.0",
+ "makepad-network 1.0.0",
  "makepad-rabin-karp",
- "makepad-regex",
- "makepad-script-std",
- "makepad-studio-protocol",
+ "makepad-regex 0.1.0",
+ "makepad-script-std 1.0.0",
+ "makepad-studio-protocol 0.1.0",
  "makepad-terminal-core",
+]
+
+[[package]]
+name = "makepad-studio-protocol"
+version = "0.1.0"
+dependencies = [
+ "bitflags 2.10.0",
+ "makepad-error-log 1.0.0",
+ "makepad-live-id 1.0.0",
+ "makepad-micro-serde 1.0.0",
+ "makepad-script 1.0.0",
 ]
 
 [[package]]
@@ -627,11 +756,11 @@ name = "makepad-studio-protocol"
 version = "0.1.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "bitflags 2.10.0",
- "makepad-error-log",
- "makepad-live-id",
- "makepad-micro-serde",
- "makepad-script",
+ "bitflags 2.10.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-error-log 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-micro-serde 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-script 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -639,28 +768,26 @@ name = "makepad-svg"
 version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-html",
- "makepad-live-id",
+ "makepad-html 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
 name = "makepad-terminal-core"
 version = "1.0.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "windows",
+ "windows 0.62.2",
 ]
 
 [[package]]
 name = "makepad-test"
 version = "0.1.0"
-source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-micro-serde",
- "makepad-network",
- "makepad-script-std",
+ "makepad-micro-serde 1.0.0",
+ "makepad-network 1.0.0",
+ "makepad-script-std 1.0.0",
  "makepad-studio-hub",
- "makepad-studio-protocol",
+ "makepad-studio-protocol 0.1.0",
  "png",
 ]
 
@@ -669,8 +796,8 @@ name = "makepad-tsdf"
 version = "0.1.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "makepad-math",
- "makepad-micro-serde",
+ "makepad-math 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "makepad-micro-serde 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -679,7 +806,7 @@ version = "1.0.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
  "makepad-derive-wasm-bridge",
- "makepad-live-id",
+ "makepad-live-id 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
 
 [[package]]
@@ -697,7 +824,7 @@ source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280
 dependencies = [
  "makepad-derive-widget",
  "makepad-draw",
- "makepad-html",
+ "makepad-html 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "makepad-latex-math",
  "pulldown-cmark",
  "ttf-parser",
@@ -885,7 +1012,7 @@ name = "pulldown-cmark"
 version = "0.12.2"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "bitflags 2.10.0",
+ "bitflags 2.10.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "memchr 2.7.6",
  "unicase",
 ]
@@ -955,9 +1082,9 @@ name = "rustybuzz"
 version = "0.18.0"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "bitflags 2.10.0",
+ "bitflags 2.10.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "bytemuck",
- "makepad-error-log",
+ "makepad-error-log 1.0.0 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "smallvec 1.15.1 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
  "ttf-parser",
  "unicode-bidi-mirroring",
@@ -987,6 +1114,10 @@ name = "simd-adler32"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "703d5c7ef118737c72f1af64ad2f6f8c5e1921f818cdcb97b8fe6fc69bf66214"
+
+[[package]]
+name = "smallvec"
+version = "1.15.1"
 
 [[package]]
 name = "smallvec"
@@ -1155,11 +1286,27 @@ dependencies = [
 [[package]]
 name = "windows"
 version = "0.62.2"
+dependencies = [
+ "windows-collections 0.3.2",
+ "windows-core 0.62.2",
+ "windows-future 0.3.2",
+]
+
+[[package]]
+name = "windows"
+version = "0.62.2"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "windows-collections",
- "windows-core",
- "windows-future",
+ "windows-collections 0.3.2 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "windows-core 0.62.2 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "windows-future 0.3.2 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "windows-collections"
+version = "0.3.2"
+dependencies = [
+ "windows-core 0.62.2",
 ]
 
 [[package]]
@@ -1167,7 +1314,16 @@ name = "windows-collections"
 version = "0.3.2"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "windows-core",
+ "windows-core 0.62.2 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "windows-core"
+version = "0.62.2"
+dependencies = [
+ "windows-link 0.2.1",
+ "windows-result 0.4.1",
+ "windows-strings 0.5.1",
 ]
 
 [[package]]
@@ -1176,8 +1332,15 @@ version = "0.62.2"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
  "windows-link 0.2.1 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
- "windows-result",
- "windows-strings",
+ "windows-result 0.4.1 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+ "windows-strings 0.5.1 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "windows-future"
+version = "0.3.2"
+dependencies = [
+ "windows-core 0.62.2",
 ]
 
 [[package]]
@@ -1185,8 +1348,12 @@ name = "windows-future"
 version = "0.3.2"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
- "windows-core",
+ "windows-core 0.62.2 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
 ]
+
+[[package]]
+name = "windows-link"
+version = "0.2.1"
 
 [[package]]
 name = "windows-link"
@@ -1202,9 +1369,23 @@ source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280
 [[package]]
 name = "windows-result"
 version = "0.4.1"
+dependencies = [
+ "windows-link 0.2.1",
+]
+
+[[package]]
+name = "windows-result"
+version = "0.4.1"
 source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"
 dependencies = [
  "windows-link 0.2.1 (git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test)",
+]
+
+[[package]]
+name = "windows-strings"
+version = "0.5.1"
+dependencies = [
+ "windows-link 0.2.1",
 ]
 
 [[package]]
@@ -1298,3 +1479,8 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[patch.unused]]
+name = "makepad-test"
+version = "0.1.0"
+source = "git+https://github.com/wheregmis/makepad.git?branch=ft_mod_test#034280be58e4e372a811d19ae5467e9cb3dc74aa"

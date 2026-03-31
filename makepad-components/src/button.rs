@@ -1075,6 +1075,26 @@ impl ShadNavButton {
     pub fn is_active(&self) -> bool {
         self.active
     }
+
+    pub fn is_hovered(&self, cx: &Cx) -> bool {
+        self.animator_in_state(cx, ids!(hover.on)) || self.animator_in_state(cx, ids!(hover.down))
+    }
+
+    pub fn is_down(&self, cx: &Cx) -> bool {
+        self.animator_in_state(cx, ids!(hover.down))
+    }
+
+    pub fn is_focused(&self, cx: &Cx) -> bool {
+        self.animator_in_state(cx, ids!(focus.on))
+    }
+
+    pub fn is_enabled(&self) -> bool {
+        self.enabled
+    }
+
+    pub fn is_visible(&self) -> bool {
+        self.visible
+    }
 }
 
 #[derive(Clone, Default)]
@@ -1198,5 +1218,35 @@ impl ShadButtonRef {
         self.0
             .borrow::<ShadNavButton>()
             .is_some_and(|inner| inner.is_active())
+    }
+
+    pub fn is_hovered(&self, cx: &Cx) -> bool {
+        self.0
+            .borrow::<ShadNavButton>()
+            .is_some_and(|inner| inner.is_hovered(cx))
+    }
+
+    pub fn is_down(&self, cx: &Cx) -> bool {
+        self.0
+            .borrow::<ShadNavButton>()
+            .is_some_and(|inner| inner.is_down(cx))
+    }
+
+    pub fn is_focused(&self, cx: &Cx) -> bool {
+        self.0
+            .borrow::<ShadNavButton>()
+            .is_some_and(|inner| inner.is_focused(cx))
+    }
+
+    pub fn is_enabled(&self) -> bool {
+        self.0
+            .borrow::<ShadNavButton>()
+            .is_some_and(|inner| inner.is_enabled())
+    }
+
+    pub fn is_visible(&self) -> bool {
+        self.0
+            .borrow::<ShadNavButton>()
+            .is_some_and(|inner| inner.is_visible())
     }
 }

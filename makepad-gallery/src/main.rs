@@ -69,9 +69,17 @@ impl App {
     }
 
     fn sync_content_route(&self, cx: &mut Cx) {
+        let router = self.ui.router_widget(cx, ids!(content_flip));
+        if router.current_route_id() != Some(self.current_page) {
+            router.go_to_route(cx, self.current_page);
+        }
+    }
+
+    fn active_page(&self, cx: &mut Cx) -> LiveId {
         self.ui
             .router_widget(cx, ids!(content_flip))
-            .go_to_route(cx, self.current_page);
+            .current_route_id()
+            .unwrap_or(self.current_page)
     }
 
     fn configure_header_adaptive_view(&self, cx: &mut Cx) {
@@ -145,7 +153,9 @@ impl App {
     }
 
     fn sync_page_metadata(&self, cx: &mut Cx) {
-        if let Some(entry) = catalog::entry_for_page(self.current_page) {
+        let page = self.active_page(cx);
+
+        if let Some(entry) = catalog::entry_for_page(page) {
             self.ui.label(cx, ids!(page_label)).set_text(cx, entry.title);
         }
         self.sync_sidebar_focus_behavior(cx);
@@ -164,9 +174,10 @@ impl App {
     }
 
     fn sync_sidebar_selection(&self, cx: &mut Cx) {
+        let page = self.active_page(cx);
         for entry in catalog::entries() {
             ShadSidebarItemRef(self.ui.widget(cx, &[entry.sidebar_id]))
-                .set_active(cx, entry.page == self.current_page);
+                .set_active(cx, entry.page == page);
         }
     }
 
@@ -260,6 +271,8 @@ pub struct App {
 
 impl MatchEvent for App {
     fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions) {
+        let router = self.ui.router_widget(cx, ids!(content_flip));
+
         let palette = self.ui.shad_command_palette(cx, ids!(command_palette));
         if let Some(index) = palette.selected(actions) {
             if let Some(entry) = catalog::entries().get(index) {
@@ -309,6 +322,13 @@ impl MatchEvent for App {
         {
             self.queue_open_command_palette(cx);
         }
+
+        if let Some(page) = router.current_route_id() {
+            if self.current_page != page {
+                self.current_page = page;
+            }
+        }
+        self.sync_page_metadata(cx);
     }
 }
 

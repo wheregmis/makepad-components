@@ -1,7 +1,8 @@
-use crate::ui::page_macros::gallery_static_page;
+use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::{ShadButtonRef, ShadButtonWidgetExt};
 use makepad_components::makepad_widgets::*;
 
-gallery_static_page! {
+gallery_stateful_page_shell! {
     widget: GalleryButtonPage,
     page: button_page,
     title: "Button",
@@ -9,6 +10,23 @@ gallery_static_page! {
     divider: { ShadHr{} },
     preview_spacing: 12.0,
     preview: {
+        ShadSectionHeader{ text: "Interaction Probe" }
+
+        View{
+            width: Fill
+            height: Fit
+            flow: Down
+            spacing: 8.0
+
+            button_probe_btn := ShadButton{
+                text: "Probe button"
+            }
+
+            button_probe_state := ShadFieldDescription{
+                text: "hovered=false down=false focused=false active=false enabled=true visible=true"
+            }
+        }
+
         ShadSectionHeader{ text: "Variants" }
 
         View{
@@ -178,12 +196,65 @@ gallery_static_page! {
                 draw_icon.color: (shad_theme.color_primary)
             }
         }
+
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. Start with ShadButton, then set `variant:` and `size:` on the instance instead of reaching for variant-specific widget names."}
-        mod.widgets.GalleryActionFlowStep{text: "2. Give each button that matters its own id, like save_btn or delete_btn."}
-        mod.widgets.GalleryActionFlowStep{text: "3. Read button clicks with ui.shad_button(cx, ids!(save_btn)).clicked(actions) in the page or feature controller."}
-        mod.widgets.GalleryActionFlowStep{text: "4. Keep business state outside the button itself; buttons emit the intent, the page decides what to do next."}
-        mod.widgets.GalleryActionFlowStep{text: "5. Derive disabled, loading, or confirm variants from page state instead of branching in the app shell."}
+        mod.widgets.GalleryActionFlowStep{text: "1. Give the button an id and read clicks with `ui.shad_button(cx, ids!(probe_btn)).clicked(actions)`."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Button refs also expose hover, down, focus, active, enabled, and visible queries for interaction tests."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Keep state in the page or feature owner so the button remains a leaf widget."}
+        mod.widgets.GalleryActionFlowStep{text: "4. Use a small probe section to verify hover, focus, and press behavior without coupling tests to layout internals."}
     },
+}
+
+#[derive(Script, Widget)]
+pub struct GalleryButtonPage {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl GalleryButtonPage {
+    fn probe_button(&self, cx: &Cx) -> ShadButtonRef {
+        self.view.shad_button(cx, ids!(button_probe_btn))
+    }
+
+    fn sync_probe_state(&self, cx: &mut Cx) {
+        let button = self.probe_button(cx);
+        self.view.label(cx, ids!(button_probe_state)).set_text(
+            cx,
+            &format!(
+                "hovered={} down={} focused={} active={} enabled={} visible={}",
+                button.is_hovered(cx),
+                button.is_down(cx),
+                button.is_focused(cx),
+                button.is_active(),
+                button.is_enabled(),
+                button.is_visible()
+            ),
+        );
+    }
+}
+
+impl ScriptHook for GalleryButtonPage {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| self.sync_probe_state(cx));
+    }
+}
+
+impl Widget for GalleryButtonPage {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+        self.sync_probe_state(cx);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
+    }
 }

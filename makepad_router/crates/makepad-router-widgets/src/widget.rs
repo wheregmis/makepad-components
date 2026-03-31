@@ -458,6 +458,14 @@ impl Widget for RouterWidget {
         self.poll_pending_navigation(cx);
     }
 
+    fn text(&self) -> String {
+        // Expose the active route to snapshot-based tests and selectors.
+        self.router
+            .current_route_id()
+            .map(|route_id| route_id.to_string())
+            .unwrap_or_default()
+    }
+
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         self.begin_overlay_layout(cx, walk);
         self.draw_active_routes(cx, scope)?;
