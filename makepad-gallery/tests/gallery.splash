@@ -1,0 +1,116 @@
+use mod.test
+
+test.configure({
+    session_mode: "shared"
+    action_timeout_ms: 5000
+})
+
+test.case("gallery_default_accordion_page_renders", || {
+    test.wait_text({id: "page_label"}, "Accordion")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadAccordion"})
+})
+
+test.case("gallery_sidebar_navigation_smoke", || {
+    test.click({id: "sidebar_button"})
+    test.wait_text({id: "page_label"}, "Button")
+    test.click({id: "sidebar_accordion"})
+    test.wait_text({id: "page_label"}, "Accordion")
+})
+
+test.case("gallery_theme_toggle_smoke", || {
+    test.wait_visible({id: "theme_toggle"})
+    test.click({id: "theme_toggle"})
+    test.wait_visible({id: "theme_toggle" text_contains: "theme"})
+    test.click({id: "theme_toggle"})
+    test.wait_visible({id: "theme_toggle" text_contains: "theme"})
+})
+
+test.case("gallery_button_page_routes_and_renders_preview", || {
+    test.click({id: "sidebar_button"})
+    test.wait_text({id: "page_label"}, "Button")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadButton"})
+})
+
+test.case("gallery_badge_page_routes_and_renders_code", || {
+    test.click({id: "sidebar_badge"})
+    test.wait_text({id: "page_label"}, "Badge")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadBadge"})
+})
+
+test.case("gallery_breadcrumb_page_routes_and_renders_code", || {
+    test.click({id: "sidebar_breadcrumb"})
+    test.wait_text({id: "page_label"}, "Breadcrumb")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadBreadcrumb"})
+})
+
+test.case("gallery_button_group_page_routes_and_renders_code", || {
+    test.click({id: "sidebar_button_group"})
+    test.wait_text({id: "page_label"}, "Button Group")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadButtonGroup"})
+})
+
+test.case("gallery_calendar_page_routes_and_renders_code", || {
+    test.click({id: "sidebar_calendar"})
+    test.wait_text({id: "page_label"}, "Calendar")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadCalendar"})
+})
+
+test.case("gallery_card_page_routes_and_renders_code", || {
+    test.click({id: "sidebar_card"})
+    test.wait_text({id: "page_label"}, "Card")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadCard"})
+})
+
+test.case("gallery_checkbox_page_routes_and_renders_code", || {
+    test.click({id: "sidebar_checkbox"})
+    test.wait_text({id: "page_label"}, "Checkbox")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadCheckbox"})
+})
+
+test.case("gallery_collapsible_page_routes_and_renders_code", || {
+    test.click({id: "sidebar_collapsible"})
+    test.wait_text({id: "page_label"}, "Collapsible")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadCollapsible"})
+})
+
+test.case("gallery_sonner_page_routes_and_renders_code", || {
+    test.scroll({id: "sidebar"}, 0, 1800)
+    test.click({id: "sidebar_sonner"})
+    test.wait_text({id: "page_label"}, "Sonner")
+    test.wait_visible({id: "toast_event_btn"})
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadSonner"})
+})
+
+test.case("gallery_table_default_dataset_renders", || {
+    test.scroll({id: "sidebar"}, 0, 1800)
+    test.click({id: "sidebar_table"})
+    test.wait_text({id: "page_label"}, "Table")
+    test.wait_visible({id: "table_demo"})
+    test.scroll({id: "page_root"}, 0, 700)
+    test.wait_text({id: "table_status"}, "Showing team roster. Selected row: none.")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadTable"})
+})
+
+test.case("gallery_table_switches_between_datasets", || {
+    test.scroll({id: "sidebar"}, 0, 1800)
+    test.click({id: "sidebar_table"})
+    test.wait_text({id: "page_label"}, "Table")
+    test.scroll({id: "page_root"}, 0, 700)
+    test.click({id: "table_ops_btn"})
+    test.wait_text({id: "table_status"}, "Showing ops queue. Selected row: none.")
+    test.click({id: "table_team_btn"})
+    test.wait_text({id: "table_status"}, "Showing team roster. Selected row: none.")
+})
+
+test.case("gallery_table_virtual_window_pages_forward_and_back", || {
+    test.scroll({id: "sidebar"}, 0, 1800)
+    test.click({id: "sidebar_table"})
+    test.wait_text({id: "page_label"}, "Table")
+    test.scroll({id: "page_root"}, 0, 700)
+    test.click({id: "table_virtual_btn"})
+    test.wait_text({id: "table_status"}, "Showing virtual jobs 0..31 of 10000. Selected row: none.")
+    test.click({id: "table_next_btn"})
+    test.wait_text({id: "table_status"}, "Showing virtual jobs 32..63 of 10000. Selected row: none.")
+    test.click({id: "table_prev_btn"})
+    test.wait_text({id: "table_status"}, "Showing virtual jobs 0..31 of 10000. Selected row: none.")
+})

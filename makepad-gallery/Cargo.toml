@@ -12,4 +12,4 @@ makepad-components = { workspace = true }
 makepad-router = { workspace = true }
 
 [dev-dependencies]
-makepad-test = { git = "https://github.com/makepad/makepad.git", branch = "dev", version = "0.1.0" }
+makepad-test = { workspace = true }

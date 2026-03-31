@@ -1,4 +1,4 @@
-use makepad_test::{KeyCode, Selector, TestApp, TestConfig, run_with_config};
+use makepad_test::{Selector, TestApp};
 
 #[allow(dead_code)]
 pub fn open_command_palette(app: &TestApp) {
@@ -22,8 +22,11 @@ pub fn select_page_from_command_palette(app: &TestApp, query: &str) {
     open_command_palette(app);
     app.locator(Selector::widget_type("TextInput"))
         .wait_visible()
+        .click()
         .type_text(query);
-    app.press_key(KeyCode::ReturnKey);
+    app.locator(Selector::widget_type("ShadCommandPaletteRowButton"))
+        .wait_visible()
+        .click();
 }
 
 #[allow(dead_code)]
@@ -40,19 +43,26 @@ pub fn assert_page_shell_and_code(app: &TestApp, marker: &str) {
 }
 
 #[allow(dead_code)]
-pub fn run_gallery_test<F>(module_path: &str, test_name: &str, initial_route: &str, test: F)
-where
-    F: FnOnce(TestApp),
-{
-    let mut config = TestConfig::current_package(
-        env!("CARGO_MANIFEST_DIR"),
-        env!("CARGO_PKG_NAME"),
-        format!("{module_path}::{test_name}"),
-    )
-    .expect("create makepad test config");
-    config.env.insert(
-        "MAKEPAD_GALLERY_INITIAL_ROUTE".to_string(),
-        initial_route.to_string(),
-    );
-    run_with_config(config, test).expect("run makepad gallery test");
+pub fn assert_theme_toggle_round_trip(app: &TestApp) {
+    let initial = app
+        .locator(Selector::id("theme_toggle"))
+        .wait_visible()
+        .snapshot()
+        .text
+        .expect("theme toggle should expose text");
+
+    let next_fragment = if initial.contains("Dark") {
+        "Light"
+    } else if initial.contains("Light") {
+        "Dark"
+    } else {
+        panic!("unexpected theme toggle label: {initial}");
+    };
+
+    app.locator(Selector::id("theme_toggle")).click();
+    app.locator(Selector::id("theme_toggle").text_contains(next_fragment))
+        .wait_visible();
+
+    app.locator(Selector::id("theme_toggle")).click();
+    app.locator(Selector::id("theme_toggle")).wait_text(initial);
 }

@@ -1,0 +1,39 @@
+use mod.test
+
+test.configure({
+    session_mode: "shared"
+    action_timeout_ms: 5000
+})
+
+test.case("gallery_visible_smoke_suite", || {
+    test.wait_text({id: "page_label"}, "Accordion")
+    test.wait_visible({widget_type: "CodeView" text_contains: "ShadAccordion"})
+
+    test.wait_visible({id: "theme_toggle"})
+    test.click({id: "theme_toggle"})
+    test.wait_visible({id: "theme_toggle" text_contains: "theme"})
+
+    test.click({id: "sidebar_button"})
+    test.wait_text({id: "page_label"}, "Button")
+    test.click({id: "sidebar_accordion"})
+    test.wait_text({id: "page_label"}, "Accordion")
+})
+
+test.case("gallery_visible_table_smoke_suite", || {
+    test.scroll({id: "sidebar"}, 0, 1800)
+    test.click({id: "sidebar_table"})
+    test.wait_text({id: "table_status"}, "Showing team roster. Selected row: none.")
+    test.scroll({id: "page_root"}, 0, 700)
+    test.click({id: "table_ops_btn"})
+    test.wait_text({id: "table_status"}, "Showing ops queue. Selected row: none.")
+})
+
+test.case("gallery_visible_sonner_smoke_suite", || {
+    test.scroll({id: "sidebar"}, 0, 1800)
+    test.click({id: "sidebar_sonner"})
+    test.wait_text({id: "page_label"}, "Sonner")
+    test.click({id: "toast_event_btn"})
+    test.wait_visible({widget_type: "IconButtonX"})
+    test.click({widget_type: "IconButtonX"})
+    test.wait_hidden({widget_type: "IconButtonX"})
+})

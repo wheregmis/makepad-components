@@ -658,6 +658,7 @@ mod tests {
     #[test]
     #[ignore = "micro-benchmark; run explicitly in release mode for stable numbers"]
     fn prefix_clean_browser_base_path_direct_append_benchmark() {
+        use makepad_router_core::RouterUrl;
         fn old_prefix_clean_browser_base_path(route_url: &str, base_path: &str) -> String {
             let normalized_base = RouterWidget::normalized_browser_base_path_cow(base_path);
             if normalized_base.is_empty() {
