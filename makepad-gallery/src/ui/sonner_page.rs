@@ -7,7 +7,7 @@ gallery_stateful_page_shell! {
     widget: GallerySonnerPage,
     page: sonner_page,
     title: "Sonner / Toast",
-    subtitle: "Toast notifications in a non-blocking overlay. Sonner variants share one global queue, so `ShadSonner`, `ShadSonnerWithDescription`, and `ShadSonner` all append into the same stack.",
+    subtitle: "Toast notifications in a non-blocking overlay. Sonner instances share one global queue, so every `ShadSonner` host appends into the same stack.",
     divider: { ShadHr{} },
     preview_spacing: 16.0,
     preview: {
@@ -31,7 +31,7 @@ gallery_stateful_page_shell! {
                 height: Fill
                 open: false
             }
-            toast_desc := ShadSonnerWithDescription{
+            toast_desc := ShadSonner{
                 width: Fill
                 height: Fill
                 open: false

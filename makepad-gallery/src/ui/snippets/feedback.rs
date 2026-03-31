@@ -145,11 +145,11 @@ ShadButton{text: "Event created"}
 ShadButton{text: "Toast with description"}
 }
 ShadSonner{open: false}
-ShadSonnerWithDescription{open: false}
+ShadSonner{open: false}
 
 // Toast with check icon + close button
 ShadButton{text: "Show toast with close"}
-ShadSonnerWithClose{open: false}
+ShadSonner{open: false}
 
 // Controller example (Rust):
 // let event_toast = self.ui.shad_sonner(cx, ids!(toast_event));
