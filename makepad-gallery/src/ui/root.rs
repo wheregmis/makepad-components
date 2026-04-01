@@ -1,6 +1,7 @@
 use crate::ui::registry::gallery_page_entries;
 use makepad_components::makepad_widgets::*;
 
+#[allow(unused_macros)]
 macro_rules! gallery_route_transition {
     (
         sidebar_id: $sidebar_id:ident,
