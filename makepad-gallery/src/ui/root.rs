@@ -1,27 +1,6 @@
 use crate::ui::registry::gallery_page_entries;
 use makepad_components::makepad_widgets::*;
 
-#[allow(unused_macros)]
-macro_rules! gallery_route_transition {
-    (
-        sidebar_id: $sidebar_id:ident,
-        sidebar_label: $sidebar_label:literal,
-        section: $section:literal,
-        shortcut: $shortcut:literal,
-        snippet: $snippet:ident,
-        transition: $transition:ident,
-    ) => {
-        route_transition: @$transition
-    };
-    (
-        sidebar_id: $sidebar_id:ident,
-        sidebar_label: $sidebar_label:literal,
-        section: $section:literal,
-        shortcut: $shortcut:literal,
-        snippet: $snippet:ident,
-    ) => {};
-}
-
 macro_rules! define_gallery_root {
     (
         $(
@@ -30,7 +9,12 @@ macro_rules! define_gallery_root {
                 route: $route:literal,
                 page: $page:ident,
                 widget: $widget:ident,
-                $($rest:tt)*
+                sidebar_id: $sidebar_id:ident,
+                sidebar_label: $sidebar_label:literal,
+                section: $section:literal,
+                shortcut: $shortcut:literal,
+                snippet: $snippet:ident,
+                $(transition: $transition:ident,)?
             }
         )*
     ) => {
@@ -105,7 +89,7 @@ macro_rules! define_gallery_root {
                 $(
                     $page := RouterRoute{
                         route_pattern: $route
-                        gallery_route_transition! { $($rest)* }
+                        $(route_transition: @$transition)?
                         mod.widgets.$widget{}
                     }
                 )*

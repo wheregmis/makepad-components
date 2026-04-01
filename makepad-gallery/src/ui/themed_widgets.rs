@@ -80,6 +80,7 @@ script_mod! {
         }
 
         code_page := View{
+            new_batch: true
             width: Fill
             height: Fit
             flow: Down
@@ -117,6 +118,7 @@ script_mod! {
                     }
 
                     action_flow := View{
+                        new_batch: true
                         visible: false
                         width: Fill
                         height: Fit

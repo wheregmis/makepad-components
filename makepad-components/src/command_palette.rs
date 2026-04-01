@@ -356,6 +356,10 @@ pub struct ShadCommandPalette {
     #[rust]
     has_results_cache: Option<bool>,
     #[rust]
+    summary_text_cache: String,
+    #[rust]
+    secondary_action_label_cache: String,
+    #[rust]
     row_state_by_uid: HashMap<WidgetUid, CommandPaletteRowState>,
     #[action_data]
     #[rust]
@@ -597,21 +601,30 @@ impl ShadCommandPalette {
         let active_changed = previous_active != self.active_index;
 
         self.sync_empty_state(cx);
-        self.overlay
-            .label(cx, ids!(content.panel.results_summary))
-            .set_text(
-                cx,
-                &command_results_summary(
-                    &display_query,
-                    self.filtered_indices.len(),
-                    self.items.len(),
-                    self.item_noun_plural.as_ref(),
-                    self.search_help.as_ref(),
-                ),
-            );
-        self.overlay
-            .shad_button(cx, ids!(content.panel.search_row.clear_search_btn))
-            .set_text(cx, command_palette_secondary_action_label(&display_query));
+        let summary_text = command_results_summary(
+            &display_query,
+            self.filtered_indices.len(),
+            self.items.len(),
+            self.item_noun_plural.as_ref(),
+            self.search_help.as_ref(),
+        );
+        if self.summary_text_cache != summary_text {
+            self.summary_text_cache.clear();
+            self.summary_text_cache.push_str(&summary_text);
+            self.overlay
+                .label(cx, ids!(content.panel.results_summary))
+                .set_text(cx, &self.summary_text_cache);
+        }
+
+        let secondary_action_label = command_palette_secondary_action_label(&display_query);
+        if self.secondary_action_label_cache != secondary_action_label {
+            self.secondary_action_label_cache.clear();
+            self.secondary_action_label_cache
+                .push_str(secondary_action_label);
+            self.overlay
+                .shad_button(cx, ids!(content.panel.search_row.clear_search_btn))
+                .set_text(cx, &self.secondary_action_label_cache);
+        }
         self.reset_results_position(cx);
         if results_changed || active_changed {
             self.redraw(cx);
