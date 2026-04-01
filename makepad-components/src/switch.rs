@@ -43,8 +43,14 @@ script_mod! {
         }
 
         draw_bg +: {
+            hover: instance(0.0)
+            focus: instance(0.0)
+            down: instance(0.0)
+            active: instance(0.0)
+            disabled: instance(0.0)
+
             size: 15.0
-            track_width: 24.0
+            track_width: instance(24.0)
             border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
 

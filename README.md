@@ -5,7 +5,7 @@ Reusable UI components for [Makepad](https://github.com/makepad/makepad), built 
 This workspace contains:
 - A component library crate (`makepad-components`)
 - A reusable icon crate (`makepad-icon`)
-- A runnable gallery app (`makepad-example-component-gallery`)
+- A runnable gallery app (`makepad-gallery`)
 - A standalone date-picker/table example (`makepad-example-date-picker-table`)
 
 ## What You Get
@@ -19,7 +19,7 @@ This workspace contains:
 - **Dialog**: modal with variants — generic (custom body), alert (title + Cancel/Confirm), destructive; `set_open(bool)` / `is_open()` plus `open_changed(actions)`.
 - **Menubar**: compact application menu primitives built on `ShadPopover`, with styled triggers, menu surfaces, separators, and item rows.
 - **Navigation Menu**: wide flyout navigation primitives for docs/marketing headers, also built on `ShadPopover` for anchored open/close behavior.
-- **Pagination**: stateful page navigator with numbered slots, previous/next controls, compact ellipsis ranges, and `changed(actions)` / `set_page(...)` helpers.
+- **Pagination**: stateful page navigator with numbered slots, previous/next controls, compact ellipsis ranges, and typed helpers like `changed(actions)`, `set_page(...)`, `set_page_count(...)`, `next(cx)`, `prev(cx)`, `page()`, and `page_count()`.
 - **Calendar**: single-date calendar widget with controlled month navigation and `set_value(...)` / `value()` / `changed(actions)` helpers.
 - **Date Picker**: field-like calendar picker composed from `ShadPopover` + `ShadCalendar`, with `set_value(...)`, `clear()`, `set_open(...)`, and `open_changed(actions)`.
 - **Chart**: themed wrappers over Makepad's line, area, and bar chart widgets that accept typed Rust `DataPoint` series.
@@ -35,7 +35,7 @@ This workspace contains:
 - `makepad-components/` → `makepad-components` library
 - `makepad-components/examples/date_picker_table_example/` → `makepad-example-date-picker-table` app
 - `makepad-icon/` → `makepad-icon` library
-- `makepad-gallery/` → `makepad-example-component-gallery` app
+- `makepad-gallery/` → `makepad-gallery` app
 - `.github/workflows/wasm-pages.yml` → GitHub Pages WASM build + deploy
 
 ## Architecture & naming conventions
@@ -50,7 +50,7 @@ This workspace contains:
 - **File placement**:
   - New reusable components belong under `makepad-components/src/*.rs` and should be registered from `makepad_components::script_mod(vm)` into the `mod.widgets.*` namespace.
   - Gallery-only layout and helper widgets belong under `makepad-gallery/src/ui/*.rs` (for example `themed_widgets.rs`) and are registered from the gallery UI module.
-  - `makepad-gallery/src/ui/catalog.rs` is the gallery metadata source of truth for sidebar labels, command-palette entries, route ids/paths, and snippet keys. `root.rs` stays as the explicit router adapter.
+  - `makepad-gallery/src/ui/registry.rs` is the gallery page registry source of truth for routes, page widgets, sidebar ids/labels, shortcuts, and snippet keys. `catalog.rs` and `root.rs` derive from that shared registry.
 - `docs/responsive.md` documents the workspace's responsive-layout patterns for Makepad, including mobile shell handling, `Fill`/`Fit` sizing, and wrapped row caveats.
 
 ## Prerequisites
