@@ -40,6 +40,7 @@ struct CommandPaletteRowState {
     command_index: usize,
     show_header: bool,
     is_active: bool,
+    is_hovered: bool,
 }
 
 fn search_term_for_item(item: &ShadCommandPaletteItem) -> CommandSearchTerm {
@@ -136,6 +137,30 @@ script_mod! {
         draw_text.text_style.font_size: 13
     }
 
+    mod.widgets.ShadCommandPaletteShortcutButton = ShadButton{
+        variant: ShadButtonVariant.Ghost
+        width: Fit
+        height: 28
+        padding: Inset{left: 8, right: 8, top: 0, bottom: 0}
+        text: ""
+        draw_bg +: {
+            color: (shad_theme.color_clear)
+            color_hover: (shad_theme.color_ghost_hover)
+            color_down: (shad_theme.color_ghost_down)
+            color_focus: (shad_theme.color_ghost_hover)
+            border_radius: (shad_theme.radius)
+            border_size: 0.0
+            border_color: (shad_theme.color_clear)
+        }
+        draw_text +: {
+            color: (shad_theme.color_muted_foreground)
+            color_hover: (shad_theme.color_primary)
+            color_down: (shad_theme.color_primary)
+            color_focus: (shad_theme.color_primary)
+            text_style.font_size: 10
+        }
+    }
+
     mod.widgets.ShadCommandPaletteRow = View{
         width: Fill
         height: Fit
@@ -164,12 +189,7 @@ script_mod! {
 
             button := mod.widgets.ShadCommandPaletteRowButton{}
 
-            shortcut := ShadSectionHeader{
-                width: Fit
-                draw_text.color: (shad_theme.color_muted_foreground)
-                draw_text.text_style.font_size: 10
-                text: ""
-            }
+            shortcut_btn := mod.widgets.ShadCommandPaletteShortcutButton{}
         }
     }
 
@@ -178,6 +198,7 @@ script_mod! {
         height: Fill
         open: false
         active_row_color: (shad_theme.color_secondary_hover)
+        row_hover_color: (shad_theme.color_ghost_hover)
         row_radius: (shad_theme.radius_lg)
         item_noun_plural: "commands"
         search_help: "Search by title, section, or shortcut."
@@ -331,6 +352,8 @@ pub struct ShadCommandPalette {
     layout: Layout,
     #[live]
     active_row_color: Vec4f,
+    #[live]
+    row_hover_color: Vec4f,
     #[live]
     row_radius: f64,
     #[live]
@@ -650,11 +673,15 @@ impl ShadCommandPalette {
                         .is_some_and(|previous| self.items[*previous].section != command.section));
 
             let mut row = item.view(cx, ids!(row));
+            let button = item.shad_button(cx, ids!(row.button));
+            let shortcut_btn = item.shad_button(cx, ids!(row.shortcut_btn));
+            let is_hovered = button.is_hovered(cx) || shortcut_btn.is_hovered(cx);
             let row_uid = row.widget_uid();
             let next_state = CommandPaletteRowState {
                 command_index,
                 show_header,
                 is_active: item_id == self.active_index,
+                is_hovered,
             };
             if sync_cached_row_state(
                 &mut self.row_state_by_uid,
@@ -664,13 +691,14 @@ impl ShadCommandPalette {
             ) {
                 item.widget(cx, ids!(header)).set_visible(cx, show_header);
                 item.label(cx, ids!(header)).set_text(cx, &command.section);
-                item.shad_button(cx, ids!(row.button))
-                    .set_text(cx, &command.title);
-                item.label(cx, ids!(row.shortcut))
-                    .set_text(cx, &command.shortcut);
+                button.set_text(cx, &command.title);
+                shortcut_btn.set_visible(cx, !command.shortcut.is_empty());
+                shortcut_btn.set_text(cx, &command.shortcut);
 
                 let background = if next_state.is_active {
                     self.active_row_color
+                } else if next_state.is_hovered {
+                    self.row_hover_color
                 } else {
                     Vec4f::all(0.0)
                 };
@@ -784,7 +812,9 @@ impl Widget for ShadCommandPalette {
                 }
 
                 for (item_id, item) in results.items_with_actions(actions) {
-                    if item.shad_button(cx, ids!(row.button)).clicked(actions) {
+                    if item.shad_button(cx, ids!(row.button)).clicked(actions)
+                        || item.shad_button(cx, ids!(row.shortcut_btn)).clicked(actions)
+                    {
                         self.active_index = item_id;
                         self.activate(cx);
                         return;
@@ -932,6 +962,7 @@ mod tests {
             command_index: 3,
             show_header: true,
             is_active: false,
+            is_hovered: false,
         };
 
         assert!(sync_cached_row_state(&mut cache, 7_u64, state, false));
@@ -945,6 +976,7 @@ mod tests {
             command_index: 3,
             show_header: true,
             is_active: false,
+            is_hovered: false,
         };
 
         assert!(sync_cached_row_state(&mut cache, 7_u64, state, false));
@@ -968,6 +1000,7 @@ mod tests {
                     command_index: row,
                     show_header: row == 0,
                     is_active: row == 0,
+                    is_hovered: false,
                 };
                 if sync_cached_row_state(&mut cache, row, state, frame != 0) {
                     new_updates += WIDGET_UPDATES_PER_ROW;
