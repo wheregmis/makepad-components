@@ -235,7 +235,7 @@ impl Widget for GalleryDialogPage {
 
             if self
                 .view
-                .button(cx, ids!(open_rename_dialog_btn))
+                .shad_button(cx, ids!(open_rename_dialog_btn))
                 .clicked(actions)
             {
                 self.open_rename_dialog(cx);
