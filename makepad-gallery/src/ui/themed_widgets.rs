@@ -145,6 +145,8 @@ pub struct GalleryCodeSnippet {
     view: View,
     #[live]
     code: ArcStringMut,
+    #[rust]
+    last_code: String,
 }
 
 impl ScriptHook for GalleryCodeSnippet {
@@ -156,9 +158,13 @@ impl ScriptHook for GalleryCodeSnippet {
         _value: ScriptValue,
     ) {
         vm.with_cx_mut(|cx| {
-            self.view
-                .widget(cx, ids!(container.code_view))
-                .set_text(cx, self.code.as_ref());
+            if self.last_code != self.code.as_ref() {
+                self.last_code.clear();
+                self.last_code.push_str(self.code.as_ref());
+                self.view
+                    .widget(cx, ids!(container.code_view))
+                    .set_text(cx, &self.last_code);
+            }
         });
     }
 }
