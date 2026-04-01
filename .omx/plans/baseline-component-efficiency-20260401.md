@@ -121,3 +121,12 @@ Based on component structure and team support evidence:
 - Next local performance slice should either:
   - collect numeric profiler samples for command palette / pagination / table, or
   - implement one more clearly justified hotspot optimization with accompanying Studio evidence.
+
+
+### Touch / hover follow-up
+
+- `makepad-components/src/command_palette.rs`
+  - row hover state now applies background feedback across both the primary label area and shortcut hit area
+  - shortcut text is now an actual button target instead of a passive label, improving touch activation
+- `makepad-components/src/sidebar.rs`
+  - default sidebar item hit target increased from 32px to 36px with slightly larger horizontal padding and label size

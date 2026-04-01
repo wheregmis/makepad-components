@@ -20,8 +20,8 @@ script_mod! {
 
     mod.widgets.ShadSidebarItem = mod.widgets.ShadNavButtonBase{
         width: Fill
-        height: 32
-        padding: Inset{left: 10, right: 10}
+        height: 36
+        padding: Inset{left: 12, right: 12}
         align: Align{x: 0.0, y: 0.5}
         reset_hover_on_click: true
         grab_key_focus: true
@@ -42,7 +42,7 @@ script_mod! {
             color_down: (shad_theme.color_primary)
             color_focus: (shad_theme.color_primary)
             color_active: (shad_theme.color_primary)
-            text_style.font_size: 10.0
+            text_style.font_size: 11.0
         }
         text: "Item"
     }
