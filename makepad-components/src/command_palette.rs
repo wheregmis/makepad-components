@@ -1,5 +1,5 @@
-use crate::input::ShadSearchInputWidgetRefExt;
 use crate::button::ShadButtonWidgetExt;
+use crate::input::ShadSearchInputWidgetRefExt;
 use crate::internal::actions::{emit_widget_action, widget_action_map};
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
@@ -41,6 +41,12 @@ struct CommandPaletteRowState {
     show_header: bool,
     is_active: bool,
     is_hovered: bool,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct CommandPaletteRowUpdate {
+    content_changed: bool,
+    visual_changed: bool,
 }
 
 fn search_term_for_item(item: &ShadCommandPaletteItem) -> CommandSearchTerm {
@@ -94,18 +100,26 @@ fn sync_cached_row_state<K>(
     key: K,
     next: CommandPaletteRowState,
     item_existed: bool,
-) -> bool
+) -> Option<CommandPaletteRowUpdate>
 where
     K: Eq + Hash + Copy,
 {
     if !item_existed {
         cache.remove(&key);
     }
-    if cache.get(&key).copied() == Some(next) {
-        return false;
+    let previous = cache.get(&key).copied();
+    if previous == Some(next) {
+        return None;
     }
     cache.insert(key, next);
-    true
+    Some(CommandPaletteRowUpdate {
+        content_changed: previous.map_or(true, |state| {
+            state.command_index != next.command_index || state.show_header != next.show_header
+        }),
+        visual_changed: previous.map_or(true, |state| {
+            state.is_active != next.is_active || state.is_hovered != next.is_hovered
+        }),
+    })
 }
 
 script_mod! {
@@ -683,31 +697,35 @@ impl ShadCommandPalette {
                 is_active: item_id == self.active_index,
                 is_hovered,
             };
-            if sync_cached_row_state(
+            if let Some(update) = sync_cached_row_state(
                 &mut self.row_state_by_uid,
                 row_uid,
                 next_state,
                 item_existed,
             ) {
-                item.widget(cx, ids!(header)).set_visible(cx, show_header);
-                item.label(cx, ids!(header)).set_text(cx, &command.section);
-                button.set_text(cx, &command.title);
-                shortcut_btn.set_visible(cx, !command.shortcut.is_empty());
-                shortcut_btn.set_text(cx, &command.shortcut);
+                if update.content_changed {
+                    item.widget(cx, ids!(header)).set_visible(cx, show_header);
+                    item.label(cx, ids!(header)).set_text(cx, &command.section);
+                    button.set_text(cx, &command.title);
+                    shortcut_btn.set_visible(cx, !command.shortcut.is_empty());
+                    shortcut_btn.set_text(cx, &command.shortcut);
+                }
 
-                let background = if next_state.is_active {
-                    self.active_row_color
-                } else if next_state.is_hovered {
-                    self.row_hover_color
-                } else {
-                    Vec4f::all(0.0)
-                };
-                script_apply_eval!(cx, row, {
-                    draw_bg +: {
-                        color: #(background)
-                        border_radius: #(self.row_radius)
-                    }
-                });
+                if update.visual_changed {
+                    let background = if next_state.is_active {
+                        self.active_row_color
+                    } else if next_state.is_hovered {
+                        self.row_hover_color
+                    } else {
+                        Vec4f::all(0.0)
+                    };
+                    script_apply_eval!(cx, row, {
+                        draw_bg +: {
+                            color: #(background)
+                            border_radius: #(self.row_radius)
+                        }
+                    });
+                }
             }
 
             item.draw_all(cx, &mut Scope::empty());
@@ -787,8 +805,8 @@ impl Widget for ShadCommandPalette {
 
                 if self
                     .overlay
-                .shad_button(cx, ids!(content.panel.search_row.clear_search_btn))
-                .clicked(actions)
+                    .shad_button(cx, ids!(content.panel.search_row.clear_search_btn))
+                    .clicked(actions)
                 {
                     if self.normalize_query().is_empty() {
                         self.close(cx);
@@ -813,7 +831,9 @@ impl Widget for ShadCommandPalette {
 
                 for (item_id, item) in results.items_with_actions(actions) {
                     if item.shad_button(cx, ids!(row.button)).clicked(actions)
-                        || item.shad_button(cx, ids!(row.shortcut_btn)).clicked(actions)
+                        || item
+                            .shad_button(cx, ids!(row.shortcut_btn))
+                            .clicked(actions)
                     {
                         self.active_index = item_id;
                         self.activate(cx);
@@ -915,7 +935,7 @@ mod tests {
     use super::{
         command_palette_secondary_action_label, command_results_summary, matches_command_query,
         search_term_for_item, sync_cached_row_state, CommandPaletteRowState,
-        ShadCommandPaletteItem,
+        CommandPaletteRowUpdate, ShadCommandPaletteItem,
     };
     use std::collections::HashMap;
 
@@ -965,8 +985,14 @@ mod tests {
             is_hovered: false,
         };
 
-        assert!(sync_cached_row_state(&mut cache, 7_u64, state, false));
-        assert!(!sync_cached_row_state(&mut cache, 7_u64, state, true));
+        assert_eq!(
+            sync_cached_row_state(&mut cache, 7_u64, state, false),
+            Some(CommandPaletteRowUpdate {
+                content_changed: true,
+                visual_changed: true,
+            })
+        );
+        assert_eq!(sync_cached_row_state(&mut cache, 7_u64, state, true), None);
     }
 
     #[test]
@@ -979,19 +1005,80 @@ mod tests {
             is_hovered: false,
         };
 
-        assert!(sync_cached_row_state(&mut cache, 7_u64, state, false));
-        assert!(sync_cached_row_state(&mut cache, 7_u64, state, false));
-        assert!(!sync_cached_row_state(&mut cache, 7_u64, state, true));
+        let expected = Some(CommandPaletteRowUpdate {
+            content_changed: true,
+            visual_changed: true,
+        });
+        assert_eq!(
+            sync_cached_row_state(&mut cache, 7_u64, state, false),
+            expected
+        );
+        assert_eq!(
+            sync_cached_row_state(&mut cache, 7_u64, state, false),
+            expected
+        );
+        assert_eq!(sync_cached_row_state(&mut cache, 7_u64, state, true), None);
+    }
+
+    #[test]
+    fn command_palette_row_cache_separates_hover_from_content_updates() {
+        let mut cache = HashMap::new();
+        let base = CommandPaletteRowState {
+            command_index: 3,
+            show_header: true,
+            is_active: false,
+            is_hovered: false,
+        };
+
+        assert_eq!(
+            sync_cached_row_state(&mut cache, 7_u64, base, false),
+            Some(CommandPaletteRowUpdate {
+                content_changed: true,
+                visual_changed: true,
+            })
+        );
+        assert_eq!(
+            sync_cached_row_state(
+                &mut cache,
+                7_u64,
+                CommandPaletteRowState {
+                    is_hovered: true,
+                    ..base
+                },
+                true,
+            ),
+            Some(CommandPaletteRowUpdate {
+                content_changed: false,
+                visual_changed: true,
+            })
+        );
+        assert_eq!(
+            sync_cached_row_state(
+                &mut cache,
+                7_u64,
+                CommandPaletteRowState {
+                    command_index: 4,
+                    ..base
+                },
+                true,
+            ),
+            Some(CommandPaletteRowUpdate {
+                content_changed: true,
+                visual_changed: true,
+            })
+        );
     }
 
     #[test]
     fn command_palette_row_cache_reduces_steady_state_updates() {
         const VISIBLE_ROWS: usize = 8;
         const FRAMES: usize = 1_000;
-        const WIDGET_UPDATES_PER_ROW: usize = 5;
+        const CONTENT_UPDATES_PER_ROW: usize = 5;
+        const VISUAL_UPDATES_PER_ROW: usize = 1;
 
-        let old_updates = VISIBLE_ROWS * FRAMES * WIDGET_UPDATES_PER_ROW;
-        let mut new_updates = 0;
+        let old_updates =
+            VISIBLE_ROWS * FRAMES * (CONTENT_UPDATES_PER_ROW + VISUAL_UPDATES_PER_ROW);
+        let mut new_updates = 0usize;
         let mut cache = HashMap::new();
 
         for frame in 0..FRAMES {
@@ -1002,14 +1089,64 @@ mod tests {
                     is_active: row == 0,
                     is_hovered: false,
                 };
-                if sync_cached_row_state(&mut cache, row, state, frame != 0) {
-                    new_updates += WIDGET_UPDATES_PER_ROW;
+                if let Some(update) = sync_cached_row_state(&mut cache, row, state, frame != 0) {
+                    if update.content_changed {
+                        new_updates += CONTENT_UPDATES_PER_ROW;
+                    }
+                    if update.visual_changed {
+                        new_updates += VISUAL_UPDATES_PER_ROW;
+                    }
                 }
             }
         }
 
-        assert_eq!(new_updates, VISIBLE_ROWS * WIDGET_UPDATES_PER_ROW);
-        assert_eq!(old_updates, 40_000);
-        assert_eq!(new_updates, 40);
+        assert_eq!(
+            new_updates,
+            VISIBLE_ROWS * (CONTENT_UPDATES_PER_ROW + VISUAL_UPDATES_PER_ROW)
+        );
+        assert_eq!(old_updates, 48_000);
+        assert_eq!(new_updates, 48);
+    }
+
+    #[test]
+    fn command_palette_row_cache_skips_content_writes_for_hover_churn() {
+        const VISIBLE_ROWS: usize = 8;
+        const FRAMES: usize = 1_000;
+        const CONTENT_UPDATES_PER_ROW: usize = 5;
+        const VISUAL_UPDATES_PER_ROW: usize = 1;
+
+        let old_updates =
+            VISIBLE_ROWS * FRAMES * (CONTENT_UPDATES_PER_ROW + VISUAL_UPDATES_PER_ROW);
+        let mut new_updates = 0usize;
+        let mut hovered = false;
+        let mut cache = HashMap::new();
+
+        for frame in 0..FRAMES {
+            hovered = !hovered;
+            for row in 0..VISIBLE_ROWS {
+                let state = CommandPaletteRowState {
+                    command_index: row,
+                    show_header: row == 0,
+                    is_active: row == 0,
+                    is_hovered: row == 1 && hovered,
+                };
+                if let Some(update) = sync_cached_row_state(&mut cache, row, state, frame != 0) {
+                    if update.content_changed {
+                        new_updates += CONTENT_UPDATES_PER_ROW;
+                    }
+                    if update.visual_changed {
+                        new_updates += VISUAL_UPDATES_PER_ROW;
+                    }
+                }
+            }
+        }
+
+        assert_eq!(old_updates, 48_000);
+        assert_eq!(
+            new_updates,
+            VISIBLE_ROWS * (CONTENT_UPDATES_PER_ROW + VISUAL_UPDATES_PER_ROW)
+                + (FRAMES - 1) * VISUAL_UPDATES_PER_ROW
+        );
+        assert_eq!(new_updates, 1_047);
     }
 }
