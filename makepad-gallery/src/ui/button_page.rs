@@ -109,6 +109,7 @@ gallery_static_page! {
             IconButtonChevronLeft{
                 width: 36
                 height: 36
+                aria_label: "Previous"
                 draw_bg +: {
                     color: #0000
                     color_hover: (shad_theme.color_ghost_hover)
@@ -123,6 +124,7 @@ gallery_static_page! {
             IconButtonChevronRight{
                 width: 36
                 height: 36
+                aria_label: "Next"
                 draw_bg +: {
                     color: #0000
                     color_hover: (shad_theme.color_ghost_hover)
@@ -137,6 +139,7 @@ gallery_static_page! {
             IconButtonX{
                 width: 36
                 height: 36
+                aria_label: "Close"
                 draw_bg +: {
                     color: #0000
                     color_hover: (shad_theme.color_ghost_hover)
