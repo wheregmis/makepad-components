@@ -68,7 +68,7 @@ gallery_stateful_page_shell! {
             spacing: 6.0
 
             ShadFieldLabel{ text: "Search components" }
-            ShadSearchInput{
+            search_components_input := ShadSearchInput{
                 empty_text: "Search components"
             }
             ShadFieldDescription{

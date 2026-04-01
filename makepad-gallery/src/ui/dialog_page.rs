@@ -25,6 +25,12 @@ gallery_stateful_page_shell! {
 
                 ShadSectionHeader{text: "Workflow Examples"}
                 ShadFieldDescription{text: "Use dialogs when the user needs to stop, make one focused decision, and return to the page with a clear next state."}
+                ShadField{
+                    width: Fill
+                    spacing: 4.0
+                    ShadFieldLabel{text: "Current project name"}
+                    current_project_name_value := ShadLabel{text: "Northwind Revamp"}
+                }
 
                 View{
                     width: Fill
@@ -129,15 +135,42 @@ gallery_stateful_page_shell! {
     },
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct GalleryDialogPage {
     #[source]
     source: ScriptObjectRef,
     #[deref]
     view: View,
+    #[rust]
+    rename_draft: String,
+    #[rust]
+    saved_project_name: String,
 }
 
 impl GalleryDialogPage {
+    const DEFAULT_PROJECT_NAME: &'static str = "Northwind Revamp";
+
+    fn ensure_initialized(&mut self) {
+        if self.saved_project_name.is_empty() {
+            self.saved_project_name = Self::DEFAULT_PROJECT_NAME.to_string();
+        }
+        if self.rename_draft.is_empty() {
+            self.rename_draft = self.saved_project_name.clone();
+        }
+    }
+
+    fn sync_project_name_label(&self, cx: &mut Cx) {
+        self.view
+            .label(cx, ids!(current_project_name_value))
+            .set_text(cx, &self.saved_project_name);
+    }
+
+    fn sync_rename_input(&self, cx: &mut Cx) {
+        self.view
+            .text_input(cx, ids!(rename_project_input))
+            .set_text(cx, &self.rename_draft);
+    }
+
     fn set_dialog_open(&mut self, cx: &mut Cx, path: &[LiveId], open: bool) {
         let dialog = self.view.shad_dialog(cx, path);
         if open {
@@ -146,6 +179,51 @@ impl GalleryDialogPage {
             dialog.close(cx);
         }
     }
+
+    fn open_rename_dialog(&mut self, cx: &mut Cx) {
+        self.ensure_initialized();
+        self.rename_draft = self.saved_project_name.clone();
+        self.sync_rename_input(cx);
+        self.set_dialog_open(cx, ids!(rename_dialog), true);
+        self.view
+            .text_input(cx, ids!(rename_project_input))
+            .set_key_focus(cx);
+    }
+
+    fn cancel_rename(&mut self, cx: &mut Cx) {
+        self.ensure_initialized();
+        self.rename_draft = self.saved_project_name.clone();
+        self.sync_rename_input(cx);
+        self.set_dialog_open(cx, ids!(rename_dialog), false);
+    }
+
+    fn commit_rename(&mut self, cx: &mut Cx) {
+        self.ensure_initialized();
+        let next_name = self.rename_draft.trim();
+        if !next_name.is_empty() {
+            self.saved_project_name = next_name.to_string();
+        }
+        self.rename_draft = self.saved_project_name.clone();
+        self.sync_project_name_label(cx);
+        self.sync_rename_input(cx);
+        self.set_dialog_open(cx, ids!(rename_dialog), false);
+    }
+}
+
+impl ScriptHook for GalleryDialogPage {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        self.ensure_initialized();
+        vm.with_cx_mut(|cx| {
+            self.sync_project_name_label(cx);
+            self.sync_rename_input(cx);
+        });
+    }
 }
 
 impl Widget for GalleryDialogPage {
@@ -153,8 +231,17 @@ impl Widget for GalleryDialogPage {
         self.view.handle_event(cx, event, scope);
 
         if let Event::Actions(actions) = event {
+            self.ensure_initialized();
+
+            if self
+                .view
+                .button(cx, ids!(open_rename_dialog_btn))
+                .clicked(actions)
+            {
+                self.open_rename_dialog(cx);
+            }
+
             for (button, path) in [
-                (ids!(open_rename_dialog_btn), ids!(rename_dialog)),
                 (ids!(open_publish_dialog_btn), ids!(publish_dialog)),
                 (ids!(open_delete_dialog_btn), ids!(delete_dialog)),
             ] {
@@ -163,10 +250,27 @@ impl Widget for GalleryDialogPage {
                 }
             }
 
-            for button in [ids!(cancel), ids!(confirm)] {
-                if self.view.shad_button(cx, button).clicked(actions) {
-                    self.set_dialog_open(cx, ids!(rename_dialog), false);
-                }
+            let rename_input = self.view.text_input(cx, ids!(rename_project_input));
+            if let Some(text) = rename_input.changed(actions) {
+                self.rename_draft = text;
+            }
+            if let Some((text, _modifiers)) = rename_input.returned(actions) {
+                self.rename_draft = text;
+                self.commit_rename(cx);
+                return;
+            }
+
+            if self
+                .view
+                .button(cx, ids!(rename_cancel_btn))
+                .clicked(actions)
+            {
+                self.cancel_rename(cx);
+                return;
+            }
+
+            if self.view.button(cx, ids!(rename_save_btn)).clicked(actions) {
+                self.commit_rename(cx);
             }
         }
     }

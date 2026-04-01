@@ -388,6 +388,11 @@ impl ShadSearchInputRef {
         }
     }
 
+    pub fn key_focus(&self, cx: &Cx) -> bool {
+        self.borrow()
+            .is_some_and(|inner| inner.input_ref(cx).key_focus(cx))
+    }
+
     pub fn changed(&self, actions: &Actions) -> Option<String> {
         self.borrow().and_then(|inner| inner.changed(actions))
     }

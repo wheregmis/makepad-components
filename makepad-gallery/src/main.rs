@@ -7,6 +7,7 @@ use crate::ui::catalog;
 use crate::ui::command_palette_page::GalleryCommandPalettePageWidgetRefExt;
 use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::command_palette::ShadCommandPaletteWidgetRefExt;
+use makepad_components::input::ShadSearchInputWidgetRefExt;
 use makepad_components::makepad_widgets::*;
 use makepad_components::sidebar::ShadSidebarItemRef;
 use makepad_router::RouterWidgetWidgetRefExt;
@@ -83,15 +84,15 @@ impl App {
     }
 
     fn configure_header_adaptive_view(&self, cx: &mut Cx) {
-        self.ui.adaptive_view(cx, ids!(header)).set_variant_selector(
-            |_cx, parent_size| {
+        self.ui
+            .adaptive_view(cx, ids!(header))
+            .set_variant_selector(|_cx, parent_size| {
                 if parent_size.x < Self::SMALL_SCREEN_WIDTH {
                     live_id!(Mobile)
                 } else {
                     live_id!(Desktop)
                 }
-            },
-        );
+            });
     }
 
     fn queue_header_state_sync(&mut self, cx: &mut Cx) {
@@ -143,20 +144,28 @@ impl App {
 
     fn sync_theme_toggle_copy(&self, cx: &mut Cx) {
         let label = if self.is_small_screen {
-            if self.is_light_theme { "Dark" } else { "Light" }
+            if self.is_light_theme {
+                "Dark"
+            } else {
+                "Light"
+            }
         } else if self.is_light_theme {
             "Dark theme"
         } else {
             "Light theme"
         };
-        self.ui.shad_button(cx, ids!(theme_toggle)).set_text(cx, label);
+        self.ui
+            .shad_button(cx, ids!(theme_toggle))
+            .set_text(cx, label);
     }
 
     fn sync_page_metadata(&self, cx: &mut Cx) {
         let page = self.active_page(cx);
 
         if let Some(entry) = catalog::entry_for_page(page) {
-            self.ui.label(cx, ids!(page_label)).set_text(cx, entry.title);
+            self.ui
+                .label(cx, ids!(page_label))
+                .set_text(cx, entry.title);
         }
         self.sync_sidebar_focus_behavior(cx);
         self.sync_sidebar_selection(cx);
@@ -241,6 +250,27 @@ impl App {
             }
         }
     }
+
+    fn text_entry_has_focus(&self, cx: &Cx) -> bool {
+        self.ui.text_input(cx, ids!(email_input)).key_focus(cx)
+            || self
+                .ui
+                .text_input(cx, ids!(workspace_slug_input))
+                .key_focus(cx)
+            || self
+                .ui
+                .text_input(cx, ids!(rename_project_input))
+                .key_focus(cx)
+            || self.ui.text_input(cx, ids!(bio_input)).key_focus(cx)
+            || self
+                .ui
+                .shad_search_input(cx, ids!(search_components_input))
+                .key_focus(cx)
+            || self
+                .ui
+                .shad_search_input(cx, ids!(search_field))
+                .key_focus(cx)
+    }
 }
 
 #[derive(Script, ScriptHook)]
@@ -292,11 +322,7 @@ impl MatchEvent for App {
             self.sidebar_open = !self.sidebar_open;
             self.apply_responsive_visibility(cx);
         }
-        if self
-            .ui
-            .shad_button(cx, ids!(theme_toggle))
-            .clicked(actions)
-        {
+        if self.ui.shad_button(cx, ids!(theme_toggle)).clicked(actions) {
             self.queue_theme_change(cx, !self.is_light_theme);
         }
         if self
@@ -390,8 +416,10 @@ impl AppMain for App {
                 self.update_screen_mode(cx, geom.new_geom.inner_size.x)
             }
             Event::KeyDown(key_event) => {
+                let palette = self.ui.shad_command_palette(cx, ids!(command_palette));
                 if key_event.key_code == KeyCode::KeyK
                     && (key_event.modifiers.logo || key_event.modifiers.control)
+                    && (palette.is_open() || !self.text_entry_has_focus(cx))
                 {
                     // Keep forwarding the shortcut event through the UI tree so the
                     // palette's overlay state settles in the same dispatch cycle as
