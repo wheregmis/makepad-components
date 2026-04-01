@@ -1,5 +1,5 @@
 use crate::internal::script_args::number_arg;
-use crate::button::{ShadButtonRef, ShadButtonWidgetExt};
+use crate::button::{ShadButtonRef, ShadButtonWidgetExt, ShadControlSize};
 use crate::models::pagination::{
     clamped_current_page, clamped_max_visible_pages, compute_window, normalized_page_count,
     PaginationWindow,
@@ -11,8 +11,17 @@ use std::fmt::Write;
 
 const MAX_PAGE_BUTTONS: usize = 7;
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct ManagedPaginationSize {
+    button_size: ShadControlSize,
+    page_button_width: f64,
+    ellipsis_font_size: f64,
+    spacing: f64,
+}
+
 #[derive(Clone, Copy, Debug)]
 struct PaginationThemeStyle {
+    clear: Vec4f,
     active_bg: Vec4f,
     active_bg_hover: Vec4f,
     active_bg_down: Vec4f,
@@ -23,12 +32,14 @@ struct PaginationThemeStyle {
     border: Vec4f,
     border_hover: Vec4f,
     border_down: Vec4f,
+    border_size: f64,
     radius: f64,
 }
 
 impl Default for PaginationThemeStyle {
     fn default() -> Self {
         Self {
+            clear: Vec4f::from_u32(0x00000000),
             active_bg: Vec4f::from_u32(0x18181bff),
             active_bg_hover: Vec4f::from_u32(0x27272aff),
             active_bg_down: Vec4f::from_u32(0x3f3f46ff),
@@ -39,6 +50,7 @@ impl Default for PaginationThemeStyle {
             border: Vec4f::from_u32(0x3f3f46ff),
             border_hover: Vec4f::from_u32(0x52525bff),
             border_down: Vec4f::from_u32(0x71717aff),
+            border_size: 1.0,
             radius: 6.0,
         }
     }
@@ -50,12 +62,14 @@ script_mod! {
 
     mod.widgets.ShadPaginationNavButton = mod.widgets.ShadButton{
         variant: ShadButtonVariant.Outline
+        size: ShadControlSize.Default
         height: 36
         padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
     }
 
     mod.widgets.ShadPaginationPageButton = mod.widgets.ShadButton{
         variant: ShadButtonVariant.Ghost
+        size: ShadControlSize.Default
         width: 36
         height: 36
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
@@ -82,6 +96,17 @@ script_mod! {
         current_page: 1
         page_count: 10
         max_visible_pages: 7
+        size: ShadControlSize.Default
+        size_is_managed: true
+        size_small_spacing: 4.0
+        size_default_spacing: 6.0
+        size_large_spacing: 8.0
+        size_small_page_button_width: 28.0
+        size_default_page_button_width: 36.0
+        size_large_page_button_width: 44.0
+        size_small_ellipsis_font_size: 10.0
+        size_default_ellipsis_font_size: 11.0
+        size_large_ellipsis_font_size: 12.0
 
         prev_btn := mod.widgets.ShadPaginationNavButton{text: "Previous"}
         page_0 := mod.widgets.ShadPaginationPageButton{text: "1"}
@@ -117,6 +142,28 @@ pub struct ShadPagination {
     page_count: u32,
     #[live]
     max_visible_pages: u32,
+    #[live(ShadControlSize::Default)]
+    size: ShadControlSize,
+    #[live(true)]
+    size_is_managed: bool,
+    #[live(4.0)]
+    size_small_spacing: f64,
+    #[live(6.0)]
+    size_default_spacing: f64,
+    #[live(8.0)]
+    size_large_spacing: f64,
+    #[live(28.0)]
+    size_small_page_button_width: f64,
+    #[live(36.0)]
+    size_default_page_button_width: f64,
+    #[live(44.0)]
+    size_large_page_button_width: f64,
+    #[live(10.0)]
+    size_small_ellipsis_font_size: f64,
+    #[live(11.0)]
+    size_default_ellipsis_font_size: f64,
+    #[live(12.0)]
+    size_large_ellipsis_font_size: f64,
 
     #[rust]
     slot_pages: [usize; MAX_PAGE_BUTTONS],
@@ -137,6 +184,8 @@ pub struct ShadPagination {
     #[rust]
     view_synced: bool,
     #[rust]
+    applied_size: Option<ManagedPaginationSize>,
+    #[rust]
     theme_style: PaginationThemeStyle,
 
     #[action_data]
@@ -156,12 +205,40 @@ impl ScriptHook for ShadPagination {
         self.view_synced = false;
         vm.with_cx_mut(|cx| {
             self.normalize_state();
+            self.sync_managed_size(cx);
             self.sync_view(cx);
         });
     }
 }
 
 impl ShadPagination {
+    fn managed_size(&self) -> Option<ManagedPaginationSize> {
+        if !self.size_is_managed {
+            return None;
+        }
+
+        Some(match self.size {
+            ShadControlSize::Small => ManagedPaginationSize {
+                button_size: ShadControlSize::Small,
+                page_button_width: self.size_small_page_button_width,
+                ellipsis_font_size: self.size_small_ellipsis_font_size,
+                spacing: self.size_small_spacing,
+            },
+            ShadControlSize::Default => ManagedPaginationSize {
+                button_size: ShadControlSize::Default,
+                page_button_width: self.size_default_page_button_width,
+                ellipsis_font_size: self.size_default_ellipsis_font_size,
+                spacing: self.size_default_spacing,
+            },
+            ShadControlSize::Large => ManagedPaginationSize {
+                button_size: ShadControlSize::Large,
+                page_button_width: self.size_large_page_button_width,
+                ellipsis_font_size: self.size_large_ellipsis_font_size,
+                spacing: self.size_large_spacing,
+            },
+        })
+    }
+
     fn sync_page_button_text(
         &mut self,
         cx: &mut Cx,
@@ -173,6 +250,47 @@ impl ShadPagination {
         text.clear();
         let _ = write!(text, "{page}");
         button.set_text(cx, text);
+    }
+
+    fn sync_managed_size(&mut self, cx: &mut Cx) {
+        let Some(size) = self.managed_size() else {
+            self.applied_size = None;
+            return;
+        };
+
+        if self.applied_size == Some(size) {
+            return;
+        }
+
+        self.view.layout.spacing = size.spacing;
+
+        let mut prev_btn = self.view.shad_button(cx, ids!(prev_btn));
+        script_apply_eval!(cx, prev_btn, {
+            size: #(size.button_size)
+        });
+
+        let mut next_btn = self.view.shad_button(cx, ids!(next_btn));
+        script_apply_eval!(cx, next_btn, {
+            size: #(size.button_size)
+        });
+
+        for index in 0..MAX_PAGE_BUTTONS {
+            let mut button = self.page_button_ref(cx, index);
+            script_apply_eval!(cx, button, {
+                size: #(size.button_size)
+                width: #(size.page_button_width)
+            });
+        }
+
+        for left in [true, false] {
+            let mut ellipsis = self.ellipsis_ref(cx, left);
+            script_apply_eval!(cx, ellipsis, {
+                draw_text.text_style.font_size: #(size.ellipsis_font_size)
+            });
+        }
+
+        self.applied_size = Some(size);
+        self.view.redraw(cx);
     }
 
     fn resolve_theme_style(vm: &mut ScriptVm) -> PaginationThemeStyle {
@@ -207,6 +325,12 @@ impl ShadPagination {
 
         let defaults = PaginationThemeStyle::default();
         PaginationThemeStyle {
+            clear: theme_color(
+                vm,
+                id!(color_clear),
+                id!(color_clear),
+                defaults.clear.to_u32(),
+            ),
             active_bg: theme_color(
                 vm,
                 id!(color_pagination_active),
@@ -267,6 +391,9 @@ impl ShadPagination {
                 id!(color_outline_border_down),
                 defaults.border_down.to_u32(),
             ),
+            border_size: theme_value(vm, id!(border_size))
+                .as_number()
+                .unwrap_or(defaults.border_size),
             radius: theme_value(vm, id!(radius))
                 .as_number()
                 .unwrap_or(defaults.radius),
@@ -315,7 +442,7 @@ impl ShadPagination {
                     color_hover: #(style.active_bg_hover)
                     color_down: #(style.active_bg_down)
                     color_focus: #(style.active_bg_hover)
-                    border_size: 1.0
+                    border_size: #(style.border_size)
                     border_radius: #(style.radius)
                     border_color: #(style.border)
                     border_color_hover: #(style.border_hover)
@@ -332,16 +459,16 @@ impl ShadPagination {
         } else {
             script_apply_eval!(cx, button, {
                 draw_bg +: {
-                    color: #0000
+                    color: #(style.clear)
                     color_hover: #(style.inactive_bg_hover)
                     color_down: #(style.inactive_bg_down)
                     color_focus: #(style.inactive_bg_hover)
                     border_size: 0.0
                     border_radius: #(style.radius)
-                    border_color: #0000
-                    border_color_hover: #0000
-                    border_color_down: #0000
-                    border_color_focus: #0000
+                    border_color: #(style.clear)
+                    border_color_hover: #(style.clear)
+                    border_color_down: #(style.clear)
+                    border_color_focus: #(style.clear)
                 }
                 draw_text +: {
                     color: #(style.inactive_text)
@@ -464,6 +591,19 @@ impl ShadPagination {
         normalized_page_count(self.page_count)
     }
 
+    pub fn set_size(&mut self, cx: &mut Cx, size: ShadControlSize) {
+        if self.size == size {
+            return;
+        }
+        self.size = size;
+        self.sync_managed_size(cx);
+        self.sync_view(cx);
+    }
+
+    pub fn size(&self) -> ShadControlSize {
+        self.size
+    }
+
     pub fn changed(&self, actions: &Actions) -> Option<usize> {
         for action in actions.filter_widget_actions_cast::<ShadPaginationAction>(self.widget_uid())
         {
@@ -564,6 +704,16 @@ impl ShadPaginationRef {
 
     pub fn page_count(&self) -> usize {
         self.borrow().map_or(1, |inner| inner.page_count())
+    }
+
+    pub fn set_size(&self, cx: &mut Cx, size: ShadControlSize) {
+        if let Some(mut inner) = self.borrow_mut() {
+            inner.set_size(cx, size);
+        }
+    }
+
+    pub fn size(&self) -> ShadControlSize {
+        self.borrow().map_or(ShadControlSize::Default, |inner| inner.size())
     }
 
     pub fn changed(&self, actions: &Actions) -> Option<usize> {

@@ -319,7 +319,7 @@ script_mod! {
         secondary_text_hover: (shad_theme.color_secondary_foreground)
         secondary_text_down: (shad_theme.color_secondary_foreground)
         secondary_text_focus: (shad_theme.color_secondary_foreground)
-        outline_fill: #0000
+        outline_fill: (shad_theme.color_clear)
         outline_fill_hover: (shad_theme.color_ghost_hover)
         outline_fill_down: (shad_theme.color_ghost_down)
         outline_fill_focus: (shad_theme.color_ghost_hover)
@@ -331,7 +331,7 @@ script_mod! {
         outline_text_hover: (shad_theme.color_primary)
         outline_text_down: (shad_theme.color_primary)
         outline_text_focus: (shad_theme.color_primary)
-        ghost_fill: #0000
+        ghost_fill: (shad_theme.color_clear)
         ghost_fill_hover: (shad_theme.color_ghost_hover)
         ghost_fill_down: (shad_theme.color_ghost_down)
         ghost_fill_focus: (shad_theme.color_ghost_hover)
@@ -347,11 +347,11 @@ script_mod! {
         destructive_text_hover: (shad_theme.color_destructive_foreground)
         destructive_text_down: (shad_theme.color_destructive_foreground)
         destructive_text_focus: (shad_theme.color_destructive_foreground)
-        link_fill: #0000
-        link_fill_hover: #0000
-        link_fill_down: #0000
-        link_fill_focus: #0000
-        link_fill_disabled: #0000
+        link_fill: (shad_theme.color_clear)
+        link_fill_hover: (shad_theme.color_clear)
+        link_fill_down: (shad_theme.color_clear)
+        link_fill_focus: (shad_theme.color_clear)
+        link_fill_disabled: (shad_theme.color_clear)
         link_text: (shad_theme.color_muted_foreground)
         link_text_hover: (shad_theme.color_primary)
         link_text_down: (shad_theme.color_primary_down)
@@ -360,17 +360,20 @@ script_mod! {
 
     mod.widgets.ShadButton = mod.widgets.ShadButtonBase{}
 
-    mod.widgets.ShadPreviewTab = mod.widgets.ShadTabsTrigger{
+    mod.widgets.ShadTabsTriggerPlain = mod.widgets.ShadTabsTrigger{
         height: 36
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
         draw_bg +: {
-            color: #0000
-            color_hover: #0000
-            color_down: #0000
+            color: (shad_theme.color_clear)
+            color_hover: (shad_theme.color_clear)
+            color_down: (shad_theme.color_clear)
             border_size: 0.0
             border_radius: 0.0
         }
     }
+
+    // Backward-compatible alias for older gallery/demo naming.
+    mod.widgets.ShadPreviewTab = mod.widgets.ShadTabsTriggerPlain{}
 
     mod.widgets.ShadButtonIcon = mod.widgets.ShadButtonBase{
         width: 36

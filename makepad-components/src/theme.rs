@@ -5,7 +5,7 @@ script_mod! {
 
     mod.widgets.shad_themes = {
         dark: {
-            color_clear: #0000
+            color_clear: vec4(0.0, 0.0, 0.0, 0.0)
 
             color_primary: #fafafa
             color_primary_hover: #f4f4f5
@@ -75,7 +75,7 @@ script_mod! {
         }
 
         light: {
-            color_clear: #0000
+            color_clear: vec4(0.0, 0.0, 0.0, 0.0)
 
             color_primary: #09090b
             color_primary_hover: #18181b

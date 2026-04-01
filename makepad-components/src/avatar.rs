@@ -86,7 +86,7 @@ script_mod! {
             height: 14
             draw_bg +: {
                 color: (shad_theme.color_success)
-                border_size: 2.0
+                border_size: (shad_theme.border_size)
                 border_color: (shad_theme.color_background)
             }
         }
@@ -99,6 +99,24 @@ script_mod! {
         height: 40
         size: ShadAvatarSize.Default
         status: ShadAvatarPresence.None
+        ring_color: (shad_theme.color_outline_border)
+        ring_border_size: (shad_theme.border_size)
+        status_border_color: (shad_theme.color_background)
+        size_small_avatar_size: 32.0
+        size_default_avatar_size: 40.0
+        size_large_avatar_size: 56.0
+        size_small_fallback_font_size: 10.0
+        size_default_fallback_font_size: 12.0
+        size_large_fallback_font_size: 16.0
+        size_small_status_padding: Inset{left: 0.0, right: -1.0, top: 0.0, bottom: -1.0}
+        size_default_status_padding: Inset{left: 0.0, right: -2.0, top: 0.0, bottom: -2.0}
+        size_large_status_padding: Inset{left: 0.0, right: -3.0, top: 0.0, bottom: -3.0}
+        size_small_status_dot_size: 10.0
+        size_default_status_dot_size: 14.0
+        size_large_status_dot_size: 18.0
+        size_small_status_dot_border_size: 1.5
+        size_default_status_dot_border_size: 2.0
+        size_large_status_dot_border_size: 2.5
         online_color: (shad_theme.color_success)
         away_color: (shad_theme.color_muted_foreground)
         busy_color: (shad_theme.color_destructive)
@@ -120,8 +138,8 @@ script_mod! {
             width: Fill
             height: Fill
             draw_bg +: {
-                color: #0000
-                border_size: 1.0
+                color: (shad_theme.color_clear)
+                border_size: (shad_theme.border_size)
                 border_color: (shad_theme.color_outline_border)
             }
         }
@@ -133,53 +151,23 @@ script_mod! {
 
 #[derive(Clone, Copy, Debug)]
 struct AvatarMetrics {
-    size: f64,
+    avatar_size: f64,
     fallback_font_size: f64,
     status_padding: Inset,
     status_dot_size: f64,
     status_dot_border_size: f64,
 }
 
-impl ShadAvatarSize {
-    fn metrics(self) -> AvatarMetrics {
-        match self {
-            ShadAvatarSize::Small => AvatarMetrics {
-                size: 32.0,
-                fallback_font_size: 10.0,
-                status_padding: Inset {
-                    left: 0.0,
-                    right: -1.0,
-                    top: 0.0,
-                    bottom: -1.0,
-                },
-                status_dot_size: 10.0,
-                status_dot_border_size: 1.5,
-            },
-            ShadAvatarSize::Default => AvatarMetrics {
-                size: 40.0,
-                fallback_font_size: 12.0,
-                status_padding: Inset {
-                    left: 0.0,
-                    right: -2.0,
-                    top: 0.0,
-                    bottom: -2.0,
-                },
-                status_dot_size: 14.0,
-                status_dot_border_size: 2.0,
-            },
-            ShadAvatarSize::Large => AvatarMetrics {
-                size: 56.0,
-                fallback_font_size: 16.0,
-                status_padding: Inset {
-                    left: 0.0,
-                    right: -3.0,
-                    top: 0.0,
-                    bottom: -3.0,
-                },
-                status_dot_size: 18.0,
-                status_dot_border_size: 2.5,
-            },
-        }
+impl AvatarMetrics {
+    fn matches(self, other: Self) -> bool {
+        self.avatar_size == other.avatar_size
+            && self.fallback_font_size == other.fallback_font_size
+            && self.status_padding.left == other.status_padding.left
+            && self.status_padding.right == other.status_padding.right
+            && self.status_padding.top == other.status_padding.top
+            && self.status_padding.bottom == other.status_padding.bottom
+            && self.status_dot_size == other.status_dot_size
+            && self.status_dot_border_size == other.status_dot_border_size
     }
 }
 
@@ -194,18 +182,88 @@ pub struct ShadAvatar {
     #[live(ShadAvatarPresence::None)]
     status: ShadAvatarPresence,
     #[live]
+    ring_color: Vec4,
+    #[live(1.0)]
+    ring_border_size: f64,
+    #[live]
+    status_border_color: Vec4,
+    #[live(32.0)]
+    size_small_avatar_size: f64,
+    #[live(40.0)]
+    size_default_avatar_size: f64,
+    #[live(56.0)]
+    size_large_avatar_size: f64,
+    #[live(10.0)]
+    size_small_fallback_font_size: f64,
+    #[live(12.0)]
+    size_default_fallback_font_size: f64,
+    #[live(16.0)]
+    size_large_fallback_font_size: f64,
+    #[live]
+    size_small_status_padding: Inset,
+    #[live]
+    size_default_status_padding: Inset,
+    #[live]
+    size_large_status_padding: Inset,
+    #[live(10.0)]
+    size_small_status_dot_size: f64,
+    #[live(14.0)]
+    size_default_status_dot_size: f64,
+    #[live(18.0)]
+    size_large_status_dot_size: f64,
+    #[live(1.5)]
+    size_small_status_dot_border_size: f64,
+    #[live(2.0)]
+    size_default_status_dot_border_size: f64,
+    #[live(2.5)]
+    size_large_status_dot_border_size: f64,
+    #[live]
     online_color: Vec4,
     #[live]
     away_color: Vec4,
     #[live]
     busy_color: Vec4,
     #[rust]
-    applied_size: Option<ShadAvatarSize>,
+    applied_metrics: Option<AvatarMetrics>,
     #[rust]
-    applied_status: Option<ShadAvatarPresence>,
+    applied_status_color: Option<Vec4>,
+    #[rust]
+    applied_status_visible: bool,
+    #[rust]
+    applied_ring_color: Option<Vec4>,
+    #[rust]
+    applied_ring_border_size: Option<f64>,
+    #[rust]
+    applied_status_border_color: Option<Vec4>,
 }
 
 impl ShadAvatar {
+    fn metrics(&self) -> AvatarMetrics {
+        match self.size {
+            ShadAvatarSize::Small => AvatarMetrics {
+                avatar_size: self.size_small_avatar_size,
+                fallback_font_size: self.size_small_fallback_font_size,
+                status_padding: self.size_small_status_padding,
+                status_dot_size: self.size_small_status_dot_size,
+                status_dot_border_size: self.size_small_status_dot_border_size,
+            },
+            ShadAvatarSize::Default => AvatarMetrics {
+                avatar_size: self.size_default_avatar_size,
+                fallback_font_size: self.size_default_fallback_font_size,
+                status_padding: self.size_default_status_padding,
+                status_dot_size: self.size_default_status_dot_size,
+                status_dot_border_size: self.size_default_status_dot_border_size,
+            },
+            ShadAvatarSize::Large => AvatarMetrics {
+                avatar_size: self.size_large_avatar_size,
+                fallback_font_size: self.size_large_fallback_font_size,
+                status_padding: self.size_large_status_padding,
+                status_dot_size: self.size_large_status_dot_size,
+                status_dot_border_size: self.size_large_status_dot_border_size,
+            },
+        }
+    }
+
     fn status_color(&self) -> Option<Vec4> {
         match self.status {
             ShadAvatarPresence::None => None,
@@ -216,20 +274,37 @@ impl ShadAvatar {
     }
 
     fn sync_managed_props(&mut self, cx: &mut Cx) {
-        let metrics = self.size.metrics();
+        let metrics = self.metrics();
         let status_color = self.status_color();
         let status_visible = status_color.is_some();
 
-        if self.applied_size == Some(self.size) && self.applied_status == Some(self.status) {
+        if self
+            .applied_metrics
+            .map(|applied| applied.matches(metrics))
+            .unwrap_or(false)
+            && self.applied_status_color == status_color
+            && self.applied_status_visible == status_visible
+            && self.applied_ring_color == Some(self.ring_color)
+            && self.applied_ring_border_size == Some(self.ring_border_size)
+            && self.applied_status_border_color == Some(self.status_border_color)
+        {
             return;
         }
 
-        self.view.walk.width = Size::Fixed(metrics.size);
-        self.view.walk.height = Size::Fixed(metrics.size);
+        self.view.walk.width = Size::Fixed(metrics.avatar_size);
+        self.view.walk.height = Size::Fixed(metrics.avatar_size);
 
         let mut fallback = self.view.widget(cx, ids!(fallback));
         script_apply_eval!(cx, fallback, {
             draw_text.text_style.font_size: #(metrics.fallback_font_size)
+        });
+
+        let mut ring = self.view.widget(cx, ids!(ring));
+        script_apply_eval!(cx, ring, {
+            draw_bg +: {
+                border_size: #(self.ring_border_size)
+                border_color: #(self.ring_color)
+            }
         });
 
         let mut status = self.view.widget(cx, ids!(status));
@@ -246,12 +321,17 @@ impl ShadAvatar {
                 draw_bg +: {
                     color: #(status_color)
                     border_size: #(metrics.status_dot_border_size)
+                    border_color: #(self.status_border_color)
                 }
             });
         }
 
-        self.applied_size = Some(self.size);
-        self.applied_status = Some(self.status);
+        self.applied_metrics = Some(metrics);
+        self.applied_status_color = status_color;
+        self.applied_status_visible = status_visible;
+        self.applied_ring_color = Some(self.ring_color);
+        self.applied_ring_border_size = Some(self.ring_border_size);
+        self.applied_status_border_color = Some(self.status_border_color);
         self.view.redraw(cx);
     }
 }

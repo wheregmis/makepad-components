@@ -49,6 +49,7 @@ gallery_stateful_page_shell! {
         ShadSectionHeader{ text: "Compact range" }
 
         pagination_compact := ShadPagination{
+            size: ShadControlSize.Small
             current_page: 21
             page_count: 42
             max_visible_pages: 5

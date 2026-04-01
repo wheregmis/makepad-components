@@ -30,6 +30,12 @@ script_mod! {
         label_align: Align{x: 0.5, y: 0.5}
 
         draw_bg +: {
+            hover: instance(0.0)
+            focus: instance(0.0)
+            down: instance(0.0)
+            active: instance(0.0)
+            disabled: instance(0.0)
+
             border_radius: (shad_theme.radius)
             border_size: (shad_theme.border_size)
 
@@ -104,6 +110,12 @@ script_mod! {
         }
 
         draw_text +: {
+            hover: instance(0.0)
+            focus: instance(0.0)
+            down: instance(0.0)
+            active: instance(0.0)
+            disabled: instance(0.0)
+
             color: (shad_theme.color_primary)
             color_hover: (shad_theme.color_primary)
             color_down: (shad_theme.color_primary)
