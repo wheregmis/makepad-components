@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::button::ShadButtonWidgetExt;
 use makepad_components::dialog::ShadDialogWidgetExt;
 use makepad_components::makepad_widgets::*;
 
@@ -96,13 +97,13 @@ gallery_stateful_page_shell! {
                             }
                         }
 
-                        dialog_footer := ShadDialogFooter{
-                            rename_cancel_btn := ShadButton{
+                        footer := ShadDialogFooter{
+                            cancel := ShadButton{
                                 variant: ShadButtonVariant.Outline
                                 text: "Cancel"
                             }
 
-                            rename_save_btn := ShadButton{
+                            confirm := ShadButton{
                                 text: "Save changes"
                             }
                         }
@@ -157,13 +158,13 @@ impl Widget for GalleryDialogPage {
                 (ids!(open_publish_dialog_btn), ids!(publish_dialog)),
                 (ids!(open_delete_dialog_btn), ids!(delete_dialog)),
             ] {
-                if self.view.button(cx, button).clicked(actions) {
+                if self.view.shad_button(cx, button).clicked(actions) {
                     self.set_dialog_open(cx, path, true);
                 }
             }
 
-            for button in [ids!(rename_cancel_btn), ids!(rename_save_btn)] {
-                if self.view.button(cx, button).clicked(actions) {
+            for button in [ids!(cancel), ids!(confirm)] {
+                if self.view.shad_button(cx, button).clicked(actions) {
                     self.set_dialog_open(cx, ids!(rename_dialog), false);
                 }
             }

@@ -397,31 +397,36 @@ impl Widget for ShadDialog {
                 if modal_dismissed(&self.overlay, cx, actions) {
                     self.close(cx);
                 }
-                if button_clicked(
-                    &self.overlay,
-                    cx,
+                for path in [
                     &[
                         live_id!(content),
                         live_id!(dialog_panel),
                         live_id!(footer),
                         live_id!(cancel),
-                    ],
-                    actions,
-                ) {
-                    self.close(cx);
-                }
-                if button_clicked(
-                    &self.overlay,
-                    cx,
+                    ][..],
                     &[
                         live_id!(content),
                         live_id!(dialog_panel),
                         live_id!(footer),
                         live_id!(confirm),
-                    ],
-                    actions,
-                ) {
-                    self.close(cx);
+                    ][..],
+                    &[
+                        live_id!(content),
+                        live_id!(body),
+                        live_id!(footer),
+                        live_id!(cancel),
+                    ][..],
+                    &[
+                        live_id!(content),
+                        live_id!(body),
+                        live_id!(footer),
+                        live_id!(confirm),
+                    ][..],
+                ] {
+                    if button_clicked(&self.overlay, cx, path, actions) {
+                        self.close(cx);
+                        break;
+                    }
                 }
             }
         }

@@ -18,7 +18,7 @@ gallery_stateful_page_shell! {
             spacing: 6.0
 
             ShadFieldLabel{ text: "Email address" }
-            ShadInput{
+            email_input := ShadInput{
                 empty_text: "you@example.com"
             }
             ShadFieldDescription{
@@ -110,6 +110,10 @@ impl ScriptHook for GalleryInputPage {
 }
 
 impl Widget for GalleryInputPage {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         self.view.draw_walk(cx, scope, walk)
     }
