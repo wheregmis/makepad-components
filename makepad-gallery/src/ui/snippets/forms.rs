@@ -345,13 +345,20 @@ pub const TEXTAREA_PREVIEW_CODE: &str = r#"ShadField{
 // if self.restore_previous_draft {
 //     bio.set_text(cx, &self.cached_bio);
 // }"#;
-pub const SWITCH_PREVIEW_CODE: &str = r#"email_alerts_switch := ShadSwitch{text: "Email alerts"}
+pub const SWITCH_PREVIEW_CODE: &str = r#"email_alerts_switch := ShadSwitch{
+    size: ShadControlSize.Default
+    text: "Email alerts"
+}
 
 // Controller example (Rust):
 // let email_alerts = self.view.shad_switch(cx, ids!(email_alerts_switch));
 //
 // if let Some(enabled) = email_alerts.changed(actions) {
 //     self.email_alerts_enabled = enabled;
+// }
+//
+// if self.compact_mode {
+//     email_alerts.set_size(cx, ShadControlSize.Small);
 // }
 //
 // if self.reset_preferences {

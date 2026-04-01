@@ -44,6 +44,7 @@ script_mod! {
 
         draw_bg +: {
             size: 15.0
+            track_width: 24.0
             border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
 
@@ -68,6 +69,81 @@ script_mod! {
             mark_color_active_hover: (shad_theme.color_primary_foreground)
             mark_color_focus: (shad_theme.color_primary)
             mark_color_disabled: (shad_theme.color_muted_foreground)
+
+            pixel: fn() {
+                let sdf = Sdf2d.viewport(self.pos * self.rect_size)
+
+                let sz_px = vec2(self.track_width, self.size)
+                let center_px = vec2(sz_px.x * 0.5, self.rect_size.y * 0.5)
+                let offset_px = vec2(0., center_px.y - sz_px.y * 0.5)
+
+                sdf.box(
+                    offset_px.x + self.border_size,
+                    offset_px.y + self.border_size,
+                    sz_px.x - self.border_size * 2.,
+                    sz_px.y - self.border_size * 2.,
+                    self.border_radius * self.size * 0.1
+                )
+
+                let color_fill = self.color
+                    .mix(self.color_focus, self.focus)
+                    .mix(self.color_active, self.active)
+                    .mix(self.color_hover, self.hover)
+                    .mix(self.color_down, self.down)
+                    .mix(self.color_disabled, self.disabled)
+
+                let color_stroke = self.border_color
+                    .mix(self.border_color_focus, self.focus)
+                    .mix(self.border_color_active, self.active)
+                    .mix(self.border_color_hover, self.hover)
+                    .mix(self.border_color_down, self.down)
+                    .mix(self.border_color_disabled, self.disabled)
+
+                sdf.fill_keep(color_fill)
+                sdf.stroke(color_stroke, self.border_size)
+
+                let mark_padding = 1.5
+                let mark_size = sz_px.y * 0.5 - self.border_size - mark_padding
+                let mark_target_y = sz_px.y - sz_px.x + self.border_size + mark_padding
+                let mark_pos_y = sz_px.y * 0.5 + self.border_size - mark_target_y * self.active
+
+                sdf.circle(mark_pos_y, center_px.y, mark_size)
+                sdf.circle(mark_pos_y, center_px.y, mark_size * 0.45)
+                sdf.subtract()
+
+                sdf.circle(mark_pos_y, center_px.y, mark_size)
+                sdf.blend(self.active)
+
+                let mark_color = self.mark_color
+                    .mix(self.mark_color_hover, self.hover)
+                    .mix(self.mark_color_active, self.active)
+                    .mix(self.mark_color_disabled, self.disabled)
+
+                sdf.fill(mark_color)
+                return sdf.result
+            }
+        }
+
+        animator +: {
+            active: {
+                default: @off
+                off: AnimatorState{
+                    ease: OutQuad
+                    from: {all: Forward {duration: 0.1}}
+                    apply: {
+                        draw_bg: {active: 0.0}
+                        draw_text: {active: 0.0}
+                    }
+                }
+                on: AnimatorState{
+                    ease: OutQuad
+                    from: {all: Forward {duration: 0.1}}
+                    apply: {
+                        draw_bg: {active: 1.0}
+                        draw_text: {active: 1.0}
+                    }
+                }
+            }
         }
     }
 
@@ -179,6 +255,7 @@ impl ShadSwitch {
             icon_walk.width: #(size.track_width)
             label_walk.margin: #(margin)
             draw_bg.size: #(size.track_size)
+            draw_bg.track_width: #(size.track_width)
             draw_text.text_style.font_size: #(size.font_size)
         });
 

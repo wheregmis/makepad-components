@@ -292,18 +292,15 @@ Use `ImageFit.Smallest` when you want the full image visible inside the ratio in
 ### Avatar (`makepad-components/src/avatar.rs`)
 
 - `ShadAvatar`
-- `ShadAvatarSm`
-- `ShadAvatarLg`
 - `ShadAvatarFallback`
 - `ShadAvatarImage`
 - `ShadAvatarStatus`
-- `ShadAvatarStatusOnline`
-- `ShadAvatarStatusAway`
-- `ShadAvatarStatusBusy`
+- `ShadAvatarSize`
+- `ShadAvatarPresence`
 
-`ShadAvatar` is a compositional circular surface. Keep `ShadAvatarFallback` in the avatar for empty or loading states, then add `ShadAvatarImage` when you have a real profile photo. The image sits above the fallback, so the fallback stays useful without becoming visible on top of a loaded image.
+`ShadAvatar` is a compositional circular surface. Set `size: ShadAvatarSize.Small/Default/Large`, keep `ShadAvatarFallback` in the avatar for empty or loading states, then add `ShadAvatarImage` when you have a real profile photo. The image sits above the fallback, so the fallback stays useful without becoming visible on top of a loaded image.
 
-Use the status helpers only when presence matters to the workflow. `ShadAvatarStatusOnline`, `ShadAvatarStatusAway`, and `ShadAvatarStatusBusy` add a small presence dot anchored to the avatar edge.
+Set `status: ShadAvatarPresence.Online/Away/Busy` only when presence matters to the workflow. `ShadAvatar` owns the status dot internally through its `ShadAvatarStatus` child, so consumers normally set the enum on the root avatar instead of instantiating per-status helper widgets.
 
 Example:
 
@@ -316,14 +313,16 @@ View{
     spacing: 12.0
 
     ShadAvatar{
+        size: ShadAvatarSize.Small
+        status: ShadAvatarPresence.Online
         fallback := ShadAvatarFallback{text: "ML"}
         image := ShadAvatarImage{
-            src: crate_resource("self://resources/avatar-a.jpg")
+            src: crate_resource("self://resources/avatar/portrait-a.jpg")
         }
-        status := ShadAvatarStatusOnline{}
     }
 
     ShadAvatar{
+        size: ShadAvatarSize.Default
         fallback := ShadAvatarFallback{text: "JD"}
     }
 }
@@ -680,6 +679,43 @@ Standalone example:
 
 `ShadNavigationMenuItem` also reuses `ShadPopover`, but defaults to a wider content surface for grouped links, feature callouts, and site navigation flyouts. Navigation flyouts open on hover and close sibling menus as the pointer moves across the trigger row.
 
+### Pagination (`makepad-components/src/pagination.rs`)
+
+- `ShadPagination`
+
+`ShadPagination` is a stateful page navigator with numbered slots, previous/next controls, compact ellipsis windows, and optional size scaling through `ShadControlSize.Small/Default/Large`.
+
+The typed ref exposes:
+- `changed(actions) -> Option<usize>`
+- `set_page(cx, usize)`
+- `set_page_count(cx, usize)`
+- `prev(cx)` / `next(cx)`
+- `page() -> usize`
+- `page_count() -> usize`
+- `set_size(cx, ShadControlSize)` / `size() -> ShadControlSize`
+
+Example:
+
+```rust
+projects_pagination := ShadPagination{
+    size: ShadControlSize.Small
+    current_page: 5
+    page_count: 12
+    max_visible_pages: 5
+}
+
+// Controller example (Rust):
+// let pagination = self.view.shad_pagination(cx, ids!(projects_pagination));
+//
+// if let Some(page) = pagination.changed(actions) {
+//     self.current_page = page;
+//     self.reload_rows_for(page);
+// }
+//
+// pagination.next(cx);
+// pagination.set_page(cx, 1);
+```
+
 ### Table (`makepad-components/src/table.rs`)
 
 - `ShadTable`
@@ -949,13 +985,11 @@ python3 scripts/download_lucide_icons.py --clean
 
 ## Gallery App
 
-The gallery (`makepad-gallery/src/main.rs`) includes:
-- Sidebar navigation between component pages
-- Accordion showcase with custom header/body content
-- Button variant and size matrix
-- Aspect ratio examples (16:9, 1:1, 4:3, 9:16)
-- Alert default/destructive examples
-- Icon preview section
+The gallery is a thin consumer of `makepad-components`:
+- `makepad-gallery/src/main.rs` owns the app shell, router, theme switching, and command-palette wiring.
+- `makepad-gallery/src/ui/registry.rs` is the page registry source for routes, sidebar ids, shortcuts, and snippet keys.
+- `makepad-gallery/src/ui/catalog.rs` derives the command-palette/sidebar metadata from that registry.
+- Individual `Gallery*` pages under `makepad-gallery/src/ui/` demonstrate `Shad*` widgets without re-implementing component behavior.
 
 Run it to validate behavior and styling changes quickly.
 
@@ -966,10 +1000,10 @@ Run it to validate behavior and styling changes quickly.
   - Register the widget in `makepad_components::script_mod(vm)` with a `Shad*` name in the `mod.widgets.*` namespace.
   - Use `shad_theme` tokens for colors, radii, and spacing instead of hardcoded values.
 - **Gallery docs page (`Gallery*`)**
-  - Create a new page script under `makepad-gallery/src/ui/` that uses `ShadScrollYView`, `ShadPageTitle`, and `ShadPageSubtitle`.
-  - Add a snippet constant to `makepad-gallery/src/ui/snippets.rs` and reference it from `GalleryCodeSnippet` on the page.
-  - Add a `ShadSidebarItem` entry in `GallerySidebar` and a matching page in `GalleryContentFlip`.
-  - Wire the sidebar item to the page in `makepad-gallery/src/main.rs` using a `set_page` call in `handle_actions`.
+  - Create a new page script under `makepad-gallery/src/ui/`, usually with `gallery_static_page!` or `gallery_stateful_page_shell!`.
+  - Add the snippet constant under `makepad-gallery/src/ui/snippets/` and let the page macros pull it by snippet key.
+  - Add one entry to `makepad-gallery/src/ui/registry.rs`; the sidebar, router, module declarations, and catalog metadata are generated from that shared registry.
+  - Keep page-specific state in the page widget itself. The gallery app shell should stay a router/theme host, not a second component logic layer.
 
 ## CI/CD
 
