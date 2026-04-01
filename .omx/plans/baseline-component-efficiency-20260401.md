@@ -130,3 +130,10 @@ Based on component structure and team support evidence:
   - shortcut text is now an actual button target instead of a passive label, improving touch activation
 - `makepad-components/src/sidebar.rs`
   - default sidebar item hit target increased from 32px to 36px with slightly larger horizontal padding and label size
+
+
+### Table layout sync follow-up
+
+- `makepad-components/src/table.rs`
+  - cache caption text/visibility and header visibility during `sync_layout`
+  - avoid re-sending the same caption/header widget updates when layout sync runs without semantic changes

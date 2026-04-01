@@ -584,6 +584,12 @@ pub struct ShadTable {
     #[rust]
     applied_content_width: Option<f64>,
     #[rust]
+    caption_text_cache: String,
+    #[rust]
+    caption_visible_cache: Option<bool>,
+    #[rust]
+    header_visible_cache: Option<bool>,
+    #[rust]
     total_width: f64,
     #[rust]
     selected_row: Option<usize>,
@@ -738,15 +744,29 @@ impl ShadTable {
         }
         self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
 
-        self.view
-            .label(cx, ids!(table_view.caption_label))
-            .set_text(cx, self.caption.as_ref());
-        self.view
-            .label(cx, ids!(table_view.caption_label))
-            .set_visible(cx, !self.caption.as_ref().is_empty());
-        self.view
-            .widget(cx, ids!(table_view.scroll.content.header))
-            .set_visible(cx, !custom_row_mode && !self.headers.is_empty());
+        if self.caption_text_cache != self.caption.as_ref() {
+            self.caption_text_cache.clear();
+            self.caption_text_cache.push_str(self.caption.as_ref());
+            self.view
+                .label(cx, ids!(table_view.caption_label))
+                .set_text(cx, &self.caption_text_cache);
+        }
+
+        let caption_visible = !self.caption.as_ref().is_empty();
+        if self.caption_visible_cache != Some(caption_visible) {
+            self.view
+                .label(cx, ids!(table_view.caption_label))
+                .set_visible(cx, caption_visible);
+            self.caption_visible_cache = Some(caption_visible);
+        }
+
+        let header_visible = !custom_row_mode && !self.headers.is_empty();
+        if self.header_visible_cache != Some(header_visible) {
+            self.view
+                .widget(cx, ids!(table_view.scroll.content.header))
+                .set_visible(cx, header_visible);
+            self.header_visible_cache = Some(header_visible);
+        }
 
         if let Some(mut header) = self
             .view
