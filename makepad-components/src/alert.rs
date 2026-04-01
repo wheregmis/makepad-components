@@ -64,14 +64,16 @@ script_mod! {
         tone: ShadAlertTone.Default
         title_text: ""
         description_text: ""
+        default_bg_color: (shad_theme.color_popover)
         default_border_color: (shad_theme.color_outline_border)
         default_icon_color: (shad_theme.color_primary)
         default_title_color: (shad_theme.color_primary)
         default_description_color: (shad_theme.color_muted_foreground)
+        destructive_bg_color: (shad_theme.color_destructive_subtle)
         destructive_border_color: (shad_theme.color_destructive)
         destructive_icon_color: (shad_theme.color_destructive)
         destructive_title_color: (shad_theme.color_destructive)
-        destructive_description_color: (shad_theme.color_destructive)
+        destructive_description_color: (shad_theme.color_muted_foreground)
 
         body := mod.widgets.RoundedView{
             width: Fill
@@ -82,8 +84,8 @@ script_mod! {
             padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
 
             draw_bg +: {
-                color: #0000
-                border_size: 1.0
+                color: (shad_theme.color_popover)
+                border_size: (shad_theme.border_size)
                 border_radius: (shad_theme.radius)
                 border_color: (shad_theme.color_outline_border)
             }
@@ -116,6 +118,8 @@ pub struct ShadAlert {
     #[live]
     description_text: ArcStringMut,
     #[live]
+    default_bg_color: Vec4,
+    #[live]
     default_border_color: Vec4,
     #[live]
     default_icon_color: Vec4,
@@ -123,6 +127,8 @@ pub struct ShadAlert {
     default_title_color: Vec4,
     #[live]
     default_description_color: Vec4,
+    #[live]
+    destructive_bg_color: Vec4,
     #[live]
     destructive_border_color: Vec4,
     #[live]
@@ -143,14 +149,16 @@ impl ScriptHook for ShadAlert {
     ) {
         let title_text = self.title_text.as_ref().to_string();
         let description_text = self.description_text.as_ref().to_string();
-        let (border_color, icon_color, title_color, description_color) = match self.tone {
+        let (bg_color, border_color, icon_color, title_color, description_color) = match self.tone {
             ShadAlertTone::Default => (
+                self.default_bg_color,
                 self.default_border_color,
                 self.default_icon_color,
                 self.default_title_color,
                 self.default_description_color,
             ),
             ShadAlertTone::Destructive => (
+                self.destructive_bg_color,
                 self.destructive_border_color,
                 self.destructive_icon_color,
                 self.destructive_title_color,
@@ -161,6 +169,7 @@ impl ScriptHook for ShadAlert {
             let mut body = self.view.widget(cx, ids!(body));
             script_apply_eval!(cx, body, {
                 draw_bg +: {
+                    color: #(bg_color)
                     border_color: #(border_color)
                 }
             });

@@ -778,10 +778,9 @@ Behavior:
 ### Progress (`makepad-components/src/progress.rs`)
 
 - `ShadProgress` — default 50%
-- `ShadProgress33`, `ShadProgress66`, `ShadProgressFull` — 33%, 66%, 100%
 - `ShadProgressIndeterminate` — animated loading bar (continuous sweep)
 
-Use `ShadProgress66{}` for 66%. For custom values, extend `ShadProgressBase` with `draw_bg +: { progress: instance(0.42) }`.
+Set determinate values with `value: 0.42` in script or `ShadProgressRef::set_value(cx, 0.42)` from Rust. `ShadProgressWidgetRefExt::shad_progress(cx, ids!(...))` provides the typed ref lookup.
 
 ### Slider (`makepad-components/src/slider.rs`)
 

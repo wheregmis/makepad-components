@@ -17,7 +17,7 @@ script_mod! {
             color: (shad_theme.color_secondary)
             border_radius: (shad_theme.radius)
             border_size: 0.0
-            border_color: #0000
+            border_color: (shad_theme.color_clear)
 
             pixel: fn() {
                 let sdf = Sdf2d.viewport(self.pos * self.rect_size)

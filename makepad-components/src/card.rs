@@ -10,10 +10,10 @@ script_mod! {
         flow: Down
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
         draw_bg +: {
-            color: (shad_theme.color_background)
+            color: (shad_theme.color_popover)
             border_radius: (shad_theme.radius)
-            border_size: 1.0
-            border_color: (shad_theme.color_outline_border_hover)
+            border_size: (shad_theme.border_size)
+            border_color: (shad_theme.color_outline_border)
         }
     }
 

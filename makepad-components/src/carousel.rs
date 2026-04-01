@@ -70,7 +70,7 @@ script_mod! {
             color_hover: (shad_theme.color_secondary)
             color_down: (shad_theme.color_secondary_hover)
             color_focus: (shad_theme.color_secondary)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
             border_color: (shad_theme.color_outline_border)
             border_color_hover: (shad_theme.color_outline_border_hover)
@@ -88,7 +88,7 @@ script_mod! {
             color_hover: (shad_theme.color_secondary)
             color_down: (shad_theme.color_secondary_hover)
             color_focus: (shad_theme.color_secondary)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
             border_color: (shad_theme.color_outline_border)
             border_color_hover: (shad_theme.color_outline_border_hover)
@@ -128,7 +128,7 @@ script_mod! {
                         draw_bg +: {
                             color: (shad_theme.color_muted)
                             border_radius: (shad_theme.radius)
-                            border_size: 1.0
+                            border_size: (shad_theme.border_size)
                             border_color: (shad_theme.color_outline_border)
                         }
 
@@ -170,7 +170,7 @@ script_mod! {
                             draw_bg +: {
                                 color: (shad_theme.color_secondary)
                                 border_radius: (shad_theme.radius)
-                                border_size: 1.0
+                                border_size: (shad_theme.border_size)
                                 border_color: (shad_theme.color_outline_border)
                             }
 
@@ -197,7 +197,7 @@ script_mod! {
                         draw_bg +: {
                             color: (shad_theme.color_muted)
                             border_radius: (shad_theme.radius)
-                            border_size: 1.0
+                            border_size: (shad_theme.border_size)
                             border_color: (shad_theme.color_outline_border)
                         }
 
@@ -242,7 +242,7 @@ script_mod! {
                             draw_bg +: {
                                 color: (shad_theme.color_secondary)
                                 border_radius: (shad_theme.radius)
-                                border_size: 1.0
+                                border_size: (shad_theme.border_size)
                                 border_color: (shad_theme.color_outline_border)
                             }
 
@@ -269,7 +269,7 @@ script_mod! {
                         draw_bg +: {
                             color: (shad_theme.color_muted)
                             border_radius: (shad_theme.radius)
-                            border_size: 1.0
+                            border_size: (shad_theme.border_size)
                             border_color: (shad_theme.color_outline_border)
                         }
 
@@ -314,7 +314,7 @@ script_mod! {
                             draw_bg +: {
                                 color: (shad_theme.color_secondary)
                                 border_radius: (shad_theme.radius)
-                                border_size: 1.0
+                                border_size: (shad_theme.border_size)
                                 border_color: (shad_theme.color_outline_border)
                             }
 

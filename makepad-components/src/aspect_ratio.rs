@@ -12,7 +12,7 @@ script_mod! {
         ratio: 1.7777777778
         flow: Overlay
         align: Align{x: 0.5, y: 0.5}
-        draw_bg.color: #0000
+        draw_bg.color: (shad_theme.color_clear)
     }
 
 }

@@ -38,13 +38,13 @@ script_mod! {
 
         draw_bg +: {
             border_radius: (shad_theme.radius)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
 
-            color: #0000
-            color_hover: #0000
-            color_focus: #0000
-            color_down: #0000
-            color_empty: #0000
+            color: (shad_theme.color_clear)
+            color_hover: (shad_theme.color_clear)
+            color_focus: (shad_theme.color_clear)
+            color_down: (shad_theme.color_clear)
+            color_empty: (shad_theme.color_clear)
             color_disabled: (shad_theme.color_muted)
 
             border_color: (shad_theme.color_outline_border)
@@ -78,12 +78,12 @@ script_mod! {
     mod.widgets.ShadInputBorderless = mod.widgets.ShadInput {
         draw_bg +: {
             border_size: 0.0
-            border_color: #0000
-            border_color_hover: #0000
-            border_color_focus: #0000
-            border_color_down: #0000
-            border_color_empty: #0000
-            border_color_disabled: #0000
+            border_color: (shad_theme.color_clear)
+            border_color_hover: (shad_theme.color_clear)
+            border_color_focus: (shad_theme.color_clear)
+            border_color_down: (shad_theme.color_clear)
+            border_color_empty: (shad_theme.color_clear)
+            border_color_disabled: (shad_theme.color_clear)
         }
         padding: Inset{left: 0, right: 0, top: 12, bottom: 12}
     }
@@ -98,9 +98,9 @@ script_mod! {
 
         draw_bg +: {
             border_radius: (shad_theme.radius)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
 
-            color: #0000
+            color: (shad_theme.color_clear)
             border_color: (shad_theme.color_outline_border)
         }
 
@@ -146,7 +146,7 @@ script_mod! {
             draw_bg +: {
                 color: (shad_theme.color_secondary)
                 border_radius: 12.0
-                border_size: 1.0
+                border_size: (shad_theme.border_size)
                 border_color: (shad_theme.color_outline_border)
             }
 

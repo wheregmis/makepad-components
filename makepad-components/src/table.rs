@@ -39,7 +39,7 @@ script_mod! {
         fill_selected: (shad_theme.color_secondary)
         fill_striped: (shad_theme.color_muted)
 
-        draw_bg +: { color: #0000 }
+        draw_bg +: { color: (shad_theme.color_clear) }
 
         draw_text +: {
             color: (shad_theme.color_primary)
@@ -53,7 +53,7 @@ script_mod! {
         flow: Right
         align: Align{x: 0.5, y: 0.5}
         padding: Inset{left: 12.0, right: 12.0, top: 0.0, bottom: 0.0}
-        draw_bg.color: #0000
+        draw_bg.color: (shad_theme.color_clear)
 
         empty_label := ShadFieldDescription{
             text: ""

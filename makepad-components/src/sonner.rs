@@ -1,6 +1,6 @@
 use crate::internal::actions::emit_widget_action;
 use crate::internal::overlay::button_clicked;
-use crate::progress_test::MyProgressBarWidgetRefExt;
+use crate::progress::ShadProgressWidgetRefExt;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 use std::{cell::RefCell, collections::VecDeque, rc::Rc};
@@ -54,9 +54,9 @@ script_mod! {
         height: 28
         visible: false
         draw_bg +: {
-            color: #0000
+            color: (shad_theme.color_clear)
             border_size: 0.0
-            border_radius: 4.0
+            border_radius: (shad_theme.radius_sm)
         }
         icon := Icon{
             draw_icon.svg: crate_resource("self://resources/icons/checkmark.svg")
@@ -98,7 +98,7 @@ script_mod! {
         draw_bg +: {
             color: (shad_theme.color_secondary)
             border_radius: (shad_theme.radius)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_color: (shad_theme.color_outline_border)
         }
 
@@ -129,18 +129,26 @@ script_mod! {
                 width: 24
                 height: 24
                 draw_bg +: {
-                    color: #0000
+                    color: (shad_theme.color_clear)
                     color_hover: (shad_theme.color_ghost_hover)
                     color_down: (shad_theme.color_ghost_down)
                     border_size: 0.0
-                    border_radius: (shad_theme.radius)
+                    border_radius: (shad_theme.radius_sm)
                 }
                 draw_icon.color: (shad_theme.color_muted_foreground)
             }
         }
 
-        // 底部进度条
-        progress_bar := mod.widgets.MyProgressBar {}
+        progress_bar := mod.widgets.ShadProgress{
+            width: Fill
+            height: 3
+            value: 1.0
+            draw_bg +: {
+                color: (shad_theme.color_clear)
+                color_fill: (shad_theme.color_primary)
+                border_radius: 0.0
+            }
+        }
     }
 
     mod.widgets.ShadSonnerBase = #(ShadSonner::register_widget(vm))
@@ -341,7 +349,7 @@ impl ShadSonner {
         slot.widget(cx, ids!(error_icon)).set_visible(cx, false);
         slot.widget(cx, ids!(close_btn)).set_visible(cx, false);
 
-        // 标题处理
+        // Use the explicit title when provided, otherwise fall back to the kind label.
         let title = if item.title.is_empty() {
             Self::default_title(item.kind)
         } else {
@@ -363,11 +371,11 @@ impl ShadSonner {
             }
             SonnerKind::Close => {
                 slot.widget(cx, ids!(info_icon)).set_visible(cx, true);
-            } // Close类型默认显示Info图标
+            } // Close falls back to the info icon.
         }
         slot.widget(cx, ids!(close_btn))
             .set_visible(cx, item.show_close);
-        // 描述处理
+        // Only show the description row when the toast includes one.
         if let Some(desc) = &item.description {
             slot.label(cx, ids!(description_label)).set_text(cx, desc);
             slot.widget(cx, ids!(description_label))
@@ -505,7 +513,7 @@ impl ShadSonner {
         );
     }
 
-    // --- 核心推送方法 ---
+    // Global enqueue entrypoint shared by all Sonner instances.
     pub fn enqueue(&mut self, cx: &mut Cx, item: SonnerItem) {
         let (was_empty, needs_schedule) = {
             // Optimization: avoid cloning the global Rc wrapper
@@ -522,7 +530,8 @@ impl ShadSonner {
             let timeout_sec = item.duration.unwrap_or(DEFAULT_TIMEOUT_SEC).max(0.0);
             state.toasts.push_back(SonnerToastEntry {
                 item,
-                expires_at: None, // 交由 NextFrame 处理初始化
+                // Initialized on the next frame so all timing math uses a consistent clock tick.
+                expires_at: None,
                 total_duration: timeout_sec,
             });
             (was_empty, true)
@@ -600,7 +609,7 @@ impl Widget for ShadSonner {
                 let global = cx.global::<SonnerGlobal>();
                 let mut state = global.state.borrow_mut();
 
-                // 初始化新 enqueue 的 toast 的过期时间
+                // Stamp newly enqueued toasts with their first absolute expiry time.
                 for entry in state.toasts.iter_mut() {
                     if entry.expires_at.is_none() {
                         entry.expires_at = Some(now + entry.total_duration);
@@ -630,13 +639,13 @@ impl Widget for ShadSonner {
             for (i, &prog) in progresses.iter().enumerate().take(num_progresses) {
                 let slot = self.overlay.widget(cx, Self::toast_slot_path(i));
                 if !slot.is_empty() {
-                    let progress_bar = slot.my_progress_bar(cx, ids!(progress_bar));
-                    progress_bar.set_progress(cx, prog * 100.0);
+                    let progress_bar = slot.shad_progress(cx, ids!(progress_bar));
+                    progress_bar.set_value(cx, prog);
                     needs_redraw = true;
                 }
             }
             if needs_redraw {
-                self.overlay.redraw(cx); // 触发重绘以更新进度条
+                self.overlay.redraw(cx); // Redraw to advance the countdown bars.
             }
             let (changed, still_has_toasts, needs_schedule) = {
                 let global = cx.global::<SonnerGlobal>();
@@ -690,7 +699,7 @@ impl Widget for ShadSonner {
     }
 }
 
-// 为旧接口提供简单封装
+// Keep the ref API as a thin forwarding wrapper.
 impl ShadSonnerRef {
     pub fn enqueue(&self, cx: &mut Cx, item: SonnerItem) {
         if let Some(mut inner) = self.borrow_mut() {

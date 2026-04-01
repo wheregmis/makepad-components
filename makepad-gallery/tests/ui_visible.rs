@@ -1,23 +1,23 @@
-const SUITE_PATH: &str = "tests/ui_visible.splash";
+use makepad_test::{makepad_test, Selector, TestApp};
+
+fn go_to_button_page(app: &TestApp) {
+    app.locator(Selector::id("sidebar_button"))
+        .wait_visible()
+        .click();
+    app.locator(Selector::id("page_label")).wait_text("Button");
+    app.locator(Selector::id("content_flip"))
+        .wait_text("button_page");
+}
 
 #[ignore = "requires MAKEPAD_TEST_VISIBLE=1 and a running Studio remote session"]
-#[test]
-fn splash_suite_visible() {
-    let previous_route = std::env::var("MAKEPAD_GALLERY_INITIAL_ROUTE").ok();
-    std::env::set_var("MAKEPAD_GALLERY_INITIAL_ROUTE", "/button");
-
-    let result = makepad_test::run_splash_suite(
-        env!("CARGO_PKG_NAME"),
-        env!("CARGO_MANIFEST_DIR"),
-        module_path!(),
-        SUITE_PATH,
-    );
-
-    if let Some(route) = previous_route {
-        std::env::set_var("MAKEPAD_GALLERY_INITIAL_ROUTE", route);
-    } else {
-        std::env::remove_var("MAKEPAD_GALLERY_INITIAL_ROUTE");
-    }
-
-    result.unwrap();
+#[makepad_test]
+fn gallery_visible_button_page_smoke(app: TestApp) {
+    go_to_button_page(&app);
+    app.locator(Selector::widget_type("CodeView").text_contains("ShadButton"))
+        .wait_visible();
+    app.locator(Selector::id("theme_toggle"))
+        .wait_visible()
+        .click();
+    app.locator(Selector::id("theme_toggle"))
+        .wait_visible();
 }

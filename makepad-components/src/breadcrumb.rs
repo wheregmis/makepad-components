@@ -25,11 +25,11 @@ script_mod! {
             text_style.font_size: 11
         }
         draw_bg +: {
-            color: #0000
-            color_hover: #0000
-            color_down: #0000
-            color_focus: #0000
-            color_disabled: #0000
+            color: (shad_theme.color_clear)
+            color_hover: (shad_theme.color_clear)
+            color_down: (shad_theme.color_clear)
+            color_focus: (shad_theme.color_clear)
+            color_disabled: (shad_theme.color_clear)
         }
     }
 

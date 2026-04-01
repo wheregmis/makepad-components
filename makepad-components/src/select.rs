@@ -30,16 +30,16 @@ script_mod! {
 
         draw_bg +: {
             border_size: 0.0
-            border_radius: 6.0
-            color: #0000
+            border_radius: (shad_theme.radius)
+            color: (shad_theme.color_clear)
             color_hover: (shad_theme.color_secondary)
             color_active: (shad_theme.color_secondary_hover)
-            color_disabled: #0000
-            border_color: #0000
-            border_color_hover: #0000
-            border_color_active: #0000
-            border_color_disabled: #0000
-            mark_color: #0000
+            color_disabled: (shad_theme.color_clear)
+            border_color: (shad_theme.color_clear)
+            border_color_hover: (shad_theme.color_clear)
+            border_color_active: (shad_theme.color_clear)
+            border_color_disabled: (shad_theme.color_clear)
+            mark_color: (shad_theme.color_clear)
             mark_color_active: (shad_theme.color_primary)
             mark_color_disabled: (shad_theme.color_muted_foreground)
             color_dither: 0.0
@@ -52,9 +52,9 @@ script_mod! {
         menu_item: mod.widgets.ShadSelectItem{}
 
         draw_bg +: {
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
-            color: (shad_theme.color_background)
+            color: (shad_theme.color_popover)
             border_color: (shad_theme.color_outline_border)
             color_dither: 0.0
         }
@@ -89,13 +89,13 @@ script_mod! {
             disabled: instance(0.0)
 
             border_radius: (shad_theme.radius)
-            border_size: 1.0
-            color: #0000
+            border_size: (shad_theme.border_size)
+            color: (shad_theme.color_clear)
             color_hover: (shad_theme.color_ghost_hover)
             color_focus: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_ghost_down)
             color_active: (shad_theme.color_ghost_hover)
-            color_disabled: #0000
+            color_disabled: (shad_theme.color_clear)
             border_color: (shad_theme.color_outline_border)
             border_color_hover: (shad_theme.color_outline_border_hover)
             border_color_focus: (shad_theme.color_primary)

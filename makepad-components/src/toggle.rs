@@ -31,12 +31,12 @@ script_mod! {
 
         draw_bg +: {
             border_radius: (shad_theme.radius)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
 
-            color: #0000
+            color: (shad_theme.color_clear)
             color_hover: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_ghost_down)
-            color_focus: #0000
+            color_focus: (shad_theme.color_clear)
             color_active: (shad_theme.color_primary)
             color_disabled: (shad_theme.color_muted)
 
@@ -47,13 +47,13 @@ script_mod! {
             border_color_active: (shad_theme.color_primary)
             border_color_disabled: (shad_theme.color_outline_border)
 
-            mark_color: #0000
-            mark_color_hover: #0000
-            mark_color_down: #0000
-            mark_color_active: #0000
-            mark_color_active_hover: #0000
-            mark_color_focus: #0000
-            mark_color_disabled: #0000
+            mark_color: (shad_theme.color_clear)
+            mark_color_hover: (shad_theme.color_clear)
+            mark_color_down: (shad_theme.color_clear)
+            mark_color_active: (shad_theme.color_clear)
+            mark_color_active_hover: (shad_theme.color_clear)
+            mark_color_focus: (shad_theme.color_clear)
+            mark_color_disabled: (shad_theme.color_clear)
 
             pixel: fn() {
                 let sdf = Sdf2d.viewport(self.pos * self.rect_size)
@@ -136,7 +136,7 @@ script_mod! {
 
         draw_bg +: {
             color: (shad_theme.color_secondary)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
             border_color: (shad_theme.color_outline_border)
         }
@@ -145,12 +145,12 @@ script_mod! {
     mod.widgets.ShadToggleGroupItem = mod.widgets.ShadToggle{
         draw_bg +: {
             border_size: 0.0
-            border_color: #0000
-            border_color_hover: #0000
-            border_color_down: #0000
-            border_color_focus: #0000
-            border_color_active: #0000
-            border_color_disabled: #0000
+            border_color: (shad_theme.color_clear)
+            border_color_hover: (shad_theme.color_clear)
+            border_color_down: (shad_theme.color_clear)
+            border_color_focus: (shad_theme.color_clear)
+            border_color_active: (shad_theme.color_clear)
+            border_color_disabled: (shad_theme.color_clear)
         }
     }
 

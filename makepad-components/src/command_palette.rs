@@ -121,13 +121,13 @@ script_mod! {
         align: Align{x: 0.0, y: 0.5}
         text: "Command"
         draw_bg +: {
-            color: #0000
+            color: (shad_theme.color_clear)
             color_hover: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_ghost_down)
             color_focus: (shad_theme.color_ghost_hover)
             border_size: 0.0
-            border_radius: 10.0
-            border_color: #0000
+            border_radius: (shad_theme.radius_lg)
+            border_color: (shad_theme.color_clear)
         }
         draw_text.color: (shad_theme.color_primary)
         draw_text.color_hover: (shad_theme.color_primary)
@@ -157,8 +157,8 @@ script_mod! {
             padding: Inset{left: 14, right: 12, top: 0, bottom: 0}
             spacing: 12.0
             draw_bg +: {
-                color: #0000
-                border_radius: 10.0
+                color: (shad_theme.color_clear)
+                border_radius: (shad_theme.radius_lg)
                 border_size: 0.0
             }
 
@@ -178,6 +178,7 @@ script_mod! {
         height: Fill
         open: false
         active_row_color: (shad_theme.color_secondary_hover)
+        row_radius: (shad_theme.radius_lg)
         item_noun_plural: "commands"
         search_help: "Search by title, section, or shortcut."
 
@@ -199,8 +200,8 @@ script_mod! {
 
                     draw_bg +: {
                         color: (shad_theme.color_popover)
-                        border_radius: 18.0
-                        border_size: 1.0
+                        border_radius: (shad_theme.radius_xl)
+                        border_size: (shad_theme.border_size)
                         border_color: (shad_theme.color_outline_border)
                     }
 
@@ -330,6 +331,8 @@ pub struct ShadCommandPalette {
     layout: Layout,
     #[live]
     active_row_color: Vec4f,
+    #[live]
+    row_radius: f64,
     #[live]
     item_noun_plural: ArcStringMut,
     #[live]
@@ -661,7 +664,7 @@ impl ShadCommandPalette {
                 script_apply_eval!(cx, row, {
                     draw_bg +: {
                         color: #(background)
-                        border_radius: 10.0
+                        border_radius: #(self.row_radius)
                     }
                 });
             }

@@ -8,8 +8,8 @@ script_mod! {
         width: Fill
         height: Fit
         padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
-        draw_bg.color: #0000
-        draw_bg.border_size: 1.0
+        draw_bg.color: (shad_theme.color_clear)
+        draw_bg.border_size: (shad_theme.border_size)
         draw_bg.border_color: (shad_theme.color_outline_border)
         draw_bg.border_radius: (shad_theme.radius)
     }

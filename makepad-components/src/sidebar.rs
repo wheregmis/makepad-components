@@ -26,15 +26,15 @@ script_mod! {
         reset_hover_on_click: true
         grab_key_focus: true
         draw_bg +: {
-            color: #0000
+            color: (shad_theme.color_clear)
             color_hover: (shad_theme.color_secondary_hover)
             color_down: (shad_theme.color_secondary_down)
             color_focus: (shad_theme.color_secondary_hover)
             color_active: (shad_theme.color_secondary_hover)
             border_radius: (shad_theme.radius)
             border_size: 0.0
-            border_color: #0000
-            border_color_active: #0000
+            border_color: (shad_theme.color_clear)
+            border_color_active: (shad_theme.color_clear)
         }
         draw_text +: {
             color: (shad_theme.color_muted_foreground)

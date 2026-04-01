@@ -24,14 +24,14 @@ script_mod! {
         padding: Inset{left: 14, right: 14, top: 0, bottom: 0}
 
         draw_bg +: {
-            color: #0000
+            color: (shad_theme.color_clear)
             color_hover: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_ghost_down)
             color_focus: (shad_theme.color_ghost_hover)
             color_disabled: (shad_theme.color_disabled)
             border_size: 0.0
             border_radius: (shad_theme.radius)
-            border_color: #0000
+            border_color: (shad_theme.color_clear)
         }
 
         draw_text +: {
@@ -53,7 +53,7 @@ script_mod! {
 
         draw_bg +: {
             color: (shad_theme.color_popover)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
             border_color: (shad_theme.color_outline_border)
         }
@@ -74,7 +74,7 @@ script_mod! {
 
         draw_bg +: {
             color: (shad_theme.color_secondary)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
             border_color: (shad_theme.color_outline_border)
         }
@@ -89,7 +89,7 @@ script_mod! {
 
         draw_bg +: {
             color: (shad_theme.color_secondary)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
             border_color: (shad_theme.color_outline_border)
         }

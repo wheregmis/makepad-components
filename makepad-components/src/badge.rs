@@ -34,6 +34,7 @@ script_mod! {
         height: Fit
         tone: ShadBadgeTone.Default
         text: ""
+        radius: (shad_theme.radius)
         default_color: (shad_theme.color_primary)
         default_label_color: (shad_theme.color_primary_foreground)
         secondary_color: (shad_theme.color_secondary)
@@ -42,11 +43,13 @@ script_mod! {
         destructive_label_color: (shad_theme.color_destructive_foreground)
         success_color: (shad_theme.color_success_subtle)
         success_label_color: (shad_theme.color_success)
+        success_border_color: (shad_theme.color_success_border)
         warning_color: (shad_theme.color_warning_subtle)
         warning_label_color: (shad_theme.color_warning)
-        outline_color: #0000
+        warning_border_color: (shad_theme.color_warning_border)
+        outline_color: (shad_theme.color_clear)
         outline_label_color: (shad_theme.color_muted_foreground)
-        outline_border_color: (shad_theme.color_outline_border_hover)
+        outline_border_color: (shad_theme.color_outline_border)
 
         body := mod.widgets.RoundedView{
             width: Fit
@@ -57,9 +60,9 @@ script_mod! {
 
             draw_bg +: {
                 color: (shad_theme.color_primary)
-                border_radius: 5.0
+                border_radius: (shad_theme.radius)
                 border_size: 0.0
-                border_color: #0000
+                border_color: (shad_theme.color_clear)
             }
 
             label := mod.widgets.ShadBadgeLabel{
@@ -81,6 +84,8 @@ pub struct ShadBadge {
     #[live]
     text: ArcStringMut,
     #[live]
+    radius: f64,
+    #[live]
     default_color: Vec4,
     #[live]
     default_label_color: Vec4,
@@ -97,9 +102,13 @@ pub struct ShadBadge {
     #[live]
     success_label_color: Vec4,
     #[live]
+    success_border_color: Vec4,
+    #[live]
     warning_color: Vec4,
     #[live]
     warning_label_color: Vec4,
+    #[live]
+    warning_border_color: Vec4,
     #[live]
     outline_color: Vec4,
     #[live]
@@ -143,13 +152,13 @@ impl ScriptHook for ShadBadge {
                 self.success_color,
                 self.success_label_color,
                 1.0,
-                vec4(0.0, 0.0, 0.0, 0.0),
+                self.success_border_color,
             ),
             ShadBadgeTone::Warning => (
                 self.warning_color,
                 self.warning_label_color,
                 1.0,
-                vec4(0.0, 0.0, 0.0, 0.0),
+                self.warning_border_color,
             ),
             ShadBadgeTone::Outline => (
                 self.outline_color,
@@ -163,6 +172,7 @@ impl ScriptHook for ShadBadge {
             script_apply_eval!(cx, body, {
                 draw_bg +: {
                     color: #(color)
+                    border_radius: #(self.radius)
                     border_size: #(border_size)
                     border_color: #(border_color)
                 }

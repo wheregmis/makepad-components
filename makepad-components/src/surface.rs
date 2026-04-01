@@ -21,9 +21,11 @@ script_mod! {
         width: Fill
         height: Fit
         variant: ShadSurfaceVariant.Default
-        default_color: (shad_theme.color_background)
+        default_color: (shad_theme.color_popover)
         muted_color: (shad_theme.color_muted)
         border_color: (shad_theme.color_outline_border)
+        radius: (shad_theme.radius)
+        border_size: (shad_theme.border_size)
 
         body := mod.widgets.RoundedView{
             width: Fill
@@ -31,7 +33,7 @@ script_mod! {
 
             draw_bg +: {
                 border_radius: (shad_theme.radius)
-                border_size: 1.0
+                border_size: (shad_theme.border_size)
                 border_color: (shad_theme.color_outline_border)
             }
         }
@@ -65,6 +67,10 @@ pub struct ShadSurface {
     muted_color: Vec4,
     #[live]
     border_color: Vec4,
+    #[live]
+    radius: f64,
+    #[live]
+    border_size: f64,
 }
 
 #[derive(Default)]
@@ -131,47 +137,25 @@ impl ScriptHook for ShadSurface {
         _scope: &mut Scope,
         value: ScriptValue,
     ) {
-        let color = match self.variant {
+        let default_color = match self.variant {
             ShadSurfaceVariant::Default => self.default_color,
             ShadSurfaceVariant::Muted => self.muted_color,
         };
         let draw_bg_overrides = source_draw_bg_overrides(vm, value);
+        let color = draw_bg_overrides.color.unwrap_or(default_color);
+        let border_color = draw_bg_overrides.border_color.unwrap_or(self.border_color);
+        let border_radius = draw_bg_overrides.border_radius.unwrap_or(self.radius);
+        let border_size = draw_bg_overrides.border_size.unwrap_or(self.border_size);
         vm.with_cx_mut(|cx| {
             let mut body = self.view.widget(cx, ids!(body));
             script_apply_eval!(cx, body, {
                 draw_bg +: {
                     color: #(color)
-                    border_color: #(self.border_color)
+                    border_color: #(border_color)
+                    border_radius: #(border_radius)
+                    border_size: #(border_size)
                 }
             });
-            if let Some(color) = draw_bg_overrides.color {
-                script_apply_eval!(cx, body, {
-                    draw_bg +: {
-                        color: #(color)
-                    }
-                });
-            }
-            if let Some(border_color) = draw_bg_overrides.border_color {
-                script_apply_eval!(cx, body, {
-                    draw_bg +: {
-                        border_color: #(border_color)
-                    }
-                });
-            }
-            if let Some(border_radius) = draw_bg_overrides.border_radius {
-                script_apply_eval!(cx, body, {
-                    draw_bg +: {
-                        border_radius: #(border_radius)
-                    }
-                });
-            }
-            if let Some(border_size) = draw_bg_overrides.border_size {
-                script_apply_eval!(cx, body, {
-                    draw_bg +: {
-                        border_size: #(border_size)
-                    }
-                });
-            }
         });
     }
 }

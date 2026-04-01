@@ -1,3 +1,4 @@
+use crate::button::ShadButtonVariant;
 use crate::internal::actions::first_widget_action;
 use crate::internal::overlay::{
     button_clicked, draw_modal_overlay, modal_dismissed, set_modal_widget_open,
@@ -30,9 +31,9 @@ script_mod! {
         spacing: 0.0
 
         draw_bg +: {
-            color: (shad_theme.color_background)
+            color: (shad_theme.color_popover)
             border_radius: (shad_theme.radius)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_color: (shad_theme.color_outline_border)
         }
     }
@@ -225,6 +226,10 @@ impl ScriptHook for ShadDialog {
         let description_text = self.alert_description_text.as_ref().to_string();
         let confirm_text = self.alert_confirm_text.as_ref().to_string();
         let cancel_text = self.alert_cancel_text.as_ref().to_string();
+        let confirm_variant = match self.alert_tone {
+            ShadDialogAlertTone::Default => ShadButtonVariant::Primary,
+            ShadDialogAlertTone::Destructive => ShadButtonVariant::Destructive,
+        };
         let (border_color, title_color, description_color) = match self.alert_tone {
             ShadDialogAlertTone::Default => (
                 self.default_border_color,
@@ -290,6 +295,7 @@ impl ScriptHook for ShadDialog {
                     .overlay
                     .widget(cx, ids!(content.dialog_panel.footer.confirm));
                 script_apply_eval!(cx, confirm, {
+                    variant: #(confirm_variant)
                     text: #(confirm_text.clone())
                 });
 
@@ -309,6 +315,13 @@ impl ScriptHook for ShadDialog {
                         }
                     });
                 }
+            } else {
+                let mut confirm = self
+                    .overlay
+                    .widget(cx, ids!(content.dialog_panel.footer.confirm));
+                script_apply_eval!(cx, confirm, {
+                    variant: #(confirm_variant)
+                });
             }
         });
     }

@@ -21,7 +21,7 @@ script_mod! {
             color_fill: (shad_theme.color_primary)
             border_radius: (shad_theme.radius)
             border_size: 0.0
-            border_color: #0000
+            border_color: (shad_theme.color_clear)
             progress: instance(0.5)
 
             pixel: fn() {
@@ -62,7 +62,7 @@ script_mod! {
             color_fill: (shad_theme.color_primary)
             border_radius: (shad_theme.radius)
             border_size: 0.0
-            border_color: #0000
+            border_color: (shad_theme.color_clear)
             bar_width: uniform(0.4)
 
             pixel: fn() {
@@ -106,6 +106,8 @@ pub struct ShadProgress {
     layout: Layout,
     #[rust]
     area: Area,
+    #[rust]
+    applied_value: Option<f64>,
 }
 
 impl ScriptHook for ShadProgress {
@@ -117,6 +119,7 @@ impl ScriptHook for ShadProgress {
         _value: ScriptValue,
     ) {
         self.value = clamp_progress_value(self.value);
+        self.applied_value = None;
     }
 }
 
@@ -136,6 +139,21 @@ impl ShadProgress {
 
     pub fn value(&self) -> f64 {
         self.normalized_value()
+    }
+
+    fn sync_progress_to_shader(&mut self, cx: &mut Cx2d, value: f64) {
+        if self
+            .applied_value
+            .is_some_and(|applied| (applied - value).abs() <= f64::EPSILON)
+        {
+            return;
+        }
+        script_apply_eval!(cx, self, {
+            draw_bg +: {
+                progress: #(value)
+            }
+        });
+        self.applied_value = Some(value);
     }
 }
 
@@ -162,12 +180,8 @@ impl Widget for ShadProgress {
 
     fn draw_walk(&mut self, cx: &mut Cx2d, _scope: &mut Scope, walk: Walk) -> DrawStep {
         let value = self.normalized_value();
+        self.sync_progress_to_shader(cx, value);
         self.draw_bg.begin(cx, walk, self.layout);
-        script_apply_eval!(cx, self, {
-            draw_bg +: {
-                progress: #(value)
-            }
-        });
         self.draw_bg.end(cx);
         self.area = self.draw_bg.area();
         DrawStep::done()

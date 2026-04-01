@@ -18,7 +18,7 @@ script_mod! {
 
         draw_bg +: {
             color: (shad_theme.color_popover)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
             border_color: (shad_theme.color_outline_border)
         }

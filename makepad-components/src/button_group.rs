@@ -12,7 +12,7 @@ script_mod! {
         spacing: 0.0
         draw_bg +: {
             color: (shad_theme.color_secondary)
-            border_size: 1.0
+            border_size: (shad_theme.border_size)
             border_radius: (shad_theme.radius)
             border_color: (shad_theme.color_outline_border)
         }
@@ -25,7 +25,7 @@ script_mod! {
         variant: ShadButtonVariant.Ghost
         managed_radius: 0.0
         size_large_padding_x: 20
-        destructive_fill: #0000
+        destructive_fill: (shad_theme.color_clear)
         destructive_fill_hover: (shad_theme.color_destructive_hover)
         destructive_fill_down: (shad_theme.color_destructive_down)
         destructive_fill_focus: (shad_theme.color_destructive_hover)

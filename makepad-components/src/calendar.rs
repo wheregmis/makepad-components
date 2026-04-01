@@ -23,7 +23,7 @@ script_mod! {
         color_hover: (shad_theme.color_secondary_hover)
 
         draw_bg +: { color: (shad_theme.color_background) }
-        draw_cell_bg +: { color: #0000 }
+        draw_cell_bg +: { color: (shad_theme.color_clear) }
 
         draw_header_text +: {
             color: (shad_theme.color_primary)

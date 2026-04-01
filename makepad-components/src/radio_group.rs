@@ -30,12 +30,12 @@ script_mod! {
 
         draw_bg +: {
             size: 16.0
-            color: #0000
-            color_hover: #0000
-            color_down: #0000
-            color_focus: #0000
-            color_disabled: #0000
-            color_active: #0000
+            color: (shad_theme.color_clear)
+            color_hover: (shad_theme.color_clear)
+            color_down: (shad_theme.color_clear)
+            color_focus: (shad_theme.color_clear)
+            color_disabled: (shad_theme.color_clear)
+            color_active: (shad_theme.color_clear)
 
             border_color: (shad_theme.color_outline_border)
             border_color_hover: (shad_theme.color_outline_border_hover)
@@ -44,7 +44,7 @@ script_mod! {
             border_color_active: (shad_theme.color_primary)
             border_color_disabled: (shad_theme.color_outline_border)
 
-            mark_color: #0000
+            mark_color: (shad_theme.color_clear)
             mark_color_active: (shad_theme.color_primary)
             mark_color_disabled: (shad_theme.color_muted_foreground)
         }
