@@ -11,10 +11,7 @@ macro_rules! define_gallery_sidebar {
                 widget: $widget:ident,
                 sidebar_id: $sidebar_id:ident,
                 sidebar_label: $sidebar_label:literal,
-                section: $section:literal,
-                shortcut: $shortcut:literal,
-                snippet: $snippet:ident,
-                $(transition: $transition:ident,)?
+                $($rest:tt)*
             }
         )*
     ) => {

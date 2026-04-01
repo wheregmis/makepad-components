@@ -17,13 +17,7 @@ macro_rules! declare_gallery_page_modules {
             title: $title:literal,
             route: $route:literal,
             page: $page:ident,
-            widget: $widget:ident,
-            sidebar_id: $sidebar_id:ident,
-            sidebar_label: $sidebar_label:literal,
-            section: $section:literal,
-            shortcut: $shortcut:literal,
-            snippet: $snippet:ident,
-            $(transition: $transition:ident,)?
+            $($rest:tt)*
         }
     )*) => {
         $(pub mod $page;)*
@@ -42,13 +36,7 @@ pub fn script_mod(vm: &mut ScriptVm) {
                 title: $title:literal,
                 route: $route:literal,
                 page: $page:ident,
-                widget: $widget:ident,
-                sidebar_id: $sidebar_id:ident,
-                sidebar_label: $sidebar_label:literal,
-                section: $section:literal,
-                shortcut: $shortcut:literal,
-                snippet: $snippet:ident,
-                $(transition: $transition:ident,)?
+                $($rest:tt)*
             }
         )*) => {
             $(crate::ui::$page::script_mod(vm);)*

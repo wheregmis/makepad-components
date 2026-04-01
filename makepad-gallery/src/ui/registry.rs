@@ -1,3 +1,5 @@
+// Source-of-truth metadata for the gallery shell, navigation, snippets, and docs pages.
+// Downstream wrapper modules should consume only the fields they actually need.
 macro_rules! gallery_page_entries {
     ($callback:ident) => {
         $callback! {
