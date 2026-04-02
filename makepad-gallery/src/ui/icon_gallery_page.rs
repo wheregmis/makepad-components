@@ -247,7 +247,6 @@ impl GalleryIconGalleryPage {
 
     fn apply_filter(&mut self, cx: &mut Cx) {
         self.ensure_filter_cache();
-        let display_query = self.query.trim().to_string();
         let query = Self::normalize_query(&self.query);
         let mut matches_count = 0;
         let mut first_match_index = None;
@@ -277,7 +276,7 @@ impl GalleryIconGalleryPage {
             changed = true;
         }
 
-        let summary = Self::summary_text(&display_query, matches_count);
+        let summary = Self::summary_text(self.query.trim(), matches_count);
         if self.summary_cache != summary {
             self.summary_cache = summary;
             self.view
@@ -301,7 +300,7 @@ impl GalleryIconGalleryPage {
             None => {
                 if self.usage_entry_cache.is_some() || !query.is_empty() {
                     self.usage_entry_cache = None;
-                    self.sync_empty_usage_preview(cx, &display_query);
+                    self.sync_empty_usage_preview(cx, self.query.trim());
                     changed = true;
                 }
             }
