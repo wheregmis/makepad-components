@@ -247,7 +247,10 @@ impl GalleryIconGalleryPage {
 
     fn apply_filter(&mut self, cx: &mut Cx) {
         self.ensure_filter_cache();
-        let display_query = self.query.trim().to_string();
+        // Optimization: avoid string allocation on every keystroke
+        // Previously: let display_query = self.query.trim().to_string(); (caused unnecessary heap allocations)
+        // Now: borrow a slice from the existing query string
+        let display_query = self.query.trim();
         let query = Self::normalize_query(&self.query);
         let mut matches_count = 0;
         let mut first_match_index = None;

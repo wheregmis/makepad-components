@@ -430,7 +430,10 @@ impl GalleryCommandPalette {
 
     fn refresh_results(&mut self, cx: &mut Cx) {
         let query = self.normalize_query();
-        let display_query = self.query.trim().to_string();
+        // Optimization: avoid string allocation on every keystroke
+        // Previously: let display_query = self.query.trim().to_string(); (caused unnecessary heap allocations)
+        // Now: borrow a slice from the existing query string
+        let display_query = self.query.trim();
         let search_terms = command_search_terms();
         let previous_active = self.active_index;
         self.filtered_indices_scratch.clear();
