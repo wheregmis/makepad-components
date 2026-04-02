@@ -319,7 +319,7 @@ impl ShadSonner {
         cx: &mut Cx,
         overlay: &WidgetRef,
         index: usize,
-        item: Option<SonnerItem>,
+        item: Option<&SonnerItem>,
     ) -> bool {
         let slot = overlay.widget(cx, Self::toast_slot_path(index));
         if slot.is_empty() {
@@ -397,8 +397,11 @@ impl ShadSonner {
                 }
             }
 
+            // Optimization: avoid cloning SonnerItem (which contains String allocations)
+            // Previously: `toast.clone()` was passed, duplicating strings on every toast queue modification
+            // Now: pass by reference `toast.as_ref()` to `sync_overlay_slot`
             for (index, toast) in visible_toasts.iter().enumerate().take(MAX_VISIBLE_TOASTS) {
-                Self::sync_overlay_slot(cx, &overlay, index, toast.clone());
+                Self::sync_overlay_slot(cx, &overlay, index, toast.as_ref());
             }
 
             {
@@ -478,12 +481,11 @@ impl ShadSonner {
         }
 
         let visible_toasts = self.visible_toasts(cx);
-        for (index, kind) in visible_toasts
-            .into_iter()
-            .enumerate()
-            .take(MAX_VISIBLE_TOASTS)
-        {
-            Self::sync_overlay_slot(cx, &self.overlay, index, kind);
+        // Optimization: avoid cloning SonnerItem (which contains String allocations)
+        // Previously: iterating by value cloned the string contents
+        // Now: pass by reference `kind.as_ref()` to `sync_overlay_slot`
+        for (index, kind) in visible_toasts.iter().enumerate().take(MAX_VISIBLE_TOASTS) {
+            Self::sync_overlay_slot(cx, &self.overlay, index, kind.as_ref());
         }
         self.sync_overlay_open_state(cx);
     }
