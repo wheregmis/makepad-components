@@ -20,6 +20,7 @@ script_mod! {
         padding: theme.mspace_1{left: theme.space_2, right: theme.space_2}
         margin: theme.mspace_v_1
         label_walk: Walk{width: Fit, height: Fit}
+        label_align: Align{x: 0.5, y: 0.5}
         grab_key_focus: true
 
         draw_text +: {
@@ -464,6 +465,8 @@ pub struct ShadNavButton {
     draw_text: DrawText,
     #[live]
     label_walk: Walk,
+    #[live(Align { x: 0.5, y: 0.5 })]
+    label_align: Align,
 
     #[walk]
     walk: Walk,
@@ -795,7 +798,7 @@ impl Widget for ShadNavButton {
         self.sync_active_state_if_needed(&mut *cx, Animate::No);
         self.draw_bg.begin(cx, walk, self.layout);
         self.draw_text
-            .draw_walk(cx, self.label_walk, Align::default(), self.text.as_ref());
+            .draw_walk(cx, self.label_walk, self.label_align, self.text.as_ref());
         self.draw_bg.end(cx);
         self.area = self.draw_bg.area();
 

@@ -71,6 +71,7 @@ const DAY_LABELS: [&str; 31] = [
 pub enum ShadCalendarAction {
     Changed(ShadDate),
     VisibleMonthChanged(i32, u8),
+    HoveredDateChanged(Option<ShadDate>),
     #[default]
     None,
 }
@@ -206,6 +207,15 @@ impl ScriptHook for ShadCalendar {
 }
 
 impl ShadCalendar {
+    fn hovered_date_for_target(&self, target: Option<CalendarTarget>) -> Option<ShadDate> {
+        match target {
+            Some(CalendarTarget::Cell(index)) => {
+                self.month_cells_cache.get(index).map(|cell| cell.date)
+            }
+            _ => None,
+        }
+    }
+
     fn emit_visible_month_changed(&self, cx: &mut Cx) {
         cx.widget_action_with_data(
             &self.action_data,
@@ -365,7 +375,16 @@ impl ShadCalendar {
 
     fn set_hovered_target(&mut self, cx: &mut Cx, target: Option<CalendarTarget>) {
         if self.hovered_target != target {
+            let previous_date = self.hovered_date_for_target(self.hovered_target);
             self.hovered_target = target;
+            let hovered_date = self.hovered_date_for_target(self.hovered_target);
+            if previous_date != hovered_date {
+                cx.widget_action_with_data(
+                    &self.action_data,
+                    self.widget_uid(),
+                    ShadCalendarAction::HoveredDateChanged(hovered_date),
+                );
+            }
             self.area.redraw(cx);
         }
     }
@@ -431,8 +450,12 @@ impl ShadCalendar {
         (self.visible_year, self.visible_month)
     }
 
+    pub fn hovered_date(&self) -> Option<ShadDate> {
+        self.hovered_date_for_target(self.hovered_target)
+    }
+
     pub fn changed(&self, actions: &Actions) -> Option<ShadDate> {
-        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
+        for item in actions.filter_widget_actions(self.widget_uid()) {
             if let ShadCalendarAction::Changed(value) = item.cast() {
                 return Some(value);
             }
@@ -441,9 +464,18 @@ impl ShadCalendar {
     }
 
     pub fn visible_month_changed(&self, actions: &Actions) -> Option<(i32, u8)> {
-        if let Some(item) = actions.find_widget_action(self.widget_uid()) {
+        for item in actions.filter_widget_actions(self.widget_uid()) {
             if let ShadCalendarAction::VisibleMonthChanged(year, month) = item.cast() {
                 return Some((year, month));
+            }
+        }
+        None
+    }
+
+    pub fn hovered_date_changed(&self, actions: &Actions) -> Option<Option<ShadDate>> {
+        for item in actions.filter_widget_actions(self.widget_uid()) {
+            if let ShadCalendarAction::HoveredDateChanged(value) = item.cast() {
+                return Some(value);
             }
         }
         None
@@ -482,7 +514,7 @@ impl Widget for ShadCalendar {
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, _scope: &mut Scope) {
         match event.hits(cx, self.area) {
-            Hit::FingerHoverIn(fh) => {
+            Hit::FingerHoverIn(fh) | Hit::FingerHoverOver(fh) => {
                 let target = self.target_from_abs(cx, fh.abs);
                 if target.is_some() {
                     cx.set_cursor(MouseCursor::Hand);
@@ -650,6 +682,10 @@ impl ShadCalendarRef {
         self.borrow().map(|inner| inner.visible_month())
     }
 
+    pub fn hovered_date(&self) -> Option<ShadDate> {
+        self.borrow().and_then(|inner| inner.hovered_date())
+    }
+
     pub fn changed(&self, actions: &Actions) -> Option<ShadDate> {
         self.borrow().and_then(|inner| inner.changed(actions))
     }
@@ -657,6 +693,11 @@ impl ShadCalendarRef {
     pub fn visible_month_changed(&self, actions: &Actions) -> Option<(i32, u8)> {
         self.borrow()
             .and_then(|inner| inner.visible_month_changed(actions))
+    }
+
+    pub fn hovered_date_changed(&self, actions: &Actions) -> Option<Option<ShadDate>> {
+        self.borrow()
+            .and_then(|inner| inner.hovered_date_changed(actions))
     }
 }
 

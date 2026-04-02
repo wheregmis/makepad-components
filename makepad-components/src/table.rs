@@ -533,6 +533,10 @@ impl Widget for ShadTableRowView {
         cx.end_turtle_with_area(&mut self.area);
         DrawStep::done()
     }
+
+    fn text(&self) -> String {
+        self.cells.join(" ")
+    }
 }
 
 #[derive(Script, Widget)]
@@ -1038,6 +1042,12 @@ impl ShadTable {
         );
         if self.rows_data.len() > max_window_len {
             self.rows_data.truncate(max_window_len);
+        }
+        let list = self
+            .view
+            .portal_list(cx, ids!(table_view.scroll.content.list));
+        if virtual_window_index(list.first_id(), clamped_start, self.rows_data.len()).is_none() {
+            list.set_first_id_and_scroll(clamped_start, 0.0);
         }
         self.selected_row = clamp_selected_row(self.selected_row, row_count);
         let column_count = resolved_column_count(&self.headers, &self.rows_data).max(1);

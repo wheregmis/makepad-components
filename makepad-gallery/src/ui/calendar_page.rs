@@ -74,9 +74,13 @@ impl GalleryCalendarPage {
             .visible_month()
             .map(|(year, month)| format!("{year:04}-{month:02}"))
             .unwrap_or_else(|| "Unknown".to_string());
+        let hovered = calendar
+            .hovered_date()
+            .map(|value| value.format_iso())
+            .unwrap_or_else(|| "none".to_string());
         self.view.label(cx, ids!(calendar_status)).set_text(
             cx,
-            &format!("Selected: {selected}. Visible month: {visible}."),
+            &format!("Selected: {selected}. Visible month: {visible}. Hovered: {hovered}."),
         );
     }
 }
@@ -134,6 +138,7 @@ impl Widget for GalleryCalendarPage {
 
             if calendar.changed(actions).is_some()
                 || calendar.visible_month_changed(actions).is_some()
+                || calendar.hovered_date_changed(actions).is_some()
             {
                 self.sync_status(cx);
             }

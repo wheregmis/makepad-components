@@ -1,14 +1,12 @@
 use crate::button::ShadButtonWidgetExt;
 use crate::input::ShadSearchInputWidgetRefExt;
 use crate::internal::actions::{emit_widget_action, widget_action_map};
+use crate::table::ShadTableWidgetRefExt;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::sync::Arc;
-
-const RESULTS_SCROLL_SPEED: f64 = 18.0;
-const RESULTS_MAX_ITEMS_TO_SHOW: usize = 8;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct ShadCommandPaletteItem {
@@ -190,20 +188,24 @@ script_mod! {
 
         row := ShadSurface{
             width: Fill
-            height: 44
-            flow: Right
-            align: Align{y: 0.5}
-            padding: Inset{left: 14, right: 12, top: 0, bottom: 0}
-            spacing: 12.0
             draw_bg +: {
                 color: (shad_theme.color_clear)
                 border_radius: (shad_theme.radius_lg)
                 border_size: 0.0
             }
 
-            button := mod.widgets.ShadCommandPaletteRowButton{}
+            body +: {
+                width: Fill
+                height: 44
+                flow: Right
+                align: Align{y: 0.5}
+                padding: Inset{left: 14, right: 12, top: 0, bottom: 0}
+                spacing: 12.0
 
-            shortcut_btn := mod.widgets.ShadCommandPaletteShortcutButton{}
+                button := mod.widgets.ShadCommandPaletteRowButton{}
+
+                shortcut_btn := mod.widgets.ShadCommandPaletteShortcutButton{}
+            }
         }
     }
 
@@ -219,7 +221,7 @@ script_mod! {
 
         overlay: Modal{
             bg_view +: {
-                draw_bg.color: (shad_theme.color_overlay)
+                draw_bg.color: vec4(0.0, 0.0, 0.0, 0.72)
             }
 
             content +: {
@@ -228,11 +230,6 @@ script_mod! {
 
                 panel := ShadSurface{
                     width: Fill
-                    height: Fit
-                    flow: Down
-                    padding: Inset{left: 12, right: 12, top: 12, bottom: 12}
-                    spacing: 10.0
-
                     draw_bg +: {
                         color: (shad_theme.color_popover)
                         border_radius: (shad_theme.radius_xl)
@@ -240,102 +237,98 @@ script_mod! {
                         border_color: (shad_theme.color_outline_border)
                     }
 
-                    search_label := ShadFieldLabel{
-                        text: "Search commands"
-                    }
-
-                    search_row := View{
-                        width: Fill
-                        height: Fit
-                        flow: Right
-                        align: Align{y: 0.5}
-                        spacing: 8.0
-
-                        search_input := ShadSearchInput{
-                            width: Fill
-                            empty_text: "Search commands..."
-                            show_clear_button: false
-                        }
-
-                        clear_search_btn := ShadButton{
-                            variant: ShadButtonVariant.Ghost
-                            text: "Close"
-                        }
-                    }
-
-                    results_summary := ShadFieldDescription{
-                        text: "Showing all 0 commands. Search by title, section, or shortcut."
-                    }
-
-                    results_shell := View{
+                    body +: {
                         width: Fill
                         height: Fit
                         flow: Down
-                        spacing: 2.0
+                        padding: Inset{left: 12, right: 12, top: 12, bottom: 12}
+                        spacing: 12.0
 
-                        results := PortalList{
-                            width: Fill
-                            height: 320.0
-                            flow: Down
-                            max_pull_down: 0.0
-                            capture_overload: false
-                            grab_key_focus: false
-                            auto_tail: false
-                            selectable: false
-                            drag_scrolling: true
-
-                            Item := mod.widgets.ShadCommandPaletteRow{}
+                        search_label := ShadFieldLabel{
+                            text: "Search commands"
                         }
 
-                        empty_state := View{
+                        search_row := View{
                             width: Fill
                             height: Fit
-                            flow: Down
-                            align: Align{x: 0.5}
-                            padding: Inset{left: 12, right: 12, top: 18, bottom: 16}
-                            spacing: 6.0
-                            visible: false
+                            flow: Right
+                            align: Align{y: 0.5}
+                            spacing: 8.0
 
-                            empty_title := ShadLabel{
-                                draw_text.color: (shad_theme.color_primary)
-                                draw_text.text_style.font_size: 13
-                                text: "No commands found"
+                            search_input := ShadSearchInput{
+                                width: Fill
+                                empty_text: "Search commands..."
+                                show_clear_button: false
                             }
 
-                            empty_copy := ShadFieldDescription{
+                            clear_search_btn := ShadButton{
+                                variant: ShadButtonVariant.Ghost
+                                text: "Close"
+                            }
+                        }
+
+                        results_summary := ShadFieldDescription{
+                            text: "Showing all 0 commands. Search by title, section, or shortcut."
+                        }
+
+                        results_shell := ShadSurface{
+                            width: Fill
+
+                            draw_bg +: {
+                                color: (shad_theme.color_secondary)
+                                border_radius: (shad_theme.radius_lg)
+                                border_size: (shad_theme.border_size)
+                                border_color: (shad_theme.color_outline_border)
+                            }
+
+                            body +: {
+                                width: Fill
+                                height: Fit
+                                flow: Down
+                                padding: Inset{left: 6, right: 6, top: 6, bottom: 6}
+
+                                results_table := ShadTable{
+                                    width: Fill
+                                    height: Fit
+                                    viewport_height: 320.0
+                                    caption: ""
+                                    empty_message: "No commands found."
+                                    selectable: true
+                                    auto_fill_width: false
+                                    text_align: 0.0
+                                    headers: []
+                                    rows: []
+                                }
+                            }
+                        }
+
+                        footer := View{
+                            width: Fill
+                            height: Fit
+                            flow: Right{wrap: true}
+                            spacing: 8.0
+                            margin: Inset{top: 4}
+
+                            ShadKbd{ label := ShadKbdLabel{text: "Enter"} }
+                            footer_open_label := ShadSectionHeader{
                                 draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 11
-                                text: "Try a component name, a section, or a shortcut tag."
+                                draw_text.text_style.font_size: 10
+                                text: "Open"
                             }
-                        }
-                    }
 
-                    footer := View{
-                        width: Fill
-                        height: Fit
-                        flow: Right{wrap: true}
-                        spacing: 8.0
-                        margin: Inset{top: 4}
+                            ShadKbd{ label := ShadKbdLabel{text: "Esc"} }
+                            footer_close_label := ShadSectionHeader{
+                                draw_text.color: (shad_theme.color_muted_foreground)
+                                draw_text.text_style.font_size: 10
+                                text: "Clear / Close"
+                            }
 
-                        ShadKbd{ label := ShadKbdLabel{text: "Enter"} }
-                        footer_open_label := ShadSectionHeader{
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                            text: "Open"
-                        }
-
-                        ShadKbd{ label := ShadKbdLabel{text: "Esc"} }
-                        footer_close_label := ShadSectionHeader{
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                            text: "Clear / Close"
-                        }
-
-                        ShadKbd{ label := ShadKbdLabel{text: "Up/Down"} }
-                        footer_move_label := ShadSectionHeader{
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                            text: "Move"
+                            ShadKbd{ label := ShadKbdLabel{text: "Up/Down"} }
+                            footer_move_label := ShadSectionHeader{
+                                draw_text.color: (shad_theme.color_muted_foreground)
+                                draw_text.text_style.font_size: 10
+                                text: "Move"
+                            }
                         }
                     }
                 }
@@ -356,7 +349,7 @@ pub struct ShadCommandPalette {
     overlay: WidgetRef,
     #[live]
     open: bool,
-    /// Height of the scrollable results viewport (PortalList) inside the modal.
+    /// Height of the scrollable results viewport inside the modal.
     /// Callers should size this instead of trying to force the overall widget height.
     #[live(320.0)]
     viewport_height: f64,
@@ -414,11 +407,9 @@ impl ScriptHook for ShadCommandPalette {
         vm.with_cx_mut(|cx| {
             // Keep the widget reusable: callers own the results viewport height.
             let viewport_height = self.viewport_height;
-            let mut results_list = self
-                .overlay
-                .portal_list(cx, ids!(content.panel.results_shell.results));
-            script_apply_eval!(cx, results_list, {
-                height: #(viewport_height)
+            let mut results_table = self.results_table_ref(cx);
+            script_apply_eval!(cx, results_table, {
+                viewport_height: #(viewport_height)
             });
 
             self.sync_modal_state(cx);
@@ -428,9 +419,14 @@ impl ScriptHook for ShadCommandPalette {
 }
 
 impl ShadCommandPalette {
+    fn results_table_ref(&self, cx: &Cx) -> crate::table::ShadTableRef {
+        self.overlay
+            .shad_table(cx, ids!(content.panel.body.results_shell.body.results_table))
+    }
+
     fn search_input_ref(&self, cx: &Cx) -> crate::input::ShadSearchInputRef {
         self.overlay
-            .shad_search_input(cx, ids!(content.panel.search_row.search_input))
+            .shad_search_input(cx, ids!(content.panel.body.search_row.search_input))
     }
 
     fn sync_modal_state(&mut self, cx: &mut Cx) {
@@ -455,17 +451,18 @@ impl ShadCommandPalette {
             return;
         }
         self.has_results_cache = Some(has_results);
-        self.overlay
-            .widget(cx, ids!(content.panel.results_shell.results))
-            .set_visible(cx, has_results);
-        self.overlay
-            .view(cx, ids!(content.panel.results_shell.empty_state))
-            .set_visible(cx, !has_results);
+        self.results_table_ref(cx).set_selected_row(
+            cx,
+            has_results.then_some(self.active_index.min(self.filtered_indices.len().saturating_sub(1))),
+        );
     }
 
     fn reset_results_position(&mut self, cx: &mut Cx) {
         self.overlay
-            .portal_list(cx, ids!(content.panel.results_shell.results))
+            .portal_list(
+                cx,
+                ids!(content.panel.body.results_shell.body.results_table.table_view.scroll.content.list),
+            )
             .set_first_id(0);
     }
 
@@ -475,13 +472,11 @@ impl ShadCommandPalette {
         }
 
         self.overlay
-            .portal_list(cx, ids!(content.panel.results_shell.results))
-            .smooth_scroll_to(
+            .portal_list(
                 cx,
-                self.active_index,
-                RESULTS_SCROLL_SPEED,
-                Some(RESULTS_MAX_ITEMS_TO_SHOW),
-            );
+                ids!(content.panel.body.results_shell.body.results_table.table_view.scroll.content.list),
+            )
+            .set_first_id(self.active_index.saturating_sub(2));
     }
 
     fn emit_open_state(&self, cx: &mut Cx, open: bool) {
@@ -637,6 +632,25 @@ impl ShadCommandPalette {
         }
         let active_changed = previous_active != self.active_index;
 
+        let rows = self
+            .filtered_indices
+            .iter()
+            .map(|&index| {
+                let command = &self.items[index];
+                vec![
+                    command.title.clone(),
+                    command.section.clone(),
+                    command.shortcut.clone(),
+                ]
+            })
+            .collect();
+        let results_table = self.results_table_ref(cx);
+        results_table.set_rows(cx, rows);
+        results_table.set_selected_row(
+            cx,
+            (!self.filtered_indices.is_empty()).then_some(self.active_index),
+        );
+
         self.sync_empty_state(cx);
         let summary_text = command_results_summary(
             &display_query,
@@ -649,7 +663,7 @@ impl ShadCommandPalette {
             self.summary_text_cache.clear();
             self.summary_text_cache.push_str(&summary_text);
             self.overlay
-                .label(cx, ids!(content.panel.results_summary))
+                .label(cx, ids!(content.panel.body.results_summary))
                 .set_text(cx, &self.summary_text_cache);
         }
 
@@ -659,76 +673,12 @@ impl ShadCommandPalette {
             self.secondary_action_label_cache
                 .push_str(secondary_action_label);
             self.overlay
-                .shad_button(cx, ids!(content.panel.search_row.clear_search_btn))
+                .shad_button(cx, ids!(content.panel.body.search_row.clear_search_btn))
                 .set_text(cx, &self.secondary_action_label_cache);
         }
         self.reset_results_position(cx);
         if results_changed || active_changed {
             self.redraw(cx);
-        }
-    }
-
-    fn draw_results(&mut self, cx: &mut Cx2d, list: &mut PortalList) {
-        list.set_item_range(cx, 0, self.filtered_indices.len());
-
-        while let Some(item_id) = list.next_visible_item(cx) {
-            let Some(command_index) = self.filtered_indices.get(item_id).copied() else {
-                continue;
-            };
-
-            let command = &self.items[command_index];
-            let (item, item_existed) = list.item_with_existed(cx, item_id, id!(Item));
-            let item = item.as_view();
-            let show_header = !command.section.is_empty()
-                && (item_id == 0
-                    || self
-                        .filtered_indices
-                        .get(item_id - 1)
-                        .is_some_and(|previous| self.items[*previous].section != command.section));
-
-            let mut row = item.view(cx, ids!(row));
-            let button = item.shad_button(cx, ids!(row.button));
-            let shortcut_btn = item.shad_button(cx, ids!(row.shortcut_btn));
-            let is_hovered = button.is_hovered(cx) || shortcut_btn.is_hovered(cx);
-            let row_uid = row.widget_uid();
-            let next_state = CommandPaletteRowState {
-                command_index,
-                show_header,
-                is_active: item_id == self.active_index,
-                is_hovered,
-            };
-            if let Some(update) = sync_cached_row_state(
-                &mut self.row_state_by_uid,
-                row_uid,
-                next_state,
-                item_existed,
-            ) {
-                if update.content_changed {
-                    item.widget(cx, ids!(header)).set_visible(cx, show_header);
-                    item.label(cx, ids!(header)).set_text(cx, &command.section);
-                    button.set_text(cx, &command.title);
-                    shortcut_btn.set_visible(cx, !command.shortcut.is_empty());
-                    shortcut_btn.set_text(cx, &command.shortcut);
-                }
-
-                if update.visual_changed {
-                    let background = if next_state.is_active {
-                        self.active_row_color
-                    } else if next_state.is_hovered {
-                        self.row_hover_color
-                    } else {
-                        Vec4f::all(0.0)
-                    };
-                    script_apply_eval!(cx, row, {
-                        draw_bg +: {
-                            color: #(background)
-                            border_radius: #(self.row_radius)
-                        }
-                    });
-                }
-            }
-
-            item.draw_all(cx, &mut Scope::empty());
         }
     }
 
@@ -761,9 +711,7 @@ impl Widget for ShadCommandPalette {
 
         if self.open {
             let search_input = self.search_input_ref(cx);
-            let results = self
-                .overlay
-                .portal_list(cx, ids!(content.panel.results_shell.results));
+            let results_table = self.results_table_ref(cx);
 
             if let Event::KeyDown(key_event) = event {
                 match key_event.key_code {
@@ -805,7 +753,7 @@ impl Widget for ShadCommandPalette {
 
                 if self
                     .overlay
-                    .shad_button(cx, ids!(content.panel.search_row.clear_search_btn))
+                    .shad_button(cx, ids!(content.panel.body.search_row.clear_search_btn))
                     .clicked(actions)
                 {
                     if self.normalize_query().is_empty() {
@@ -825,20 +773,15 @@ impl Widget for ShadCommandPalette {
                     return;
                 }
 
-                if !results.any_items_with_actions(actions) {
+                if let Some(index) = results_table.row_clicked(actions) {
+                    self.active_index = index;
+                    self.activate(cx);
                     return;
                 }
-
-                for (item_id, item) in results.items_with_actions(actions) {
-                    if item.shad_button(cx, ids!(row.button)).clicked(actions)
-                        || item
-                            .shad_button(cx, ids!(row.shortcut_btn))
-                            .clicked(actions)
-                    {
-                        self.active_index = item_id;
-                        self.activate(cx);
-                        return;
-                    }
+                if let Some(index) = results_table.selection_changed(actions) {
+                    self.active_index = index;
+                    self.search_input_ref(cx).focus(cx);
+                    return;
                 }
             }
         }
@@ -856,11 +799,7 @@ impl Widget for ShadCommandPalette {
         }
 
         self.sync_empty_state(&mut *cx);
-        while let Some(step) = self.overlay.draw_walk(cx, scope, walk).step() {
-            if let Some(mut list) = step.as_portal_list().borrow_mut() {
-                self.draw_results(cx, &mut *list);
-            }
-        }
+        let _ = self.overlay.draw_walk(cx, scope, walk);
 
         if self.focus_search_on_next_draw {
             self.focus_search_on_next_draw = false;

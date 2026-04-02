@@ -51,6 +51,45 @@ fn gallery_theme_toggle_smoke(app: TestApp) {
         .wait_visible();
 }
 
+#[makepad_test]
+fn gallery_table_virtual_window_pages_forward_and_back(app: TestApp) {
+    app.locator(Selector::id("sidebar"))
+        .wait_visible()
+        .scroll(0.0, 1800.0);
+    app.locator(Selector::id("sidebar_table"))
+        .wait_visible()
+        .click();
+    app.locator(Selector::id("content_flip"))
+        .wait_text("table_page");
+    app.locator(Selector::id("page_root"))
+        .wait_visible()
+        .scroll(0.0, 700.0);
+
+    app.locator(Selector::id("table_virtual_btn"))
+        .wait_visible()
+        .click();
+    app.locator(Selector::id("table_status"))
+        .wait_text("Showing virtual jobs 0..31 of 10000. Selected row: none.");
+    app.locator(Selector::all().text_contains("JOB-00000"))
+        .wait_visible();
+
+    app.locator(Selector::id("table_next_btn"))
+        .wait_visible()
+        .click();
+    app.locator(Selector::id("table_status"))
+        .wait_text("Showing virtual jobs 32..63 of 10000. Selected row: none.");
+    app.locator(Selector::all().text_contains("JOB-00032"))
+        .wait_visible();
+
+    app.locator(Selector::id("table_prev_btn"))
+        .wait_visible()
+        .click();
+    app.locator(Selector::id("table_status"))
+        .wait_text("Showing virtual jobs 0..31 of 10000. Selected row: none.");
+    app.locator(Selector::all().text_contains("JOB-00000"))
+        .wait_visible();
+}
+
 fn run_gallery_route_test(
     route: &str,
     test_name: &str,

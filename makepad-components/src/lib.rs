@@ -88,6 +88,7 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::kbd::script_mod(vm);
     crate::input::script_mod(vm);
     crate::input_otp::script_mod(vm);
+    crate::table::script_mod(vm);
     crate::command_palette::script_mod(vm);
     crate::popover::script_mod(vm);
     crate::date_picker::script_mod(vm);
@@ -106,7 +107,6 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::sonner::script_mod(vm);
     crate::spinner::script_mod(vm);
     crate::switch::script_mod(vm);
-    crate::table::script_mod(vm);
     crate::textarea::script_mod(vm);
     crate::toggle::script_mod(vm);
 }

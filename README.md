@@ -625,8 +625,10 @@ Use `ShadField` as a layout wrapper around `ShadInput` or another form control. 
 - `set_value(cx, Option<ShadDate>)`
 - `clear(cx)`
 - `value() -> Option<ShadDate>`
+- `hovered_date() -> Option<ShadDate>`
 - `set_month(cx, year, month)` plus `prev_month(cx)` / `next_month(cx)`
 - `changed(actions) -> Option<ShadDate>`
+- `hovered_date_changed(actions) -> Option<Option<ShadDate>>`
 
 ### Chart (`makepad-components/src/chart.rs`)
 

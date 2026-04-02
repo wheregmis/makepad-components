@@ -72,7 +72,13 @@ script_mod! {
         size: ShadControlSize.Default
         width: 36
         height: 36
+        label_walk: Walk{width: Fill, height: Fill}
+        label_align: Align{x: 0.5, y: 0.5}
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+        draw_text +: {
+            text_style.line_spacing: 1.0
+            temp_y_shift: -0.1
+        }
     }
 
     mod.widgets.ShadPaginationEllipsis = Label{

@@ -383,11 +383,7 @@ impl ShadSelect {
                         popup_menu.draw_item(cx, node_id, item);
                     }
 
-                    popup_menu.end(
-                        cx,
-                        self.draw_bg.area(),
-                        dvec2(0.0, area.size.y),
-                    );
+                    popup_menu.end(cx, self.draw_bg.area(), dvec2(0.0, area.size.y));
                 }
             }
         }

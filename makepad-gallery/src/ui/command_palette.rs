@@ -28,37 +28,114 @@ script_mod! {
 
         overlay +: {
             content +: {
+                width: 560
+
                 panel +: {
-                    search_label +: {
-                        text: "Search gallery components"
+                    draw_bg +: {
+                        border_radius: 22.0
+                        border_color: (shad_theme.color_outline_border_hover)
                     }
 
-                    search_row +: {
-                        search_input +: {
-                            empty_text: "Search components, sections, or shortcut tags..."
+                    body +: {
+                        padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
+                        spacing: 14.0
+
+                        search_label +: {
+                            text: "Search gallery components"
+                            draw_text.text_style.font_size: 12
                         }
-                    }
 
-                    results_shell +: {
-                        empty_state +: {
-                            empty_title +: {
-                                text: "No components found"
+                        search_row +: {
+                            search_input +: {
+                                empty_text: "Search components, sections, or shortcut tags..."
+
+                                search_shell +: {
+                                    padding: Inset{left: 16, right: 10, top: 0, bottom: 0}
+                                    draw_bg +: {
+                                        color: (shad_theme.color_secondary)
+                                        border_radius: 16.0
+                                        border_color: (shad_theme.color_outline_border_hover)
+                                    }
+
+                                    input +: {
+                                        draw_text.text_style.font_size: 15
+                                    }
+                                }
                             }
-                            empty_copy +: {
-                                text: "Try a component like button, a section like forms, or the shortcut tag shown in each row."
+
+                            clear_search_btn +: {
+                                variant: ShadButtonVariant.Outline
+                                height: 42
+                                padding: Inset{left: 14, right: 14, top: 0, bottom: 0}
                             }
                         }
-                    }
 
-                    footer +: {
-                        footer_open_label +: {
-                            text: "Open"
+                        results_summary +: {
+                            draw_text.text_style.font_size: 11
+                            draw_text.color: (shad_theme.color_muted_foreground)
                         }
-                        footer_close_label +: {
-                            text: "Clear / Close"
+
+                        results_shell +: {
+                            draw_bg +: {
+                                color: (shad_theme.color_muted)
+                                border_radius: 20.0
+                                border_color: (shad_theme.color_outline_border_hover)
+                            }
+
+                            body +: {
+                                padding: Inset{left: 8, right: 8, top: 8, bottom: 8}
+
+                                results_table +: {
+                                    empty_message: "No components found for that query."
+                                    auto_fill_width: true
+
+                                    table_view +: {
+                                        spacing: 0.0
+                                        header +: {
+                                            height: 0
+                                            fill_color: (shad_theme.color_clear)
+                                            border_color: (shad_theme.color_clear)
+                                            text_color: (shad_theme.color_clear)
+                                        }
+
+                                        list +: {
+                                            Item +: {
+                                                height: 52
+                                                fill_hover: (shad_theme.color_ghost_hover)
+                                                fill_selected: (shad_theme.color_secondary_hover)
+                                                fill_striped: (shad_theme.color_clear)
+                                                border_color: (shad_theme.color_clear)
+                                                text_color: (shad_theme.color_primary)
+                                            }
+
+                                            Empty +: {
+                                                height: 92
+                                                draw_bg.color: (shad_theme.color_clear)
+
+                                                empty_label +: {
+                                                    draw_text.color: (shad_theme.color_muted_foreground)
+                                                    draw_text.text_style.font_size: 12.0
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        footer_move_label +: {
-                            text: "Move"
+
+                        footer +: {
+                            margin: Inset{top: 8}
+                            spacing: 12.0
+
+                            footer_open_label +: {
+                                text: "Open"
+                            }
+                            footer_close_label +: {
+                                text: "Clear / Close"
+                            }
+                            footer_move_label +: {
+                                text: "Move"
+                            }
                         }
                     }
                 }

@@ -79,6 +79,14 @@ test.case("gallery_calendar_page_routes_and_renders_code", || {
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadCalendar"})
 })
 
+test.case("gallery_calendar_hover_updates_status", || {
+    nav.go({id: "sidebar_calendar"}, "calendar_page")
+    test.hover({id: "calendar_demo"})
+    test.wait_visible({id: "calendar_status" text_contains: "Hovered: 2026-"})
+    test.hover({id: "page_label"})
+    test.wait_visible({id: "calendar_status" text_contains: "Hovered: none."})
+})
+
 test.case("gallery_card_page_routes_and_renders_code", || {
     nav.go({id: "sidebar_card"}, "card_page")
     test.wait_visible({widget_type: "CodeView" text_contains: "ShadCard"})
@@ -122,8 +130,11 @@ test.case("gallery_table_virtual_window_pages_forward_and_back", || {
     test.scroll({id: "page_root"}, 0, 700)
     test.click({id: "table_virtual_btn"})
     test.wait_text({id: "table_status"}, "Showing virtual jobs 0..31 of 10000. Selected row: none.")
+    test.wait_visible({text_contains: "JOB-00000"})
     test.click({id: "table_next_btn"})
     test.wait_text({id: "table_status"}, "Showing virtual jobs 32..63 of 10000. Selected row: none.")
+    test.wait_visible({text_contains: "JOB-00032"})
     test.click({id: "table_prev_btn"})
     test.wait_text({id: "table_status"}, "Showing virtual jobs 0..31 of 10000. Selected row: none.")
+    test.wait_visible({text_contains: "JOB-00000"})
 })
