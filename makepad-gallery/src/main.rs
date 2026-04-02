@@ -117,7 +117,7 @@ impl App {
     }
 
     fn sync_sidebar_focus_behavior(&self, cx: &mut Cx) {
-        let allow_sidebar_focus = !self.is_small_screen;
+        let allow_sidebar_focus = !self.is_small_screen || self.sidebar_open;
 
         for entry in catalog::entries() {
             let mut item = self.ui.button(cx, &[entry.sidebar_id]);
