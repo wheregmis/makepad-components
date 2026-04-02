@@ -452,10 +452,6 @@ impl Widget for ShadPopover {
                     self.close(cx);
                     return;
                 }
-                Hit::FingerHoverOut(_) => {
-                    self.close(cx);
-                    return;
-                }
                 _ => {}
             }
         }
