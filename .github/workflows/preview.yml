@@ -23,6 +23,7 @@ env:
   MAKEPAD_BRANCH: explicitly_redraw_overlay
   APP_PACKAGE: makepad-gallery
   WASM_BINDGEN_VERSION: 0.2.114
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   deploy-preview:
@@ -125,6 +126,7 @@ jobs:
           cp "${INDEX_FILE}" "${NOT_FOUND_FILE}"
           rm -f "${INDEX_FILE}.br"
           rm -f "${NOT_FOUND_FILE}.br"
+          touch "${APP_DIR}/.nojekyll"
 
       - name: Deploy preview
         if: github.event.action != 'closed'
