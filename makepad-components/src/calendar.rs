@@ -458,7 +458,7 @@ impl Widget for ShadCalendar {
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, _scope: &mut Scope) {
         match event.hits(cx, self.area) {
-            Hit::FingerHoverIn(fh) => {
+            Hit::FingerHoverIn(fh) | Hit::FingerHoverOver(fh) => {
                 let target = self.target_from_abs(cx, fh.abs);
                 if target.is_some() {
                     cx.set_cursor(MouseCursor::Hand);
