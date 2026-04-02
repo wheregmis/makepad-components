@@ -276,8 +276,6 @@ impl GalleryIconGalleryPage {
             changed = true;
         }
 
-        // Optimization: avoid string allocation on every keystroke by borrowing a slice directly when needed
-        // Previously: let display_query = self.query.trim().to_string(); (caused unnecessary heap allocations)
         let summary = Self::summary_text(self.query.trim(), matches_count);
         if self.summary_cache != summary {
             self.summary_cache = summary;

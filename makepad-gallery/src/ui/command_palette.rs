@@ -460,8 +460,6 @@ impl GalleryCommandPalette {
         let active_changed = previous_active != self.active_index;
 
         self.sync_empty_state(cx);
-        // Optimization: avoid string allocation on every keystroke by borrowing a slice directly when needed
-        // Previously: let display_query = self.query.trim().to_string(); (caused unnecessary heap allocations)
         self.overlay.label(cx, ids!(results_summary)).set_text(
             cx,
             &command_results_summary(self.query.trim(), self.filtered_indices.len()),
