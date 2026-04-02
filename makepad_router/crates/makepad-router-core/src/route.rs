@@ -83,27 +83,56 @@ impl Route {
     }
 
     /// Get a parameter value as `i64` (parsed).
+    // Optimization: avoid intermediate String allocation when parsing LiveId
+    // Previously: called get_param_string() which allocated a String on the heap
+    // Now: use LiveId::as_string to borrow the interned &str and parse directly
     pub fn get_param_i64(&self, key: LiveId) -> Option<i64> {
-        self.get_param_string(key)?.parse().ok()
+        self.get_param(key)?
+            .as_string(|id_str| id_str.and_then(|s| s.parse().ok()))
     }
 
     /// Get a parameter value as `u64` (parsed).
+    // Optimization: avoid intermediate String allocation when parsing LiveId
+    // Previously: called get_param_string() which allocated a String on the heap
+    // Now: use LiveId::as_string to borrow the interned &str and parse directly
     pub fn get_param_u64(&self, key: LiveId) -> Option<u64> {
-        self.get_param_string(key)?.parse().ok()
+        self.get_param(key)?
+            .as_string(|id_str| id_str.and_then(|s| s.parse().ok()))
     }
 
     /// Get a parameter value as `bool` (accepts 1/0, true/false, yes/no, on/off).
+    // Optimization: avoid intermediate String allocation when parsing LiveId
+    // Previously: called get_param_string() which allocated a String on the heap
+    // Now: use LiveId::as_string to borrow the interned &str and parse directly
     pub fn get_param_bool(&self, key: LiveId) -> Option<bool> {
-        match self.get_param_string(key)?.to_ascii_lowercase().as_str() {
-            "1" | "true" | "yes" | "on" => Some(true),
-            "0" | "false" | "no" | "off" => Some(false),
-            _ => None,
-        }
+        self.get_param(key)?.as_string(|id_str| {
+            id_str.and_then(|s| {
+                if s.eq_ignore_ascii_case("1")
+                    || s.eq_ignore_ascii_case("true")
+                    || s.eq_ignore_ascii_case("yes")
+                    || s.eq_ignore_ascii_case("on")
+                {
+                    Some(true)
+                } else if s.eq_ignore_ascii_case("0")
+                    || s.eq_ignore_ascii_case("false")
+                    || s.eq_ignore_ascii_case("no")
+                    || s.eq_ignore_ascii_case("off")
+                {
+                    Some(false)
+                } else {
+                    None
+                }
+            })
+        })
     }
 
     /// Get a parameter value as `f64` (parsed).
+    // Optimization: avoid intermediate String allocation when parsing LiveId
+    // Previously: called get_param_string() which allocated a String on the heap
+    // Now: use LiveId::as_string to borrow the interned &str and parse directly
     pub fn get_param_f64(&self, key: LiveId) -> Option<f64> {
-        self.get_param_string(key)?.parse().ok()
+        self.get_param(key)?
+            .as_string(|id_str| id_str.and_then(|s| s.parse().ok()))
     }
 
     /// Build a query string from the stored query map.
