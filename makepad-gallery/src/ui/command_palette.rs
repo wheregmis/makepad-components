@@ -430,10 +430,6 @@ impl GalleryCommandPalette {
 
     fn refresh_results(&mut self, cx: &mut Cx) {
         let query = self.normalize_query();
-        // Optimization: avoid string allocation on every keystroke
-        // Previously: let display_query = self.query.trim().to_string(); (caused unnecessary heap allocations)
-        // Now: borrow a slice from the existing query string
-        let display_query = self.query.trim();
         let search_terms = command_search_terms();
         let previous_active = self.active_index;
         self.filtered_indices_scratch.clear();
@@ -464,13 +460,15 @@ impl GalleryCommandPalette {
         let active_changed = previous_active != self.active_index;
 
         self.sync_empty_state(cx);
+        // Optimization: avoid string allocation on every keystroke by borrowing a slice directly when needed
+        // Previously: let display_query = self.query.trim().to_string(); (caused unnecessary heap allocations)
         self.overlay.label(cx, ids!(results_summary)).set_text(
             cx,
-            &command_results_summary(&display_query, self.filtered_indices.len()),
+            &command_results_summary(self.query.trim(), self.filtered_indices.len()),
         );
         self.overlay
             .button(cx, ids!(clear_search_btn))
-            .set_text(cx, command_palette_secondary_action_label(&display_query));
+            .set_text(cx, command_palette_secondary_action_label(self.query.trim()));
         self.reset_results_position(cx);
         if results_changed || active_changed {
             self.redraw(cx);
