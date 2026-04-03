@@ -167,11 +167,10 @@ impl Route {
 
     /// Get a query value as `bool` (accepts 1/0, true/false, yes/no, on/off).
     pub fn query_get_bool(&self, key: &str) -> Option<bool> {
-        match self.query_get(key)?.to_ascii_lowercase().as_str() {
-            "1" | "true" | "yes" | "on" => Some(true),
-            "0" | "false" | "no" | "off" => Some(false),
-            _ => None,
-        }
+        // Optimization: avoid allocating a lowercase String on every query bool lookup.
+        // Previously: `to_ascii_lowercase()` copied the whole query value before matching.
+        // Now: compare against accepted boolean spellings directly on the borrowed `&str`.
+        parse_bool_str(self.query_get(key)?)
     }
 
     /// Get a query value as `f64` (parsed).
@@ -214,6 +213,24 @@ impl RouteQuery {
     }
 }
 
+fn parse_bool_str(value: &str) -> Option<bool> {
+    if value.eq_ignore_ascii_case("1")
+        || value.eq_ignore_ascii_case("true")
+        || value.eq_ignore_ascii_case("yes")
+        || value.eq_ignore_ascii_case("on")
+    {
+        Some(true)
+    } else if value.eq_ignore_ascii_case("0")
+        || value.eq_ignore_ascii_case("false")
+        || value.eq_ignore_ascii_case("no")
+        || value.eq_ignore_ascii_case("off")
+    {
+        Some(false)
+    } else {
+        None
+    }
+}
+
 /// Macro to create routes easily
 #[macro_export]
 macro_rules! route {
@@ -235,11 +252,60 @@ macro_rules! route {
 mod tests {
     use super::*;
     use makepad_live_id::live_id;
+    use std::hint::black_box;
+    use std::time::Instant;
 
     #[test]
     fn test_route_from_pattern() {
         let route = Route::from_pattern("/user/:id", live_id!(user_profile)).unwrap();
         assert_eq!(route.id, live_id!(user_profile));
         assert!(route.pattern.is_some());
+    }
+
+    #[test]
+    fn query_get_bool_accepts_mixed_case_without_allocating_lowercase_buffer() {
+        let mut route = Route::new(live_id!(dashboard));
+        route.query.set("enabled", "TrUe");
+        route.query.set("disabled", "OfF");
+        route.query.set("invalid", "maybe");
+
+        assert_eq!(route.query_get_bool("enabled"), Some(true));
+        assert_eq!(route.query_get_bool("disabled"), Some(false));
+        assert_eq!(route.query_get_bool("invalid"), None);
+    }
+
+    #[test]
+    #[ignore = "micro-benchmark; run explicitly in release mode for stable numbers"]
+    fn bench_query_get_bool_without_lowercase_allocation() {
+        fn legacy_query_get_bool(route: &Route, key: &str) -> Option<bool> {
+            match route.query_get(key)?.to_ascii_lowercase().as_str() {
+                "1" | "true" | "yes" | "on" => Some(true),
+                "0" | "false" | "no" | "off" => Some(false),
+                _ => None,
+            }
+        }
+
+        let mut route = Route::new(live_id!(dashboard));
+        route.query.set("enabled", "TrUe");
+        let iterations = 500_000;
+
+        let old_start = Instant::now();
+        for _ in 0..iterations {
+            black_box(legacy_query_get_bool(&route, "enabled"));
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        for _ in 0..iterations {
+            black_box(route.query_get_bool("enabled"));
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!(
+            "legacy={:?} new={:?} improvement={:.2}%",
+            old_elapsed,
+            new_elapsed,
+            (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
+        );
     }
 }
