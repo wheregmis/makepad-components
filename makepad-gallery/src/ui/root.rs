@@ -28,26 +28,34 @@ macro_rules! define_gallery_root {
             use mod.draw.KeyCode
             use mod.widgets.*
 
-            mod.widgets.GalleryThemeToggleSun = ShadButtonOutline{
+            mod.widgets.GalleryThemeToggleButton = View{
                 width: 36
                 height: 36
-                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-                spacing: 0.0
-                text: ""
-                icon_walk: Walk{width: 16, height: 16}
-                draw_icon.svg: crate_resource("self://resources/icons/sun.svg")
-                draw_icon.color: (shad_theme.color_primary)
+                flow: Overlay
+                align: Align{x: 0.5, y: 0.5}
+
+                button := mod.widgets.ShadButtonIconOutline{
+                    width: Fill
+                    height: Fill
+                }
             }
 
-            mod.widgets.GalleryThemeToggleMoon = ShadButtonOutline{
-                width: 36
-                height: 36
-                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-                spacing: 0.0
-                text: ""
-                icon_walk: Walk{width: 16, height: 16}
-                draw_icon.svg: crate_resource("self://resources/icons/moon.svg")
-                draw_icon.color: (shad_theme.color_primary)
+            mod.widgets.GalleryThemeToggleSun = mod.widgets.GalleryThemeToggleButton{
+                icon := IconSun{
+                    width: 16
+                    height: 16
+                    icon_walk: Walk{width: 16, height: 16}
+                    draw_icon.color: (shad_theme.color_primary)
+                }
+            }
+
+            mod.widgets.GalleryThemeToggleMoon = mod.widgets.GalleryThemeToggleButton{
+                icon := IconMoon{
+                    width: 16
+                    height: 16
+                    icon_walk: Walk{width: 16, height: 16}
+                    draw_icon.color: (shad_theme.color_primary)
+                }
             }
 
             mod.widgets.GalleryCommandPaletteHeaderTrigger = View{
@@ -195,8 +203,22 @@ macro_rules! define_gallery_root {
                 width: Fill
                 height: Fill
                 flow: Right
-                sidebar := mod.widgets.GallerySidebar{}
-                main_content := mod.widgets.GalleryMainContent{}
+                spacing: 0.0
+
+                sidebar_shell := View{
+                    width: 280
+                    height: Fill
+                    flow: Overlay
+                    clip_x: true
+                    clip_y: true
+
+                    sidebar := mod.widgets.GallerySidebar{}
+                }
+
+                main_content := mod.widgets.GalleryMainContent{
+                    width: Fill
+                    height: Fill
+                }
             }
 
             mod.widgets.GalleryAppUi = Root{

@@ -43,6 +43,7 @@ macro_rules! define_lucide_icons {
                 icon_walk: Walk{width: 14, height: 14}
                 draw_icon.svg: crate_resource("self://resources/icons/more-horizontal.svg")
             }
+
         }
     };
 }

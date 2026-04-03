@@ -58,31 +58,27 @@ script_mod! {
             border_size: 0.0
             border_radius: 4.0
         }
-        icon := Icon{
-            draw_icon.svg: crate_resource("self://resources/icons/checkmark.svg")
+        icon := IconCircleCheck{
             draw_icon.color: (shad_theme.color_success)
             icon_walk: Walk{width: 24, height: 24}
         }
     }
     let InfoIcon = CheckIcon{
-        icon +: {
-            draw_icon.svg: crate_resource("self://resources/icons/info.svg")
+        icon: IconInfo{
             draw_icon.color: (shad_theme.color_primary)
             icon_walk: Walk{width: 24, height: 24}
         }
     }
 
     let ForbiddenIcon = CheckIcon{
-        icon +: {
-            draw_icon.svg: crate_resource("self://resources/icons/forbidden.svg")
-            draw_icon.color: (shad_theme.color_error)
+        icon: IconOctagonX{
             icon_walk: Walk{width: 24, height: 24}
+            draw_icon.color: (shad_theme.color_error)
         }
     }
 
     let WarningIcon = CheckIcon{
-        icon +: {
-            draw_icon.svg: crate_resource("self://resources/icons/warning.svg")
+        icon: IconTriangleAlert{
             draw_icon.color: (shad_theme.color_warning)
             icon_walk: Walk{width: 24, height: 24}
         }

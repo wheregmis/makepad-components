@@ -404,6 +404,28 @@ script_mod! {
         spacing: 0.0
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
     }
+
+    mod.widgets.ShadButtonIconOutline = mod.widgets.ButtonFlatIcon{
+        width: 36
+        height: 36
+        spacing: 0.0
+        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+        draw_bg +: {
+            color: #0000
+            color_hover: (shad_theme.color_ghost_hover)
+            color_down: (shad_theme.color_ghost_down)
+            color_focus: (shad_theme.color_ghost_hover)
+            color_disabled: (shad_theme.color_disabled)
+            border_size: 1.0
+            border_radius: (shad_theme.radius)
+            border_color: (shad_theme.color_outline_border)
+            border_color_hover: (shad_theme.color_outline_border_hover)
+            border_color_down: (shad_theme.color_outline_border_down)
+            border_color_focus: (shad_theme.color_primary)
+            border_color_disabled: (shad_theme.color_disabled_border)
+        }
+        draw_icon.color: (shad_theme.color_primary)
+    }
 }
 
 #[derive(Script, ScriptHook, Widget, Animator)]

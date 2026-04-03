@@ -11,6 +11,13 @@ use makepad_router::RouterWidgetWidgetRefExt;
 
 app_main!(App);
 
+#[derive(Clone, Debug)]
+struct SidebarAnimation {
+    from_width: f64,
+    to_width: f64,
+    start_time: Option<f64>,
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
@@ -22,6 +29,15 @@ script_mod! {
 
 impl App {
     const SMALL_SCREEN_WIDTH: f64 = 900.0;
+    const MOBILE_SIDEBAR_WIDTH: f64 = 280.0;
+    const PANEL_ANIMATION_DURATION: f64 = 0.16;
+
+    fn panel_animation_progress(time: f64, start_time: &mut Option<f64>) -> f64 {
+        let start_time = start_time.get_or_insert(time);
+        let elapsed = (time - *start_time).max(0.0);
+        let progress = (elapsed / Self::PANEL_ANIMATION_DURATION).min(1.0);
+        1.0 - (1.0 - progress).powi(3)
+    }
 
     fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
         crate::makepad_widgets::script_mod(vm);
@@ -81,25 +97,42 @@ impl App {
     fn sync_mobile_sidebar_button(&self, cx: &mut Cx) {
         let show_close = self.is_small_screen && self.sidebar_open;
         self.ui
-            .button(cx, ids!(mobile_sidebar_menu_button))
+            .view(cx, ids!(mobile_sidebar_menu_button))
             .set_visible(cx, !show_close);
         self.ui
-            .button(cx, ids!(mobile_sidebar_close_button))
+            .view(cx, ids!(mobile_sidebar_close_button))
             .set_visible(cx, show_close);
+    }
+
+    fn apply_sidebar_layout(&self, cx: &mut Cx) {
+        let sidebar_width = if self.is_small_screen {
+            self.sidebar_width.max(0.0)
+        } else {
+            Self::MOBILE_SIDEBAR_WIDTH
+        };
+        let sidebar_visible = !self.is_small_screen || sidebar_width > 0.5;
+
+        let mut sidebar_shell = self.ui.view(cx, ids!(sidebar_shell));
+        script_apply_eval!(cx, sidebar_shell, {
+            width: #(Size::Fixed(sidebar_width))
+        });
+        sidebar_shell.set_visible(cx, sidebar_visible);
+
+        self.ui.view(cx, ids!(main_content)).set_visible(cx, true);
     }
 
     fn sync_theme_toggle_copy(&self, cx: &mut Cx) {
         self.ui
-            .button(cx, ids!(desktop_theme_toggle_sun))
+            .view(cx, ids!(desktop_theme_toggle_sun))
             .set_visible(cx, self.is_light_theme);
         self.ui
-            .button(cx, ids!(desktop_theme_toggle_moon))
+            .view(cx, ids!(desktop_theme_toggle_moon))
             .set_visible(cx, !self.is_light_theme);
         self.ui
-            .button(cx, ids!(mobile_theme_toggle_sun))
+            .view(cx, ids!(mobile_theme_toggle_sun))
             .set_visible(cx, self.is_light_theme);
         self.ui
-            .button(cx, ids!(mobile_theme_toggle_moon))
+            .view(cx, ids!(mobile_theme_toggle_moon))
             .set_visible(cx, !self.is_light_theme);
     }
 
@@ -119,7 +152,7 @@ impl App {
     }
 
     fn sync_sidebar_focus_behavior(&self, cx: &mut Cx) {
-        let allow_sidebar_focus = !self.is_small_screen || self.sidebar_open;
+        let allow_sidebar_focus = !self.is_small_screen || self.sidebar_width > 0.5;
 
         for entry in catalog::entries() {
             let mut item = self.ui.button(cx, &[entry.sidebar_id]);
@@ -221,15 +254,47 @@ impl App {
         self.ui
             .view(cx, ids!(mobile_header))
             .set_visible(cx, self.is_small_screen);
-        self.ui
-            .view(cx, ids!(sidebar))
-            .set_visible(cx, !self.is_small_screen || self.sidebar_open);
-        self.ui
-            .view(cx, ids!(main_content))
-            .set_visible(cx, !self.is_small_screen || !self.sidebar_open);
+        self.apply_sidebar_layout(cx);
         self.sync_mobile_sidebar_button(cx);
         self.sync_sidebar_focus_behavior(cx);
         self.sync_content_route(cx);
+    }
+
+    fn start_sidebar_animation(&mut self, cx: &mut Cx, to_width: f64) {
+        self.sidebar_animation = Some(SidebarAnimation {
+            from_width: self.sidebar_width,
+            to_width: to_width.max(0.0),
+            start_time: None,
+        });
+        self.sidebar_animation_next_frame = cx.new_next_frame();
+    }
+
+    fn set_mobile_sidebar_open(&mut self, cx: &mut Cx, open: bool) {
+        self.sidebar_open = open;
+        let target = if open { Self::MOBILE_SIDEBAR_WIDTH } else { 0.0 };
+        self.start_sidebar_animation(cx, target);
+        self.apply_responsive_visibility(cx);
+    }
+
+    fn step_sidebar_animation(&mut self, cx: &mut Cx, time: f64) {
+        let Some((progress, target_width)) = self.sidebar_animation.as_mut().map(|animation| {
+            let progress = Self::panel_animation_progress(time, &mut animation.start_time);
+            self.sidebar_width =
+                animation.from_width + (animation.to_width - animation.from_width) * progress;
+            (progress, animation.to_width)
+        }) else {
+            return;
+        };
+        self.apply_sidebar_layout(cx);
+        self.sync_sidebar_focus_behavior(cx);
+
+        if progress >= 1.0 {
+            self.sidebar_width = target_width;
+            self.sidebar_animation = None;
+            self.apply_sidebar_layout(cx);
+        } else {
+            self.sidebar_animation_next_frame = cx.new_next_frame();
+        }
     }
 
     fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {
@@ -240,6 +305,13 @@ impl App {
         if self.is_small_screen != is_small_screen {
             self.is_small_screen = is_small_screen;
             self.sidebar_open = !is_small_screen;
+            self.sidebar_animation = None;
+            self.sidebar_animation_next_frame = NextFrame::default();
+            self.sidebar_width = if is_small_screen {
+                0.0
+            } else {
+                Self::MOBILE_SIDEBAR_WIDTH
+            };
             self.apply_responsive_visibility(cx);
         }
     }
@@ -263,6 +335,10 @@ pub struct App {
     #[rust]
     sidebar_open: bool,
     #[rust]
+    sidebar_width: f64,
+    #[rust]
+    sidebar_animation: Option<SidebarAnimation>,
+    #[rust]
     is_light_theme: bool,
     #[rust]
     current_page: LiveId,
@@ -270,6 +346,8 @@ pub struct App {
     pending_theme: Option<bool>,
     #[rust]
     theme_reload_next_frame: NextFrame,
+    #[rust]
+    sidebar_animation_next_frame: NextFrame,
 }
 
 impl MatchEvent for App {
@@ -287,31 +365,30 @@ impl MatchEvent for App {
         if self.is_small_screen
             && (self
                 .ui
-                .button(cx, ids!(mobile_sidebar_menu_button))
+                .button(cx, ids!(mobile_sidebar_menu_button.button))
                 .clicked(actions)
                 || self
                     .ui
-                    .button(cx, ids!(mobile_sidebar_close_button))
+                    .button(cx, ids!(mobile_sidebar_close_button.button))
                     .clicked(actions))
         {
-            self.sidebar_open = !self.sidebar_open;
-            self.apply_responsive_visibility(cx);
+            self.set_mobile_sidebar_open(cx, !self.sidebar_open);
         }
         if self
             .ui
-            .button(cx, ids!(desktop_theme_toggle_sun))
+            .button(cx, ids!(desktop_theme_toggle_sun.button))
             .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(desktop_theme_toggle_moon))
+                .button(cx, ids!(desktop_theme_toggle_moon.button))
                 .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_theme_toggle_sun))
+                .button(cx, ids!(mobile_theme_toggle_sun.button))
                 .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_theme_toggle_moon))
+                .button(cx, ids!(mobile_theme_toggle_moon.button))
                 .clicked(actions)
         {
             self.queue_theme_change(cx, !self.is_light_theme);
@@ -348,15 +425,24 @@ impl AppMain for App {
         match event {
             Event::Startup => {
                 self.sidebar_open = true;
+                self.sidebar_width = Self::MOBILE_SIDEBAR_WIDTH;
+                self.sidebar_animation = None;
                 self.current_page = catalog::default_page();
                 self.is_light_theme = false;
                 self.pending_theme = None;
                 self.theme_reload_next_frame = NextFrame::default();
+                self.sidebar_animation_next_frame = NextFrame::default();
                 self.apply_responsive_visibility(cx);
                 self.sync_theme_toggle_copy(cx);
                 self.set_current_page(cx, self.current_page);
             }
             Event::NextFrame(_) => {
+                if self.sidebar_animation_next_frame.is_event(event).is_some() {
+                    if let Event::NextFrame(ne) = event {
+                        self.sidebar_animation_next_frame = NextFrame::default();
+                        self.step_sidebar_animation(cx, ne.time);
+                    }
+                }
                 if self.theme_reload_next_frame.is_event(event).is_some() {
                     self.theme_reload_next_frame = NextFrame::default();
                     if let Some(is_light_theme) = self.pending_theme.take() {

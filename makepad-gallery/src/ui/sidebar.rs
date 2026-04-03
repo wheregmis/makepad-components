@@ -22,44 +22,34 @@ macro_rules! define_gallery_sidebar {
             use mod.prelude.widgets.*
             use mod.widgets.*
 
-            mod.widgets.GalleryMobileSidebarMenuButton = IconButtonMenu{
+            mod.widgets.GalleryMobileSidebarIconButton = View{
                 width: 36
                 height: 36
-                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-                spacing: 0.0
-                draw_bg +: {
-                    color: #0000
-                    color_hover: (shad_theme.color_ghost_hover)
-                    color_down: (shad_theme.color_ghost_down)
-                    color_focus: (shad_theme.color_ghost_hover)
-                    border_size: 1.0
-                    border_radius: (shad_theme.radius)
-                    border_color: (shad_theme.color_outline_border)
-                    border_color_hover: (shad_theme.color_outline_border_hover)
-                    border_color_down: (shad_theme.color_outline_border_hover)
-                    border_color_focus: (shad_theme.color_primary)
+                flow: Overlay
+                align: Align{x: 0.5, y: 0.5}
+
+                button := ShadButtonIconOutline{
+                    width: Fill
+                    height: Fill
                 }
-                draw_icon.color: (shad_theme.color_primary)
             }
 
-            mod.widgets.GalleryMobileSidebarCloseButton = IconButtonX{
-                width: 36
-                height: 36
-                padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
-                spacing: 0.0
-                draw_bg +: {
-                    color: #0000
-                    color_hover: (shad_theme.color_ghost_hover)
-                    color_down: (shad_theme.color_ghost_down)
-                    color_focus: (shad_theme.color_ghost_hover)
-                    border_size: 1.0
-                    border_radius: (shad_theme.radius)
-                    border_color: (shad_theme.color_outline_border)
-                    border_color_hover: (shad_theme.color_outline_border_hover)
-                    border_color_down: (shad_theme.color_outline_border_hover)
-                    border_color_focus: (shad_theme.color_primary)
+            mod.widgets.GalleryMobileSidebarMenuButton = mod.widgets.GalleryMobileSidebarIconButton{
+                icon := IconMenu{
+                    width: 18
+                    height: 18
+                    icon_walk: Walk{width: 18, height: 18}
+                    draw_icon.color: (shad_theme.color_primary)
                 }
-                draw_icon.color: (shad_theme.color_primary)
+            }
+
+            mod.widgets.GalleryMobileSidebarCloseButton = mod.widgets.GalleryMobileSidebarIconButton{
+                icon := IconX{
+                    width: 16
+                    height: 16
+                    icon_walk: Walk{width: 16, height: 16}
+                    draw_icon.color: (shad_theme.color_primary)
+                }
             }
 
             mod.widgets.GallerySidebar = ShadSidebar{
