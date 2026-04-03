@@ -99,7 +99,11 @@ impl GalleryTablePage {
                     &format!("JOB-{index:05}"),
                     if index & 1 == 0 { "Batch" } else { "Realtime" },
                     if index % 3 == 0 { "Remote" } else { "Toronto" },
-                    if index % 5 == 0 { "Investigating" } else { "Running" },
+                    if index % 5 == 0 {
+                        "Investigating"
+                    } else {
+                        "Running"
+                    },
                 )
             })
             .collect()
@@ -119,7 +123,6 @@ impl GalleryTablePage {
             .label(cx, ids!(table_status))
             .set_text(cx, &format!("Showing {title}. Selected row: none."));
         self.sync_controls(cx);
-        self.view.redraw(cx);
     }
 
     fn apply_virtual_dataset(&mut self, cx: &mut Cx) {
@@ -147,7 +150,9 @@ impl GalleryTablePage {
         }
         let remaining = Self::VIRTUAL_TOTAL.saturating_sub(self.virtual_start);
         let window_len = remaining.min(Self::VIRTUAL_WINDOW_SIZE).max(1);
-        let end = self.virtual_start.saturating_add(window_len.saturating_sub(1));
+        let end = self
+            .virtual_start
+            .saturating_add(window_len.saturating_sub(1));
         self.view.label(cx, ids!(table_status)).set_text(
             cx,
             &format!(
@@ -158,17 +163,21 @@ impl GalleryTablePage {
             ),
         );
         self.sync_controls(cx);
-        self.view.redraw(cx);
     }
 
     fn sync_controls(&self, cx: &mut Cx) {
-        let has_selection = self.view.shad_table(cx, ids!(table_demo)).selected_row().is_some();
+        let has_selection = self
+            .view
+            .shad_table(cx, ids!(table_demo))
+            .selected_row()
+            .is_some();
         self.view
             .button(cx, ids!(table_prev_btn))
             .set_enabled(cx, self.virtual_mode && self.virtual_start > 0);
-        self.view
-            .button(cx, ids!(table_next_btn))
-            .set_enabled(cx, self.virtual_mode && self.virtual_start < Self::VIRTUAL_TOTAL - 1);
+        self.view.button(cx, ids!(table_next_btn)).set_enabled(
+            cx,
+            self.virtual_mode && self.virtual_start < Self::VIRTUAL_TOTAL - 1,
+        );
         self.view
             .button(cx, ids!(table_clear_btn))
             .set_enabled(cx, has_selection);
@@ -227,15 +236,17 @@ impl Widget for GalleryTablePage {
                 self.apply_dataset(cx);
                 return;
             }
-            if self.view.button(cx, ids!(table_virtual_btn)).clicked(actions) {
+            if self
+                .view
+                .button(cx, ids!(table_virtual_btn))
+                .clicked(actions)
+            {
                 self.apply_virtual_dataset(cx);
                 return;
             }
             if self.view.button(cx, ids!(table_prev_btn)).clicked(actions) {
                 if self.virtual_mode {
-                    let start = self
-                        .virtual_start
-                        .saturating_sub(Self::VIRTUAL_WINDOW_SIZE);
+                    let start = self.virtual_start.saturating_sub(Self::VIRTUAL_WINDOW_SIZE);
                     self.sync_virtual_window(cx, start, true);
                 }
                 return;

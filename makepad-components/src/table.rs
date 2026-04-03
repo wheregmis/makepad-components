@@ -582,6 +582,10 @@ pub struct ShadTable {
     total_width: f64,
     #[rust]
     selected_row: Option<usize>,
+    #[rust]
+    cached_content_widths: Vec<f64>,
+    #[rust]
+    content_widths_dirty: bool,
 
     #[action_data]
     #[rust]
@@ -607,6 +611,7 @@ impl ScriptHook for ShadTable {
                 self.rows_source = self.rows;
             }
             invalidate_content_width_cache(&mut self.applied_content_width);
+            invalidate_content_widths_cache(&mut self.content_widths_dirty);
             if self.virtual_total_rows == 0 {
                 self.virtual_window_start = 0;
             } else if self.virtual_window_start >= self.virtual_total_rows {
@@ -619,6 +624,12 @@ impl ScriptHook for ShadTable {
 
 impl ShadTable {
     const VIRTUAL_WINDOW_PRELOAD_MARGIN: usize = 8;
+
+    fn sync_caption_label(&mut self, cx: &mut Cx) {
+        let caption_label = self.view.label(cx, ids!(table_view.caption_label));
+        caption_label.set_text(cx, self.caption.as_ref());
+        caption_label.set_visible(cx, !self.caption.as_ref().is_empty());
+    }
 
     fn apply_content_width_if_changed(&mut self, cx: &mut Cx, width: f64) {
         if !should_apply_content_width(&mut self.applied_content_width, width) {
@@ -706,13 +717,20 @@ impl ShadTable {
             );
         } else if self.auto_fill_width && !self.rows_data.is_empty() && self.virtual_total_rows == 0
         {
-            let content_widths = calculate_content_based_widths(&self.headers, &self.rows_data);
-            if self.resolved_widths.len() != content_widths.len() {
-                self.resolved_widths = content_widths;
+            if should_refresh_content_widths(
+                self.content_widths_dirty,
+                &self.cached_content_widths,
+                self.headers.len(),
+            ) {
+                self.cached_content_widths =
+                    calculate_content_based_widths(&self.headers, &self.rows_data);
+                self.content_widths_dirty = false;
+            }
+            if self.resolved_widths.len() != self.cached_content_widths.len() {
+                self.resolved_widths = self.cached_content_widths.clone();
             } else {
-                for (i, width) in content_widths.iter().enumerate() {
-                    self.resolved_widths[i] = *width;
-                }
+                self.resolved_widths
+                    .copy_from_slice(self.cached_content_widths.as_slice());
             }
         } else {
             sync_default_widths(
@@ -728,12 +746,7 @@ impl ShadTable {
         }
         self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
 
-        self.view
-            .label(cx, ids!(table_view.caption_label))
-            .set_text(cx, self.caption.as_ref());
-        self.view
-            .label(cx, ids!(table_view.caption_label))
-            .set_visible(cx, !self.caption.as_ref().is_empty());
+        self.sync_caption_label(cx);
         self.view
             .widget(cx, ids!(table_view.scroll.content.header))
             .set_visible(cx, !custom_row_mode && !self.headers.is_empty());
@@ -941,14 +954,21 @@ impl ShadTable {
     }
 
     pub fn set_headers(&mut self, cx: &mut Cx, headers: Vec<String>) {
+        if self.headers == headers {
+            return;
+        }
         self.headers = headers;
+        invalidate_content_widths_cache(&mut self.content_widths_dirty);
         self.sync_layout(cx);
         self.view.redraw(cx);
     }
 
     pub fn set_caption(&mut self, cx: &mut Cx, caption: String) {
+        if self.caption.as_ref() == caption {
+            return;
+        }
         self.caption.set(&caption);
-        self.sync_layout(cx);
+        self.sync_caption_label(cx);
         self.view.redraw(cx);
     }
 
@@ -959,6 +979,7 @@ impl ShadTable {
         self.rows_data = into_arc_rows(rows);
         self.rows_source = ScriptValue::default();
         self.selected_row = clamp_selected_row(self.selected_row, self.data_row_count());
+        invalidate_content_widths_cache(&mut self.content_widths_dirty);
         self.sync_layout(cx);
         self.view.redraw(cx);
     }
@@ -972,6 +993,7 @@ impl ShadTable {
         self.virtual_total_rows = total_rows;
         self.rows_data.clear();
         self.rows_source = ScriptValue::default();
+        invalidate_content_widths_cache(&mut self.content_widths_dirty);
         if total_rows == 0 {
             self.virtual_window_start = 0;
         } else if self.virtual_window_start >= total_rows {
@@ -991,6 +1013,7 @@ impl ShadTable {
         }
         self.rows_data = into_arc_rows(rows);
         self.rows_source = ScriptValue::default();
+        invalidate_content_widths_cache(&mut self.content_widths_dirty);
         let total_rows = self.virtual_total_rows;
         let clamped_start = if total_rows == 0 {
             0
@@ -1279,6 +1302,18 @@ fn invalidate_content_width_cache(last_applied_width: &mut Option<f64>) {
     *last_applied_width = None;
 }
 
+fn should_refresh_content_widths(
+    content_widths_dirty: bool,
+    cached_widths: &[f64],
+    column_count: usize,
+) -> bool {
+    content_widths_dirty || cached_widths.len() != column_count
+}
+
+fn invalidate_content_widths_cache(content_widths_dirty: &mut bool) {
+    *content_widths_dirty = true;
+}
+
 fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
     draw.color = color;
     draw.draw_abs(
@@ -1314,7 +1349,8 @@ fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
 #[cfg(test)]
 mod tests {
     use super::{
-        invalidate_content_width_cache, replace_arc_slice_if_changed, should_apply_content_width,
+        invalidate_content_width_cache, invalidate_content_widths_cache,
+        replace_arc_slice_if_changed, should_apply_content_width, should_refresh_content_widths,
         sync_default_widths, sync_text_x_offsets, CELL_FONT_SIZE,
     };
     use std::hint::black_box;
@@ -1472,6 +1508,22 @@ mod tests {
         invalidate_content_width_cache(&mut cached_width);
 
         assert!(should_apply_content_width(&mut cached_width, 960.0));
+    }
+
+    #[test]
+    fn content_widths_refresh_when_dirty_or_column_count_changes() {
+        let cached = vec![120.0, 160.0];
+
+        assert!(should_refresh_content_widths(true, &cached, 2));
+        assert!(should_refresh_content_widths(false, &cached, 3));
+        assert!(!should_refresh_content_widths(false, &cached, 2));
+    }
+
+    #[test]
+    fn content_widths_cache_invalidates_to_force_rebuild() {
+        let mut dirty = false;
+        invalidate_content_widths_cache(&mut dirty);
+        assert!(dirty);
     }
 
     #[test]

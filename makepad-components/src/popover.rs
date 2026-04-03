@@ -117,11 +117,15 @@ impl ScriptHook for ShadPopover {
             self.popup_content = WidgetRef::empty();
         }
 
-        vm.with_cx_mut(|cx| self.redraw_overlay(cx));
+        vm.with_cx_mut(|cx| self.redraw_overlay(cx, false));
     }
 }
 
 impl ShadPopover {
+    fn should_redraw_overlay_content(&self) -> bool {
+        self.open && !self.popup_content.is_empty()
+    }
+
     fn draw_overlay_content(&mut self, cx: &mut Cx2d, scope: &mut Scope, popup_pos: Vec2d) {
         let Some(draw_list) = self.draw_list.as_mut() else {
             return;
@@ -141,9 +145,13 @@ impl ShadPopover {
         draw_list.end(cx);
     }
 
-    fn redraw_overlay(&mut self, cx: &mut Cx) {
-        if let Some(draw_list) = &self.draw_list {
+    fn redraw_overlay(&mut self, cx: &mut Cx, force_draw_list: bool) {
+        if (force_draw_list || self.should_redraw_overlay_content()) && self.draw_list.is_some() {
+            let draw_list = self.draw_list.as_ref().unwrap();
             draw_list.redraw(cx);
+        }
+        if !self.should_redraw_overlay_content() {
+            return;
         }
         self.draw_bg.redraw(cx);
         self.popup_content.redraw(cx);
@@ -333,8 +341,9 @@ impl ShadPopover {
             return;
         }
 
+        let was_open = self.open;
         self.open = open;
-        self.redraw_overlay(cx);
+        self.redraw_overlay(cx, was_open || open);
         self.emit_open_state(cx, open);
     }
 
@@ -402,8 +411,7 @@ impl Widget for ShadPopover {
                 self.open(cx);
             }
             Hit::FingerUp(fe)
-                if is_primary_tap(&fe)
-                    && (!self.open_on_hover || !fe.device.has_hovers()) =>
+                if is_primary_tap(&fe) && (!self.open_on_hover || !fe.device.has_hovers()) =>
             {
                 self.set_open(cx, !self.open);
                 return;

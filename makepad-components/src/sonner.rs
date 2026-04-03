@@ -176,6 +176,7 @@ struct SonnerGlobalState {
     host_overlay: Option<WidgetRef>,
     toasts: VecDeque<SonnerToastEntry>,
     rendered_toasts: [Option<SonnerItem>; MAX_VISIBLE_TOASTS],
+    rendered_progresses: [Option<u8>; MAX_VISIBLE_TOASTS],
     rendered_open: Option<bool>,
     // timer: Timer,
     needs_next_frame: bool,
@@ -294,6 +295,16 @@ impl ShadSonner {
         changed
     }
 
+    fn toast_progress_percent(entry: &SonnerToastEntry, now: f64) -> u8 {
+        if entry.total_duration <= 0.0 {
+            return 0;
+        }
+
+        let exp = entry.expires_at.unwrap_or(now + entry.total_duration);
+        let remaining = if exp > now { exp - now } else { 0.0 };
+        ((remaining / entry.total_duration).clamp(0.0, 1.0) * 100.0).round() as u8
+    }
+
     fn register_global_host(&mut self, cx: &mut Cx) {
         let global = cx.global::<SonnerGlobal>();
         let mut state = global.state.borrow_mut();
@@ -404,6 +415,7 @@ impl ShadSonner {
                 let global = cx.global::<SonnerGlobal>();
                 let mut state = global.state.borrow_mut();
                 state.rendered_toasts = visible_toasts;
+                state.rendered_progresses = [const { None }; MAX_VISIBLE_TOASTS];
                 state.rendered_open = Some(next_open);
             }
             overlay.redraw(cx);
@@ -588,8 +600,7 @@ impl Widget for ShadSonner {
                 return;
             }
             let now = ne.time;
-            let mut needs_redraw = false;
-            let mut progresses = [0.0; MAX_VISIBLE_TOASTS];
+            let mut progresses = [const { None }; MAX_VISIBLE_TOASTS];
             let mut num_progresses = 0;
             {
                 let global = cx.global::<SonnerGlobal>();
@@ -612,26 +623,29 @@ impl Widget for ShadSonner {
                     .take(MAX_VISIBLE_TOASTS)
                     .enumerate()
                 {
-                    progresses[i] = if entry.total_duration <= 0.0 {
-                        0.0
-                    } else {
-                        let exp = entry.expires_at.unwrap_or(now + entry.total_duration);
-                        let remaining = if exp > now { exp - now } else { 0.0 };
-                        (remaining / entry.total_duration).clamp(0.0, 1.0)
-                    };
+                    let progress = Self::toast_progress_percent(entry, now);
+                    if state.rendered_progresses[i] != Some(progress) {
+                        progresses[i] = Some(progress);
+                    }
                     num_progresses += 1;
                 }
+                for slot in state.rendered_progresses.iter_mut().skip(num_progresses) {
+                    *slot = None;
+                }
             };
-            for (i, &prog) in progresses.iter().enumerate().take(num_progresses) {
+            for (i, progress) in progresses.iter().enumerate().take(num_progresses) {
+                let Some(progress) = progress else {
+                    continue;
+                };
                 let slot = self.overlay.widget(cx, Self::toast_slot_path(i));
                 if !slot.is_empty() {
                     let progress_bar = slot.my_progress_bar(cx, ids!(progress_bar));
-                    progress_bar.set_progress(cx, prog * 100.0);
-                    needs_redraw = true;
+                    progress_bar.set_progress(cx, *progress as f64);
+                    cx.global::<SonnerGlobal>()
+                        .state
+                        .borrow_mut()
+                        .rendered_progresses[i] = Some(*progress);
                 }
-            }
-            if needs_redraw {
-                self.overlay.redraw(cx); // 触发重绘以更新进度条
             }
             let (changed, still_has_toasts, needs_schedule) = {
                 let global = cx.global::<SonnerGlobal>();
@@ -691,5 +705,80 @@ impl ShadSonnerRef {
         if let Some(mut inner) = self.borrow_mut() {
             inner.enqueue(cx, item);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn toast(title: &str, duration: f64, expires_at: Option<f64>) -> SonnerToastEntry {
+        SonnerToastEntry {
+            item: SonnerItem {
+                title: title.to_string(),
+                description: None,
+                kind: SonnerKind::Info,
+                duration: Some(duration),
+                show_close: false,
+            },
+            expires_at,
+            total_duration: duration,
+        }
+    }
+
+    #[test]
+    fn visible_toasts_snapshot_returns_newest_first_and_caps_visible_count() {
+        let mut state = SonnerGlobalState::default();
+        for index in 0..6 {
+            state
+                .toasts
+                .push_back(toast(&format!("toast-{index}"), 5.0, None));
+        }
+
+        let visible = ShadSonner::visible_toasts_snapshot(&state);
+        let titles = visible
+            .iter()
+            .flatten()
+            .map(|item| item.title.as_str())
+            .collect::<Vec<_>>();
+
+        assert_eq!(titles, vec!["toast-5", "toast-4", "toast-3", "toast-2"]);
+    }
+
+    #[test]
+    fn prune_expired_toasts_only_removes_elapsed_entries() {
+        let mut state = SonnerGlobalState::default();
+        state.toasts.push_back(toast("expired", 5.0, Some(2.0)));
+        state.toasts.push_back(toast("active", 5.0, Some(8.0)));
+        state.toasts.push_back(toast("manual", 5.0, None));
+
+        assert!(ShadSonner::prune_expired_toasts(&mut state, 5.0));
+        let titles = state
+            .toasts
+            .iter()
+            .map(|entry| entry.item.title.as_str())
+            .collect::<Vec<_>>();
+        assert_eq!(titles, vec!["active", "manual"]);
+        assert!(!ShadSonner::prune_expired_toasts(&mut state, 5.0));
+    }
+
+    #[test]
+    fn toast_progress_percent_rounds_and_clamps() {
+        assert_eq!(
+            ShadSonner::toast_progress_percent(&toast("fresh", 5.0, Some(10.0)), 5.0),
+            100
+        );
+        assert_eq!(
+            ShadSonner::toast_progress_percent(&toast("half", 4.0, Some(6.0)), 4.0),
+            50
+        );
+        assert_eq!(
+            ShadSonner::toast_progress_percent(&toast("expired", 4.0, Some(3.0)), 4.0),
+            0
+        );
+        assert_eq!(
+            ShadSonner::toast_progress_percent(&toast("zero", 0.0, Some(4.0)), 4.0),
+            0
+        );
     }
 }
