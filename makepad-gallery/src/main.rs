@@ -292,7 +292,11 @@ impl App {
         if !open {
             self.clear_mobile_sidebar_focus(cx);
         }
-        let target = if open { Self::MOBILE_SIDEBAR_WIDTH } else { 0.0 };
+        let target = if open {
+            Self::MOBILE_SIDEBAR_WIDTH
+        } else {
+            0.0
+        };
         self.start_sidebar_animation(cx, target);
         self.apply_responsive_visibility(cx);
     }

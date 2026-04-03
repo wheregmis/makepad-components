@@ -29,33 +29,20 @@ macro_rules! define_gallery_root {
             use mod.widgets.*
 
             mod.widgets.GalleryThemeToggleButton = View{
-                width: 36
-                height: 36
-                flow: Overlay
-                align: Align{x: 0.5, y: 0.5}
+                width: Fit
+                height: Fit
 
-                button := mod.widgets.ShadButtonIconOutline{
-                    width: Fill
-                    height: Fill
+                button := mod.widgets.ShadButtonOutline{
+                    text: "Light theme"
                 }
             }
 
             mod.widgets.GalleryThemeToggleSun = mod.widgets.GalleryThemeToggleButton{
-                icon := IconSun{
-                    width: 16
-                    height: 16
-                    icon_walk: Walk{width: 16, height: 16}
-                    draw_icon.color: (shad_theme.color_primary)
-                }
+                button = {text: "Light theme"}
             }
 
             mod.widgets.GalleryThemeToggleMoon = mod.widgets.GalleryThemeToggleButton{
-                icon := IconMoon{
-                    width: 16
-                    height: 16
-                    icon_walk: Walk{width: 16, height: 16}
-                    draw_icon.color: (shad_theme.color_primary)
-                }
+                button = {text: "Dark theme"}
             }
 
             mod.widgets.GalleryCommandPaletteHeaderTrigger = View{

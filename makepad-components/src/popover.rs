@@ -402,8 +402,7 @@ impl Widget for ShadPopover {
                 self.open(cx);
             }
             Hit::FingerUp(fe)
-                if is_primary_tap(&fe)
-                    && (!self.open_on_hover || !fe.device.has_hovers()) =>
+                if is_primary_tap(&fe) && (!self.open_on_hover || !fe.device.has_hovers()) =>
             {
                 self.set_open(cx, !self.open);
                 return;
