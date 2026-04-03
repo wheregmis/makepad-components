@@ -1,5 +1,6 @@
 use crate::internal::actions::{emit_widget_action, first_widget_action};
 use crate::internal::script_args::bool_arg;
+use crate::internal::touch::is_primary_tap;
 use makepad_widgets::event::TouchState;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
@@ -401,7 +402,8 @@ impl Widget for ShadPopover {
                 self.open(cx);
             }
             Hit::FingerUp(fe)
-                if fe.is_primary_hit() && (!self.open_on_hover || !fe.device.has_hovers()) =>
+                if is_primary_tap(&fe)
+                    && (!self.open_on_hover || !fe.device.has_hovers()) =>
             {
                 self.set_open(cx, !self.open);
                 return;

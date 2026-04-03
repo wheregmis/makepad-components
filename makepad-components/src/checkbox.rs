@@ -1,3 +1,4 @@
+use crate::internal::touch::is_primary_tap;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -212,18 +213,8 @@ impl Widget for ShadCheckbox {
                     }
                 }
             }
-            Hit::FingerDown(_) => {
-                if self.grab_key_focus {
-                    cx.set_key_focus(self.area);
-                }
-                let checked = !self.checked;
-                if self.sync_checked_state(cx, checked, animator::Animate::Yes) {
-                    cx.widget_action_with_data(
-                        &self.action_data,
-                        uid,
-                        ShadCheckboxAction::Changed(checked),
-                    );
-                }
+            Hit::FingerDown(fe) if fe.is_primary_hit() && self.grab_key_focus => {
+                cx.set_key_focus(self.area);
             }
             Hit::KeyFocus(_) => {
                 self.animator_play(cx, ids!(focus.on));
@@ -239,6 +230,16 @@ impl Widget for ShadCheckbox {
                 self.animator_play(cx, ids!(hover.off));
             }
             Hit::FingerUp(fe) => {
+                if is_primary_tap(&fe) {
+                    let checked = !self.checked;
+                    if self.sync_checked_state(cx, checked, animator::Animate::Yes) {
+                        cx.widget_action_with_data(
+                            &self.action_data,
+                            uid,
+                            ShadCheckboxAction::Changed(checked),
+                        );
+                    }
+                }
                 if fe.is_over {
                     if fe.device.has_hovers() {
                         self.animator_play(cx, ids!(hover.on));

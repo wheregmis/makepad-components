@@ -1,5 +1,6 @@
 use crate::internal::actions::{emit_widget_action, widget_action_map};
 use crate::internal::script_args::bool_arg;
+use crate::internal::touch::is_primary_tap;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -259,7 +260,17 @@ impl Widget for ShadCollapsible {
         }
 
         match event.hits(cx, self.header_area) {
-            Hit::FingerDown(_) => {
+            Hit::FingerDown(fe) if fe.is_primary_hit() => {
+                self.animator_play(cx, ids!(hover.on));
+            }
+            Hit::FingerHoverIn(_) => {
+                cx.set_cursor(MouseCursor::Hand);
+                self.animator_play(cx, ids!(hover.on));
+            }
+            Hit::FingerHoverOut(_) => {
+                self.animator_play(cx, ids!(hover.off));
+            }
+            Hit::FingerUp(fe) if is_primary_tap(&fe) => {
                 let next_is_open = !self.animator_in_state(cx, ids!(active.on));
                 if self.sync_open_state(cx, next_is_open, animator::Animate::Yes) {
                     emit_widget_action(
@@ -269,14 +280,6 @@ impl Widget for ShadCollapsible {
                         ShadCollapsibleAction::OpenChanged(next_is_open),
                     );
                 }
-                self.animator_play(cx, ids!(hover.on));
-            }
-            Hit::FingerHoverIn(_) => {
-                cx.set_cursor(MouseCursor::Hand);
-                self.animator_play(cx, ids!(hover.on));
-            }
-            Hit::FingerHoverOut(_) => {
-                self.animator_play(cx, ids!(hover.off));
             }
             Hit::FingerUp(fe) => {
                 if fe.is_over {

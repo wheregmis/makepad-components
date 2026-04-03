@@ -1,4 +1,5 @@
 use crate::internal::actions::widget_action_map;
+use crate::internal::touch::is_primary_tap;
 use crate::models::table::{
     clamp_selected_row, empty_fill_rows as table_empty_fill_rows, resolved_column_count,
     virtual_window_index,
@@ -493,7 +494,7 @@ impl Widget for ShadTableRowView {
                 self.hovered = false;
                 self.area.redraw(cx);
             }
-            Hit::FingerUp(fe) if fe.is_primary_hit() => {
+            Hit::FingerUp(fe) if is_primary_tap(&fe) => {
                 cx.widget_action_with_data(
                     &self.action_data,
                     self.widget_uid(),

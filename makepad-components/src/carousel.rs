@@ -1,3 +1,4 @@
+use crate::internal::touch::is_primary_tap;
 use crate::models::carousel::{next_index, normalize_index, prev_index};
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
@@ -429,8 +430,8 @@ impl Widget for ShadCarouselDots {
         if self.animator_handle_event(cx, event).must_redraw() {
             self.area.redraw(cx);
         }
-        if let Hit::FingerDown(fe) = event.hits(cx, self.area) {
-            if fe.is_primary_hit() {
+        if let Hit::FingerUp(fe) = event.hits(cx, self.area) {
+            if is_primary_tap(&fe) {
                 if let Some(i) = self.hit_to_index(cx, fe.abs) {
                     cx.widget_action_with_data(
                         &self.action_data,

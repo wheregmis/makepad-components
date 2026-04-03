@@ -1,4 +1,5 @@
 use crate::internal::script_args::string_arg;
+use crate::internal::touch::is_primary_tap;
 pub use crate::models::calendar::ShadDate;
 use crate::models::calendar::{days_in_month, shift_month, weekday_from_civil};
 use makepad_widgets::widget::WidgetActionData;
@@ -473,7 +474,7 @@ impl Widget for ShadCalendar {
                 self.set_hovered_target(cx, target);
             }
             Hit::FingerHoverOut(_) => self.set_hovered_target(cx, None),
-            Hit::FingerUp(fe) if fe.is_primary_hit() => {
+            Hit::FingerUp(fe) if is_primary_tap(&fe) => {
                 if let Some(target) = self.target_from_abs(cx, fe.abs) {
                     match target {
                         CalendarTarget::Prev => self.prev_month(cx),
