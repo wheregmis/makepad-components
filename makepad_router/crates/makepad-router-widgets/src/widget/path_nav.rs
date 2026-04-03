@@ -17,14 +17,20 @@ impl RouterWidget {
     ) -> Option<ResolvedPathIntent> {
         let parsed = self.parse_url_cached(path);
         let query = RouteQuery::from_query_string(&parsed.query);
-        let hash = parsed.hash.clone();
+
+        // Optimization: Remove unnecessary `.clone()` on hash and query when creating intent.
+        // Previously: called `.clone()` on these values multiple times in the return arms below,
+        //             which caused unnecessary `String` and `HashMap` heap allocations during path resolution.
+        // Now: we move ownership directly into the `Route` struct in each mutually exclusive return arm,
+        //      eliminating the heap churn while keeping the code perfectly safe.
+        let hash = parsed.hash;
         let normalized_path = parsed.path;
 
         // 1) Full match in this router.
         if let Some(mut route) = self.router.route_registry.resolve_path(&normalized_path) {
             if self.routes.templates.contains_key(&route.id) {
-                route.query = query.clone();
-                route.hash = hash.clone();
+                route.query = query;
+                route.hash = hash;
                 return Some(ResolvedPathIntent {
                     path: normalized_path,
                     route,
@@ -46,8 +52,8 @@ impl RouterWidget {
                     route: Route {
                         id: route_id,
                         params,
-                        query: query.clone(),
-                        hash: hash.clone(),
+                        query,
+                        hash,
                         pattern: Some(pattern),
                     },
                     kind: ResolvedPathKind::NestedPrefix { tail },
