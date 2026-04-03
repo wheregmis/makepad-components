@@ -21,6 +21,7 @@ script_mod! {
 
     mod.widgets.ShadTabsTrigger = ButtonFlat{
         height: 32
+        enable_long_press: true
         padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
 
         draw_bg +: {

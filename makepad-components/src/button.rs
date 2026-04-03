@@ -1,4 +1,5 @@
 use makepad_widgets::makepad_script::ScriptFnRef;
+use crate::internal::touch::is_primary_tap;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -246,6 +247,7 @@ script_mod! {
 
     mod.widgets.ShadButton = mod.widgets.ButtonFlat{
         height: 36
+        enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: (shad_theme.color_primary_foreground)
@@ -267,6 +269,7 @@ script_mod! {
 
     mod.widgets.ShadButtonDestructive = mod.widgets.ButtonFlat{
         height: 36
+        enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: (shad_theme.color_destructive)
@@ -288,6 +291,7 @@ script_mod! {
 
     mod.widgets.ShadButtonOutline = mod.widgets.ButtonFlat{
         height: 36
+        enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: #0000
@@ -313,6 +317,7 @@ script_mod! {
 
     mod.widgets.ShadButtonSecondary = mod.widgets.ButtonFlat{
         height: 36
+        enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: (shad_theme.color_secondary)
@@ -334,6 +339,7 @@ script_mod! {
 
     mod.widgets.ShadButtonGhost = mod.widgets.ButtonFlat{
         height: 36
+        enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         draw_bg +: {
             color: #0000
@@ -367,6 +373,7 @@ script_mod! {
 
     mod.widgets.ShadButtonLink = mod.widgets.ButtonFlat{
         height: 36
+        enable_long_press: true
         padding: Inset{left: 4, right: 4, top: 0, bottom: 0}
         draw_bg +: {
             color: #0000
@@ -408,6 +415,7 @@ script_mod! {
     mod.widgets.ShadButtonIconOutline = mod.widgets.ButtonFlatIcon{
         width: 36
         height: 36
+        enable_long_press: true
         spacing: 0.0
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
         draw_bg +: {
@@ -575,7 +583,8 @@ impl Widget for ShadNavButton {
                 cx.widget_action_with_data(&self.action_data, uid, ButtonAction::LongPressed);
             }
             Hit::FingerUp(fe) if self.enabled && fe.is_primary_hit() => {
-                if fe.is_over {
+                let was_clicked = is_primary_tap(&fe);
+                if was_clicked {
                     self.emit_click(cx, uid, fe.modifiers);
                     if self.reset_hover_on_click {
                         self.animator_cut(cx, ids!(hover.off));

@@ -21,6 +21,7 @@ script_mod! {
     mod.widgets.ShadSidebarItem = mod.widgets.ButtonFlat{
         width: Fill
         height: 32
+        enable_long_press: true
         padding: Inset{left: 10, right: 10}
         align: Align{x: 0.0, y: 0.5}
         reset_hover_on_click: true
