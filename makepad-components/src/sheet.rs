@@ -17,6 +17,9 @@ script_mod! {
 
     mod.widgets.ShadSheetTitle = mod.widgets.ShadAlertTitle{}
     mod.widgets.ShadSheetDescription = mod.widgets.ShadAlertDescription{}
+    mod.widgets.ShadSheetFrame = mod.widgets.ShadSurfacePanel{
+        draw_bg.border_color: (shad_theme.color_outline_border_hover)
+    }
 
     mod.widgets.ShadSheetBase = #(ShadSheet::register_widget(vm))
 
@@ -41,7 +44,7 @@ script_mod! {
                 clip_x: true
                 clip_y: true
 
-                sheet_frame := mod.widgets.ShadSurfacePanel{
+                sheet_frame := mod.widgets.ShadSheetFrame{
                     width: Fill
                     height: Fill
 
