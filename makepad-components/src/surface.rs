@@ -23,6 +23,7 @@ script_mod! {
     mod.widgets.ShadSurfacePanel = mod.widgets.ShadSurface{
         width: Fill
         height: Fit
+        new_batch: true
         flow: Down
         spacing: 0.0
         padding: 0.

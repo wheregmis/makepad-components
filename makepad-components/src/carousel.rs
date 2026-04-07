@@ -65,6 +65,7 @@ script_mod! {
     mod.widgets.ShadCarouselPrevBtn = mod.widgets.IconButtonChevronLeft{
         width: 32
         height: 32
+        new_batch: true
         draw_bg +: {
             color: (shad_theme.color_background)
             color_hover: (shad_theme.color_secondary)
@@ -83,6 +84,7 @@ script_mod! {
     mod.widgets.ShadCarouselNextBtn = mod.widgets.IconButtonChevronRight{
         width: 32
         height: 32
+        new_batch: true
         draw_bg +: {
             color: (shad_theme.color_background)
             color_hover: (shad_theme.color_secondary)
@@ -122,6 +124,7 @@ script_mod! {
                     surface := RoundedView{
                         width: Fill
                         height: Fill
+                        new_batch: true
                         flow: Right
                         spacing: 18.0
                         padding: Inset{left: 20, right: 20, top: 20, bottom: 20}
@@ -193,6 +196,7 @@ script_mod! {
                     surface := RoundedView{
                         width: Fill
                         height: Fill
+                        new_batch: true
                         flow: Right
                         spacing: 18.0
                         padding: Inset{left: 20, right: 20, top: 20, bottom: 20}
@@ -264,6 +268,7 @@ script_mod! {
                     surface := RoundedView{
                         width: Fill
                         height: Fill
+                        new_batch: true
                         flow: Right
                         spacing: 18.0
                         padding: Inset{left: 20, right: 20, top: 20, bottom: 20}

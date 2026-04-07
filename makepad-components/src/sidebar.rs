@@ -25,6 +25,7 @@ script_mod! {
     mod.widgets.ShadSidebarItem = mod.widgets.ButtonFlat{
         width: Fill
         height: 40
+        new_batch: true
         enable_long_press: true
         padding: Inset{left: 14, right: 14}
         align: Align{x: 0.0, y: 0.5}

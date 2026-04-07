@@ -55,28 +55,69 @@ fn kbd_uses_theme_radius_and_new_batch() {
 }
 
 #[test]
-fn dialog_modal_surfaces_force_new_batch() {
-    let source = include_str!("../src/dialog.rs");
+fn shared_surface_panels_use_new_batch_for_nested_content() {
+    let source = include_str!("../src/surface.rs");
     assert!(
-        source.matches("new_batch: true").count() >= 3,
-        "dialog modal surfaces should force a new batch so overlay text and controls redraw independently"
+        source.contains("mod.widgets.ShadSurfacePanel = mod.widgets.ShadSurface{\n        width: Fill\n        height: Fit\n        new_batch: true"),
+        "surface panels should isolate their draw list before nested card/sidebar/menu content"
     );
 }
 
 #[test]
-fn sheet_surface_forces_new_batch() {
-    let source = include_str!("../src/sheet.rs");
+fn hoverable_navigation_and_group_containers_use_new_batch() {
+    let sidebar = include_str!("../src/sidebar.rs");
     assert!(
-        source.contains("mod.widgets.ShadSheetFrame = mod.widgets.ShadSurfacePanel{\n        new_batch: true"),
-        "sheet frame should force a new batch so the sliding panel redraw stays isolated from the modal backdrop"
+        sidebar.contains("mod.widgets.ShadSidebarItem = mod.widgets.ButtonFlat{\n        width: Fill\n        height: 40\n        new_batch: true"),
+        "sidebar items should isolate hover redraws from sibling labels"
+    );
+
+    let menubar = include_str!("../src/menubar.rs");
+    assert!(
+        menubar.contains("mod.widgets.ShadMenubarTrigger = ButtonFlat{\n        height: 30\n        new_batch: true"),
+        "menubar triggers should isolate hover redraws from surrounding text"
+    );
+    assert!(
+        menubar.contains("mod.widgets.ShadMenubarItem = set_type_default() do mod.widgets.ShadNavButtonBase{\n        width: Fill\n        height: 32\n        new_batch: true"),
+        "menubar items should isolate hover redraws from surrounding labels"
+    );
+
+    let button_group = include_str!("../src/button_group.rs");
+    assert!(
+        button_group.contains("mod.widgets.ShadButtonGroupItem = set_type_default() do mod.widgets.ShadNavButtonBase{\n        width: Fit\n        height: 36\n        new_batch: true"),
+        "button-group items should isolate hover redraws from adjacent segments"
+    );
+
+    let navigation_menu = include_str!("../src/navigation_menu.rs");
+    assert!(
+        navigation_menu.contains("mod.widgets.ShadNavigationMenuList = View{\n        width: Fit\n        height: Fit\n        new_batch: true"),
+        "navigation menu lists should isolate their background from trigger labels"
+    );
+    assert!(
+        navigation_menu.contains("mod.widgets.ShadNavigationMenuTrigger = ButtonFlat{\n        height: 36\n        new_batch: true"),
+        "navigation menu triggers should isolate hover redraws from sibling content"
     );
 }
 
 #[test]
-fn sonner_toast_slots_force_new_batch() {
-    let source = include_str!("../src/sonner.rs");
+fn carousel_and_otp_text_containers_use_new_batch() {
+    let carousel = include_str!("../src/carousel.rs");
+    assert_eq!(
+        carousel.matches("surface := RoundedView{\n                        width: Fill\n                        height: Fill\n                        new_batch: true").count(),
+        3,
+        "each carousel slide surface should isolate its background from nested text and media"
+    );
     assert!(
-        source.contains("let ToastSlotPanel = RoundedView {\n        visible: false\n        new_batch: true"),
-        "toast slots should force a new batch so their text and progress updates stay isolated from the notification overlay"
+        carousel.contains("mod.widgets.ShadCarouselPrevBtn = mod.widgets.IconButtonChevronLeft{\n        width: 32\n        height: 32\n        new_batch: true"),
+        "carousel prev button should isolate hover redraws from sibling controls"
+    );
+    assert!(
+        carousel.contains("mod.widgets.ShadCarouselNextBtn = mod.widgets.IconButtonChevronRight{\n        width: 32\n        height: 32\n        new_batch: true"),
+        "carousel next button should isolate hover redraws from sibling controls"
+    );
+
+    let input_otp = include_str!("../src/input_otp.rs");
+    assert!(
+        input_otp.contains("mod.widgets.ShadInputOtpSlot = RoundedView{\n        width: 48\n        height: 56\n        new_batch: true"),
+        "OTP slots should isolate their digit labels from slot backgrounds"
     );
 }

@@ -17,6 +17,7 @@ script_mod! {
 
     mod.widgets.ShadMenubarTrigger = ButtonFlat{
         height: 30
+        new_batch: true
         enable_long_press: true
         padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
 
@@ -68,6 +69,7 @@ script_mod! {
     mod.widgets.ShadMenubarItem = set_type_default() do mod.widgets.ShadNavButtonBase{
         width: Fill
         height: 32
+        new_batch: true
         align: Align{x: 0.0, y: 0.5}
         padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
         reset_hover_on_click: true

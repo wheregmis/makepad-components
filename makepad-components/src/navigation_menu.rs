@@ -14,6 +14,7 @@ script_mod! {
     mod.widgets.ShadNavigationMenuList = View{
         width: Fit
         height: Fit
+        new_batch: true
         flow: Right
         align: Align{y: 0.5}
         spacing: 6.0
@@ -28,6 +29,7 @@ script_mod! {
 
     mod.widgets.ShadNavigationMenuTrigger = ButtonFlat{
         height: 36
+        new_batch: true
         enable_long_press: true
         padding: Inset{left: 14, right: 14, top: 0, bottom: 0}
 
