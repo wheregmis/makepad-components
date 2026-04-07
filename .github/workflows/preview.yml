@@ -23,7 +23,6 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   MAKEPAD_GIT_BRANCH: dev
   APP_PACKAGE: makepad-gallery
-  WASM_BINDGEN_VERSION: 0.2.114
 
 jobs:
   deploy-preview:
@@ -63,13 +62,9 @@ jobs:
         if: github.event.action != 'closed'
         run: cargo makepad wasm install-toolchain
 
-      - name: Install wasm-bindgen CLI
-        if: github.event.action != 'closed'
-        run: cargo install wasm-bindgen-cli --version "${WASM_BINDGEN_VERSION}" --locked --force
-
       - name: Build gallery preview
         if: github.event.action != 'closed'
-        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile small --bindgen --no-threads --no-brotli
+        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile small --no-threads --no-brotli
 
       - name: Patch index.html for GitHub Pages subpath hosting
         if: github.event.action != 'closed'
