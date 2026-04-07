@@ -103,7 +103,7 @@ gallery_static_page! {
                             View{
                                 width: Fit
                                 height: Fit
-                                flow: Right
+                                flow: Right{wrap: true}
                                 spacing: 6.0
                                 align: Align{y: 0.5}
 
@@ -116,7 +116,7 @@ gallery_static_page! {
                         View{
                             width: Fill
                             height: Fit
-                            flow: Right
+                            flow: Right{wrap: true}
                             spacing: 16.0
                             align: Align{y: 0.5}
 
@@ -128,7 +128,7 @@ gallery_static_page! {
                             View{
                                 width: Fit
                                 height: Fit
-                                flow: Right
+                                flow: Right{wrap: true}
                                 spacing: 6.0
                                 align: Align{y: 0.5}
 

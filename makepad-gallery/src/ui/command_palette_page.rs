@@ -34,21 +34,36 @@ gallery_stateful_page_shell! {
                 ShadFieldDescription{text: "The same overlay opens from this button or from the keyboard shortcut."}
 
                 View{
-                    width: Fit
+                    width: Fill
                     height: Fit
-                    flow: Right
+                    flow: Right{wrap: true}
                     spacing: 8.0
                     align: Align{y: 0.5}
 
                     open_command_palette_btn := ShadButton{text: "Open Command Palette"}
+                    View{
+                        width: Fit
+                        height: Fit
+                        flow: Right{wrap: true}
+                        spacing: 6.0
+                        align: Align{y: 0.5}
 
-                    ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
-                    ShadKbdSeparator{}
-                    ShadKbd{ label := ShadKbdLabel{text: "K"} }
+                        ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
+                        ShadKbdSeparator{}
+                        ShadKbd{ label := ShadKbdLabel{text: "K"} }
+                    }
 
-                    ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
-                    ShadKbdSeparator{}
-                    ShadKbd{ label := ShadKbdLabel{text: "K"} }
+                    View{
+                        width: Fit
+                        height: Fit
+                        flow: Right{wrap: true}
+                        spacing: 6.0
+                        align: Align{y: 0.5}
+
+                        ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
+                        ShadKbdSeparator{}
+                        ShadKbd{ label := ShadKbdLabel{text: "K"} }
+                    }
                 }
             }
 
