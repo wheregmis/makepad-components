@@ -20,11 +20,11 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  MAKEPAD_GIT_BRANCH: explicitly_redraw_overlay
+  MAKEPAD_GIT_BRANCH: dev
 
 jobs:
   build-wasm:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
