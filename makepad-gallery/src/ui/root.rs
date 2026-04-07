@@ -41,7 +41,6 @@ macro_rules! define_gallery_root {
             }
 
             mod.widgets.GalleryThemeToggleSun = mod.widgets.GalleryThemeToggleButton{
-                button.aria_label: "Switch to dark theme"
                 icon := IconSun{
                     width: 16
                     height: 16
@@ -51,7 +50,6 @@ macro_rules! define_gallery_root {
             }
 
             mod.widgets.GalleryThemeToggleMoon = mod.widgets.GalleryThemeToggleButton{
-                button.aria_label: "Switch to light theme"
                 icon := IconMoon{
                     width: 16
                     height: 16
