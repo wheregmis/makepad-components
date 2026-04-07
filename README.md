@@ -743,6 +743,11 @@ Responsive guidance:
 
 Current gallery risk note:
 - popup-style selects are still unreliable inside the current gallery `PageFlip` shell; use the splash app or another Dock-based shell for interaction verification until that hotspot is resolved.
+- current automated coverage in this repo only locks the gallery source examples/hotspot notes; popup interaction reliability itself is still a manual verification path.
+
+Gallery references:
+- `makepad-gallery/src/ui/select_page.rs`
+- `makepad-gallery/src/ui/snippets/forms.rs`
 
 ### Dialog (`makepad-components/src/dialog.rs`)
 
