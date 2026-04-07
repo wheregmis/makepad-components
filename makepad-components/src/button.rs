@@ -1,5 +1,5 @@
-use makepad_widgets::makepad_script::ScriptFnRef;
 use crate::internal::touch::is_primary_tap;
+use makepad_widgets::makepad_script::ScriptFnRef;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 

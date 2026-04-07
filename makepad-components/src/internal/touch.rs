@@ -10,7 +10,12 @@ mod tests {
     use makepad_widgets::event::DigitId;
     use makepad_widgets::*;
 
-    fn finger_up(device: DigitDevice, abs_start: Vec2d, abs: Vec2d, is_over: bool) -> FingerUpEvent {
+    fn finger_up(
+        device: DigitDevice,
+        abs_start: Vec2d,
+        abs: Vec2d,
+        is_over: bool,
+    ) -> FingerUpEvent {
         FingerUpEvent {
             window_id: WindowId(0, 0),
             abs,
