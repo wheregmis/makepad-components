@@ -18,6 +18,7 @@ script_mod! {
     mod.widgets.ShadSheetTitle = mod.widgets.ShadAlertTitle{}
     mod.widgets.ShadSheetDescription = mod.widgets.ShadAlertDescription{}
     mod.widgets.ShadSheetFrame = mod.widgets.ShadSurfacePanel{
+        new_batch: true
         draw_bg.border_color: (shad_theme.color_outline_border_hover)
     }
 
@@ -65,6 +66,10 @@ script_mod! {
             }
         }
     }
+}
+
+fn should_sync_sheet_layout(open: bool, open_progress: f64) -> bool {
+    open || open_progress > 0.0
 }
 
 #[derive(Clone, Debug, Default)]
@@ -249,8 +254,10 @@ impl ShadSheet {
         if self.animation.is_none() {
             self.open_progress = if self.open { 1.0 } else { 0.0 };
         }
-        self.sync_side_layout(cx);
-        let render_open = self.open || self.open_progress > 0.0;
+        let render_open = should_sync_sheet_layout(self.open, self.open_progress);
+        if render_open {
+            self.sync_side_layout(cx);
+        }
         sync_modal_open_state(cx, &mut self.overlay, &mut self.is_synced_open, render_open);
     }
 
@@ -367,5 +374,19 @@ impl ShadSheetRef {
 
     pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
         self.borrow().and_then(|inner| inner.open_changed(actions))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn closed_sheet_without_animation_skips_overlay_layout_work() {
+        assert!(!super::should_sync_sheet_layout(false, 0.0));
+    }
+
+    #[test]
+    fn animating_or_open_sheet_keeps_overlay_layout_active() {
+        assert!(super::should_sync_sheet_layout(true, 0.0));
+        assert!(super::should_sync_sheet_layout(false, 0.25));
     }
 }
