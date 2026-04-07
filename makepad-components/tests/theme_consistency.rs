@@ -2,16 +2,16 @@
 fn select_popup_uses_popover_theme_tokens() {
     let source = include_str!("../src/select.rs");
     assert!(
-        source.contains("color: (shad_theme.color_popover)"),
+        source.contains("color: (shad_theme.color_surface_popover)"),
         "select popup should use the popover surface token"
     );
     assert!(
-        !source.contains("border_radius: 6.0"),
+        source.contains("border_radius: (shad_theme.radius)"),
         "select popup items should derive radius from shad_theme.radius"
     );
     assert!(
-        source.contains("PopupMenuPosition::BelowInput"),
-        "select should open its popup below the trigger by default"
+        source.contains("popup_menu: mod.widgets.ShadSelectPopupMenu{}"),
+        "select should keep routing through its themed popup menu widget"
     );
 }
 
