@@ -43,7 +43,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libssl-dev clang lld
+          sudo apt-get install -y pkg-config libssl-dev libwayland-dev clang lld
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
