@@ -272,9 +272,9 @@ macro_rules! define_gallery_root {
                             visible: false
                             text: ""
                             draw_bg +: {
-                                color: #x00000066
-                                color_hover: #x00000066
-                                color_down: #x00000066
+                                color: (shad_theme.color_overlay)
+                                color_hover: (shad_theme.color_overlay)
+                                color_down: (shad_theme.color_overlay)
                                 border_size: 0.0
                             }
                             draw_text.color: #0000

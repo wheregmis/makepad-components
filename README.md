@@ -866,20 +866,26 @@ Exports `mod.widgets.shad_themes.light`, `mod.widgets.shad_themes.dark`, and the
 - `color_muted*`, `color_ghost*`
 - `radius`
 
-Switch themes by reassigning `mod.widgets.shad_theme`:
+Select the initial theme while building the script module:
 
 ```rust
-script_eval!(cx, {
-    if mod.state.is_light_theme {
-        mod.state.is_light_theme = false
-        mod.widgets.shad_theme = mod.widgets.shad_themes.dark
+fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
+    makepad_components::theme::script_mod(vm);
+    if is_light_theme {
+        script_eval!(vm, {
+            mod.widgets.shad_theme = mod.widgets.shad_themes.light
+        });
+    } else {
+        script_eval!(vm, {
+            mod.widgets.shad_theme = mod.widgets.shad_themes.dark
+        });
     }
-    else {
-        mod.state.is_light_theme = true
-        mod.widgets.shad_theme = mod.widgets.shad_themes.light
-    }
-});
+    makepad_components::script_mod_without_theme(vm);
+    self::script_mod(vm)
+}
 ```
+
+For runtime theme toggles, rebuild/reload the widget tree after switching the theme object so existing widgets re-apply their `shad_theme` bindings. `makepad-gallery/src/main.rs` demonstrates the pattern by queueing the change to the next frame and then calling `ScriptApply::script_apply(..., Apply::Reload, ...)`.
 
 ## Using `makepad-icon`
 
