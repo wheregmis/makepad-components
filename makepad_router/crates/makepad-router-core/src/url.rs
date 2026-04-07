@@ -211,12 +211,16 @@ pub fn append_query_string(out: &mut String, map: &HashMap<String, String>) {
 }
 
 fn decode_www_form_component(input: &str) -> String {
-    // Optimization: most router query keys/values are already plain ASCII.
-    // Previously: every component allocated a scratch `Vec<u8>` and rebuilt a `String`,
-    // even when there was nothing to decode. Fast-path those common inputs so query parsing
-    // only pays the byte-buffer cost for actual `%xx` or `+` decoding.
-    if !input.as_bytes().iter().any(|&b| matches!(b, b'+' | b'%')) {
+    // Optimization: most router query keys/values are already plain text or only use `+`
+    // for spaces. Previously: even `+`-only inputs fell through the byte-buffer decode path,
+    // allocating a `Vec<u8>` and rebuilding UTF-8 bytes. Now: plain text returns directly,
+    // and `+`-only inputs use a single `String::replace`, reserving the slower byte decoder
+    // for actual `%xx` sequences.
+    if !input.contains(['+', '%']) {
         return input.to_string();
+    }
+    if !input.contains('%') {
+        return input.replace('+', " ");
     }
 
     let mut bytes = Vec::<u8>::with_capacity(input.len());
@@ -449,6 +453,51 @@ mod tests {
 
         println!(
             "append_query_string benchmark: old={old_elapsed:?} new={new_elapsed:?} improvement={:.2}%",
+            (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
+        );
+    }
+
+    #[test]
+    #[ignore = "micro-benchmark; run explicitly in release mode for stable numbers"]
+    fn decode_query_plus_only_fast_path_benchmark() {
+        fn legacy_decode_www_form_component(input: &str) -> String {
+            let mut bytes = Vec::<u8>::with_capacity(input.len());
+            let mut iter = input.as_bytes().iter().copied().peekable();
+            while let Some(b) = iter.next() {
+                match b {
+                    b'+' => bytes.push(b' '),
+                    b'%' => {
+                        let hi = iter.next();
+                        let lo = iter.next();
+                        if let (Some(hi), Some(lo)) = (hi, lo) {
+                            if let (Some(hi), Some(lo)) = (super::hex_val(hi), super::hex_val(lo)) {
+                                bytes.push((hi << 4) | lo);
+                            }
+                        }
+                    }
+                    _ => bytes.push(b),
+                }
+            }
+            String::from_utf8(bytes).unwrap_or_else(|_| input.to_string())
+        }
+
+        const ITERATIONS: usize = 500_000;
+        let input = "team+members+status+all";
+
+        let old_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(legacy_decode_www_form_component(input));
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        for _ in 0..ITERATIONS {
+            black_box(super::decode_www_form_component(input));
+        }
+        let new_elapsed = new_start.elapsed();
+
+        println!(
+            "legacy_plus_decode={old_elapsed:?} new_plus_decode={new_elapsed:?} improvement={:.2}%",
             (1.0 - (new_elapsed.as_secs_f64() / old_elapsed.as_secs_f64())) * 100.0
         );
     }
