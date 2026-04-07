@@ -40,6 +40,7 @@ script_mod! {
 
     mod.widgets.ShadContextMenuContent = mod.widgets.PopupMenu{
         width: 200
+        new_batch: true
         padding: Inset{left: 6, right: 6, top: 6, bottom: 6}
         menu_item: mod.widgets.ShadContextMenuItem{}
 
