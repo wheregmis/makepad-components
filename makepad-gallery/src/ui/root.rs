@@ -153,7 +153,6 @@ macro_rules! define_gallery_root {
             mod.widgets.GalleryMobileHeader = View{
                 width: Fill
                 height: Fit
-                visible: false
                 flow: Down
 
                 header_bar := View{
@@ -212,9 +211,40 @@ macro_rules! define_gallery_root {
                 height: Fill
                 flow: Down
 
-                desktop_header := mod.widgets.GalleryDesktopHeader{}
-                mobile_header := mod.widgets.GalleryMobileHeader{}
+                responsive_header := AdaptiveView{
+                    width: Fill
+                    height: Fit
+
+                    Desktop := mod.widgets.GalleryDesktopHeader{}
+                    Mobile := mod.widgets.GalleryMobileHeader{}
+                }
                 content_flip := mod.widgets.GalleryContentFlip{}
+            }
+
+            mod.widgets.GalleryResponsiveSidebar = AdaptiveView{
+                width: Fit
+                height: Fill
+
+                Desktop := View{
+                    width: Fit
+                    height: Fill
+                    flow: Overlay
+
+                    sidebar_shell := View{
+                        width: 280
+                        height: Fill
+                        flow: Overlay
+                        clip_x: true
+                        clip_y: true
+
+                        sidebar_desktop := mod.widgets.GallerySidebar{}
+                    }
+                }
+
+                Mobile := View{
+                    width: 0
+                    height: Fill
+                }
             }
 
             mod.widgets.GalleryAppShell = View{
@@ -223,15 +253,7 @@ macro_rules! define_gallery_root {
                 flow: Right
                 spacing: 0.0
 
-                sidebar_shell := View{
-                    width: 280
-                    height: Fill
-                    flow: Overlay
-                    clip_x: true
-                    clip_y: true
-
-                    sidebar := mod.widgets.GallerySidebar{}
-                }
+                responsive_sidebar := mod.widgets.GalleryResponsiveSidebar{}
 
                 main_content := mod.widgets.GalleryMainContent{
                     width: Fill
@@ -262,6 +284,37 @@ macro_rules! define_gallery_root {
                         draw_bg.color: (shad_theme.color_background)
 
                         app_shell := mod.widgets.GalleryAppShell{}
+                        mobile_sidebar_backdrop := ButtonFlat{
+                            width: Fill
+                            height: Fill
+                            visible: false
+                            text: ""
+                            draw_bg +: {
+                                color: (shad_theme.color_overlay)
+                                color_hover: (shad_theme.color_overlay)
+                                color_down: (shad_theme.color_overlay)
+                                border_size: 0.0
+                            }
+                            draw_text.color: #0000
+                        }
+                        mobile_sidebar_panel := SlidePanel{
+                            side: SlideSide.Left
+                            width: 320
+                            height: Fill
+
+                            mobile_sidebar_shell := View{
+                                width: Fill
+                                height: Fill
+                                flow: Overlay
+                                clip_x: true
+                                clip_y: true
+
+                                sidebar_mobile := mod.widgets.GalleryMobileSidebar{
+                                    width: Fill
+                                    height: Fill
+                                }
+                            }
+                        }
                         command_palette := mod.widgets.GalleryCommandPalette{}
                     }
                 }

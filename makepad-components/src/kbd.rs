@@ -7,12 +7,13 @@ script_mod! {
     mod.widgets.ShadKbd = mod.widgets.RoundedView{
         width: Fit
         height: Fit
+        new_batch: true
         flow: Right
         align: Align{x: 0.5, y: 0.5}
         padding: Inset{left: 6, right: 6, top: 4, bottom: 4}
         draw_bg +: {
             color: (shad_theme.color_kbd_bg)
-            border_radius: 5.0
+            border_radius: (shad_theme.radius)
             border_size: 1.0
             border_color: (shad_theme.color_kbd_border)
         }

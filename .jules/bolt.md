@@ -71,3 +71,6 @@
 ## 2026-04-03 - Router bool query parsing should not lowercase copies
 **Learning:** `makepad-router-core::Route::query_get_bool` sits on the route/widget read path and was allocating a fresh lowercase `String` via `to_ascii_lowercase()` for every boolean query lookup, even though the accepted values are a tiny fixed ASCII set.
 **Action:** For hot router parsing helpers, compare the borrowed `&str` with `eq_ignore_ascii_case` against fixed literals instead of normalizing into an owned buffer first; keep a small ignored release benchmark nearby to document the win.
+## 2026-04-04 - Reuse table width vectors instead of cloning on length changes
+**Learning:** In `makepad-components/src/table.rs`, adjusting column widths used a conditional `.clone()` when the previous and new width vector lengths mismatched. This caused the old vector capacity to be dropped and a completely new heap buffer to be allocated.
+**Action:** When updating a `Vec` from another slice or vector in Makepad hot paths (like synchronizing table widths), use `vec.clear(); vec.extend_from_slice(src);` to reuse the existing allocation.

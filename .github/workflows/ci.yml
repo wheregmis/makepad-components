@@ -15,7 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  MAKEPAD_BRANCH: explicitly_redraw_overlay
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  MAKEPAD_GIT_BRANCH: dev
 
 jobs:
   cargo-check:
@@ -26,8 +27,8 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          # - ubuntu-latest
-          - macos-latest
+          - ubuntu-latest
+          # - macos-latest
           # - windows-latest
 
     steps:
@@ -36,13 +37,13 @@ jobs:
 
       - name: Checkout sibling makepad workspace
         shell: bash
-        run: git clone --depth 1 --branch "${MAKEPAD_BRANCH}" https://github.com/wheregmis/makepad.git "${GITHUB_WORKSPACE}/../makepad"
+        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/makepad/makepad.git "${GITHUB_WORKSPACE}/../makepad"
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libssl-dev clang lld
+          sudo apt-get install -y pkg-config libssl-dev libwayland-dev clang lld
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -64,7 +65,7 @@ jobs:
 
       - name: Checkout sibling makepad workspace
         shell: bash
-        run: git clone --depth 1 --branch "${MAKEPAD_BRANCH}" https://github.com/wheregmis/makepad.git "${GITHUB_WORKSPACE}/../makepad"
+        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/makepad/makepad.git "${GITHUB_WORKSPACE}/../makepad"
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable

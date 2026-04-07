@@ -10,7 +10,7 @@ script_mod! {
         width: Fill
         height: Fit
         align: Align{y: 0.5}
-        padding: Inset{left: 12, right: 12, top: 8, bottom: 8}
+        padding: Inset{left: 14, right: 14, top: 9, bottom: 9}
 
         draw_text +: {
             color: (shad_theme.color_primary)
@@ -22,10 +22,10 @@ script_mod! {
 
         draw_bg +: {
             border_size: 0.0
-            border_radius: 6.0
+            border_radius: (shad_theme.radius)
             color: #0000
-            color_hover: (shad_theme.color_secondary)
-            color_active: (shad_theme.color_secondary_hover)
+            color_hover: (shad_theme.color_ghost_hover)
+            color_active: (shad_theme.color_ghost_down)
             color_disabled: #0000
             border_color: #0000
             border_color_hover: #0000
@@ -40,14 +40,15 @@ script_mod! {
 
     mod.widgets.ShadContextMenuContent = mod.widgets.PopupMenu{
         width: 200
-        padding: Inset{left: 4, right: 4, top: 4, bottom: 4}
+        new_batch: true
+        padding: Inset{left: 6, right: 6, top: 6, bottom: 6}
         menu_item: mod.widgets.ShadContextMenuItem{}
 
         draw_bg +: {
             border_size: 1.0
             border_radius: (shad_theme.radius)
-            color: (shad_theme.color_background)
-            border_color: (shad_theme.color_outline_border)
+            color: (shad_theme.color_popover)
+            border_color: (shad_theme.color_outline_border_hover)
             color_dither: 0.0
         }
     }

@@ -12,84 +12,89 @@ gallery_stateful_page_shell! {
     preview: {
         ShadSectionHeader{ text: "Marketing / docs navigation" }
 
-        navigation_menu_demo := ShadNavigationMenu{
-            navigation_list := ShadNavigationMenuList{
-                products_menu := ShadNavigationMenuItem{
-                    trigger := ShadNavigationMenuTrigger{text: "Products"}
+        ShadCard{
+            spacing: 14.0
+            padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
 
-                    content: ShadNavigationMenuContent{
-                        menu_row := View{
-                            width: Fill
-                            height: Fit
-                            flow: Right
-                            spacing: 12.0
+            navigation_menu_demo := ShadNavigationMenu{
+                navigation_list := ShadNavigationMenuList{
+                    products_menu := ShadNavigationMenuItem{
+                        trigger := ShadNavigationMenuTrigger{text: "Products"}
 
-                            ShadNavigationMenuCallout{
-                                ShadSectionHeader{text: "Ship faster"}
-                                ShadFieldDescription{text: "Launch with billing, auth, and analytics primitives that already fit the design system."}
-                                products_trial_btn := ShadButton{text: "Start trial"}
-                            }
-
-                            View{
+                        content: ShadNavigationMenuContent{
+                            menu_row := View{
                                 width: Fill
                                 height: Fit
-                                flow: Down
-                                spacing: 10.0
+                                flow: Right
+                                spacing: 12.0
 
-                                sdk_panel := ShadNavigationMenuPanel{
-                                    products_sdk_btn := ShadButtonGhost{
-                                        width: Fill
-                                        align: Align{x: 0.0, y: 0.5}
-                                        text: "SDKs"
-                                    }
-                                    ShadFieldDescription{text: "Type-safe clients for web, desktop, and native apps."}
+                                ShadNavigationMenuCallout{
+                                    ShadSectionHeader{text: "Ship faster"}
+                                    ShadFieldDescription{text: "Launch with billing, auth, and analytics primitives that already fit the design system."}
+                                    products_trial_btn := ShadButton{text: "Start trial"}
                                 }
 
-                                dashboard_panel := ShadNavigationMenuPanel{
-                                    products_dashboard_btn := ShadButtonGhost{
-                                        width: Fill
-                                        align: Align{x: 0.0, y: 0.5}
-                                        text: "Dashboards"
+                                View{
+                                    width: Fill
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 10.0
+
+                                    sdk_panel := ShadNavigationMenuPanel{
+                                        products_sdk_btn := ShadButtonGhost{
+                                            width: Fill
+                                            align: Align{x: 0.0, y: 0.5}
+                                            text: "SDKs"
+                                        }
+                                        ShadFieldDescription{text: "Type-safe clients for web, desktop, and native apps."}
                                     }
-                                    ShadFieldDescription{text: "Operational views for metrics, queues, and release health."}
+
+                                    dashboard_panel := ShadNavigationMenuPanel{
+                                        products_dashboard_btn := ShadButtonGhost{
+                                            width: Fill
+                                            align: Align{x: 0.0, y: 0.5}
+                                            text: "Dashboards"
+                                        }
+                                        ShadFieldDescription{text: "Operational views for metrics, queues, and release health."}
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                resources_menu := ShadNavigationMenuItem{
-                    trigger := ShadNavigationMenuTrigger{text: "Resources"}
+                    resources_menu := ShadNavigationMenuItem{
+                        trigger := ShadNavigationMenuTrigger{text: "Resources"}
 
-                    content: ShadNavigationMenuContent{
-                        ShadNavigationMenuSectionLabel{text: "Learn"}
-                        guides_btn := ShadButtonGhost{
-                            width: Fill
-                            align: Align{x: 0.0, y: 0.5}
-                            text: "Guides"
+                        content: ShadNavigationMenuContent{
+                            ShadNavigationMenuSectionLabel{text: "Learn"}
+                            guides_btn := ShadButtonGhost{
+                                width: Fill
+                                align: Align{x: 0.0, y: 0.5}
+                                text: "Guides"
+                            }
+                            ShadFieldDescription{text: "Architecture notes, implementation walkthroughs, and migration recipes."}
+                            examples_btn := ShadButtonGhost{
+                                width: Fill
+                                align: Align{x: 0.0, y: 0.5}
+                                text: "Examples"
+                            }
+                            ShadFieldDescription{text: "Reference compositions for onboarding, billing, and analytics flows."}
                         }
-                        ShadFieldDescription{text: "Architecture notes, implementation walkthroughs, and migration recipes."}
-                        examples_btn := ShadButtonGhost{
-                            width: Fill
-                            align: Align{x: 0.0, y: 0.5}
-                            text: "Examples"
-                        }
-                        ShadFieldDescription{text: "Reference compositions for onboarding, billing, and analytics flows."}
+                    }
+
+                    pricing_link := ShadButtonGhost{
+                        text: "Pricing"
                     }
                 }
-
-                pricing_link := ShadButtonGhost{
-                    text: "Pricing"
-                }
             }
-        }
 
-        navigation_selection_status := ShadFieldDescription{
-            text: "Selected destination: none yet."
-        }
+            navigation_selection_status := ShadFieldDescription{
+                text: "Selected destination: none yet."
+            }
 
-        navigation_open_status := ShadFieldDescription{
-            text: "All navigation menus are closed."
+            navigation_open_status := ShadFieldDescription{
+                text: "All navigation menus are closed."
+            }
         }
     },
     action_flow: {

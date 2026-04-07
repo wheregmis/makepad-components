@@ -86,14 +86,18 @@ if [[ ${ENABLE_BROTLI} -eq 1 ]]; then
     CMD+=(--brotli)
 fi
 
-CMD+=("${MODE_FLAGS[@]}")
+if [[ ${#MODE_FLAGS[@]} -gt 0 ]]; then
+    CMD+=("${MODE_FLAGS[@]}")
+fi
 CMD+=(build -p "${APP_PACKAGE}")
 
 if [[ ${HAS_RELEASE} -eq 0 ]]; then
     CMD+=("--profile=${PROFILE}")
 fi
 
-CMD+=("${EXTRA_FLAGS[@]}")
+if [[ ${#EXTRA_FLAGS[@]} -gt 0 ]]; then
+    CMD+=("${EXTRA_FLAGS[@]}")
+fi
 
 "${CMD[@]}"
 

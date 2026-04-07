@@ -37,6 +37,7 @@ script_mod! {
     }
 
     mod.widgets.ShadSurfacePopover = mod.widgets.ShadSurfacePanel{
+        new_batch: true
         draw_bg.color: (shad_theme.color_popover)
     }
 

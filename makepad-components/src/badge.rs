@@ -7,12 +7,13 @@ script_mod! {
     mod.widgets.ShadBadge = mod.widgets.RoundedView{
         width: Fit
         height: Fit
+        new_batch: true
         flow: Right
         align: Align{x: 0.5, y: 0.5}
         padding: Inset{left: 8, right: 8, top: 3, bottom: 3}
         draw_bg +: {
             color: (shad_theme.color_primary)
-            border_radius: 5.0
+            border_radius: (shad_theme.radius)
             border_size: 0.0
             border_color: #0000
         }

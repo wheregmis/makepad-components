@@ -12,44 +12,49 @@ gallery_stateful_page_shell! {
     preview: {
         ShadSectionHeader{ text: "Application menu" }
 
-        menubar_demo := ShadMenubar{
-            file_menu := ShadMenubarMenu{
-                trigger := ShadMenubarTrigger{text: "File"}
+        ShadCard{
+            spacing: 14.0
+            padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
 
-                content: ShadMenubarContent{
-                    ShadMenubarLabel{text: "Project"}
-                    file_new_btn := ShadMenubarItem{text: "New file"}
-                    file_open_btn := ShadMenubarItem{text: "Open recent"}
-                    ShadMenubarSeparator{}
-                    file_share_btn := ShadMenubarItem{text: "Share"}
+            menubar_demo := ShadMenubar{
+                file_menu := ShadMenubarMenu{
+                    trigger := ShadMenubarTrigger{text: "File"}
+
+                    content: ShadMenubarContent{
+                        ShadMenubarLabel{text: "Project"}
+                        file_new_btn := ShadMenubarItem{text: "New file"}
+                        file_open_btn := ShadMenubarItem{text: "Open recent"}
+                        ShadMenubarSeparator{}
+                        file_share_btn := ShadMenubarItem{text: "Share"}
+                    }
+                }
+
+                edit_menu := ShadMenubarMenu{
+                    trigger := ShadMenubarTrigger{text: "Edit"}
+
+                    content: ShadMenubarContent{
+                        ShadMenubarLabel{text: "History"}
+                        edit_undo_btn := ShadMenubarItem{text: "Undo"}
+                        edit_redo_btn := ShadMenubarItem{text: "Redo"}
+                        ShadMenubarSeparator{}
+                        edit_find_btn := ShadMenubarItem{text: "Find in files"}
+                    }
+                }
+
+                view_menu := ShadMenubarMenu{
+                    trigger := ShadMenubarTrigger{text: "View"}
+
+                    content: ShadMenubarContent{
+                        ShadMenubarLabel{text: "Workspace"}
+                        view_toggle_sidebar_btn := ShadMenubarItem{text: "Toggle sidebar"}
+                        view_zen_mode_btn := ShadMenubarItem{text: "Enter zen mode"}
+                    }
                 }
             }
 
-            edit_menu := ShadMenubarMenu{
-                trigger := ShadMenubarTrigger{text: "Edit"}
-
-                content: ShadMenubarContent{
-                    ShadMenubarLabel{text: "History"}
-                    edit_undo_btn := ShadMenubarItem{text: "Undo"}
-                    edit_redo_btn := ShadMenubarItem{text: "Redo"}
-                    ShadMenubarSeparator{}
-                    edit_find_btn := ShadMenubarItem{text: "Find in files"}
-                }
+            menubar_status := ShadFieldDescription{
+                text: "Choose a menubar action."
             }
-
-            view_menu := ShadMenubarMenu{
-                trigger := ShadMenubarTrigger{text: "View"}
-
-                content: ShadMenubarContent{
-                    ShadMenubarLabel{text: "Workspace"}
-                    view_toggle_sidebar_btn := ShadMenubarItem{text: "Toggle sidebar"}
-                    view_zen_mode_btn := ShadMenubarItem{text: "Enter zen mode"}
-                }
-            }
-        }
-
-        menubar_status := ShadFieldDescription{
-            text: "Choose a menubar action."
         }
     },
     action_flow: {
