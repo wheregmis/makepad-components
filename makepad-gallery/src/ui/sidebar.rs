@@ -52,12 +52,18 @@ macro_rules! define_gallery_sidebar {
                 }
             }
 
+            mod.widgets.GallerySidebarList = ShadScrollYView{
+                width: Fill
+                height: Fill
+                flow: Down
+
+                $(
+                    $sidebar_id := ShadSidebarItem{text: $sidebar_label}
+                )*
+            }
+
             mod.widgets.GallerySidebar = ShadSidebar{
                 width: 280
-
-                mobile_sidebar_close_button := mod.widgets.GalleryMobileSidebarCloseButton{
-                    visible: false
-                }
 
                 ShadLabel{
                     text: "Makepad Component\nGallery"
@@ -66,15 +72,52 @@ macro_rules! define_gallery_sidebar {
 
                 ShadSidebarSectionLabel{text: "Catalog"}
 
-                ShadScrollYView{
-                    width: Fill
-                    height: Fill
-                    flow: Down
+                mod.widgets.GallerySidebarList{}
+            }
 
-                    $(
-                        $sidebar_id := ShadSidebarItem{text: $sidebar_label}
-                    )*
+            mod.widgets.GalleryMobileSidebar = ShadSidebar{
+                width: Fill
+                spacing: 16.0
+                padding: Inset{top: 18, right: 16, bottom: 18, left: 16}
+
+                mobile_sidebar_top_row := View{
+                    width: Fill
+                    height: Fit
+                    flow: Right
+                    align: Align{y: 0.5}
+                    spacing: 10.0
+
+                    mobile_sidebar_close_button := mod.widgets.GalleryMobileSidebarCloseButton{
+                        visible: false
+                    }
+
+                    mobile_sidebar_meta := View{
+                        width: Fill
+                        height: Fit
+                        flow: Down
+                        spacing: 4.0
+
+                        ShadSectionHeader{
+                            text: "Components"
+                        }
+
+                        ShadLabel{
+                            text: "Makepad Component Gallery"
+                            draw_text.text_style.font_size: 12
+                            draw_text.color: (shad_theme.color_muted_foreground)
+                        }
+                    }
                 }
+
+                mobile_sidebar_search := ShadButtonIconOutline{
+                    width: Fill
+                    height: 40
+                    text: "Search components"
+                }
+
+                ShadSidebarSectionLabel{text: "Catalog"}
+
+                mod.widgets.GallerySidebarList{}
             }
         }
     };

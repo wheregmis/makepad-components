@@ -4,12 +4,61 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
+    mod.widgets.ShadScrollBar = mod.widgets.ScrollBar{
+        bar_size: 8.0
+        bar_side_margin: 2.0
+        min_handle_size: 28.0
+        draw_bg +: {
+            size: 5.0
+            border_size: 0.0
+            border_radius: 999.0
+            color: (shad_theme.color_outline_border)
+            color_hover: (shad_theme.color_outline_border_hover)
+            color_drag: (shad_theme.color_primary)
+            border_color: #0000
+            border_color_hover: #0000
+            border_color_drag: #0000
+        }
+    }
+
+    mod.widgets.ShadScrollBarsX = mod.widgets.ScrollBars{
+        show_scroll_x: true
+        show_scroll_y: false
+        scroll_bar_x: mod.widgets.ShadScrollBar{
+            drag_scrolling: true
+            use_vertical_finger_scroll: true
+        }
+    }
+
+    mod.widgets.ShadScrollBarsY = mod.widgets.ScrollBars{
+        show_scroll_x: false
+        show_scroll_y: true
+        scroll_bar_y: mod.widgets.ShadScrollBar{
+            drag_scrolling: true
+        }
+    }
+
+    mod.widgets.ShadScrollBarsXY = mod.widgets.ScrollBars{
+        show_scroll_x: true
+        show_scroll_y: true
+        scroll_bar_x: mod.widgets.ShadScrollBar{
+            drag_scrolling: true
+            use_vertical_finger_scroll: true
+        }
+        scroll_bar_y: mod.widgets.ShadScrollBar{
+            drag_scrolling: true
+        }
+    }
+
     mod.widgets.ShadScrollArea = ScrollYView{
         width: Fill
         height: Fill
         flow: Down
+        clip_x: true
+        clip_y: true
+        scroll_bars: mod.widgets.ShadScrollBarsY{}
         draw_bg.color: (shad_theme.color_background)
-        padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
+        padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
         spacing: 12.0
     }
 
@@ -17,8 +66,11 @@ script_mod! {
         width: Fill
         height: Fit
         flow: Right
+        clip_x: true
+        clip_y: true
+        scroll_bars: mod.widgets.ShadScrollBarsX{}
         draw_bg.color: (shad_theme.color_background)
-        padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
+        padding: Inset{top: 12, right: 12, bottom: 12, left: 12}
         spacing: 12.0
     }
 
@@ -26,8 +78,11 @@ script_mod! {
         width: Fill
         height: Fill
         flow: Down
+        clip_x: true
+        clip_y: true
+        scroll_bars: mod.widgets.ShadScrollBarsXY{}
         draw_bg.color: (shad_theme.color_background)
-        padding: Inset{top: 20, right: 20, bottom: 20, left: 20}
+        padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
         spacing: 12.0
     }
 

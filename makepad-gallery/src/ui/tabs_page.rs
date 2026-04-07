@@ -7,78 +7,84 @@ gallery_stateful_page_shell! {
     widget: GalleryTabsPage,
     page: tabs_page,
     title: "Tabs",
-    subtitle: "Composable trigger and content styles for app-level tab state. This gallery page keeps tab clicks local and routes content through a RouterWidget.",
+    subtitle: "Composable tab styling that now behaves better on narrow widths: the trigger row scrolls horizontally, keeps touch targets larger, and still lets the page own tab state.",
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
-        ShadTabs{
-            tabs_row := ShadTabsList{
-                overview_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 4.0
+        tabs_preview_shell := ShadPanel{
+            width: 340
+            flow: Down
+            padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
 
-                    tabs_overview_trigger := ShadTabsTrigger{text: "Overview"}
-                    tabs_overview_indicator := ShadTabsIndicator{}
-                }
+            ShadTabs{
+                tabs_row := ShadTabsList{
+                    overview_group := View{
+                        width: Fit
+                        height: Fit
+                        flow: Down
+                        spacing: 4.0
 
-                usage_group := View{
-                    width: Fit
-                    height: Fit
-                    flow: Down
-                    spacing: 4.0
+                        tabs_overview_trigger := ShadTabsTrigger{text: "Overview & Activity"}
+                        tabs_overview_indicator := ShadTabsIndicator{}
+                    }
 
-                    tabs_usage_trigger := ShadTabsTrigger{text: "Usage"}
-                    tabs_usage_indicator := ShadTabsIndicator{
-                        visible: false
+                    usage_group := View{
+                        width: Fit
+                        height: Fit
+                        flow: Down
+                        spacing: 4.0
+
+                        tabs_usage_trigger := ShadTabsTrigger{text: "Implementation Notes"}
+                        tabs_usage_indicator := ShadTabsIndicator{
+                            visible: false
+                        }
+                    }
+
+                    settings_group := View{
+                        width: Fit
+                        height: Fit
+                        flow: Down
+                        spacing: 4.0
+
+                        tabs_settings_trigger := ShadTabsTrigger{text: "Settings & Access"}
+                        tabs_settings_indicator := ShadTabsIndicator{
+                            visible: false
+                        }
                     }
                 }
 
-                settings_group := View{
-                    width: Fit
+                tabs_content_flip := mod.widgets.RouterWidget{
+                    width: Fill
                     height: Fit
-                    flow: Down
-                    spacing: 4.0
+                    default_route: @overview_page
+                    not_found_route: @overview_page
 
-                    tabs_settings_trigger := ShadTabsTrigger{text: "Settings"}
-                    tabs_settings_indicator := ShadTabsIndicator{
-                        visible: false
+                    overview_page := mod.widgets.RouterRoute{
+                        route_pattern: "/"
+                        ShadSectionHeader{text: "Overview"}
+                        ShadFieldDescription{text: "Keep related content grouped, even when the trigger row overflows on mobile or inside compact panels."}
                     }
-                }
-            }
 
-            tabs_content_flip := mod.widgets.RouterWidget{
-                width: Fill
-                height: Fit
-                default_route: @overview_page
-                not_found_route: @overview_page
+                    usage_page := mod.widgets.RouterRoute{
+                        route_pattern: "/usage"
+                        ShadSectionHeader{text: "Usage"}
+                        ShadFieldDescription{text: "Pair `ShadTabsTrigger` with `PageFlip`, `RouterWidget`, or any app-owned state holder. The trigger row is visual; the page still owns the selected tab."}
+                    }
 
-                overview_page := mod.widgets.RouterRoute{
-                    route_pattern: "/"
-                    ShadSectionHeader{text: "Overview"}
-                    ShadFieldDescription{text: "Keep the page shell compact while switching between related content areas."}
-                }
-
-                usage_page := mod.widgets.RouterRoute{
-                    route_pattern: "/usage"
-                    ShadSectionHeader{text: "Usage"}
-                    ShadFieldDescription{text: "Pair `ShadTabsTrigger` with `PageFlip` or another state holder in app code."}
-                }
-
-                settings_page := mod.widgets.RouterRoute{
-                    route_pattern: "/settings"
-                    ShadSectionHeader{text: "Settings"}
-                    ShadFieldDescription{text: "This first pass focuses on composition and styling, not a fully stateful tab controller."}
+                    settings_page := mod.widgets.RouterRoute{
+                        route_pattern: "/settings"
+                        ShadSectionHeader{text: "Settings"}
+                        ShadFieldDescription{text: "The compact shell here intentionally forces horizontal overflow so the new tab-row scrolling stays visible in the demo."}
+                    }
                 }
             }
         }
     },
     action_flow: {
         mod.widgets.GalleryActionFlowStep{text: "1. The selected tab is page-owned state, not app-shell glue and not hidden inside the visual trigger widgets."}
-        mod.widgets.GalleryActionFlowStep{text: "2. The page controller listens to trigger clicks locally and updates one source of truth for the active tab."}
-        mod.widgets.GalleryActionFlowStep{text: "3. That selected value drives both the RouterWidget content and the active indicator visibility."}
-        mod.widgets.GalleryActionFlowStep{text: "4. This keeps ShadTabs primitives composable while the page decides how content switching behaves."}
+        mod.widgets.GalleryActionFlowStep{text: "2. The trigger row can now overflow horizontally, so narrow mobile panels do not need custom fallback layouts just to keep tabs usable."}
+        mod.widgets.GalleryActionFlowStep{text: "3. The page controller still listens to trigger clicks locally and updates one source of truth for the active tab."}
+        mod.widgets.GalleryActionFlowStep{text: "4. That selected value drives both the RouterWidget content and the active indicator visibility."}
     },
 }
 

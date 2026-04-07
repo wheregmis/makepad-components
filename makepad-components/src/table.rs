@@ -84,7 +84,7 @@ script_mod! {
                 text: ""
             }
 
-            scroll := ScrollXView{
+            scroll := mod.widgets.ShadScrollAreaX{
                 width: Fill
                 height: Fit
                 flow: Down

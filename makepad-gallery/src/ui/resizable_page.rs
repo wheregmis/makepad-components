@@ -6,7 +6,7 @@ gallery_static_page! {
     widget: GalleryResizablePage,
     page: resizable_page,
     title: "Resizable",
-    subtitle: "Resizable panes emit splitter alignment changes, so pages can persist and restore layout without reaching into child internals.",
+    subtitle: "Resizable panes emit splitter alignment changes, and the splitter now uses a larger grab area so touch and trackpad adjustments are less finicky.",
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {

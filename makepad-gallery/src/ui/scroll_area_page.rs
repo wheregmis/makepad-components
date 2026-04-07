@@ -6,7 +6,7 @@ gallery_static_page! {
     widget: GalleryScrollAreaPage,
     page: scroll_area_page,
     title: "Scroll Area",
-    subtitle: "Canonical scroll wrappers for vertical, horizontal, and two-axis overflow.",
+    subtitle: "Canonical scroll wrappers for vertical, horizontal, and two-axis overflow, now with a clearer scrollbar treatment and better touch drag behavior.",
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
@@ -55,6 +55,8 @@ gallery_static_page! {
                     ShadBadge{ label := ShadBadgeLabel{text: "Revenue"} }
                     ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Operations"} }
                     ShadBadgeOutline{ label := ShadBadgeOutlineLabel{text: "Launch Week"} }
+                    ShadBadge{ label := ShadBadgeLabel{text: "Experiment Cohort"} }
+                    ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Infrastructure"} }
                 }
             }
         }

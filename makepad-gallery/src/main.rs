@@ -11,13 +11,6 @@ use makepad_router::RouterWidgetWidgetRefExt;
 
 app_main!(App);
 
-#[derive(Clone, Debug)]
-struct SidebarAnimation {
-    from_width: f64,
-    to_width: f64,
-    start_time: Option<f64>,
-}
-
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
@@ -29,14 +22,13 @@ script_mod! {
 
 impl App {
     const SMALL_SCREEN_WIDTH: f64 = 900.0;
-    const MOBILE_SIDEBAR_WIDTH: f64 = 280.0;
-    const PANEL_ANIMATION_DURATION: f64 = 0.16;
 
-    fn panel_animation_progress(time: f64, start_time: &mut Option<f64>) -> f64 {
-        let start_time = start_time.get_or_insert(time);
-        let elapsed = (time - *start_time).max(0.0);
-        let progress = (elapsed / Self::PANEL_ANIMATION_DURATION).min(1.0);
-        1.0 - (1.0 - progress).powi(3)
+    fn is_mobile_width(width: f64) -> bool {
+        width.is_finite() && width > 0.0 && width < Self::SMALL_SCREEN_WIDTH
+    }
+
+    fn is_mobile_layout(&self, cx: &Cx) -> bool {
+        Self::is_mobile_width(cx.display_context.screen_size.x)
     }
 
     fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
@@ -64,17 +56,35 @@ impl App {
             .go_to_route(cx, self.current_page);
     }
 
+    fn configure_adaptive_views(&self, cx: &mut Cx) {
+        self.ui
+            .adaptive_view(cx, ids!(responsive_header))
+            .set_variant_selector(|cx, _parent_size| {
+                if Self::is_mobile_width(cx.display_context.screen_size.x) {
+                    live_id!(Mobile)
+                } else {
+                    live_id!(Desktop)
+                }
+            });
+        self.ui
+            .adaptive_view(cx, ids!(responsive_sidebar))
+            .set_variant_selector(|cx, _parent_size| {
+                if Self::is_mobile_width(cx.display_context.screen_size.x) {
+                    live_id!(Mobile)
+                } else {
+                    live_id!(Desktop)
+                }
+            });
+    }
+
     fn set_current_page(&mut self, cx: &mut Cx, page: LiveId) {
         self.current_page = page;
         self.sync_content_route(cx);
         self.sync_page_metadata(cx);
-        if self.is_small_screen {
-            // Keep the drawer state and its animated width in sync on mobile.
-            if self.sidebar_open || self.sidebar_width > 0.5 || self.sidebar_animation.is_some() {
-                self.set_mobile_sidebar_open(cx, false);
-            } else {
-                self.apply_responsive_visibility(cx);
-            }
+        if self.is_mobile_layout(cx) && self.sidebar_open {
+            self.set_mobile_sidebar_open(cx, false);
+        } else {
+            self.apply_responsive_visibility(cx);
         }
     }
 
@@ -98,56 +108,108 @@ impl App {
         }
     }
 
-    fn sync_mobile_sidebar_button(&self, cx: &mut Cx) {
-        let show_close = self.is_small_screen && self.sidebar_open;
+    fn sync_mobile_sidebar_button_for(&self, cx: &mut Cx, is_mobile: bool) {
+        let show_close = is_mobile && self.sidebar_open;
         self.ui
-            .view(cx, ids!(mobile_sidebar_menu_button))
+            .view(
+                cx,
+                &[
+                    live_id!(responsive_header),
+                    live_id!(Mobile),
+                    live_id!(mobile_sidebar_menu_button),
+                ],
+            )
             .set_visible(cx, !show_close);
         self.ui
-            .view(cx, ids!(mobile_sidebar_close_button))
+            .view(
+                cx,
+                &[
+                    live_id!(mobile_sidebar_panel),
+                    live_id!(sidebar_mobile),
+                    live_id!(mobile_sidebar_close_button),
+                ],
+            )
             .set_visible(cx, show_close);
     }
 
-    fn apply_sidebar_layout(&self, cx: &mut Cx) {
-        let sidebar_width = if self.is_small_screen {
-            self.sidebar_width.max(0.0)
-        } else {
-            Self::MOBILE_SIDEBAR_WIDTH
-        };
-        let sidebar_visible = !self.is_small_screen || sidebar_width > 0.5;
-
-        let mut sidebar_shell = self.ui.view(cx, ids!(sidebar_shell));
-        script_apply_eval!(cx, sidebar_shell, {
-            width: #(Size::Fixed(sidebar_width))
-        });
-        sidebar_shell.set_visible(cx, sidebar_visible);
-
+    fn apply_sidebar_layout_for(&self, cx: &mut Cx, is_mobile: bool) {
+        self.ui
+            .view(cx, ids!(mobile_sidebar_backdrop))
+            .set_visible(cx, is_mobile && self.sidebar_open);
         self.ui.view(cx, ids!(main_content)).set_visible(cx, true);
     }
 
     fn sync_theme_toggle_copy(&self, cx: &mut Cx) {
-        self.ui
-            .view(cx, ids!(desktop_theme_toggle_sun))
-            .set_visible(cx, self.is_light_theme);
-        self.ui
-            .view(cx, ids!(desktop_theme_toggle_moon))
-            .set_visible(cx, !self.is_light_theme);
-        self.ui
-            .view(cx, ids!(mobile_theme_toggle_sun))
-            .set_visible(cx, self.is_light_theme);
-        self.ui
-            .view(cx, ids!(mobile_theme_toggle_moon))
-            .set_visible(cx, !self.is_light_theme);
+        if self.is_mobile_layout(cx) {
+            self.ui
+                .view(
+                    cx,
+                    &[
+                        live_id!(responsive_header),
+                        live_id!(Mobile),
+                        live_id!(mobile_theme_toggle_sun),
+                    ],
+                )
+                .set_visible(cx, self.is_light_theme);
+            self.ui
+                .view(
+                    cx,
+                    &[
+                        live_id!(responsive_header),
+                        live_id!(Mobile),
+                        live_id!(mobile_theme_toggle_moon),
+                    ],
+                )
+                .set_visible(cx, !self.is_light_theme);
+        } else {
+            self.ui
+                .view(
+                    cx,
+                    &[
+                        live_id!(responsive_header),
+                        live_id!(Desktop),
+                        live_id!(desktop_theme_toggle_sun),
+                    ],
+                )
+                .set_visible(cx, self.is_light_theme);
+            self.ui
+                .view(
+                    cx,
+                    &[
+                        live_id!(responsive_header),
+                        live_id!(Desktop),
+                        live_id!(desktop_theme_toggle_moon),
+                    ],
+                )
+                .set_visible(cx, !self.is_light_theme);
+        }
     }
 
     fn sync_page_metadata(&self, cx: &mut Cx) {
         if let Some(entry) = catalog::entry_for_page(self.current_page) {
-            self.ui
-                .label(cx, ids!(desktop_page_label))
-                .set_text(cx, entry.title);
-            self.ui
-                .label(cx, ids!(mobile_page_label))
-                .set_text(cx, entry.title);
+            if self.is_mobile_layout(cx) {
+                self.ui
+                    .label(
+                        cx,
+                        &[
+                            live_id!(responsive_header),
+                            live_id!(Mobile),
+                            live_id!(mobile_page_label),
+                        ],
+                    )
+                    .set_text(cx, entry.title);
+            } else {
+                self.ui
+                    .label(
+                        cx,
+                        &[
+                            live_id!(responsive_header),
+                            live_id!(Desktop),
+                            live_id!(desktop_page_label),
+                        ],
+                    )
+                    .set_text(cx, entry.title);
+            }
         }
         // Optimization: prevent redundant script evaluations on page navigation
         // Previously: `self.sync_sidebar_focus_behavior(cx)` re-evaluated scripts for ~50 sidebar items on every page click
@@ -155,25 +217,65 @@ impl App {
         self.sync_sidebar_selection(cx);
     }
 
-    fn sync_sidebar_focus_behavior(&self, cx: &mut Cx) {
-        let allow_sidebar_focus = !self.is_small_screen || self.sidebar_open;
+    fn sync_sidebar_focus_behavior_for(&self, cx: &mut Cx, is_mobile: bool) {
+        let allow_sidebar_focus = !is_mobile || self.sidebar_open;
 
         for entry in catalog::entries() {
-            let mut item = self.ui.button(cx, &[entry.sidebar_id]);
-            script_apply_eval!(cx, item, {
-                grab_key_focus: #(allow_sidebar_focus)
-            });
+            if is_mobile {
+                let mut mobile_item = self.ui.button(
+                    cx,
+                    &[
+                        live_id!(mobile_sidebar_panel),
+                        live_id!(sidebar_mobile),
+                        entry.sidebar_id,
+                    ],
+                );
+                script_apply_eval!(cx, mobile_item, {
+                    grab_key_focus: #(allow_sidebar_focus)
+                });
+            } else {
+                let mut desktop_item = self.ui.button(
+                    cx,
+                    &[
+                        live_id!(responsive_sidebar),
+                        live_id!(Desktop),
+                        live_id!(sidebar_shell),
+                        live_id!(sidebar_desktop),
+                        entry.sidebar_id,
+                    ],
+                );
+                script_apply_eval!(cx, desktop_item, {
+                    grab_key_focus: #(true)
+                });
+            }
         }
     }
 
     fn clear_mobile_sidebar_focus(&self, cx: &mut Cx) {
         let close_button_has_focus = self
             .ui
-            .button(cx, ids!(mobile_sidebar_close_button.button))
+            .button(
+                cx,
+                &[
+                    live_id!(mobile_sidebar_panel),
+                    live_id!(sidebar_mobile),
+                    live_id!(mobile_sidebar_close_button),
+                    live_id!(button),
+                ],
+            )
             .key_focus(cx);
-        let sidebar_item_has_focus = catalog::entries()
-            .iter()
-            .any(|entry| self.ui.widget(cx, &[entry.sidebar_id]).key_focus(cx));
+        let sidebar_item_has_focus = catalog::entries().iter().any(|entry| {
+            self.ui
+                .widget(
+                    cx,
+                    &[
+                        live_id!(mobile_sidebar_panel),
+                        live_id!(sidebar_mobile),
+                        entry.sidebar_id,
+                    ],
+                )
+                .key_focus(cx)
+        });
 
         if close_button_has_focus || sidebar_item_has_focus {
             cx.set_key_focus(Area::Empty);
@@ -219,22 +321,57 @@ impl App {
 
         for entry in catalog::entries() {
             let is_active = entry.page == self.current_page;
-            let mut item = self.ui.widget(cx, &[entry.sidebar_id]);
-            script_apply_eval!(cx, item, {
-                draw_bg +: {
-                    color: #(if is_active { active_bg } else { Vec4f::all(0.0) })
-                    color_hover: #(if is_active { active_bg_hover } else { inactive_bg_hover })
-                    color_down: #(if is_active { active_bg_down } else { inactive_bg_down })
-                    color_focus: #(if is_active { active_bg_hover } else { inactive_focus_bg })
-                }
-                draw_text +: {
-                    color: #(if is_active { active_text } else { inactive_text })
-                    color_hover: #(active_text)
-                    color_down: #(active_text)
-                    color_focus: #(if is_active { active_text } else { inactive_focus_text })
-                }
-            });
-            item.redraw(cx);
+            if self.is_mobile_layout(cx) {
+                let mut mobile_item = self.ui.widget(
+                    cx,
+                    &[
+                        live_id!(mobile_sidebar_panel),
+                        live_id!(sidebar_mobile),
+                        entry.sidebar_id,
+                    ],
+                );
+                script_apply_eval!(cx, mobile_item, {
+                    draw_bg +: {
+                        color: #(if is_active { active_bg } else { Vec4f::all(0.0) })
+                        color_hover: #(if is_active { active_bg_hover } else { inactive_bg_hover })
+                        color_down: #(if is_active { active_bg_down } else { inactive_bg_down })
+                        color_focus: #(if is_active { active_bg_hover } else { inactive_focus_bg })
+                    }
+                    draw_text +: {
+                        color: #(if is_active { active_text } else { inactive_text })
+                        color_hover: #(active_text)
+                        color_down: #(active_text)
+                        color_focus: #(if is_active { active_text } else { inactive_focus_text })
+                    }
+                });
+                mobile_item.redraw(cx);
+            } else {
+                let mut desktop_item = self.ui.widget(
+                    cx,
+                    &[
+                        live_id!(responsive_sidebar),
+                        live_id!(Desktop),
+                        live_id!(sidebar_shell),
+                        live_id!(sidebar_desktop),
+                        entry.sidebar_id,
+                    ],
+                );
+                script_apply_eval!(cx, desktop_item, {
+                    draw_bg +: {
+                        color: #(if is_active { active_bg } else { Vec4f::all(0.0) })
+                        color_hover: #(if is_active { active_bg_hover } else { inactive_bg_hover })
+                        color_down: #(if is_active { active_bg_down } else { inactive_bg_down })
+                        color_focus: #(if is_active { active_bg_hover } else { inactive_focus_bg })
+                    }
+                    draw_text +: {
+                        color: #(if is_active { active_text } else { inactive_text })
+                        color_hover: #(active_text)
+                        color_down: #(active_text)
+                        color_focus: #(if is_active { active_text } else { inactive_focus_text })
+                    }
+                });
+                desktop_item.redraw(cx);
+            }
         }
     }
 
@@ -249,6 +386,7 @@ impl App {
                 value,
             );
         });
+        self.configure_adaptive_views(cx);
         self.apply_responsive_visibility(cx);
         self.sync_theme_toggle_copy(cx);
         self.set_current_page(cx, self.current_page);
@@ -265,26 +403,21 @@ impl App {
         self.theme_reload_next_frame = cx.new_next_frame();
     }
 
-    fn apply_responsive_visibility(&mut self, cx: &mut Cx) {
-        self.ui
-            .view(cx, ids!(desktop_header))
-            .set_visible(cx, !self.is_small_screen);
-        self.ui
-            .view(cx, ids!(mobile_header))
-            .set_visible(cx, self.is_small_screen);
-        self.apply_sidebar_layout(cx);
-        self.sync_mobile_sidebar_button(cx);
-        self.sync_sidebar_focus_behavior(cx);
-        self.sync_content_route(cx);
+    fn sync_safe_area_padding_for(&self, cx: &mut Cx, is_mobile: bool) {
+        let _ = (cx, is_mobile);
     }
 
-    fn start_sidebar_animation(&mut self, cx: &mut Cx, to_width: f64) {
-        self.sidebar_animation = Some(SidebarAnimation {
-            from_width: self.sidebar_width,
-            to_width: to_width.max(0.0),
-            start_time: None,
-        });
-        self.sidebar_animation_next_frame = cx.new_next_frame();
+    fn apply_responsive_visibility(&mut self, cx: &mut Cx) {
+        self.apply_responsive_visibility_for(cx, self.is_mobile_layout(cx));
+    }
+
+    fn apply_responsive_visibility_for(&mut self, cx: &mut Cx, is_mobile: bool) {
+        self.configure_adaptive_views(cx);
+        self.sync_safe_area_padding_for(cx, is_mobile);
+        self.apply_sidebar_layout_for(cx, is_mobile);
+        self.sync_mobile_sidebar_button_for(cx, is_mobile);
+        self.sync_sidebar_focus_behavior_for(cx, is_mobile);
+        self.sync_content_route(cx);
     }
 
     fn set_mobile_sidebar_open(&mut self, cx: &mut Cx, open: bool) {
@@ -292,54 +425,57 @@ impl App {
         if !open {
             self.clear_mobile_sidebar_focus(cx);
         }
-        let target = if open { Self::MOBILE_SIDEBAR_WIDTH } else { 0.0 };
-        self.start_sidebar_animation(cx, target);
+        let panel = self.ui.slide_panel(cx, ids!(mobile_sidebar_panel));
+        if open {
+            panel.open(cx);
+        } else {
+            panel.close(cx);
+        }
         self.apply_responsive_visibility(cx);
     }
 
-    fn step_sidebar_animation(&mut self, cx: &mut Cx, time: f64) {
-        let Some((progress, target_width)) = self.sidebar_animation.as_mut().map(|animation| {
-            let progress = Self::panel_animation_progress(time, &mut animation.start_time);
-            self.sidebar_width =
-                animation.from_width + (animation.to_width - animation.from_width) * progress;
-            (progress, animation.to_width)
-        }) else {
-            return;
-        };
-        self.apply_sidebar_layout(cx);
-        self.sync_sidebar_focus_behavior(cx);
-
-        if progress >= 1.0 {
-            self.sidebar_width = target_width;
-            self.sidebar_animation = None;
-            self.apply_sidebar_layout(cx);
-        } else {
-            self.sidebar_animation_next_frame = cx.new_next_frame();
-        }
-    }
-
-    fn update_screen_mode(&mut self, cx: &mut Cx, window_width: f64) {
-        let is_small_screen = window_width < Self::SMALL_SCREEN_WIDTH;
-        // Optimization: avoid extreme CPU churn during window resize by gating responsive sync
-        // Previously: `apply_responsive_visibility` ran every frame while dragging, executing 50+ script evaluations continuously
-        // Now: layout and scripts only resync when crossing the breakpoint, reducing script evals by ~98% during window drag
-        if self.is_small_screen != is_small_screen {
-            self.is_small_screen = is_small_screen;
-            self.sidebar_open = !is_small_screen;
-            self.sidebar_animation = None;
-            self.sidebar_animation_next_frame = NextFrame::default();
-            self.sidebar_width = if is_small_screen {
-                0.0
-            } else {
-                Self::MOBILE_SIDEBAR_WIDTH
-            };
-            self.apply_responsive_visibility(cx);
+    fn handle_window_geom_change(&mut self, cx: &mut Cx, old_width: f64, new_width: f64) {
+        let was_mobile = Self::is_mobile_width(old_width);
+        let is_mobile = Self::is_mobile_width(new_width);
+        if was_mobile != is_mobile {
+            self.sidebar_open = false;
+            self.ui
+                .slide_panel(cx, ids!(mobile_sidebar_panel))
+                .close(cx);
+            self.responsive_layout_next_frame = cx.new_next_frame();
+        } else if is_mobile {
+            self.sync_mobile_sidebar_button_for(cx, true);
         }
     }
 
     fn handle_sidebar_navigation(&mut self, cx: &mut Cx, actions: &Actions) {
         for entry in catalog::entries() {
-            if self.ui.button(cx, &[entry.sidebar_id]).clicked(actions) {
+            let desktop_clicked = self
+                .ui
+                .button(
+                    cx,
+                    &[
+                        live_id!(responsive_sidebar),
+                        live_id!(Desktop),
+                        live_id!(sidebar_shell),
+                        live_id!(sidebar_desktop),
+                        entry.sidebar_id,
+                    ],
+                )
+                .clicked(actions);
+            let mobile_clicked = self
+                .ui
+                .button(
+                    cx,
+                    &[
+                        live_id!(mobile_sidebar_panel),
+                        live_id!(sidebar_mobile),
+                        entry.sidebar_id,
+                    ],
+                )
+                .clicked(actions);
+
+            if desktop_clicked || mobile_clicked {
                 self.set_current_page(cx, entry.page);
                 break;
             }
@@ -352,13 +488,7 @@ pub struct App {
     #[live]
     ui: WidgetRef,
     #[rust]
-    is_small_screen: bool,
-    #[rust]
     sidebar_open: bool,
-    #[rust]
-    sidebar_width: f64,
-    #[rust]
-    sidebar_animation: Option<SidebarAnimation>,
     #[rust]
     is_light_theme: bool,
     #[rust]
@@ -368,7 +498,7 @@ pub struct App {
     #[rust]
     theme_reload_next_frame: NextFrame,
     #[rust]
-    sidebar_animation_next_frame: NextFrame,
+    responsive_layout_next_frame: NextFrame,
 }
 
 impl MatchEvent for App {
@@ -383,44 +513,121 @@ impl MatchEvent for App {
         {
             self.set_current_page(cx, page);
         }
-        if self.is_small_screen
+        if self.is_mobile_layout(cx)
             && (self
                 .ui
-                .button(cx, ids!(mobile_sidebar_menu_button.button))
+                .button(
+                    cx,
+                    &[
+                        live_id!(responsive_header),
+                        live_id!(Mobile),
+                        live_id!(mobile_sidebar_menu_button),
+                        live_id!(button),
+                    ],
+                )
                 .clicked(actions)
                 || self
                     .ui
-                    .button(cx, ids!(mobile_sidebar_close_button.button))
+                    .button(
+                        cx,
+                        &[
+                            live_id!(mobile_sidebar_panel),
+                            live_id!(sidebar_mobile),
+                            live_id!(mobile_sidebar_close_button),
+                            live_id!(button),
+                        ],
+                    )
+                    .clicked(actions)
+                || self
+                    .ui
+                    .button(cx, ids!(mobile_sidebar_backdrop))
                     .clicked(actions))
         {
             self.set_mobile_sidebar_open(cx, !self.sidebar_open);
         }
         if self
             .ui
-            .button(cx, ids!(desktop_theme_toggle_sun.button))
+            .button(
+                cx,
+                &[
+                    live_id!(responsive_header),
+                    live_id!(Desktop),
+                    live_id!(desktop_theme_toggle_sun),
+                    live_id!(button),
+                ],
+            )
             .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(desktop_theme_toggle_moon.button))
+                .button(
+                    cx,
+                    &[
+                        live_id!(responsive_header),
+                        live_id!(Desktop),
+                        live_id!(desktop_theme_toggle_moon),
+                        live_id!(button),
+                    ],
+                )
                 .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_theme_toggle_sun.button))
+                .button(
+                    cx,
+                    &[
+                        live_id!(responsive_header),
+                        live_id!(Mobile),
+                        live_id!(mobile_theme_toggle_sun),
+                        live_id!(button),
+                    ],
+                )
                 .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_theme_toggle_moon.button))
+                .button(
+                    cx,
+                    &[
+                        live_id!(responsive_header),
+                        live_id!(Mobile),
+                        live_id!(mobile_theme_toggle_moon),
+                        live_id!(button),
+                    ],
+                )
                 .clicked(actions)
         {
             self.queue_theme_change(cx, !self.is_light_theme);
         }
         if self
             .ui
-            .button(cx, ids!(desktop_command_palette_trigger))
+            .button(
+                cx,
+                &[
+                    live_id!(responsive_header),
+                    live_id!(Desktop),
+                    live_id!(desktop_command_palette_trigger),
+                ],
+            )
             .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_command_palette_trigger))
+                .button(
+                    cx,
+                    &[
+                        live_id!(responsive_header),
+                        live_id!(Mobile),
+                        live_id!(mobile_command_palette_trigger),
+                    ],
+                )
+                .clicked(actions)
+            || self
+                .ui
+                .button(
+                    cx,
+                    &[
+                        live_id!(mobile_sidebar_panel),
+                        live_id!(sidebar_mobile),
+                        live_id!(mobile_sidebar_search),
+                    ],
+                )
                 .clicked(actions)
         {
             self.open_command_palette(cx);
@@ -445,24 +652,20 @@ impl AppMain for App {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
         match event {
             Event::Startup => {
-                self.sidebar_open = true;
-                self.sidebar_width = Self::MOBILE_SIDEBAR_WIDTH;
-                self.sidebar_animation = None;
+                self.sidebar_open = false;
                 self.current_page = catalog::default_page();
                 self.is_light_theme = false;
                 self.pending_theme = None;
                 self.theme_reload_next_frame = NextFrame::default();
-                self.sidebar_animation_next_frame = NextFrame::default();
+                self.responsive_layout_next_frame = NextFrame::default();
                 self.apply_responsive_visibility(cx);
                 self.sync_theme_toggle_copy(cx);
                 self.set_current_page(cx, self.current_page);
             }
             Event::NextFrame(_) => {
-                if self.sidebar_animation_next_frame.is_event(event).is_some() {
-                    if let Event::NextFrame(ne) = event {
-                        self.sidebar_animation_next_frame = NextFrame::default();
-                        self.step_sidebar_animation(cx, ne.time);
-                    }
+                if self.responsive_layout_next_frame.is_event(event).is_some() {
+                    self.responsive_layout_next_frame = NextFrame::default();
+                    self.apply_responsive_visibility(cx);
                 }
                 if self.theme_reload_next_frame.is_event(event).is_some() {
                     self.theme_reload_next_frame = NextFrame::default();
@@ -477,9 +680,11 @@ impl AppMain for App {
                     self.open_command_palette(cx);
                 }
             }
-            Event::WindowGeomChange(geom) => {
-                self.update_screen_mode(cx, geom.new_geom.inner_size.x)
-            }
+            Event::WindowGeomChange(geom) => self.handle_window_geom_change(
+                cx,
+                geom.old_geom.inner_size.x,
+                geom.new_geom.inner_size.x,
+            ),
             Event::KeyDown(key_event) => {
                 if key_event.key_code == KeyCode::KeyK
                     && (key_event.modifiers.logo || key_event.modifiers.control)
