@@ -85,6 +85,7 @@ script_mod! {
     }
     let ToastSlotPanel = RoundedView {
         visible: false
+        new_batch: true
         width: 280
         height: Fit
         flow: Down

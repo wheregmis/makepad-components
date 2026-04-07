@@ -53,3 +53,30 @@ fn kbd_uses_theme_radius_and_new_batch() {
         "kbd should derive its radius from the shared theme token"
     );
 }
+
+#[test]
+fn dialog_modal_surfaces_force_new_batch() {
+    let source = include_str!("../src/dialog.rs");
+    assert!(
+        source.matches("new_batch: true").count() >= 3,
+        "dialog modal surfaces should force a new batch so overlay text and controls redraw independently"
+    );
+}
+
+#[test]
+fn sheet_surface_forces_new_batch() {
+    let source = include_str!("../src/sheet.rs");
+    assert!(
+        source.contains("mod.widgets.ShadSheetFrame = mod.widgets.ShadSurfacePanel{\n        new_batch: true"),
+        "sheet frame should force a new batch so the sliding panel redraw stays isolated from the modal backdrop"
+    );
+}
+
+#[test]
+fn sonner_toast_slots_force_new_batch() {
+    let source = include_str!("../src/sonner.rs");
+    assert!(
+        source.contains("let ToastSlotPanel = RoundedView {\n        visible: false\n        new_batch: true"),
+        "toast slots should force a new batch so their text and progress updates stay isolated from the notification overlay"
+    );
+}

@@ -37,7 +37,9 @@ script_mod! {
                 width: 360
                 height: Fit
 
-                body := mod.widgets.ShadSurfacePanel{}
+                body := mod.widgets.ShadSurfacePanel{
+                    new_batch: true
+                }
             }
         }
     }
@@ -57,6 +59,7 @@ script_mod! {
                 height: Fit
 
                 dialog_panel := mod.widgets.ShadSurfacePanel{
+                    new_batch: true
                     dialog_body := mod.widgets.ShadDialogHeader{
                         title_label := mod.widgets.ShadDialogTitle{
                             text: "Are you absolutely sure?"
@@ -95,6 +98,7 @@ script_mod! {
                 height: Fit
 
                 dialog_panel := mod.widgets.ShadSurfacePanel{
+                    new_batch: true
                     dialog_body := mod.widgets.ShadDialogHeader{
                         title_label := mod.widgets.ShadDialogTitle{
                             text: "Are you absolutely sure?"
