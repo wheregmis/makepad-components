@@ -29,18 +29,25 @@ macro_rules! define_gallery_root {
             use mod.widgets.*
 
             mod.widgets.GalleryThemeToggleButton = View{
-                width: 36
+                width: Fit
                 height: 36
-                flow: Overlay
+                flow: Right
+                spacing: 8.0
                 align: Align{x: 0.5, y: 0.5}
 
                 button := mod.widgets.ShadButtonIconOutline{
-                    width: Fill
+                    width: 36
                     height: Fill
+                }
+
+                label := ShadLabel{
+                    text: ""
+                    draw_text.text_style.font_size: 12
                 }
             }
 
             mod.widgets.GalleryThemeToggleSun = mod.widgets.GalleryThemeToggleButton{
+                label = {text: "Light"}
                 icon := IconSun{
                     width: 16
                     height: 16
@@ -50,6 +57,7 @@ macro_rules! define_gallery_root {
             }
 
             mod.widgets.GalleryThemeToggleMoon = mod.widgets.GalleryThemeToggleButton{
+                label = {text: "Dark"}
                 icon := IconMoon{
                     width: 16
                     height: 16
