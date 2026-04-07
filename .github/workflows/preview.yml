@@ -31,7 +31,6 @@ jobs:
 
     steps:
       - name: Checkout repository
-        if: github.event.action != 'closed'
         uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
