@@ -662,6 +662,32 @@ Standalone example:
 
 `ShadNavigationMenuItem` also reuses `ShadPopover`, but defaults to a wider content surface for grouped links, feature callouts, and site navigation flyouts. Navigation flyouts open on hover and close sibling menus as the pointer moves across the trigger row.
 
+### Popover (`makepad-components/src/popover.rs`)
+
+- `ShadPopover`
+- `ShadPopoverContent`
+
+`ShadPopover` supports:
+- `set_open(cx, bool)`
+- `open(cx)`
+- `close(cx)`
+- `is_open() -> bool`
+- `content_widget() -> WidgetRef`
+- `open_changed(actions) -> Option<bool>`
+
+Key props:
+- `side` / `align`
+- `side_offset`
+- `viewport_padding`
+- `can_dismiss`
+- `open_on_hover`
+
+Behavior:
+- popup content auto-flips to the opposite side when the preferred side does not have enough room;
+- popup content stays clamped inside the current pass using `viewport_padding`;
+- outside click, Escape, and back dismiss the overlay when `can_dismiss` is enabled;
+- hover-open compositions such as menubars and navigation menus can set `open_on_hover: true`, and the hover bridge keeps the popup open while the pointer moves between the trigger and the popup body.
+
 ### Table (`makepad-components/src/table.rs`)
 
 - `ShadTable`
@@ -702,6 +728,21 @@ Use Makepad `radio_button_set(...).selected(cx, actions)` to keep a single item 
 - `ShadSelectItem`
 
 Single-select, non-searchable dropdown built on the popup menu stack.
+
+Runtime/API:
+- get the widget ref with `view.drop_down(cx, ids!(my_select))`
+- `changed(actions) -> Option<usize>`
+- `changed_label(actions) -> Option<String>`
+- `set_selected_item(cx, usize)`
+- `set_selected_by_label(&str, cx)`
+- `selected_label() -> String`
+
+Responsive guidance:
+- let the parent/container own width by default;
+- in gallery/form layouts with `Fit`-sized parents, set `width: Fill` at the usage site so the trigger keeps a full-row hit target on narrow screens.
+
+Current gallery risk note:
+- popup-style selects are still unreliable inside the current gallery `PageFlip` shell; use the splash app or another Dock-based shell for interaction verification until that hotspot is resolved.
 
 ### Dialog (`makepad-components/src/dialog.rs`)
 
