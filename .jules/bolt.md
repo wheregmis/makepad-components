@@ -71,3 +71,7 @@
 ## 2026-04-03 - Router bool query parsing should not lowercase copies
 **Learning:** `makepad-router-core::Route::query_get_bool` sits on the route/widget read path and was allocating a fresh lowercase `String` via `to_ascii_lowercase()` for every boolean query lookup, even though the accepted values are a tiny fixed ASCII set.
 **Action:** For hot router parsing helpers, compare the borrowed `&str` with `eq_ignore_ascii_case` against fixed literals instead of normalizing into an owned buffer first; keep a small ignored release benchmark nearby to document the win.
+
+## 2026-04-06 - Plus-only query decoding should skip byte buffers
+**Learning:** `makepad-router-core::url::decode_www_form_component` already fast-pathed plain strings, but `+`-only query values still allocated a temporary `Vec<u8>` and rebuilt UTF-8 bytes even though they only needed space substitution.
+**Action:** When router query decoding sees `+` but no `%`, use a direct string replacement fast path and keep a release micro-benchmark next to the helper so future refactors preserve the allocation win.
