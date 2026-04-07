@@ -35,9 +35,16 @@ macro_rules! define_gallery_root {
                 spacing: 8.0
                 align: Align{x: 0.5, y: 0.5}
 
-                button := mod.widgets.ShadButtonIconOutline{
+                icon_button := View{
                     width: 36
                     height: Fill
+                    flow: Overlay
+                    align: Align{x: 0.5, y: 0.5}
+
+                    button := mod.widgets.ShadButtonIconOutline{
+                        width: Fill
+                        height: Fill
+                    }
                 }
 
                 label := ShadLabel{
@@ -48,21 +55,25 @@ macro_rules! define_gallery_root {
 
             mod.widgets.GalleryThemeToggleSun = mod.widgets.GalleryThemeToggleButton{
                 label = {text: "Light"}
-                icon := IconSun{
-                    width: 16
-                    height: 16
-                    icon_walk: Walk{width: 16, height: 16}
-                    draw_icon.color: (shad_theme.color_primary)
+                icon_button = {
+                    icon := IconSun{
+                        width: 16
+                        height: 16
+                        icon_walk: Walk{width: 16, height: 16}
+                        draw_icon.color: (shad_theme.color_primary)
+                    }
                 }
             }
 
             mod.widgets.GalleryThemeToggleMoon = mod.widgets.GalleryThemeToggleButton{
                 label = {text: "Dark"}
-                icon := IconMoon{
-                    width: 16
-                    height: 16
-                    icon_walk: Walk{width: 16, height: 16}
-                    draw_icon.color: (shad_theme.color_primary)
+                icon_button = {
+                    icon := IconMoon{
+                        width: 16
+                        height: 16
+                        icon_walk: Walk{width: 16, height: 16}
+                        draw_icon.color: (shad_theme.color_primary)
+                    }
                 }
             }
 

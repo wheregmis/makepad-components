@@ -397,19 +397,19 @@ impl MatchEvent for App {
         }
         if self
             .ui
-            .button(cx, ids!(desktop_theme_toggle_sun.button))
+            .button(cx, ids!(desktop_theme_toggle_sun.icon_button.button))
             .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(desktop_theme_toggle_moon.button))
+                .button(cx, ids!(desktop_theme_toggle_moon.icon_button.button))
                 .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_theme_toggle_sun.button))
+                .button(cx, ids!(mobile_theme_toggle_sun.icon_button.button))
                 .clicked(actions)
             || self
                 .ui
-                .button(cx, ids!(mobile_theme_toggle_moon.button))
+                .button(cx, ids!(mobile_theme_toggle_moon.icon_button.button))
                 .clicked(actions)
         {
             self.queue_theme_change(cx, !self.is_light_theme);
