@@ -49,3 +49,31 @@ fn table_keeps_virtualized_and_cached_rendering_guards() {
         "table rows and headers should keep cached text offsets instead of recomputing layout every draw"
     );
 }
+
+#[test]
+fn horizontal_scroll_wrappers_do_not_remap_vertical_scroll_input() {
+    let scroll = include_str!("../src/scroll.rs");
+    let tabs = include_str!("../src/tabs.rs");
+
+    assert!(
+        !scroll.contains("use_vertical_finger_scroll: true"),
+        "horizontal scroll wrappers should not remap vertical wheel/finger input into x-scroll, or parent vertical surfaces will jitter"
+    );
+    assert!(
+        !tabs.contains("use_vertical_finger_scroll: true"),
+        "tabs should rely on real horizontal deltas instead of leaking vertical gesture input into nested scroll areas"
+    );
+}
+
+#[test]
+fn resizable_defaults_leave_vertical_splitters_room_to_move() {
+    let source = include_str!("../src/resizable.rs");
+    assert!(
+        source.contains("min_horizontal: 72.0") && source.contains("max_horizontal: 72.0"),
+        "vertical splitters should not clamp both panes to 120px inside a 260px demo; leave real drag range to avoid jumps near center"
+    );
+    assert!(
+        source.contains("min_vertical: 120.0") && source.contains("max_vertical: 120.0"),
+        "horizontal splitters should keep the wider pane minimums that already feel stable in the gallery"
+    );
+}

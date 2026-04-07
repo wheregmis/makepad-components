@@ -65,7 +65,6 @@ script_mod! {
     mod.widgets.ShadCarouselPrevBtn = mod.widgets.IconButtonChevronLeft{
         width: 32
         height: 32
-        new_batch: true
         draw_bg +: {
             color: (shad_theme.color_background)
             color_hover: (shad_theme.color_secondary)
@@ -84,7 +83,6 @@ script_mod! {
     mod.widgets.ShadCarouselNextBtn = mod.widgets.IconButtonChevronRight{
         width: 32
         height: 32
-        new_batch: true
         draw_bg +: {
             color: (shad_theme.color_background)
             color_hover: (shad_theme.color_secondary)

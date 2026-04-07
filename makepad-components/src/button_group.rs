@@ -17,7 +17,6 @@ script_mod! {
     mod.widgets.ShadButtonGroupItem = set_type_default() do mod.widgets.ShadNavButtonBase{
         width: Fit
         height: 36
-        new_batch: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
         reset_hover_on_click: true
         draw_bg +: {
