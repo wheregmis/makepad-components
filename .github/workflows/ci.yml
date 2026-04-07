@@ -16,7 +16,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  MAKEPAD_GIT_REF: ce7da33f1d387b786abeb03b0bed73c79b7ca090
+  MAKEPAD_GIT_BRANCH: dev
 
 jobs:
   cargo-check:
@@ -37,10 +37,7 @@ jobs:
 
       - name: Checkout sibling makepad workspace
         shell: bash
-        run: |
-          git clone --depth 1 --branch dev https://github.com/makepad/makepad.git "${GITHUB_WORKSPACE}/../makepad"
-          git -C "${GITHUB_WORKSPACE}/../makepad" fetch --depth 1 origin "${MAKEPAD_GIT_REF}"
-          git -C "${GITHUB_WORKSPACE}/../makepad" checkout --detach "${MAKEPAD_GIT_REF}"
+        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/makepad/makepad.git "${GITHUB_WORKSPACE}/../makepad"
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
@@ -68,10 +65,7 @@ jobs:
 
       - name: Checkout sibling makepad workspace
         shell: bash
-        run: |
-          git clone --depth 1 --branch dev https://github.com/makepad/makepad.git "${GITHUB_WORKSPACE}/../makepad"
-          git -C "${GITHUB_WORKSPACE}/../makepad" fetch --depth 1 origin "${MAKEPAD_GIT_REF}"
-          git -C "${GITHUB_WORKSPACE}/../makepad" checkout --detach "${MAKEPAD_GIT_REF}"
+        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/makepad/makepad.git "${GITHUB_WORKSPACE}/../makepad"
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
