@@ -10,7 +10,10 @@ gallery_static_page! {
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
-        ShadPanel{
+        ShadCard{
+            spacing: 14.0
+            padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
+
             View{
                 width: Fill
                 height: Fit

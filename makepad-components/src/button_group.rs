@@ -4,12 +4,14 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
-    mod.widgets.ShadButtonGroup = mod.widgets.ShadSurfaceSecondary{
+    mod.widgets.ShadButtonGroup = mod.widgets.ShadSurfacePanel{
         width: Fit
         height: Fit
         flow: Right
         align: Align{y: 0.5}
         spacing: 0.0
+        draw_bg.color: (shad_theme.color_background)
+        draw_bg.border_color: (shad_theme.color_outline_border)
     }
 
     mod.widgets.ShadButtonGroupItem = set_type_default() do mod.widgets.ShadNavButtonBase{
@@ -23,9 +25,12 @@ script_mod! {
             color_down: (shad_theme.color_ghost_down)
             color_focus: (shad_theme.color_ghost_hover)
             color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
+            border_size: 1.0
             border_radius: 0.0
             border_color: #0000
+            border_color_hover: (shad_theme.color_outline_border)
+            border_color_down: (shad_theme.color_outline_border_hover)
+            border_color_focus: (shad_theme.color_primary)
         }
         draw_text.color: (shad_theme.color_primary)
         draw_text.color_hover: (shad_theme.color_primary)
@@ -55,7 +60,7 @@ script_mod! {
 
     mod.widgets.ShadButtonGroupSeparator = mod.widgets.View{
         width: 1
-        height: 16
-        draw_bg.color: (shad_theme.color_outline_border)
+        height: 18
+        draw_bg.color: (shad_theme.color_outline_border_hover)
     }
 }

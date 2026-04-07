@@ -15,17 +15,12 @@ gallery_stateful_page_shell! {
         context_menu_basic := ShadContextMenu{
             labels: ["Open" "Duplicate" "Share" "Delete"]
 
-            ShadSurface{
+            ShadCard{
                 width: 360
                 height: Fit
                 flow: Down
                 spacing: 6.0
                 padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
-                draw_bg +: {
-                    color: (shad_theme.color_secondary)
-                    border_size: 1.0
-                    border_color: (shad_theme.color_outline_border)
-                }
 
                 ShadLabel{text: "Project brief.md"}
                 ShadFieldDescription{text: "Right click this card to open the menu."}
