@@ -1,5 +1,5 @@
-use makepad_widgets::makepad_script::ScriptFnRef;
 use crate::internal::touch::is_primary_tap;
+use makepad_widgets::makepad_script::ScriptFnRef;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -17,6 +17,7 @@ script_mod! {
         margin: theme.mspace_v_1
         label_walk: Walk{width: Fit, height: Fit}
         grab_key_focus: true
+        cursor: MouseCursor.Hand
 
         draw_text +: {
             hover: 0.0

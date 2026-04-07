@@ -45,6 +45,7 @@ macro_rules! define_gallery_root {
                     text: "Switch to dark theme"
                     label_walk: Walk{width: 0.0, height: 0.0}
                 }
+                button.aria_label: "Switch to dark theme"
                 icon := IconSun{
                     width: 16
                     height: 16
@@ -58,6 +59,7 @@ macro_rules! define_gallery_root {
                     text: "Switch to light theme"
                     label_walk: Walk{width: 0.0, height: 0.0}
                 }
+                button.aria_label: "Switch to light theme"
                 icon := IconMoon{
                     width: 16
                     height: 16

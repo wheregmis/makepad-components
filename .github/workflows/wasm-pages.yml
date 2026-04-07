@@ -19,8 +19,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  MAKEPAD_BRANCH: explicitly_redraw_overlay
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+  MAKEPAD_BRANCH: dev
   WASM_BINDGEN_VERSION: 0.2.114
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   build-wasm:
