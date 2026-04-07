@@ -140,7 +140,11 @@ impl App {
     }
 
     fn sync_theme_toggle_copy(&self, cx: &mut Cx) {
-        if self.is_mobile_layout(cx) {
+        self.sync_theme_toggle_copy_for(cx, self.is_mobile_layout(cx));
+    }
+
+    fn sync_theme_toggle_copy_for(&self, cx: &mut Cx, is_mobile: bool) {
+        if is_mobile {
             self.ui
                 .view(
                     cx,
@@ -416,6 +420,7 @@ impl App {
         self.sync_safe_area_padding_for(cx, is_mobile);
         self.apply_sidebar_layout_for(cx, is_mobile);
         self.sync_mobile_sidebar_button_for(cx, is_mobile);
+        self.sync_theme_toggle_copy_for(cx, is_mobile);
         self.sync_sidebar_focus_behavior_for(cx, is_mobile);
         self.sync_page_metadata(cx);
         self.sync_content_route(cx);
