@@ -35,8 +35,7 @@ script_mod! {
             //     return sdf.result;
             // }
             progress: instance(0.0)
-
-                        border_size: uniform(theme.beveling)
+            border_size: uniform(theme.beveling)
                         border_radius: uniform(theme.corner_radius)
                         color: uniform(theme.color_inset)
                         fill_color: uniform(#3b82f6)
@@ -81,7 +80,7 @@ script_mod! {
     }
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct MyProgressBar {
     #[uid]
     uid: WidgetUid,
@@ -98,17 +97,41 @@ pub struct MyProgressBar {
     value: f64,
 }
 
+fn clamp_progress_value(value: f64) -> f64 {
+    value.clamp(0.0, 100.0)
+}
+
+fn progress_value_changed(current: f64, next: f64) -> bool {
+    clamp_progress_value(current) != clamp_progress_value(next)
+}
+
+fn shader_progress_value(value: f64) -> f32 {
+    (clamp_progress_value(value) / 100.0) as f32
+}
+
+impl MyProgressBar {
+    fn sync_progress_to_shader(&mut self) {
+        self.draw_bg.pad1 = shader_progress_value(self.value);
+    }
+}
+
+impl ScriptHook for MyProgressBar {
+    fn on_after_apply(
+        &mut self,
+        _vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        self.sync_progress_to_shader();
+    }
+}
+
 impl Widget for MyProgressBar {
     fn handle_event(&mut self, _cx: &mut Cx, _event: &Event, _scope: &mut Scope) {}
 
     fn draw_walk(&mut self, cx: &mut Cx2d, _scope: &mut Scope, walk: Walk) -> DrawStep {
-        let progress = (self.value / 100.0).clamp(0.0, 1.0);
         self.draw_bg.begin(cx, walk, self.layout);
-        script_apply_eval!(cx, self, {
-            draw_bg +: {
-                progress: #(progress)
-            }
-        });
         self.draw_bg.end(cx);
         DrawStep::done()
     }
@@ -120,8 +143,23 @@ impl MyProgressBarRef {
     }
     pub fn set_progress(&self, cx: &mut Cx, value: f64) {
         if let Some(mut inner) = self.borrow_mut() {
-            inner.value = value.clamp(0.0, 100.0);
+            if !progress_value_changed(inner.value, value) {
+                return;
+            }
+            inner.value = clamp_progress_value(value);
+            inner.sync_progress_to_shader();
             inner.redraw(cx);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn progress_update_noops_when_value_is_unchanged() {
+        assert!(!super::progress_value_changed(42.0, 42.0));
+        assert!(!super::progress_value_changed(-4.0, 0.0));
+        assert!(!super::progress_value_changed(120.0, 100.0));
+        assert!(super::progress_value_changed(42.0, 43.0));
     }
 }

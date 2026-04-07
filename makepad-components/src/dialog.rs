@@ -1,4 +1,4 @@
-use crate::internal::actions::first_widget_action;
+use crate::internal::actions::open_changed_action;
 use crate::internal::overlay::{
     button_clicked, draw_modal_overlay, modal_dismissed, set_modal_widget_open,
     sync_modal_open_state,
@@ -184,12 +184,13 @@ impl ShadDialog {
     }
 
     pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
-        if let Some(ShadDialogAction::OpenChanged(open)) =
-            first_widget_action::<ShadDialogAction>(actions, self.widget_uid())
-        {
-            return Some(open);
-        }
-        None
+        open_changed_action::<ShadDialogAction, _>(actions, self.widget_uid(), |action| {
+            if let ShadDialogAction::OpenChanged(open) = action {
+                Some(open)
+            } else {
+                None
+            }
+        })
     }
 }
 

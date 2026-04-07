@@ -43,22 +43,33 @@ script_mod! {
             color_popover: #09090b
             color_overlay: vec4(0.0, 0.0, 0.0, 0.55)
 
+            color_surface_default: #09090b
+            color_surface_muted: #18181b
+            color_surface_popover: #09090b
+
+            color_border: #3f3f46
+            color_border_hover: #52525b
+            color_border_down: #71717a
+            color_border_focus: #fafafa
+
+            color_text: #fafafa
+            color_text_muted: #a1a1aa
+            color_text_inverse: #18181b
+
             color_chart: #x3b82f6
             color_chart_emphasis: #x2563eb
             color_chart_fill: #x3b82f633
 
-            color_pagination_active: #18181b
-            color_pagination_active_hover: #27272a
-            color_pagination_active_down: #3f3f46
-            color_pagination_active_foreground: #fafafa
-            color_pagination_inactive_hover: #27272a
-            color_pagination_inactive_down: #3f3f46
-            color_pagination_inactive_foreground: #fafafa
-            color_pagination_border: #3f3f46
-            color_pagination_border_hover: #52525b
-            color_pagination_border_down: #71717a
-
             radius: 6.0
+            control_height_sm: 28.0
+            control_height_md: 36.0
+            control_height_lg: 44.0
+            control_padding_x_sm: 12.0
+            control_padding_x_md: 16.0
+            control_padding_x_lg: 32.0
+            control_font_size_sm: 10.0
+            control_font_size_md: 11.0
+            control_font_size_lg: 13.0
 
             color_kbd_bg: #x3c3c3c
             color_kbd_border: #555555
@@ -104,22 +115,33 @@ script_mod! {
             color_popover: #ffffff
             color_overlay: vec4(0.0, 0.0, 0.0, 0.55)
 
+            color_surface_default: #ffffff
+            color_surface_muted: #f4f4f5
+            color_surface_popover: #ffffff
+
+            color_border: #e4e4e7
+            color_border_hover: #d4d4d8
+            color_border_down: #a1a1aa
+            color_border_focus: #09090b
+
+            color_text: #09090b
+            color_text_muted: #71717a
+            color_text_inverse: #fafafa
+
             color_chart: #x3b82f6
             color_chart_emphasis: #x2563eb
             color_chart_fill: #x3b82f633
 
-            color_pagination_active: #f4f4f5
-            color_pagination_active_hover: #e4e4e7
-            color_pagination_active_down: #d4d4d8
-            color_pagination_active_foreground: #09090b
-            color_pagination_inactive_hover: #f4f4f5
-            color_pagination_inactive_down: #e4e4e7
-            color_pagination_inactive_foreground: #09090b
-            color_pagination_border: #e4e4e7
-            color_pagination_border_hover: #d4d4d8
-            color_pagination_border_down: #a1a1aa
-
             radius: 6.0
+            control_height_sm: 28.0
+            control_height_md: 36.0
+            control_height_lg: 44.0
+            control_padding_x_sm: 12.0
+            control_padding_x_md: 16.0
+            control_padding_x_lg: 32.0
+            control_font_size_sm: 10.0
+            control_font_size_md: 11.0
+            control_font_size_lg: 13.0
 
             color_kbd_bg: #fafafa
             color_kbd_border: #e4e4e7

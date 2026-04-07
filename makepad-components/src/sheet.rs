@@ -1,4 +1,4 @@
-use crate::internal::actions::first_widget_action;
+use crate::internal::actions::open_changed_action;
 use crate::internal::overlay::{draw_modal_overlay, modal_dismissed, sync_modal_open_state};
 use crate::internal::script_args::bool_arg;
 use makepad_widgets::widget::WidgetActionData;
@@ -265,12 +265,13 @@ impl ShadSheet {
     }
 
     pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
-        if let Some(ShadSheetAction::OpenChanged(open)) =
-            first_widget_action::<ShadSheetAction>(actions, self.widget_uid())
-        {
-            return Some(open);
-        }
-        None
+        open_changed_action::<ShadSheetAction, _>(actions, self.widget_uid(), |action| {
+            if let ShadSheetAction::OpenChanged(open) = action {
+                Some(open)
+            } else {
+                None
+            }
+        })
     }
 }
 

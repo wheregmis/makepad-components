@@ -1,4 +1,8 @@
-use crate::internal::actions::{emit_widget_action, first_widget_action};
+use crate::internal::actions::{emit_open_changed_action, open_changed_action};
+use crate::internal::overlay::{
+    compute_anchor_overlay_pos, overlay_hover_zone_contains_abs, overlay_pair_contains_abs,
+    AnchorOverlayLayout,
+};
 use crate::internal::script_args::bool_arg;
 use crate::internal::touch::is_primary_tap;
 use makepad_widgets::event::TouchState;
@@ -167,141 +171,33 @@ impl ShadPopover {
         }
     }
 
-    fn resolve_side(&self, trigger_rect: Rect, pass_size: Vec2d, content_size: Vec2d) -> &str {
-        let side = self.side.as_ref();
-        let top_space = trigger_rect.pos.y - self.side_offset - self.viewport_padding;
-        let bottom_space = pass_size.y
-            - (trigger_rect.pos.y + trigger_rect.size.y)
-            - self.side_offset
-            - self.viewport_padding;
-        let left_space = trigger_rect.pos.x - self.side_offset - self.viewport_padding;
-        let right_space = pass_size.x
-            - (trigger_rect.pos.x + trigger_rect.size.x)
-            - self.side_offset
-            - self.viewport_padding;
-
-        match side {
-            "top" if content_size.y > top_space && bottom_space > top_space => "bottom",
-            "bottom" if content_size.y > bottom_space && top_space > bottom_space => "top",
-            "left" if content_size.x > left_space && right_space > left_space => "right",
-            "right" if content_size.x > right_space && left_space > right_space => "left",
-            _ => side,
+    fn overlay_layout(&self) -> AnchorOverlayLayout<'_> {
+        AnchorOverlayLayout {
+            side: self.side.as_ref(),
+            align: self.align.as_ref(),
+            side_offset: self.side_offset,
+            viewport_padding: self.viewport_padding,
         }
     }
 
     fn compute_popup_pos_with_content_size(&self, cx: &Cx2d, content_size: Vec2d) -> Vec2d {
         let trigger_rect = self.trigger_rect(cx);
         let pass_size = cx.current_pass_size();
-        let side = self.resolve_side(trigger_rect, pass_size, content_size);
-
-        let align = self.align.as_ref();
-        let cross_x = match align {
-            "end" => trigger_rect.pos.x + trigger_rect.size.x - content_size.x,
-            "center" => trigger_rect.pos.x + (trigger_rect.size.x - content_size.x) * 0.5,
-            _ => trigger_rect.pos.x,
-        };
-        let cross_y = match align {
-            "end" => trigger_rect.pos.y + trigger_rect.size.y - content_size.y,
-            "center" => trigger_rect.pos.y + (trigger_rect.size.y - content_size.y) * 0.5,
-            _ => trigger_rect.pos.y,
-        };
-
-        let mut pos = match side {
-            "top" => dvec2(
-                cross_x,
-                trigger_rect.pos.y - content_size.y - self.side_offset,
-            ),
-            "left" => dvec2(cross_x - content_size.x - self.side_offset, cross_y),
-            "right" => dvec2(
-                trigger_rect.pos.x + trigger_rect.size.x + self.side_offset,
-                cross_y,
-            ),
-            _ => dvec2(
-                cross_x,
-                trigger_rect.pos.y + trigger_rect.size.y + self.side_offset,
-            ),
-        };
-
-        let max_x =
-            (pass_size.x - content_size.x - self.viewport_padding).max(self.viewport_padding);
-        let max_y =
-            (pass_size.y - content_size.y - self.viewport_padding).max(self.viewport_padding);
-        pos.x = pos.x.clamp(self.viewport_padding, max_x);
-        pos.y = pos.y.clamp(self.viewport_padding, max_y);
-        pos
+        compute_anchor_overlay_pos(&self.overlay_layout(), trigger_rect, pass_size, content_size)
     }
 
     fn compute_popup_pos(&self, cx: &Cx2d) -> Vec2d {
         self.compute_popup_pos_with_content_size(cx, self.content_size)
     }
 
-    fn hover_bridge_rect(&self, trigger_rect: Rect, content_rect: Rect) -> Option<Rect> {
-        let padding = 12.0;
-        let trigger_right = trigger_rect.pos.x + trigger_rect.size.x;
-        let trigger_bottom = trigger_rect.pos.y + trigger_rect.size.y;
-        let content_right = content_rect.pos.x + content_rect.size.x;
-        let content_bottom = content_rect.pos.y + content_rect.size.y;
-
-        if content_rect.pos.y >= trigger_bottom {
-            let height = content_rect.pos.y - trigger_bottom;
-            if height > 0.0 {
-                return Some(Rect {
-                    pos: dvec2(trigger_rect.pos.x - padding, trigger_bottom),
-                    size: dvec2(trigger_rect.size.x + padding * 2.0, height),
-                });
-            }
-        }
-
-        if trigger_rect.pos.y >= content_bottom {
-            let height = trigger_rect.pos.y - content_bottom;
-            if height > 0.0 {
-                return Some(Rect {
-                    pos: dvec2(trigger_rect.pos.x - padding, content_bottom),
-                    size: dvec2(trigger_rect.size.x + padding * 2.0, height),
-                });
-            }
-        }
-
-        if content_rect.pos.x >= trigger_right {
-            let width = content_rect.pos.x - trigger_right;
-            if width > 0.0 {
-                return Some(Rect {
-                    pos: dvec2(trigger_right, trigger_rect.pos.y - padding),
-                    size: dvec2(width, trigger_rect.size.y + padding * 2.0),
-                });
-            }
-        }
-
-        if trigger_rect.pos.x >= content_right {
-            let width = trigger_rect.pos.x - content_right;
-            if width > 0.0 {
-                return Some(Rect {
-                    pos: dvec2(content_right, trigger_rect.pos.y - padding),
-                    size: dvec2(width, trigger_rect.size.y + padding * 2.0),
-                });
-            }
-        }
-
-        None
-    }
-
     fn hover_zone_contains_abs(&self, cx: &Cx, abs: Vec2d) -> bool {
         let trigger_rect = self.trigger_rect(cx);
-        if trigger_rect.contains(abs) {
-            return true;
-        }
-
         let content_rect = self.popup_content.area().rect(cx);
-        if content_rect.contains(abs) {
-            return true;
-        }
-
-        self.hover_bridge_rect(trigger_rect, content_rect)
-            .is_some_and(|bridge| bridge.contains(abs))
+        overlay_hover_zone_contains_abs(trigger_rect, content_rect, abs)
     }
 
     fn overlay_contains_abs(&self, cx: &Cx, abs: Vec2d) -> bool {
-        self.trigger_rect(cx).contains(abs) || self.popup_content.area().rect(cx).contains(abs)
+        overlay_pair_contains_abs(self.trigger_rect(cx), self.popup_content.area().rect(cx), abs)
     }
 
     fn reclaim_pointer_down_from_underlay(&self, cx: &mut Cx, event: &Event) {
@@ -329,11 +225,12 @@ impl ShadPopover {
     }
 
     fn emit_open_state(&self, cx: &mut Cx, open: bool) {
-        emit_widget_action(
+        emit_open_changed_action(
             cx,
             &self.action_data,
             self.widget_uid(),
-            ShadPopoverAction::OpenChanged(open),
+            open,
+            ShadPopoverAction::OpenChanged,
         );
     }
 
@@ -365,12 +262,13 @@ impl ShadPopover {
     }
 
     pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
-        if let Some(ShadPopoverAction::OpenChanged(open)) =
-            first_widget_action::<ShadPopoverAction>(actions, self.widget_uid())
-        {
-            return Some(open);
-        }
-        None
+        open_changed_action::<ShadPopoverAction, _>(actions, self.widget_uid(), |action| {
+            if let ShadPopoverAction::OpenChanged(open) = action {
+                Some(open)
+            } else {
+                None
+            }
+        })
     }
 }
 

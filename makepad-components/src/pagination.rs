@@ -3,7 +3,6 @@ use crate::models::pagination::{
     clamped_current_page, clamped_max_visible_pages, compute_window, normalized_page_count,
     PaginationWindow,
 };
-use makepad_widgets::makepad_script::NoTrap;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 use std::fmt::Write;
@@ -172,102 +171,8 @@ impl ShadPagination {
         button.set_text(cx, text);
     }
 
-    fn resolve_theme_style(vm: &mut ScriptVm) -> PaginationThemeStyle {
-        fn theme_value(vm: &mut ScriptVm, key: LiveId) -> ScriptValue {
-            let mod_obj = vm.module(id!(mod));
-            let widgets = vm.bx.heap.value(mod_obj, id!(widgets).into(), NoTrap);
-            let Some(widgets_obj) = widgets.as_object() else {
-                return NIL;
-            };
-            let theme = vm
-                .bx
-                .heap
-                .value(widgets_obj, id!(shad_theme).into(), NoTrap);
-            let Some(theme_obj) = theme.as_object() else {
-                return NIL;
-            };
-            vm.bx.heap.value(theme_obj, key.into(), NoTrap)
-        }
-
-        fn theme_color(
-            vm: &mut ScriptVm,
-            primary: LiveId,
-            secondary: LiveId,
-            fallback: u32,
-        ) -> Vec4f {
-            theme_value(vm, primary)
-                .as_color()
-                .map(Vec4f::from_u32)
-                .or_else(|| theme_value(vm, secondary).as_color().map(Vec4f::from_u32))
-                .unwrap_or_else(|| Vec4f::from_u32(fallback))
-        }
-
-        let defaults = PaginationThemeStyle::default();
-        PaginationThemeStyle {
-            active_bg: theme_color(
-                vm,
-                id!(color_pagination_active),
-                id!(color_secondary),
-                defaults.active_bg.to_u32(),
-            ),
-            active_bg_hover: theme_color(
-                vm,
-                id!(color_pagination_active_hover),
-                id!(color_secondary_hover),
-                defaults.active_bg_hover.to_u32(),
-            ),
-            active_bg_down: theme_color(
-                vm,
-                id!(color_pagination_active_down),
-                id!(color_secondary_down),
-                defaults.active_bg_down.to_u32(),
-            ),
-            active_text: theme_color(
-                vm,
-                id!(color_pagination_active_foreground),
-                id!(color_secondary_foreground),
-                defaults.active_text.to_u32(),
-            ),
-            inactive_bg_hover: theme_color(
-                vm,
-                id!(color_pagination_inactive_hover),
-                id!(color_ghost_hover),
-                defaults.inactive_bg_hover.to_u32(),
-            ),
-            inactive_bg_down: theme_color(
-                vm,
-                id!(color_pagination_inactive_down),
-                id!(color_ghost_down),
-                defaults.inactive_bg_down.to_u32(),
-            ),
-            inactive_text: theme_color(
-                vm,
-                id!(color_pagination_inactive_foreground),
-                id!(color_primary),
-                defaults.inactive_text.to_u32(),
-            ),
-            border: theme_color(
-                vm,
-                id!(color_pagination_border),
-                id!(color_outline_border),
-                defaults.border.to_u32(),
-            ),
-            border_hover: theme_color(
-                vm,
-                id!(color_pagination_border_hover),
-                id!(color_outline_border_hover),
-                defaults.border_hover.to_u32(),
-            ),
-            border_down: theme_color(
-                vm,
-                id!(color_pagination_border_down),
-                id!(color_outline_border_down),
-                defaults.border_down.to_u32(),
-            ),
-            radius: theme_value(vm, id!(radius))
-                .as_number()
-                .unwrap_or(defaults.radius),
-        }
+    fn resolve_theme_style(_vm: &mut ScriptVm) -> PaginationThemeStyle {
+        PaginationThemeStyle::default()
     }
 
     fn normalize_state(&mut self) {

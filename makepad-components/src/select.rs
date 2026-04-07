@@ -11,11 +11,11 @@ script_mod! {
         padding: Inset{left: 24, right: 12, top: 8, bottom: 8}
 
         draw_text +: {
-            color: (shad_theme.color_primary)
-            color_hover: (shad_theme.color_primary)
-            color_active: (shad_theme.color_primary)
-            color_disabled: (shad_theme.color_muted_foreground)
-            text_style.font_size: 11
+            color: (shad_theme.color_text)
+            color_hover: (shad_theme.color_text)
+            color_active: (shad_theme.color_text)
+            color_disabled: (shad_theme.color_text_muted)
+            text_style.font_size: (shad_theme.control_font_size_md)
         }
 
         draw_bg +: {
@@ -30,66 +30,106 @@ script_mod! {
             border_color_active: #0000
             border_color_disabled: #0000
             mark_color: #0000
-            mark_color_active: (shad_theme.color_primary)
-            mark_color_disabled: (shad_theme.color_muted_foreground)
+            mark_color_active: (shad_theme.color_text)
+            mark_color_disabled: (shad_theme.color_text_muted)
             color_dither: 0.0
         }
     }
 
     mod.widgets.ShadSelectPopupMenu = mod.widgets.PopupMenu{
         width: 220
-        new_batch: true
         padding: Inset{left: 6, right: 6, top: 6, bottom: 6}
         menu_item: mod.widgets.ShadSelectItem{}
 
         draw_bg +: {
             border_size: 1.0
             border_radius: (shad_theme.radius)
-            color: (shad_theme.color_popover)
-            border_color: (shad_theme.color_outline_border)
+            color: (shad_theme.color_surface_popover)
+            border_color: (shad_theme.color_border)
             color_dither: 0.0
         }
     }
 
-    mod.widgets.ShadSelect = mod.widgets.DropDownFlat{
-        width: 220
-        height: 36
-        align: Align{x: 0.0, y: 0.5}
-        popup_menu_position: BelowInput
+    mod.widgets.ShadSelectBase = #(ShadSelect::register_widget(vm))
 
-        padding: Inset{left: 12, right: 28, top: 0, bottom: 0}
+    mod.widgets.ShadSelect = mod.widgets.ShadSelectBase{
+        width: 220
+        height: (shad_theme.control_height_md)
+        align: Align{x: 0.0, y: 0.5}
+
+        padding: Inset{
+            left: (shad_theme.control_padding_x_md - 4.0),
+            right: (shad_theme.control_padding_x_md + 12.0),
+            top: 0,
+            bottom: 0
+        }
 
         draw_text +: {
-            color: (shad_theme.color_primary)
-            color_hover: (shad_theme.color_primary)
-            color_focus: (shad_theme.color_primary)
-            color_down: (shad_theme.color_primary)
-            color_disabled: (shad_theme.color_muted_foreground)
-            text_style.font_size: 11
+            color: (shad_theme.color_text)
+            color_hover: (shad_theme.color_text)
+            color_focus: (shad_theme.color_text)
+            color_down: (shad_theme.color_text)
+            color_disabled: (shad_theme.color_text_muted)
+            text_style.font_size: (shad_theme.control_font_size_md)
         }
 
         draw_bg +: {
             border_radius: (shad_theme.radius)
             border_size: 1.0
-            color: (shad_theme.color_background)
-            color_hover: (shad_theme.color_background)
-            color_focus: (shad_theme.color_background)
-            color_down: (shad_theme.color_background)
-            color_active: (shad_theme.color_background)
-            color_disabled: (shad_theme.color_background)
-            border_color: (shad_theme.color_outline_border)
-            border_color_hover: (shad_theme.color_outline_border_hover)
-            border_color_focus: (shad_theme.color_primary)
-            border_color_down: (shad_theme.color_primary)
-            border_color_active: (shad_theme.color_primary)
-            border_color_disabled: (shad_theme.color_outline_border)
-            arrow_color: (shad_theme.color_primary)
-            arrow_color_hover: (shad_theme.color_primary)
-            arrow_color_focus: (shad_theme.color_primary)
-            arrow_color_down: (shad_theme.color_primary)
-            arrow_color_disabled: (shad_theme.color_muted_foreground)
+            color: (shad_theme.color_surface_default)
+            color_hover: (shad_theme.color_surface_default)
+            color_focus: (shad_theme.color_surface_default)
+            color_down: (shad_theme.color_surface_default)
+            color_active: (shad_theme.color_surface_default)
+            color_disabled: (shad_theme.color_surface_default)
+            border_color: (shad_theme.color_border)
+            border_color_hover: (shad_theme.color_border_hover)
+            border_color_focus: (shad_theme.color_border_focus)
+            border_color_down: (shad_theme.color_border_focus)
+            border_color_active: (shad_theme.color_border_focus)
+            border_color_disabled: (shad_theme.color_border)
+            arrow_color: (shad_theme.color_text)
+            arrow_color_hover: (shad_theme.color_text)
+            arrow_color_focus: (shad_theme.color_text)
+            arrow_color_down: (shad_theme.color_text)
+            arrow_color_disabled: (shad_theme.color_text_muted)
         }
 
         popup_menu: mod.widgets.ShadSelectPopupMenu{}
+    }
+}
+
+#[derive(Script, Widget)]
+pub struct ShadSelect {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    dropdown: DropDown,
+}
+
+impl ScriptHook for ShadSelect {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _obj: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| {
+            script_apply_eval!(cx, self.dropdown, {
+                popup_menu_position: #(PopupMenuPosition::BelowInput)
+            });
+        });
+    }
+}
+
+impl Widget for ShadSelect {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.dropdown.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, _scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.dropdown.draw_walk(cx, walk);
+        DrawStep::done()
     }
 }
