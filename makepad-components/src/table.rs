@@ -726,12 +726,12 @@ impl ShadTable {
                     calculate_content_based_widths(&self.headers, &self.rows_data);
                 self.content_widths_dirty = false;
             }
-            if self.resolved_widths.len() != self.cached_content_widths.len() {
-                self.resolved_widths = self.cached_content_widths.clone();
-            } else {
-                self.resolved_widths
-                    .copy_from_slice(self.cached_content_widths.as_slice());
-            }
+            // Optimization: Avoid creating a new Vec and causing heap churn when content widths change sizes.
+            // Previously: used a conditional `clone()` which allocated memory if lengths mismatched.
+            // Now: reuse the existing capacity using clear + extend_from_slice.
+            self.resolved_widths.clear();
+            self.resolved_widths
+                .extend_from_slice(self.cached_content_widths.as_slice());
         } else {
             sync_default_widths(
                 &mut self.resolved_widths,
