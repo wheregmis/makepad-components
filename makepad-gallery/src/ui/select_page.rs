@@ -103,6 +103,13 @@ impl GallerySelectPage {
         let status = self.view.drop_down(cx, ids!(status_select));
         let city = self.view.drop_down(cx, ids!(city_select));
 
+        if status.selected_label().is_empty() {
+            status.set_selected_item(cx, 0);
+        }
+        if city.selected_label().is_empty() {
+            city.set_selected_item(cx, 0);
+        }
+
         let status_label = status.selected_label();
         let city_label = city.selected_label();
         let is_default = status_label == "Pending" && city_label == "Toronto";

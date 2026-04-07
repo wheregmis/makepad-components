@@ -111,10 +111,12 @@ impl ScriptHook for ShadSelect {
     fn on_after_apply(
         &mut self,
         vm: &mut ScriptVm,
-        _apply: &Apply,
-        _scope: &mut Scope,
-        _obj: ScriptValue,
+        apply: &Apply,
+        scope: &mut Scope,
+        obj: ScriptValue,
     ) {
+        <DropDown as ScriptHook>::on_after_apply(&mut self.dropdown, vm, apply, scope, obj);
+
         vm.with_cx_mut(|cx| {
             script_apply_eval!(cx, self.dropdown, {
                 popup_menu_position: #(PopupMenuPosition::BelowInput)

@@ -110,6 +110,12 @@ pub struct ShadSheet {
     last_side: String,
     #[rust]
     is_side_initialized: bool,
+    #[rust]
+    is_overlay_layout_initialized: bool,
+    #[rust]
+    is_sheet_frame_layout_initialized: bool,
+    #[rust]
+    last_overlay_alpha: f32,
     #[action_data]
     #[rust]
     action_data: WidgetActionData,
@@ -140,25 +146,29 @@ impl ShadSheet {
         self.last_side.push_str(current_side);
         self.is_side_initialized = true;
 
-        // Optimization: avoid cloning the `WidgetRef`
-        // Previously: created a new cloned reference using `self.overlay.clone()`
-        // Now: apply directly to `self.overlay`, eliminating clone overhead
-        script_apply_eval!(cx, self.overlay, {
-            align: #(Align { x: 0.0, y: 0.0 })
-        });
+        if !self.is_overlay_layout_initialized {
+            script_apply_eval!(cx, self.overlay, {
+                align: #(Align { x: 0.0, y: 0.0 })
+            });
+            self.is_overlay_layout_initialized = true;
+        }
 
         let mut bg_view = self.overlay.widget(cx, ids!(bg_view));
-        let overlay_color = vec4(
-            self.color_overlay.x,
-            self.color_overlay.y,
-            self.color_overlay.z,
-            self.color_overlay.w * self.open_progress as f32,
-        );
-        script_apply_eval!(cx, bg_view, {
-            draw_bg +: {
-                color: #(overlay_color)
-            }
-        });
+        let overlay_alpha = self.color_overlay.w * self.open_progress as f32;
+        if (self.last_overlay_alpha - overlay_alpha).abs() > f32::EPSILON {
+            let overlay_color = vec4(
+                self.color_overlay.x,
+                self.color_overlay.y,
+                self.color_overlay.z,
+                overlay_alpha,
+            );
+            script_apply_eval!(cx, bg_view, {
+                draw_bg +: {
+                    color: #(overlay_color)
+                }
+            });
+            self.last_overlay_alpha = overlay_alpha;
+        }
 
         let content = self.overlay.widget(cx, ids!(content));
         if let Some(mut content_view) = content.borrow_mut::<View>() {
@@ -194,11 +204,14 @@ impl ShadSheet {
             content_view.walk.abs_pos = Some(abs_pos);
         }
 
-        let mut sheet_frame = self.overlay.widget(cx, ids!(content.sheet_frame));
-        script_apply_eval!(cx, sheet_frame, {
-            width: #(Size::fill())
-            height: #(Size::fill())
-        });
+        if !self.is_sheet_frame_layout_initialized {
+            let mut sheet_frame = self.overlay.widget(cx, ids!(content.sheet_frame));
+            script_apply_eval!(cx, sheet_frame, {
+                width: #(Size::fill())
+                height: #(Size::fill())
+            });
+            self.is_sheet_frame_layout_initialized = true;
+        }
     }
 
     fn start_animation(&mut self, cx: &mut Cx, open: bool) {

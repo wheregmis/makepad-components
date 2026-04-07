@@ -1,11 +1,10 @@
 use crate::internal::actions::{emit_open_changed_action, open_changed_action};
 use crate::internal::overlay::{
-    compute_anchor_overlay_pos, overlay_hover_zone_contains_abs, overlay_pair_contains_abs,
-    AnchorOverlayLayout,
+    compute_anchor_overlay_pos, overlay_hover_zone_contains_abs, reclaim_overlay_pointer_down,
+    should_dismiss_overlay_on_pointer_up, AnchorOverlayLayout,
 };
 use crate::internal::script_args::bool_arg;
 use crate::internal::touch::is_primary_tap;
-use makepad_widgets::event::TouchState;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 
@@ -190,40 +189,6 @@ impl ShadPopover {
         self.compute_popup_pos_with_content_size(cx, self.content_size)
     }
 
-    fn hover_zone_contains_abs(&self, cx: &Cx, abs: Vec2d) -> bool {
-        let trigger_rect = self.trigger_rect(cx);
-        let content_rect = self.popup_content.area().rect(cx);
-        overlay_hover_zone_contains_abs(trigger_rect, content_rect, abs)
-    }
-
-    fn overlay_contains_abs(&self, cx: &Cx, abs: Vec2d) -> bool {
-        overlay_pair_contains_abs(self.trigger_rect(cx), self.popup_content.area().rect(cx), abs)
-    }
-
-    fn reclaim_pointer_down_from_underlay(&self, cx: &mut Cx, event: &Event) {
-        match event {
-            Event::MouseDown(fe) => {
-                let handled_area = fe.handled.get();
-                if !handled_area.is_empty() && self.overlay_contains_abs(cx, fe.abs) {
-                    event.unhandle(cx, &handled_area);
-                }
-            }
-            Event::TouchUpdate(te) => {
-                for touch in &te.touches {
-                    if !matches!(touch.state, TouchState::Start) {
-                        continue;
-                    }
-                    let handled_area = touch.handled.get();
-                    if !handled_area.is_empty() && self.overlay_contains_abs(cx, touch.abs) {
-                        event.unhandle(cx, &handled_area);
-                        break;
-                    }
-                }
-            }
-            _ => {}
-        }
-    }
-
     fn emit_open_state(&self, cx: &mut Cx, open: bool) {
         emit_open_changed_action(
             cx,
@@ -326,10 +291,13 @@ impl Widget for ShadPopover {
             return;
         }
 
+        let trigger_rect = self.trigger_rect(cx);
+        let content_rect = self.popup_content.area().rect(cx);
+
         // Popover bodies are drawn in an overlay draw list, but their widgets still live under
         // the trigger in the normal tree. If a later sibling handled mouse/touch-down first,
         // reclaim that hit here so the overlay body can capture and react to the interaction.
-        self.reclaim_pointer_down_from_underlay(cx, event);
+        reclaim_overlay_pointer_down(cx, event, trigger_rect, content_rect);
         self.popup_content.handle_event(cx, event, scope);
 
         // Consume overlay hits while open so pointer events do not fall through to widgets
@@ -350,13 +318,15 @@ impl Widget for ShadPopover {
         if self.open_on_hover {
             match overlay_hit {
                 Hit::FingerHoverIn(fe) | Hit::FingerHoverOver(fe)
-                    if fe.device.has_hovers() && !self.hover_zone_contains_abs(cx, fe.abs) =>
+                    if fe.device.has_hovers()
+                        && !overlay_hover_zone_contains_abs(trigger_rect, content_rect, fe.abs) =>
                 {
                     self.close(cx);
                     return;
                 }
                 Hit::FingerMove(fe)
-                    if fe.device.has_hovers() && !self.hover_zone_contains_abs(cx, fe.abs) =>
+                    if fe.device.has_hovers()
+                        && !overlay_hover_zone_contains_abs(trigger_rect, content_rect, fe.abs) =>
                 {
                     self.close(cx);
                     return;
@@ -367,9 +337,7 @@ impl Widget for ShadPopover {
 
         if self.can_dismiss {
             if let Hit::FingerUp(fe) = overlay_hit {
-                let content_rect = self.popup_content.area().rect(cx);
-                let trigger_rect = self.trigger_rect(cx);
-                if !content_rect.contains(fe.abs) && !trigger_rect.contains(fe.abs) {
+                if should_dismiss_overlay_on_pointer_up(trigger_rect, content_rect, fe.abs) {
                     self.close(cx);
                 }
             }

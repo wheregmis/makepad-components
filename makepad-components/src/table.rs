@@ -784,6 +784,8 @@ impl ShadTable {
     }
 
     fn draw_rows(&mut self, cx: &mut Cx2d, list: &mut PortalList) {
+        let mut empty_scope = Scope::empty();
+
         if self.has_custom_rows() {
             self.draw_custom_rows(cx, list);
             return;
@@ -831,7 +833,7 @@ impl ShadTable {
                     item_id & 1 == 1,
                 );
             }
-            item.draw_all(cx, &mut Scope::empty());
+            item.draw_all(cx, &mut empty_scope);
         }
     }
 
@@ -842,6 +844,8 @@ impl ShadTable {
         widths: &Arc<[f64]>,
         total_width: f64,
     ) {
+        let mut empty_scope = Scope::empty();
+
         if self.has_custom_rows() {
             self.draw_custom_rows(cx, list);
             return;
@@ -888,11 +892,13 @@ impl ShadTable {
                     item_id & 1 == 1,
                 );
             }
-            item.draw_all(cx, &mut Scope::empty());
+            item.draw_all(cx, &mut empty_scope);
         }
     }
 
     fn draw_custom_rows(&mut self, cx: &mut Cx2d, list: &mut PortalList) {
+        let mut empty_scope = Scope::empty();
+
         let row_count = self.data_row_count();
         if row_count == 0 {
             let rows = Self::empty_fill_rows(list, cx, 0).max(1);
@@ -920,7 +926,7 @@ impl ShadTable {
                 continue;
             };
             list.item(cx, item_id, template)
-                .draw_all(cx, &mut Scope::empty());
+                .draw_all(cx, &mut empty_scope);
         }
     }
 
