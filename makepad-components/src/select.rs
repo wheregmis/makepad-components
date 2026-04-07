@@ -55,6 +55,7 @@ script_mod! {
         width: 220
         height: 36
         align: Align{x: 0.0, y: 0.5}
+        popup_menu_position: BelowInput
 
         padding: Inset{left: 12, right: 28, top: 0, bottom: 0}
 
