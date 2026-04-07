@@ -1,4 +1,0 @@
-interface:
-  display_name: "Makepad 3D Media"
-  short_description: "Build Makepad 3D, vector, map, and PDF features."
-  default_prompt: "Use $makepad-3d-media to implement this rendering or media task using the closest Makepad example."

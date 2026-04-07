@@ -20,7 +20,7 @@ script_mod! {
 
         draw_bg +: {
             border_size: 0.0
-            border_radius: 6.0
+            border_radius: (shad_theme.radius)
             color: #0000
             color_hover: (shad_theme.color_secondary)
             color_active: (shad_theme.color_secondary_hover)
@@ -38,13 +38,14 @@ script_mod! {
 
     mod.widgets.ShadSelectPopupMenu = mod.widgets.PopupMenu{
         width: 220
+        new_batch: true
         padding: Inset{left: 6, right: 6, top: 6, bottom: 6}
         menu_item: mod.widgets.ShadSelectItem{}
 
         draw_bg +: {
             border_size: 1.0
             border_radius: (shad_theme.radius)
-            color: (shad_theme.color_background)
+            color: (shad_theme.color_popover)
             border_color: (shad_theme.color_outline_border)
             color_dither: 0.0
         }
@@ -54,6 +55,7 @@ script_mod! {
         width: 220
         height: 36
         align: Align{x: 0.0, y: 0.5}
+        popup_menu_position: BelowInput
 
         padding: Inset{left: 12, right: 28, top: 0, bottom: 0}
 
