@@ -70,6 +70,7 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::avatar::script_mod(vm);
     crate::badge::script_mod(vm);
     crate::breadcrumb::script_mod(vm);
+    crate::scroll::script_mod(vm);
     crate::tabs::script_mod(vm);
     crate::button::script_mod(vm);
     crate::button_group::script_mod(vm);
@@ -100,7 +101,6 @@ pub fn script_mod_without_theme(vm: &mut ScriptVm) {
     crate::resizable::script_mod(vm);
     crate::select::script_mod(vm);
     crate::sheet::script_mod(vm);
-    crate::scroll::script_mod(vm);
     crate::sidebar::script_mod(vm);
     crate::slider::script_mod(vm);
     crate::sonner::script_mod(vm);

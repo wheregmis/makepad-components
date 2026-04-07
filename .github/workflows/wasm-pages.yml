@@ -19,10 +19,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-  MAKEPAD_BRANCH: dev
-  WASM_BINDGEN_VERSION: 0.2.114
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  MAKEPAD_GIT_BRANCH: dev
 
 jobs:
   build-wasm:
@@ -32,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout sibling makepad workspace
-        run: git clone --depth 1 --branch "${MAKEPAD_BRANCH}" https://github.com/wheregmis/makepad.git "${GITHUB_WORKSPACE}/../makepad"
+        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/wheregmis/makepad.git "${GITHUB_WORKSPACE}/../makepad"
 
       - name: Install system dependencies
         run: |
@@ -60,11 +58,8 @@ jobs:
       - name: Install Wasm toolchain
         run: cargo makepad wasm install-toolchain
 
-      - name: Install wasm-bindgen CLI
-        run: cargo install wasm-bindgen-cli --version "${WASM_BINDGEN_VERSION}" --locked --force
-
       - name: Build Wasm package
-        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --bindgen --no-threads
+        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --no-threads
 
       - name: Patch index.html for GitHub Pages subpath hosting
         run: |

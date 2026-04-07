@@ -33,9 +33,9 @@ gallery_stateful_page_shell! {
                 spacing: 14.0
                 padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
                 draw_bg +: {
-                    color: (shad_theme.color_secondary)
+                    color: (shad_theme.color_background)
                     border_size: 1.0
-                    border_color: (shad_theme.color_outline_border)
+                    border_color: (shad_theme.color_outline_border_hover)
                 }
 
                 View{
@@ -67,17 +67,12 @@ gallery_stateful_page_shell! {
                         flow: Down
                         spacing: 12.0
 
-                        ShadSurface{
+                        ShadCard{
                             width: Fill
                             height: Fit
                             flow: Down
                             spacing: 8.0
                             padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
-                            draw_bg +: {
-                                color: (shad_theme.color_background)
-                                border_size: 1.0
-                                border_color: (shad_theme.color_outline_border)
-                            }
 
                             ShadLabel{text: "Right / 360px"}
                             ShadFieldDescription{
@@ -87,17 +82,12 @@ gallery_stateful_page_shell! {
                             open_right_sheet_btn := ShadButton{text: "Open editor"}
                         }
 
-                        ShadSurface{
+                        ShadCard{
                             width: Fill
                             height: Fit
                             flow: Down
                             spacing: 8.0
                             padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
-                            draw_bg +: {
-                                color: (shad_theme.color_background)
-                                border_size: 1.0
-                                border_color: (shad_theme.color_outline_border)
-                            }
 
                             ShadLabel{text: "Left / 360px"}
                             ShadFieldDescription{
@@ -114,17 +104,12 @@ gallery_stateful_page_shell! {
                         flow: Down
                         spacing: 12.0
 
-                        ShadSurface{
+                        ShadCard{
                             width: Fill
                             height: Fit
                             flow: Down
                             spacing: 8.0
                             padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
-                            draw_bg +: {
-                                color: (shad_theme.color_background)
-                                border_size: 1.0
-                                border_color: (shad_theme.color_outline_border)
-                            }
 
                             ShadLabel{text: "Top / 220px"}
                             ShadFieldDescription{
@@ -134,17 +119,12 @@ gallery_stateful_page_shell! {
                             open_top_sheet_btn := ShadButtonOutline{text: "Open filters"}
                         }
 
-                        ShadSurface{
+                        ShadCard{
                             width: Fill
                             height: Fit
                             flow: Down
                             spacing: 8.0
                             padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
-                            draw_bg +: {
-                                color: (shad_theme.color_background)
-                                border_size: 1.0
-                                border_color: (shad_theme.color_outline_border)
-                            }
 
                             ShadLabel{text: "Bottom / 220px"}
                             ShadFieldDescription{

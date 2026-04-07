@@ -6,12 +6,20 @@ gallery_static_page! {
     widget: GalleryScrollAreaPage,
     page: scroll_area_page,
     title: "Scroll Area",
-    subtitle: "Canonical scroll wrappers for vertical, horizontal, and two-axis overflow.",
+    subtitle: "Canonical scroll wrappers for vertical, horizontal, and two-axis overflow, now with a clearer scrollbar treatment and better touch drag behavior.",
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
         ShadSectionHeader{ text: "Vertical" }
-        ShadPanel{
+        ShadCard{
+            spacing: 12.0
+            padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
+
+            ShadFieldDescription{
+                width: Fill
+                text: "Use a bounded scroll surface when surrounding content should stay fixed and readable."
+            }
+
             scroll_area_demo := ShadScrollArea{
                 width: Fill
                 height: 220
@@ -38,7 +46,15 @@ gallery_static_page! {
         }
 
         ShadSectionHeader{ text: "Horizontal" }
-        ShadPanel{
+        ShadCard{
+            spacing: 12.0
+            padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
+
+            ShadFieldDescription{
+                width: Fill
+                text: "Horizontal rails should still feel surfaced and navigable, not like loose chips floating on the page."
+            }
+
             ShadScrollAreaX{
                 width: Fill
                 height: Fit
@@ -55,6 +71,8 @@ gallery_static_page! {
                     ShadBadge{ label := ShadBadgeLabel{text: "Revenue"} }
                     ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Operations"} }
                     ShadBadgeOutline{ label := ShadBadgeOutlineLabel{text: "Launch Week"} }
+                    ShadBadge{ label := ShadBadgeLabel{text: "Experiment Cohort"} }
+                    ShadBadgeSecondary{ label := ShadBadgeSecondaryLabel{text: "Infrastructure"} }
                 }
             }
         }

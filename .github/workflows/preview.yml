@@ -20,11 +20,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-  MAKEPAD_BRANCH: dev
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  MAKEPAD_GIT_BRANCH: dev
   APP_PACKAGE: makepad-gallery
-  WASM_BINDGEN_VERSION: 0.2.114
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   deploy-preview:
@@ -40,7 +38,7 @@ jobs:
 
       - name: Checkout sibling makepad workspace
         if: github.event.action != 'closed'
-        run: git clone --depth 1 --branch "${MAKEPAD_BRANCH}" https://github.com/wheregmis/makepad.git "${GITHUB_WORKSPACE}/../makepad"
+        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/wheregmis/makepad.git "${GITHUB_WORKSPACE}/../makepad"
 
       - name: Install system dependencies
         if: github.event.action != 'closed'
@@ -64,13 +62,9 @@ jobs:
         if: github.event.action != 'closed'
         run: cargo makepad wasm install-toolchain
 
-      - name: Install wasm-bindgen CLI
-        if: github.event.action != 'closed'
-        run: cargo install wasm-bindgen-cli --version "${WASM_BINDGEN_VERSION}" --locked --force
-
       - name: Build gallery preview
         if: github.event.action != 'closed'
-        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile small --bindgen --no-threads --no-brotli
+        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile small --no-threads --no-brotli
 
       - name: Patch index.html for GitHub Pages subpath hosting
         if: github.event.action != 'closed'

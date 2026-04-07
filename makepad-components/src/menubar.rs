@@ -11,6 +11,8 @@ script_mod! {
         align: Align{y: 0.5}
         spacing: 4.0
         padding: Inset{left: 4, right: 4, top: 4, bottom: 4}
+        draw_bg.color: (shad_theme.color_background)
+        draw_bg.border_color: (shad_theme.color_outline_border)
     }
 
     mod.widgets.ShadMenubarTrigger = ButtonFlat{
@@ -20,13 +22,16 @@ script_mod! {
 
         draw_bg +: {
             color: #0000
-            color_hover: (shad_theme.color_secondary)
-            color_down: (shad_theme.color_secondary_hover)
-            color_focus: (shad_theme.color_secondary)
+            color_hover: (shad_theme.color_ghost_hover)
+            color_down: (shad_theme.color_ghost_down)
+            color_focus: (shad_theme.color_ghost_hover)
             color_disabled: (shad_theme.color_disabled)
-            border_size: 0.0
+            border_size: 1.0
             border_radius: (shad_theme.radius)
             border_color: #0000
+            border_color_hover: (shad_theme.color_outline_border)
+            border_color_down: (shad_theme.color_outline_border_hover)
+            border_color_focus: (shad_theme.color_primary)
         }
 
         draw_text +: {
@@ -42,8 +47,9 @@ script_mod! {
     mod.widgets.ShadMenubarContent = mod.widgets.ShadSurfacePopover{
         width: 220
         height: Fit
-        spacing: 4.0
-        padding: Inset{left: 6, right: 6, top: 6, bottom: 6}
+        spacing: 6.0
+        padding: Inset{left: 8, right: 8, top: 8, bottom: 8}
+        draw_bg.border_color: (shad_theme.color_outline_border_hover)
     }
 
     mod.widgets.ShadMenubarLabel = Label{
