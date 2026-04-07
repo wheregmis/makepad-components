@@ -53,13 +53,6 @@ jobs:
         if: github.event.action != 'closed'
         uses: Swatinem/rust-cache@v2
 
-      - name: Redirect makepad library deps to local wheregmis/makepad fork
-        if: github.event.action != 'closed'
-        run: |
-          mkdir -p .cargo
-          printf '[source."https://github.com/makepad/makepad.git"]\nreplace-with = "wheregmis-makepad"\n\n[source.wheregmis-makepad]\ngit = "https://github.com/wheregmis/makepad.git"\nbranch = "%s"\n' "${MAKEPAD_GIT_BRANCH}" > .cargo/config.toml
-          rm -f Cargo.lock
-
       - name: Install cargo-makepad
         if: github.event.action != 'closed'
         run: cargo install --path "${GITHUB_WORKSPACE}/../makepad/tools/cargo_makepad" --locked --force
