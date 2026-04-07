@@ -14,6 +14,14 @@ fn select_page_keeps_full_width_select_examples_and_limit_note() {
         source.contains("Known limitation: popup-style selects can still be unreliable inside the current gallery PageFlip shell."),
         "select page should keep the current popup/PageFlip limitation note until the hotspot is resolved"
     );
+    assert!(
+        source.contains("select_status := ShadFieldDescription"),
+        "select page should expose a live status label for the controlled select demo"
+    );
+    assert!(
+        source.contains("select_reset_btn := ShadButtonGhost"),
+        "select page should keep an external reset button for the controlled select demo"
+    );
 }
 
 #[test]

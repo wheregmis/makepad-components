@@ -9,6 +9,10 @@ fn select_popup_uses_popover_theme_tokens() {
         !source.contains("border_radius: 6.0"),
         "select popup items should derive radius from shad_theme.radius"
     );
+    assert!(
+        source.contains("popup_menu_position: BelowInput"),
+        "select should open its popup below the trigger by default"
+    );
 }
 
 #[test]
