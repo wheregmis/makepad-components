@@ -41,3 +41,47 @@ fn sheet_page_keeps_selects_inside_sheet_overlay_examples() {
         "top sheet should continue covering the status filter select"
     );
 }
+
+#[test]
+fn popover_page_keeps_profile_and_help_examples() {
+    let source = include_str!("../src/ui/popover_page.rs");
+
+    assert!(
+        source.contains("profile_popover := ShadPopover{")
+            && source.contains(
+                "trigger := ShadButtonOutline{\n                text: \"Open profile editor\""
+            )
+            && source.contains(
+                "popover_status := ShadFieldDescription{\n            text: \"Popover is closed.\""
+            ),
+        "popover page should keep the profile editor example and its status copy"
+    );
+    assert!(
+        source.contains("help_popover := ShadPopover{")
+            && source.contains("side: \"top\"")
+            && source.contains("align: \"end\"")
+            && source.contains("help_popover_status := ShadFieldDescription{\n            text: \"Help popover is closed.\"") ,
+        "popover page should keep the top-end help example and its status copy"
+    );
+}
+
+#[test]
+fn popover_page_keeps_content_widget_and_open_state_wiring() {
+    let source = include_str!("../src/ui/popover_page.rs");
+
+    assert!(
+        source.contains("let profile_content = profile.content_widget();"),
+        "popover page should keep reading popup controls through content_widget()"
+    );
+    assert!(
+        source.contains(
+            "if profile.open_changed(actions).is_some() || help.open_changed(actions).is_some()"
+        ) && source.contains("self.sync_status_labels(cx);"),
+        "popover page should keep syncing status labels from popover open_changed actions"
+    );
+    assert!(
+        source.contains("profile.close(cx);")
+            && source.contains("Saved changes and closed the popover."),
+        "popover page should keep explicit close handling for in-popover actions"
+    );
+}
