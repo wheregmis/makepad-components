@@ -476,9 +476,10 @@ impl GalleryCommandPalette {
             cx,
             &command_results_summary(self.query.trim(), self.filtered_indices.len()),
         );
-        self.overlay
-            .button(cx, ids!(clear_search_btn))
-            .set_text(cx, command_palette_secondary_action_label(self.query.trim()));
+        self.overlay.button(cx, ids!(clear_search_btn)).set_text(
+            cx,
+            command_palette_secondary_action_label(self.query.trim()),
+        );
         self.reset_results_position(cx);
         if results_changed || active_changed {
             self.redraw(cx);

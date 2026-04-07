@@ -1,7 +1,5 @@
 use crate::internal::actions::first_widget_action;
-use crate::internal::overlay::{
-    draw_modal_overlay, modal_dismissed, sync_modal_open_state,
-};
+use crate::internal::overlay::{draw_modal_overlay, modal_dismissed, sync_modal_open_state};
 use crate::internal::script_args::bool_arg;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
@@ -248,11 +246,7 @@ impl ShadSheet {
         self.open = open;
         self.start_animation(cx, open);
         self.sync_open_state(cx);
-        cx.widget_action_with_data(
-            &self.action_data,
-            uid,
-            ShadSheetAction::OpenChanged(open),
-        );
+        cx.widget_action_with_data(&self.action_data, uid, ShadSheetAction::OpenChanged(open));
     }
 
     pub fn open(&mut self, cx: &mut Cx) {
