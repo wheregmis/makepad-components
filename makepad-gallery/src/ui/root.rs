@@ -63,9 +63,27 @@ macro_rules! define_gallery_root {
                 height: Fit
                 flow: Right
                 align: Align{y: 0.5}
-                spacing: 0.0
+                spacing: 8.0
 
-                desktop_command_palette_trigger := ShadButtonGhost{text: "Search"}
+                desktop_command_palette_trigger := ShadButtonGhost{
+                    text: "Search components"
+                }
+
+                desktop_command_palette_shortcut := View{
+                    width: Fit
+                    height: Fit
+                    flow: Right{wrap: true}
+                    align: Align{y: 0.5}
+                    spacing: 6.0
+
+                    ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
+                    ShadKbdSeparator{}
+                    ShadKbd{ label := ShadKbdLabel{text: "K"} }
+
+                    ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
+                    ShadKbdSeparator{}
+                    ShadKbd{ label := ShadKbdLabel{text: "K"} }
+                }
             }
 
             mod.widgets.GalleryContentFlip = RouterWidget{
