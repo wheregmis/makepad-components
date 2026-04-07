@@ -15,7 +15,7 @@ script_mod! {
             size: 3.0
             splitter_pad: 1.0
             border_radius: 999.0
-            color: (shad_theme.color_outline_border)
+            color: (shad_theme.color_muted_foreground)
             color_hover: (shad_theme.color_outline_border_hover)
             color_drag: (shad_theme.color_primary)
         }

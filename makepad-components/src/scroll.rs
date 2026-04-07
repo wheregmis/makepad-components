@@ -9,10 +9,10 @@ script_mod! {
         bar_side_margin: 2.0
         min_handle_size: 28.0
         draw_bg +: {
-            size: 5.0
+            size: 4.0
             border_size: 0.0
             border_radius: 999.0
-            color: (shad_theme.color_outline_border)
+            color: (shad_theme.color_muted_foreground)
             color_hover: (shad_theme.color_outline_border_hover)
             color_drag: (shad_theme.color_primary)
             border_color: #0000
@@ -57,8 +57,13 @@ script_mod! {
         clip_x: true
         clip_y: true
         scroll_bars: mod.widgets.ShadScrollBarsY{}
-        draw_bg.color: (shad_theme.color_background)
-        padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
+        draw_bg +: {
+            color: (shad_theme.color_background)
+            border_radius: (shad_theme.radius)
+            border_size: 1.0
+            border_color: (shad_theme.color_outline_border)
+        }
+        padding: Inset{top: 18, right: 18, bottom: 18, left: 18}
         spacing: 12.0
     }
 
@@ -69,8 +74,13 @@ script_mod! {
         clip_x: true
         clip_y: true
         scroll_bars: mod.widgets.ShadScrollBarsX{}
-        draw_bg.color: (shad_theme.color_background)
-        padding: Inset{top: 12, right: 12, bottom: 12, left: 12}
+        draw_bg +: {
+            color: (shad_theme.color_background)
+            border_radius: (shad_theme.radius)
+            border_size: 1.0
+            border_color: (shad_theme.color_outline_border)
+        }
+        padding: Inset{top: 12, right: 14, bottom: 14, left: 14}
         spacing: 12.0
     }
 
@@ -81,8 +91,13 @@ script_mod! {
         clip_x: true
         clip_y: true
         scroll_bars: mod.widgets.ShadScrollBarsXY{}
-        draw_bg.color: (shad_theme.color_background)
-        padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
+        draw_bg +: {
+            color: (shad_theme.color_background)
+            border_radius: (shad_theme.radius)
+            border_size: 1.0
+            border_color: (shad_theme.color_outline_border)
+        }
+        padding: Inset{top: 18, right: 18, bottom: 18, left: 18}
         spacing: 12.0
     }
 

@@ -11,69 +11,89 @@ gallery_static_page! {
     preview_spacing: 12.0,
     preview: {
         ShadSectionHeader{ text: "Horizontal panes" }
-        ShadPanel{
-            height: 240
+        ShadCard{
+            spacing: 12.0
+            padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
 
-            horizontal_resizable := ShadResizable{
+            ShadFieldDescription{
                 width: Fill
-                height: Fill
-                axis: SplitterAxis.Horizontal
-                align: SplitterAlign.FromA(180.0)
-                a: ShadSurfaceMuted{
-                    width: Fill
-                    height: Fill
-                    padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
-                    flow: Down
-                    spacing: 8.0
-                    draw_bg.border_size: 0.0
-                    ShadSectionHeader{text: "Navigation"}
-                    ShadFieldDescription{text: "Keep filters, folders, or nav trees here."}
-                }
+                text: "Treat split layouts like surfaced work zones with a subtle divider, not just two raw rectangles with a draggable line."
+            }
 
-                b: ShadSurface{
+            View{
+                height: 240
+                width: Fill
+
+                horizontal_resizable := ShadResizable{
                     width: Fill
                     height: Fill
-                    padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
-                    flow: Down
-                    spacing: 8.0
-                    draw_bg.color: #0000
-                    draw_bg.border_size: 0.0
-                    ShadSectionHeader{text: "Content"}
-                    ShadFieldDescription{text: "Main editing or reading surface."}
+                    axis: SplitterAxis.Horizontal
+                    align: SplitterAlign.FromA(180.0)
+                    a: ShadCard{
+                        width: Fill
+                        height: Fill
+                        padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
+                        flow: Down
+                        spacing: 8.0
+                        draw_bg.border_size: 0.0
+                        ShadSectionHeader{text: "Navigation"}
+                        ShadFieldDescription{text: "Keep filters, folders, or nav trees here."}
+                    }
+
+                    b: ShadCard{
+                        width: Fill
+                        height: Fill
+                        padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
+                        flow: Down
+                        spacing: 8.0
+                        draw_bg.border_size: 0.0
+                        ShadSectionHeader{text: "Content"}
+                        ShadFieldDescription{text: "Main editing or reading surface."}
+                    }
                 }
             }
         }
 
         ShadSectionHeader{ text: "Vertical panes" }
-        ShadPanel{
-            height: 260
+        ShadCard{
+            spacing: 12.0
+            padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
 
-            vertical_resizable := ShadResizable{
+            ShadFieldDescription{
                 width: Fill
-                height: Fill
-                axis: SplitterAxis.Vertical
-                align: SplitterAlign.FromA(120.0)
-                a: ShadSurfaceMuted{
-                    width: Fill
-                    height: Fill
-                    padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
-                    flow: Down
-                    spacing: 8.0
-                    draw_bg.border_size: 0.0
-                    ShadSectionHeader{text: "Metrics"}
-                    ShadFieldDescription{text: "Compact summary cards or charts."}
-                }
+                text: "Vertical splits should feel like stacked modules with a clear handle, not a layout debugging aid."
+            }
 
-                b: ShadSurface{
+            View{
+                height: 260
+                width: Fill
+
+                vertical_resizable := ShadResizable{
                     width: Fill
                     height: Fill
-                    padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
-                    flow: Down
-                    spacing: 8.0
-                    draw_bg.color: #0000
-                    draw_bg.border_size: 0.0
-                    ShadSectionHeader{text: "Details"}
-                    ShadFieldDescription{text: "Expanded logs, notes, or tables."}
+                    axis: SplitterAxis.Vertical
+                    align: SplitterAlign.FromA(120.0)
+                    a: ShadCard{
+                        width: Fill
+                        height: Fill
+                        padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
+                        flow: Down
+                        spacing: 8.0
+                        draw_bg.border_size: 0.0
+                        ShadSectionHeader{text: "Metrics"}
+                        ShadFieldDescription{text: "Compact summary cards or charts."}
+                    }
+
+                    b: ShadCard{
+                        width: Fill
+                        height: Fill
+                        padding: Inset{left: 16, right: 16, top: 16, bottom: 16}
+                        flow: Down
+                        spacing: 8.0
+                        draw_bg.border_size: 0.0
+                        ShadSectionHeader{text: "Details"}
+                        ShadFieldDescription{text: "Expanded logs, notes, or tables."}
+                    }
                 }
             }
         }

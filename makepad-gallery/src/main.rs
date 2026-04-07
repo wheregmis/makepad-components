@@ -417,6 +417,7 @@ impl App {
         self.apply_sidebar_layout_for(cx, is_mobile);
         self.sync_mobile_sidebar_button_for(cx, is_mobile);
         self.sync_sidebar_focus_behavior_for(cx, is_mobile);
+        self.sync_page_metadata(cx);
         self.sync_content_route(cx);
     }
 
