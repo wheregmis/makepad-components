@@ -730,7 +730,7 @@ Use Makepad `radio_button_set(...).selected(cx, actions)` to keep a single item 
 Single-select, non-searchable dropdown built on the popup menu stack.
 
 Runtime/API:
-- get the widget ref with `view.drop_down(cx, ids!(my_select))`
+- get the widget ref with `view.shad_select(cx, ids!(my_select))`
 - `changed(actions) -> Option<usize>`
 - `changed_label(actions) -> Option<String>`
 - `set_selected_item(cx, usize)`
@@ -741,9 +741,9 @@ Responsive guidance:
 - let the parent/container own width by default;
 - in gallery/form layouts with `Fit`-sized parents, set `width: Fill` at the usage site so the trigger keeps a full-row hit target on narrow screens.
 
-Current gallery risk note:
-- popup-style selects are still unreliable inside the current gallery `PageFlip` shell; use the splash app or another Dock-based shell for interaction verification until that hotspot is resolved.
-- current automated coverage in this repo only locks the gallery source examples/hotspot notes; popup interaction reliability itself is still a manual verification path.
+Verification note:
+- popup interaction now uses the component-local popup menu path instead of the shared `DropDown` wrapper internals.
+- automated coverage in this repo still locks the gallery source examples; popup interaction reliability remains a runtime/manual verification path.
 
 Gallery references:
 - `makepad-gallery/src/ui/select_page.rs`
