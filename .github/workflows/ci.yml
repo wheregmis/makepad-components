@@ -16,7 +16,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  MAKEPAD_GIT_BRANCH: dev
+  MAKEPAD_GIT_BRANCH: explicitly_redraw_overlay
 
 jobs:
   cargo-check:
