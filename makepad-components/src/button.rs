@@ -17,7 +17,7 @@ script_mod! {
         margin: theme.mspace_v_1
         label_walk: Walk{width: Fit, height: Fit}
         grab_key_focus: true
-        cursor: Hand
+        cursor: MouseCursor.Hand
 
         draw_text +: {
             hover: 0.0
