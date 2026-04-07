@@ -35,6 +35,7 @@ macro_rules! define_gallery_sidebar {
             }
 
             mod.widgets.GalleryMobileSidebarMenuButton = mod.widgets.GalleryMobileSidebarIconButton{
+                button.aria_label: "Open menu"
                 icon := IconMenu{
                     width: 18
                     height: 18
@@ -44,6 +45,7 @@ macro_rules! define_gallery_sidebar {
             }
 
             mod.widgets.GalleryMobileSidebarCloseButton = mod.widgets.GalleryMobileSidebarIconButton{
+                button.aria_label: "Close sidebar"
                 icon := IconX{
                     width: 16
                     height: 16

@@ -146,9 +146,10 @@ impl ShadPopover {
     }
 
     fn redraw_overlay(&mut self, cx: &mut Cx, force_draw_list: bool) {
-        if (force_draw_list || self.should_redraw_overlay_content()) && self.draw_list.is_some() {
-            let draw_list = self.draw_list.as_ref().unwrap();
-            draw_list.redraw(cx);
+        if force_draw_list || self.should_redraw_overlay_content() {
+            if let Some(draw_list) = self.draw_list.as_ref() {
+                draw_list.redraw(cx);
+            }
         }
         if !self.should_redraw_overlay_content() {
             return;
