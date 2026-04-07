@@ -54,3 +54,7 @@
 ## 2026-03-26 – [Gallery snippets must mirror labeled field patterns]
 **Learning:** In this codebase, gallery snippets are copied directly into apps. When a snippet instantiates a field-like control such as `ShadDatePicker` without `ShadFieldLabel`, it quietly teaches a placeholder-only pattern even if the live preview beside it is properly labeled.
 **Action:** Keep snippet examples aligned with the gallery preview and wrap field-like controls in `ShadField` with a persistent label and supporting description when the control represents named form data.
+
+## 2026-04-06 – [Shared launcher copy must stay explicit across breakpoints]
+**Learning:** In this gallery, the same command palette opens from multiple shell breakpoints. When one trigger says `Search` and another says `Search components`, the desktop header becomes the ambiguous outlier even though both buttons route to the same navigation surface.
+**Action:** Keep shared launcher labels and shortcut hints consistent across shell variants so the gallery teaches one discoverable navigation pattern instead of device-specific wording.

@@ -88,7 +88,7 @@ gallery_stateful_page_shell! {
     },
 }
 
-#[derive(Script, ScriptHook, Widget)]
+#[derive(Script, Widget)]
 pub struct GalleryPopoverPage {
     #[source]
     source: ScriptObjectRef,
@@ -117,6 +117,18 @@ impl GalleryPopoverPage {
                 "Help popover is closed."
             },
         );
+    }
+}
+
+impl ScriptHook for GalleryPopoverPage {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| self.sync_status_labels(cx));
     }
 }
 

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Makepad Networked Apps"
-  short_description: "Implement Makepad apps with network/runtime patterns."
-  default_prompt: "Use $makepad-networked-apps to implement this networked Makepad flow with proven example architecture."

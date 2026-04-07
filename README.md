@@ -662,6 +662,32 @@ Standalone example:
 
 `ShadNavigationMenuItem` also reuses `ShadPopover`, but defaults to a wider content surface for grouped links, feature callouts, and site navigation flyouts. Navigation flyouts open on hover and close sibling menus as the pointer moves across the trigger row.
 
+### Popover (`makepad-components/src/popover.rs`)
+
+- `ShadPopover`
+- `ShadPopoverContent`
+
+`ShadPopover` supports:
+- `set_open(cx, bool)`
+- `open(cx)`
+- `close(cx)`
+- `is_open() -> bool`
+- `content_widget() -> WidgetRef`
+- `open_changed(actions) -> Option<bool>`
+
+Key props:
+- `side` / `align`
+- `side_offset`
+- `viewport_padding`
+- `can_dismiss`
+- `open_on_hover`
+
+Behavior:
+- popup content auto-flips to the opposite side when the preferred side does not have enough room;
+- popup content stays clamped inside the current pass using `viewport_padding`;
+- outside click, Escape, and back dismiss the overlay when `can_dismiss` is enabled;
+- hover-open compositions such as menubars and navigation menus can set `open_on_hover: true`, and the hover bridge keeps the popup open while the pointer moves between the trigger and the popup body.
+
 ### Table (`makepad-components/src/table.rs`)
 
 - `ShadTable`
@@ -702,6 +728,26 @@ Use Makepad `radio_button_set(...).selected(cx, actions)` to keep a single item 
 - `ShadSelectItem`
 
 Single-select, non-searchable dropdown built on the popup menu stack.
+
+Runtime/API:
+- get the widget ref with `view.drop_down(cx, ids!(my_select))`
+- `changed(actions) -> Option<usize>`
+- `changed_label(actions) -> Option<String>`
+- `set_selected_item(cx, usize)`
+- `set_selected_by_label(&str, cx)`
+- `selected_label() -> String`
+
+Responsive guidance:
+- let the parent/container own width by default;
+- in gallery/form layouts with `Fit`-sized parents, set `width: Fill` at the usage site so the trigger keeps a full-row hit target on narrow screens.
+
+Current gallery risk note:
+- popup-style selects are still unreliable inside the current gallery `PageFlip` shell; use the splash app or another Dock-based shell for interaction verification until that hotspot is resolved.
+- current automated coverage in this repo only locks the gallery source examples/hotspot notes; popup interaction reliability itself is still a manual verification path.
+
+Gallery references:
+- `makepad-gallery/src/ui/select_page.rs`
+- `makepad-gallery/src/ui/snippets/forms.rs`
 
 ### Dialog (`makepad-components/src/dialog.rs`)
 
@@ -866,20 +912,26 @@ Exports `mod.widgets.shad_themes.light`, `mod.widgets.shad_themes.dark`, and the
 - `color_muted*`, `color_ghost*`
 - `radius`
 
-Switch themes by reassigning `mod.widgets.shad_theme`:
+Select the initial theme while building the script module:
 
 ```rust
-script_eval!(cx, {
-    if mod.state.is_light_theme {
-        mod.state.is_light_theme = false
-        mod.widgets.shad_theme = mod.widgets.shad_themes.dark
+fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
+    makepad_components::theme::script_mod(vm);
+    if is_light_theme {
+        script_eval!(vm, {
+            mod.widgets.shad_theme = mod.widgets.shad_themes.light
+        });
+    } else {
+        script_eval!(vm, {
+            mod.widgets.shad_theme = mod.widgets.shad_themes.dark
+        });
     }
-    else {
-        mod.state.is_light_theme = true
-        mod.widgets.shad_theme = mod.widgets.shad_themes.light
-    }
-});
+    makepad_components::script_mod_without_theme(vm);
+    self::script_mod(vm)
+}
 ```
+
+For runtime theme toggles, rebuild/reload the widget tree after switching the theme object so existing widgets re-apply their `shad_theme` bindings. `makepad-gallery/src/main.rs` demonstrates the pattern by queueing the change to the next frame and then calling `ScriptApply::script_apply(..., Apply::Reload, ...)`.
 
 ## Using `makepad-icon`
 

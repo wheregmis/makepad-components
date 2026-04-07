@@ -1,4 +1,0 @@
-interface:
-  display_name: "Makepad UI Patterns"
-  short_description: "Implement Makepad UI with proven script_mod patterns."
-  default_prompt: "Use $makepad-ui-patterns to implement this UI change with the right Makepad example pattern."

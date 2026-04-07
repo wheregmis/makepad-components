@@ -9,33 +9,64 @@ gallery_static_page! {
     divider: { ShadHr{} },
     preview_spacing: 12.0,
     preview: {
-        View{
-            width: Fill
-            height: Fit
-            flow: Down
-            spacing: 12.0
-            align: Align{y: 0.0}
+        AdaptiveView{
+            Desktop := View{
+                width: Fill
+                height: Fit
+                flow: Right
+                spacing: 12.0
+                align: Align{y: 0.0}
 
-            ShadSidebar{
-                width: 280
-                height: 320
-                ShadLabel{
-                    text: "Acme Inc"
-                    draw_text.text_style.font_size: 12
+                ShadSidebar{
+                    width: 280
+                    height: 320
+                    ShadLabel{
+                        text: "Acme Inc"
+                        draw_text.text_style.font_size: 12
+                    }
+                    ShadSidebarSectionLabel{text: "Platform"}
+                    ShadSidebarItem{text: "Playground"}
+                    ShadSidebarItem{text: "History"}
+                    ShadSidebarItem{text: "Settings"}
                 }
-                ShadSidebarSectionLabel{text: "Platform"}
-                ShadSidebarItem{text: "Playground"}
-                ShadSidebarItem{text: "History"}
-                ShadSidebarItem{text: "Settings"}
+
+                View{
+                    width: Fill
+                    height: 320
+                    draw_bg.color: #0000
+                    draw_bg.border_size: 1.0
+                    draw_bg.border_color: (shad_theme.color_outline_border)
+                    draw_bg.border_radius: (shad_theme.radius)
+                }
             }
 
-            View{
+            Mobile := View{
                 width: Fill
-                height: 320
-                draw_bg.color: #0000
-                draw_bg.border_size: 1.0
-                draw_bg.border_color: (shad_theme.color_outline_border)
-                draw_bg.border_radius: (shad_theme.radius)
+                height: Fit
+                flow: Down
+                spacing: 12.0
+
+                ShadSidebar{
+                    width: Fill
+                    height: Fit
+                    ShadLabel{
+                        text: "Acme Inc"
+                        draw_text.text_style.font_size: 12
+                    }
+                    ShadSidebarSectionLabel{text: "Platform"}
+                    ShadSidebarItem{text: "Playground"}
+                    ShadSidebarItem{text: "History"}
+                    ShadSidebarItem{text: "Settings"}
+                }
+
+                View{
+                    width: Fill
+                    height: 160
+                    draw_bg.color: #0000
+                    draw_bg.border_size: 1.0
+                    draw_bg.border_color: (shad_theme.color_outline_border)
+                    draw_bg.border_radius: (shad_theme.radius)
+                }
             }
         }
     },
