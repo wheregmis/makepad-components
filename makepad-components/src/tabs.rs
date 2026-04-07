@@ -8,7 +8,7 @@ script_mod! {
         width: Fill
         height: Fit
         flow: Down
-        spacing: 14.0
+        spacing: 12.0
     }
 
     mod.widgets.ShadTabsList = ScrollXView{
@@ -25,21 +25,21 @@ script_mod! {
             }
         }
         draw_bg +: {
-            color: (shad_theme.color_muted)
+            color: (shad_theme.color_background)
             border_radius: (shad_theme.radius)
             border_size: 1.0
             border_color: (shad_theme.color_outline_border)
         }
-        spacing: 6.0
-        padding: Inset{left: 4, right: 4, top: 4, bottom: 4}
+        spacing: 4.0
+        padding: Inset{left: 6, right: 6, top: 6, bottom: 6}
     }
 
     mod.widgets.ShadTabsTrigger = ButtonFlat{
         width: Fit
-        height: 40
+        height: 36
         enable_long_press: true
         reset_hover_on_click: true
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
+        padding: Inset{left: 14, right: 14, top: 0, bottom: 0}
 
         draw_bg +: {
             border_radius: (shad_theme.radius)
@@ -49,7 +49,7 @@ script_mod! {
             color_down: (shad_theme.color_ghost_down)
             color_disabled: (shad_theme.color_disabled)
             border_color: #0000
-            border_color_hover: #0000
+            border_color_hover: (shad_theme.color_outline_border)
             border_color_down: (shad_theme.color_outline_border_hover)
             border_color_focus: (shad_theme.color_primary)
         }
@@ -66,15 +66,16 @@ script_mod! {
 
     mod.widgets.ShadTabsIndicator = SolidView{
         width: Fill
-        height: 2
+        height: 3
+        draw_bg.border_radius: 999.0
         draw_bg.color: (shad_theme.color_primary)
     }
 
-    mod.widgets.ShadTabsContent = mod.widgets.ShadSurfaceTransparent{
+    mod.widgets.ShadTabsContent = mod.widgets.ShadSurface{
         width: Fill
         height: Fit
         flow: Down
         spacing: 10.0
-        padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
+        padding: Inset{left: 18, right: 18, top: 16, bottom: 18}
     }
 }

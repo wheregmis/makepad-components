@@ -11,10 +11,11 @@ gallery_stateful_page_shell! {
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
-        tabs_preview_shell := ShadPanel{
-            width: 340
+        tabs_preview_shell := ShadSurface{
+            width: 380
             flow: Down
-            padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
+            spacing: 14.0
+            padding: Inset{left: 18, right: 18, top: 18, bottom: 18}
 
             ShadTabs{
                 tabs_row := ShadTabsList{
@@ -63,6 +64,7 @@ gallery_stateful_page_shell! {
                         route_pattern: "/"
                         ShadSectionHeader{text: "Overview"}
                         ShadFieldDescription{text: "Keep related content grouped, even when the trigger row overflows on mobile or inside compact panels."}
+                        ShadFieldDescription{text: "The active tab should feel like a selected control, not a separate mini layout."}
                     }
 
                     usage_page := mod.widgets.RouterRoute{
@@ -75,6 +77,7 @@ gallery_stateful_page_shell! {
                         route_pattern: "/settings"
                         ShadSectionHeader{text: "Settings"}
                         ShadFieldDescription{text: "The compact shell here intentionally forces horizontal overflow so the new tab-row scrolling stays visible in the demo."}
+                        ShadFieldDescription{text: "On wider layouts the tab rail should still blend into the same surface language as the rest of the gallery."}
                     }
                 }
             }
