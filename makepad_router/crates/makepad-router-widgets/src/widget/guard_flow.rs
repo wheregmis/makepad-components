@@ -380,12 +380,12 @@ impl RouterWidget {
                 route_id,
                 transition,
             } => self.replace_with_transition(cx, route_id, transition),
-            RouterNavRequest::NavigateByPath { path } => match resolved_path.as_ref() {
+            RouterNavRequest::NavigateByPath { path } => match resolved_path {
                 Some(intent) => self.apply_resolved_path_intent(cx, intent),
                 None => self.navigate_by_path(cx, &path),
             },
             RouterNavRequest::ReplaceByPath { path, clear_extras } => {
-                match resolved_path.as_ref() {
+                match resolved_path {
                     Some(intent) => self.apply_resolved_path_intent(cx, intent),
                     None => self.replace_by_path_internal(cx, &path, clear_extras),
                 }

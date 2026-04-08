@@ -85,10 +85,13 @@ impl RouterWidget {
         None
     }
 
+    // Optimization: avoid multiple allocations of `Route` and its parameters during path resolution
+    // Previously: passed `&ResolvedPathIntent` and called `intent.route.clone()` multiple times
+    // Now: pass `ResolvedPathIntent` by value and move the underlying fields to eliminate intermediate heap churn
     pub(super) fn apply_resolved_path_intent(
         &mut self,
         cx: &mut Cx,
-        intent: &ResolvedPathIntent,
+        intent: ResolvedPathIntent,
     ) -> bool {
         if intent.clear_extras {
             self.clear_url_extras();
@@ -101,9 +104,10 @@ impl RouterWidget {
         }
 
         let old_route = self.router.current_route().cloned();
-        let route = intent.route.clone();
+        let replace = intent.replace;
+        let route = intent.route;
 
-        if intent.replace {
+        if replace {
             self.router.replace(route.clone());
         } else {
             self.router.navigate(route.clone());
@@ -115,7 +119,7 @@ impl RouterWidget {
             cx,
             old_route.as_ref().map(|r| r.id),
             route.id,
-            if intent.replace {
+            if replace {
                 RouterActionKind::Replace
             } else {
                 RouterActionKind::Push
@@ -125,7 +129,7 @@ impl RouterWidget {
         );
 
         self.dispatch_route_change(cx, old_route.as_ref(), &route);
-        let primary_action = if intent.replace {
+        let primary_action = if replace {
             RouterAction::Replace(route.clone())
         } else {
             RouterAction::Navigate(route.clone())
@@ -166,7 +170,7 @@ impl RouterWidget {
         clear_extras: bool,
     ) -> bool {
         if let Some(intent) = self.resolve_path_intent(path, false, clear_extras) {
-            return self.apply_resolved_path_intent(cx, &intent);
+            return self.apply_resolved_path_intent(cx, intent);
         }
 
         log!("Router: No route found for path: {}", path);
@@ -180,7 +184,7 @@ impl RouterWidget {
         clear_extras: bool,
     ) -> bool {
         if let Some(intent) = self.resolve_path_intent(path, true, clear_extras) {
-            return self.apply_resolved_path_intent(cx, &intent);
+            return self.apply_resolved_path_intent(cx, intent);
         }
 
         false
