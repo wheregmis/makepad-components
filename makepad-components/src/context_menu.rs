@@ -1,3 +1,4 @@
+use crate::internal::overlay::sync_popup_menu_state;
 use makepad_widgets::popup_menu::{PopupMenu, PopupMenuAction};
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
@@ -40,7 +41,6 @@ script_mod! {
 
     mod.widgets.ShadContextMenuContent = mod.widgets.PopupMenu{
         width: 200
-        new_batch: true
         padding: Inset{left: 6, right: 6, top: 6, bottom: 6}
         menu_item: mod.widgets.ShadContextMenuItem{}
 
@@ -105,16 +105,12 @@ impl ScriptHook for ShadContextMenu {
         _scope: &mut Scope,
         _obj: ScriptValue,
     ) {
-        if self.popup_menu.is_nil() {
-            self.popup_menu_state = None;
-            self.popup_menu_state_key = ScriptValue::default();
-            return;
-        }
-        if self.popup_menu_state.is_some() && self.popup_menu_state_key == self.popup_menu {
-            return;
-        }
-        self.popup_menu_state = Some(PopupMenu::script_from_value(vm, self.popup_menu));
-        self.popup_menu_state_key = self.popup_menu;
+        sync_popup_menu_state(
+            vm,
+            self.popup_menu,
+            &mut self.popup_menu_state,
+            &mut self.popup_menu_state_key,
+        );
     }
 }
 

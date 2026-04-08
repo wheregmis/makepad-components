@@ -122,6 +122,7 @@ script_mod! {
                     surface := RoundedView{
                         width: Fill
                         height: Fill
+                        new_batch: true
                         flow: Right
                         spacing: 18.0
                         padding: Inset{left: 20, right: 20, top: 20, bottom: 20}
@@ -193,6 +194,7 @@ script_mod! {
                     surface := RoundedView{
                         width: Fill
                         height: Fill
+                        new_batch: true
                         flow: Right
                         spacing: 18.0
                         padding: Inset{left: 20, right: 20, top: 20, bottom: 20}
@@ -264,6 +266,7 @@ script_mod! {
                     surface := RoundedView{
                         width: Fill
                         height: Fill
+                        new_batch: true
                         flow: Right
                         spacing: 18.0
                         padding: Inset{left: 20, right: 20, top: 20, bottom: 20}

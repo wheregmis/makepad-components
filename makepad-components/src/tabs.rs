@@ -11,7 +11,7 @@ script_mod! {
         spacing: 12.0
     }
 
-    mod.widgets.ShadTabsList = ScrollXView{
+    mod.widgets.ShadTabsList = mod.widgets.ShadScrollAreaX{
         width: Fill
         height: Fit
         flow: Right
@@ -21,7 +21,6 @@ script_mod! {
             scroll_bar_x: mod.widgets.ShadScrollBar{
                 bar_size: 7.0
                 min_handle_size: 24.0
-                use_vertical_finger_scroll: true
             }
         }
         draw_bg +: {

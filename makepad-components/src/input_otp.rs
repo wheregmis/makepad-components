@@ -13,6 +13,7 @@ script_mod! {
     mod.widgets.ShadInputOtpSlot = RoundedView{
         width: 48
         height: 56
+        new_batch: true
         align: Align{x: 0.5, y: 0.5}
         draw_bg +: {
             color: #0000

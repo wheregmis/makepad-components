@@ -6,8 +6,8 @@ script_mod! {
 
     mod.widgets.ShadResizable = Splitter{
         size: 12.0
-        min_horizontal: 120.0
-        max_horizontal: 120.0
+        min_horizontal: 72.0
+        max_horizontal: 72.0
         min_vertical: 120.0
         max_vertical: 120.0
 

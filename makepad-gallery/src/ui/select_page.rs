@@ -1,4 +1,5 @@
 use crate::ui::page_macros::gallery_stateful_page_shell;
+use makepad_components::select::ShadSelectWidgetExt;
 use makepad_components::makepad_widgets::*;
 
 gallery_stateful_page_shell! {
@@ -6,7 +7,7 @@ gallery_stateful_page_shell! {
     widget: GallerySelectPage,
     page: select_page,
     title: "Select",
-    subtitle: "Select uses the dropdown ref API: read changed(actions) or changed_label(actions), then store the chosen index or label in page state.",
+    subtitle: "Select owns its popup interaction internally. Read changed(actions) or changed_label(actions) from the select ref, then store the chosen index or label in page state.",
     divider: { ShadSeparator{} },
     preview_spacing: 12.0,
     preview: {
@@ -77,13 +78,13 @@ gallery_stateful_page_shell! {
 
                 ShadFieldDescription{
                     width: Fill
-                    text: "Known limitation: popup-style selects can still be unreliable inside the current gallery PageFlip shell. The splash app remains the best place to verify interaction."
+                    text: "The page keeps selection state outside the widget, while the select owns popup rendering and item hit handling."
                 }
             }
         }
     },
     action_flow: {
-        mod.widgets.GalleryActionFlowStep{text: "1. Give the select an id, then get the dropdown ref with view.drop_down(cx, ids!(status_select))."}
+        mod.widgets.GalleryActionFlowStep{text: "1. Give the select an id, then get the widget ref with view.shad_select(cx, ids!(status_select))."}
         mod.widgets.GalleryActionFlowStep{text: "2. Use changed(actions) when you want the selected index, or changed_label(actions) when the label is enough."}
         mod.widgets.GalleryActionFlowStep{text: "3. Persist the chosen item in page state, then restore it with set_selected_item(cx, ...) or set_selected_by_label(..., cx)."}
         mod.widgets.GalleryActionFlowStep{text: "4. The popup interaction stays inside the component; the page only reacts to the semantic selection result."}
@@ -100,8 +101,15 @@ pub struct GallerySelectPage {
 
 impl GallerySelectPage {
     fn sync_ui(&self, cx: &mut Cx) {
-        let status = self.view.drop_down(cx, ids!(status_select));
-        let city = self.view.drop_down(cx, ids!(city_select));
+        let status = self.view.shad_select(cx, ids!(status_select));
+        let city = self.view.shad_select(cx, ids!(city_select));
+
+        if status.selected_label().is_empty() {
+            status.set_selected_item(cx, 0);
+        }
+        if city.selected_label().is_empty() {
+            city.set_selected_item(cx, 0);
+        }
 
         let status_label = status.selected_label();
         let city_label = city.selected_label();
@@ -133,8 +141,8 @@ impl Widget for GallerySelectPage {
         self.view.handle_event(cx, event, scope);
 
         if let Event::Actions(actions) = event {
-            let status = self.view.drop_down(cx, ids!(status_select));
-            let city = self.view.drop_down(cx, ids!(city_select));
+            let status = self.view.shad_select(cx, ids!(status_select));
+            let city = self.view.shad_select(cx, ids!(city_select));
 
             if self
                 .view

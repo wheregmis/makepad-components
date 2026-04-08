@@ -1,6 +1,8 @@
 use crate::calendar::ShadCalendarWidgetRefExt;
 use crate::calendar::ShadDate;
-use crate::internal::actions::{emit_widget_action, widget_action_map};
+use crate::internal::actions::{
+    emit_open_changed_action, emit_widget_action, open_changed_action, widget_action_map,
+};
 use crate::internal::script_args::{bool_arg, string_arg};
 use crate::popover::ShadPopoverWidgetExt;
 use makepad_widgets::widget::WidgetActionData;
@@ -132,11 +134,12 @@ impl ShadDatePicker {
     }
 
     fn emit_open_state(&self, cx: &mut Cx, open: bool) {
-        emit_widget_action(
+        emit_open_changed_action(
             cx,
             &self.action_data,
             self.widget_uid(),
-            ShadDatePickerAction::OpenChanged(open),
+            open,
+            ShadDatePickerAction::OpenChanged,
         );
     }
 
@@ -192,7 +195,7 @@ impl ShadDatePicker {
     }
 
     pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
-        widget_action_map::<ShadDatePickerAction, _, _>(actions, self.widget_uid(), |action| {
+        open_changed_action::<ShadDatePickerAction, _>(actions, self.widget_uid(), |action| {
             if let ShadDatePickerAction::OpenChanged(open) = action {
                 Some(open)
             } else {

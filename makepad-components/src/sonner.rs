@@ -85,6 +85,7 @@ script_mod! {
     }
     let ToastSlotPanel = RoundedView {
         visible: false
+        new_batch: true
         width: 280
         height: Fit
         flow: Down
@@ -652,7 +653,12 @@ impl Widget for ShadSonner {
                 let mut state = global.state.borrow_mut();
                 let changed = Self::prune_expired_toasts(&mut state, now);
                 let still_has_toasts = !state.toasts.is_empty();
-                let needs_schedule = still_has_toasts;
+                let needs_schedule = still_has_toasts
+                    && state
+                        .rendered_progresses
+                        .iter()
+                        .take(num_progresses)
+                        .any(Option::is_none);
                 state.needs_next_frame = needs_schedule;
                 (changed, still_has_toasts, needs_schedule)
             };

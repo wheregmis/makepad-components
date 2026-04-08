@@ -313,7 +313,7 @@ pub const SELECT_PREVIEW_CODE: &str = r#"status_select := ShadSelect{
 }
 
 // Controller example (Rust):
-// let status = self.view.drop_down(cx, ids!(status_select));
+// let status = self.view.shad_select(cx, ids!(status_select));
 //
 // if let Some(index) = status.changed(actions) {
 //     self.status_index = index;
