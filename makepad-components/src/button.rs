@@ -246,6 +246,7 @@ script_mod! {
     }
 
     mod.widgets.ShadButton = mod.widgets.ButtonFlat{
+        cursor: MouseCursor.Hand
         height: 36
         enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
@@ -268,6 +269,7 @@ script_mod! {
     }
 
     mod.widgets.ShadButtonDestructive = mod.widgets.ButtonFlat{
+        cursor: MouseCursor.Hand
         height: 36
         enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
@@ -290,6 +292,7 @@ script_mod! {
     }
 
     mod.widgets.ShadButtonOutline = mod.widgets.ButtonFlat{
+        cursor: MouseCursor.Hand
         height: 36
         enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
@@ -316,6 +319,7 @@ script_mod! {
     }
 
     mod.widgets.ShadButtonSecondary = mod.widgets.ButtonFlat{
+        cursor: MouseCursor.Hand
         height: 36
         enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
@@ -338,6 +342,7 @@ script_mod! {
     }
 
     mod.widgets.ShadButtonGhost = mod.widgets.ButtonFlat{
+        cursor: MouseCursor.Hand
         height: 36
         enable_long_press: true
         padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
@@ -372,6 +377,7 @@ script_mod! {
     }
 
     mod.widgets.ShadButtonLink = mod.widgets.ButtonFlat{
+        cursor: MouseCursor.Hand
         height: 36
         enable_long_press: true
         padding: Inset{left: 4, right: 4, top: 0, bottom: 0}
@@ -413,6 +419,7 @@ script_mod! {
     }
 
     mod.widgets.ShadButtonIconOutline = mod.widgets.ButtonFlatIcon{
+        cursor: MouseCursor.Hand
         width: 36
         height: 36
         enable_long_press: true
