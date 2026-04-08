@@ -129,16 +129,22 @@ impl RouterWidget {
         );
 
         self.dispatch_route_change(cx, old_route.as_ref(), &route);
+
+        self.queue_route_actions(
+            Some(if replace {
+                RouterAction::Replace(route.clone())
+            } else {
+                RouterAction::Navigate(route.clone())
+            }),
+            old_route.as_ref().map(|r| r.id),
+            &route,
+        );
+
         let primary_action = if replace {
             RouterAction::Replace(route.clone())
         } else {
             RouterAction::Navigate(route.clone())
         };
-        self.queue_route_actions(
-            Some(primary_action.clone()),
-            old_route.as_ref().map(|r| r.id),
-            &route,
-        );
         self.sync_browser_with_action(cx, &primary_action);
 
         match &intent.kind {

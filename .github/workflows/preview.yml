@@ -30,6 +30,8 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository && (github.event.action == 'closed' || github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
 
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
