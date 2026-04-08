@@ -80,7 +80,7 @@ script_mod! {
                 sdf.fill_keep(color_fill)
                 sdf.stroke(color_stroke, self.border_size)
 
-                if self.focus > 0.0 && self.active > 0.0 {
+                if self.focus > 0.0 {
                     sdf.box(0.0, 0.0, self.rect_size.x, self.rect_size.y, radius + 1.0)
                     sdf.stroke(self.border_color_focus, 2.0)
                 }
