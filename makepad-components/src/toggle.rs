@@ -5,7 +5,6 @@ script_mod! {
     use mod.widgets.*
 
     mod.widgets.ShadToggle = mod.widgets.CheckBoxFlat{
-        cursor: MouseCursor.Hand
         width: Fit
         height: 36
         padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
