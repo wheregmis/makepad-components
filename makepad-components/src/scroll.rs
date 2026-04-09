@@ -122,7 +122,10 @@ impl Widget for ShadScrollAreaX {
         if let Event::Scroll(scroll_event) = event {
             let area = self.view.area();
             if area.rect(cx).contains(scroll_event.abs)
-                && should_capture_vertical_scroll_noise(scroll_event.scroll.x, scroll_event.scroll.y)
+                && should_capture_vertical_scroll_noise(
+                    scroll_event.scroll.x,
+                    scroll_event.scroll.y,
+                )
             {
                 scroll_event.handled_y.set(true);
             }

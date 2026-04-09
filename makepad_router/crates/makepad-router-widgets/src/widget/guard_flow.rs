@@ -384,12 +384,10 @@ impl RouterWidget {
                 Some(intent) => self.apply_resolved_path_intent(cx, intent),
                 None => self.navigate_by_path(cx, &path),
             },
-            RouterNavRequest::ReplaceByPath { path, clear_extras } => {
-                match resolved_path {
-                    Some(intent) => self.apply_resolved_path_intent(cx, intent),
-                    None => self.replace_by_path_internal(cx, &path, clear_extras),
-                }
-            }
+            RouterNavRequest::ReplaceByPath { path, clear_extras } => match resolved_path {
+                Some(intent) => self.apply_resolved_path_intent(cx, intent),
+                None => self.replace_by_path_internal(cx, &path, clear_extras),
+            },
             RouterNavRequest::Back { transition } => match transition {
                 Some(t) => self.back_with_transition(cx, t),
                 None => self.back(cx),

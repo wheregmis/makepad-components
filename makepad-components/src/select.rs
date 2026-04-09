@@ -122,9 +122,7 @@ impl ScriptHook for ShadSelect {
         );
 
         vm.with_cx_mut(|cx| {
-            self.selected_item = self
-                .selected_item
-                .min(self.labels.len().saturating_sub(1));
+            self.selected_item = self.selected_item.min(self.labels.len().saturating_sub(1));
             self.sync_trigger_text(cx);
         });
     }
@@ -186,12 +184,7 @@ impl ShadSelect {
         cx.sweep_unlock(self.trigger_area(cx));
     }
 
-    fn set_selected_item_inner(
-        &mut self,
-        cx: &mut Cx,
-        item: usize,
-        emit_action: bool,
-    ) -> bool {
+    fn set_selected_item_inner(&mut self, cx: &mut Cx, item: usize, emit_action: bool) -> bool {
         let next = item.min(self.labels.len().saturating_sub(1));
         if next == self.selected_item {
             return false;
@@ -240,7 +233,6 @@ impl ShadSelect {
         self.changed(actions)
             .and_then(|index| self.labels.get(index).cloned())
     }
-
 }
 
 impl Widget for ShadSelect {

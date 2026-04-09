@@ -182,7 +182,12 @@ impl ShadPopover {
     fn compute_popup_pos_with_content_size(&self, cx: &Cx2d, content_size: Vec2d) -> Vec2d {
         let trigger_rect = self.trigger_rect(cx);
         let pass_size = cx.current_pass_size();
-        compute_anchor_overlay_pos(&self.overlay_layout(), trigger_rect, pass_size, content_size)
+        compute_anchor_overlay_pos(
+            &self.overlay_layout(),
+            trigger_rect,
+            pass_size,
+            content_size,
+        )
     }
 
     fn compute_popup_pos(&self, cx: &Cx2d) -> Vec2d {
