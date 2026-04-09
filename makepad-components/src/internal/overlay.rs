@@ -57,9 +57,15 @@ pub(crate) fn compute_anchor_overlay_pos(
     };
 
     let mut pos = match side {
-        "top" => dvec2(cross_x, trigger_rect.pos.y - content_size.y - layout.side_offset),
+        "top" => dvec2(
+            cross_x,
+            trigger_rect.pos.y - content_size.y - layout.side_offset,
+        ),
         "left" => dvec2(cross_x - content_size.x - layout.side_offset, cross_y),
-        "right" => dvec2(trigger_rect.pos.x + trigger_rect.size.x + layout.side_offset, cross_y),
+        "right" => dvec2(
+            trigger_rect.pos.x + trigger_rect.size.x + layout.side_offset,
+            cross_y,
+        ),
         _ => dvec2(
             cross_x,
             trigger_rect.pos.y + trigger_rect.size.y + layout.side_offset,
@@ -125,7 +131,11 @@ pub(crate) fn overlay_hover_bridge_rect(trigger_rect: Rect, content_rect: Rect) 
     None
 }
 
-pub(crate) fn overlay_pair_contains_abs(trigger_rect: Rect, content_rect: Rect, abs: Vec2d) -> bool {
+pub(crate) fn overlay_pair_contains_abs(
+    trigger_rect: Rect,
+    content_rect: Rect,
+    abs: Vec2d,
+) -> bool {
     trigger_rect.contains(abs) || content_rect.contains(abs)
 }
 

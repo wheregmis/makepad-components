@@ -1051,16 +1051,22 @@ impl ShadTable {
         if cleared_custom_rows || self.resolved_widths.len() != column_count {
             self.sync_layout(cx);
         }
-        let list = self.view.portal_list(cx, ids!(table_view.scroll.content.list));
+        let list = self
+            .view
+            .portal_list(cx, ids!(table_view.scroll.content.list));
         list.set_first_id(clamped_start);
-        self.view.widget(cx, ids!(table_view.scroll.content.list)).redraw(cx);
+        self.view
+            .widget(cx, ids!(table_view.scroll.content.list))
+            .redraw(cx);
     }
 
     fn redraw_selection_rows(&self, cx: &mut Cx, rows: [Option<usize>; 2]) {
         if rows.iter().all(Option::is_none) {
             return;
         }
-        self.view.widget(cx, ids!(table_view.scroll.content.list)).redraw(cx);
+        self.view
+            .widget(cx, ids!(table_view.scroll.content.list))
+            .redraw(cx);
     }
 
     pub fn set_selected_row(&mut self, cx: &mut Cx, selected_row: Option<usize>) {
@@ -1096,7 +1102,6 @@ impl ShadTable {
             self.view.redraw(cx);
         }
     }
-
 
     pub fn row_clicked(&self, actions: &Actions) -> Option<usize> {
         widget_action_map::<ShadTableAction, _, _>(actions, self.widget_uid(), |action| {
