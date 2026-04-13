@@ -68,7 +68,7 @@ jobs:
 
       - name: Build gallery preview
         if: github.event.action != 'closed'
-        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile small --bindgen --no-threads --no-brotli
+        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile=small --bindgen --no-threads --no-brotli
 
       - name: Patch index.html for GitHub Pages subpath hosting
         if: github.event.action != 'closed'
