@@ -6,10 +6,7 @@ use super::RouterWidget;
 impl RouterWidget {
     pub fn on_route_change<F>(&mut self, callback: F)
     where
-        // Optimization: prevent heap allocations in callback dispatch.
-        // Previously: F received an owned `Route` and `Option<Route>`, forcing `dispatch_route_change` to clone both the active and old route.
-        // Now: F receives `&Route` and `Option<&Route>`, allowing callbacks to access the routes by reference without allocating.
-        F: Fn(&mut Cx, Option<&Route>, &Route) + Send + Sync + 'static,
+        F: Fn(&mut Cx, Option<Route>, Route) + Send + Sync + 'static,
     {
         self.callbacks.route_change.push(Box::new(callback));
     }
@@ -24,7 +21,7 @@ impl RouterWidget {
             return;
         }
         for callback in &self.callbacks.route_change {
-            callback(cx, old_route, new_route);
+            callback(cx, old_route.cloned(), new_route.clone());
         }
     }
 }

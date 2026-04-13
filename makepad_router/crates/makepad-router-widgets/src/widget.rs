@@ -608,7 +608,7 @@ impl RouterWidgetRef {
     /// Register a route change callback
     pub fn on_route_change<F>(&self, callback: F)
     where
-        F: Fn(&mut Cx, Option<&Route>, &Route) + Send + Sync + 'static,
+        F: Fn(&mut Cx, Option<Route>, Route) + Send + Sync + 'static,
     {
         if let Some(mut inner) = self.borrow_mut() {
             inner.on_route_change(callback);
