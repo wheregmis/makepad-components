@@ -227,8 +227,8 @@ impl ShadPopover {
         self.open
     }
 
-    pub fn content_widget(&self) -> WidgetRef {
-        self.popup_content.clone()
+    pub fn content_widget(&self) -> &WidgetRef {
+        &self.popup_content
     }
 
     pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
@@ -408,6 +408,6 @@ impl ShadPopoverRef {
 
     pub fn content_widget(&self) -> WidgetRef {
         self.borrow()
-            .map_or_else(WidgetRef::empty, |inner| inner.content_widget())
+            .map_or_else(WidgetRef::empty, |inner| inner.content_widget().clone())
     }
 }
