@@ -18,7 +18,7 @@ macro_rules! define_gallery_root {
             }
         )*
     ) => {
-        #[cfg_attr(not(test), allow(dead_code))]
+        #[cfg(test)]
         pub const ROUTER_BINDINGS: &[(LiveId, &str)] = &[
             $((live_id!($page), $route),)*
         ];
