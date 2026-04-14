@@ -79,3 +79,6 @@
 ## 2026-04-06 - Plus-only query decoding should skip byte buffers
 **Learning:** `makepad-router-core::url::decode_www_form_component` already fast-pathed plain strings, but `+`-only query values still allocated a temporary `Vec<u8>` and rebuilt UTF-8 bytes even though they only needed space substitution.
 **Action:** When router query decoding sees `+` but no `%`, use a direct string replacement fast path and keep a release micro-benchmark next to the helper so future refactors preserve the allocation win.
+## 2026-04-12 – Prevent Heap Allocations in Router Callbacks (Reverted: Breaking Change)
+**Learning:** Passing `Route` by value in callback signatures (`Fn(&mut Cx, Option<Route>, Route)`) causes unnecessary heap allocations on every route transition. Passing by reference (`Option<&Route>`, `&Route`) avoids cloning, but this is a **source-breaking change** to the public API — existing callbacks that move routes into channels/tasks fail to compile. Since `makepad-router-widgets` is v1.0.0, such API changes require a compatibility path or major version bump.
+**Action:** Any optimization that changes callback parameter ownership in a public API must be accompanied by a semver bump or a deprecated compatibility overload. The early-exit optimization (`if callbacks.is_empty() { return; }`) is safe and non-breaking and should be retained independently.
