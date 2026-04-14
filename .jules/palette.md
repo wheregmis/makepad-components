@@ -58,3 +58,7 @@
 ## 2026-04-06 – [Shared launcher copy must stay explicit across breakpoints]
 **Learning:** In this gallery, the same command palette opens from multiple shell breakpoints. When one trigger says `Search` and another says `Search components`, the desktop header becomes the ambiguous outlier even though both buttons route to the same navigation surface.
 **Action:** Keep shared launcher labels and shortcut hints consistent across shell variants so the gallery teaches one discoverable navigation pattern instead of device-specific wording.
+
+## 2026-04-14 – [Correct navigation role for custom buttons]
+**Learning:** In Makepad components (like Buttons), when implementing keyboard focus (`grab_key_focus: true`), ensure the correct semantic `NavRole` is assigned via `cx.add_nav_stop(self.area, NavRole::Button, Inset::default())`. Avoid using mismatched roles like `NavRole::TextInput` for non-text-input controls, as it causes semantic mismatch for accessibility tools.
+**Action:** Always verify that the `NavRole` correctly matches the interactive element type when calling `add_nav_stop`.
