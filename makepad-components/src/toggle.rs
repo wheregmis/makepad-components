@@ -407,7 +407,17 @@ impl ShadToggleWidget {
     fn toggle_active(&mut self, cx: &mut Cx, uid: WidgetUid) {
         let is_active = self.animator_in_state(cx, ids!(active.on));
         let new_active = !is_active;
-        self.animator_toggle(cx, new_active, Animate::Yes, ids!(active.on), ids!(active.off));
-        cx.widget_action_with_data(&self.action_data, uid, ShadToggleAction::Changed(new_active));
+        self.animator_toggle(
+            cx,
+            new_active,
+            Animate::Yes,
+            ids!(active.on),
+            ids!(active.off),
+        );
+        cx.widget_action_with_data(
+            &self.action_data,
+            uid,
+            ShadToggleAction::Changed(new_active),
+        );
     }
 }
