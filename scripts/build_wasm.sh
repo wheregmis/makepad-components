@@ -17,6 +17,7 @@ EXTRA_FLAGS=()
 HAS_RELEASE=0
 HAS_PROFILE=0
 ENABLE_BROTLI=1
+IMPORT_UNDEFINED_ENCODED_FLAG=$'-C\x1flink-arg=--import-undefined'
 
 patch_bindgen_js() {
     local bindgen_file="$1"
@@ -97,6 +98,16 @@ fi
 
 if [[ ${#EXTRA_FLAGS[@]} -gt 0 ]]; then
     CMD+=("${EXTRA_FLAGS[@]}")
+fi
+
+# `cargo makepad wasm` currently shells out with its own `RUSTFLAGS`, so the
+# linker import needs to ride through Cargo's encoded rustflags channel instead.
+if [[ "${CARGO_ENCODED_RUSTFLAGS:-}" != *"link-arg=--import-undefined"* ]]; then
+    if [[ -n "${CARGO_ENCODED_RUSTFLAGS:-}" ]]; then
+        export CARGO_ENCODED_RUSTFLAGS+=$'\x1f'"${IMPORT_UNDEFINED_ENCODED_FLAG}"
+    else
+        export CARGO_ENCODED_RUSTFLAGS="${IMPORT_UNDEFINED_ENCODED_FLAG}"
+    fi
 fi
 
 "${CMD[@]}"

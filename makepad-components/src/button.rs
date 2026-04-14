@@ -245,10 +245,20 @@ script_mod! {
         }
     }
 
-    mod.widgets.ShadButton = mod.widgets.ButtonFlat{
-        height: 36
+    mod.widgets.ShadButtonBase = mod.widgets.ButtonFlat{
+        height: (shad_theme.control_height_md)
         enable_long_press: true
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
+        padding: Inset{
+            left: (shad_theme.control_padding_x_md),
+            right: (shad_theme.control_padding_x_md),
+            top: 0,
+            bottom: 0
+        }
+        draw_bg.border_radius: (shad_theme.radius)
+        draw_text.text_style.font_size: (shad_theme.control_font_size_md)
+    }
+
+    mod.widgets.ShadButton = mod.widgets.ShadButtonBase{
         draw_bg +: {
             color: (shad_theme.color_primary_foreground)
             color_hover: (shad_theme.color_secondary)
@@ -256,21 +266,16 @@ script_mod! {
             color_focus: (shad_theme.color_secondary)
             color_disabled: (shad_theme.color_disabled)
             border_size: 0.0
-            border_radius: (shad_theme.radius)
             border_color: #0000
         }
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.color_down: (shad_theme.color_primary)
-        draw_text.color_focus: (shad_theme.color_primary)
+        draw_text.color: (shad_theme.color_text)
+        draw_text.color_hover: (shad_theme.color_text)
+        draw_text.color_down: (shad_theme.color_text)
+        draw_text.color_focus: (shad_theme.color_text)
         draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
     }
 
-    mod.widgets.ShadButtonDestructive = mod.widgets.ButtonFlat{
-        height: 36
-        enable_long_press: true
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
+    mod.widgets.ShadButtonDestructive = mod.widgets.ShadButtonBase{
         draw_bg +: {
             color: (shad_theme.color_destructive)
             color_hover: (shad_theme.color_destructive_hover)
@@ -278,7 +283,6 @@ script_mod! {
             color_focus: (shad_theme.color_destructive_hover)
             color_disabled: (shad_theme.color_disabled)
             border_size: 0.0
-            border_radius: (shad_theme.radius)
             border_color: #0000
         }
         draw_text.color: (shad_theme.color_destructive_foreground)
@@ -286,13 +290,9 @@ script_mod! {
         draw_text.color_down: (shad_theme.color_destructive_foreground)
         draw_text.color_focus: (shad_theme.color_destructive_foreground)
         draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
     }
 
-    mod.widgets.ShadButtonOutline = mod.widgets.ButtonFlat{
-        height: 36
-        enable_long_press: true
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
+    mod.widgets.ShadButtonOutline = mod.widgets.ShadButtonBase{
         draw_bg +: {
             color: #0000
             color_hover: (shad_theme.color_ghost_hover)
@@ -300,25 +300,20 @@ script_mod! {
             color_focus: (shad_theme.color_ghost_hover)
             color_disabled: (shad_theme.color_disabled)
             border_size: 1.0
-            border_radius: (shad_theme.radius)
-            border_color: (shad_theme.color_outline_border)
-            border_color_hover: (shad_theme.color_outline_border_hover)
-            border_color_down: (shad_theme.color_outline_border_down)
-            border_color_focus: (shad_theme.color_primary)
+            border_color: (shad_theme.color_border)
+            border_color_hover: (shad_theme.color_border_hover)
+            border_color_down: (shad_theme.color_border_down)
+            border_color_focus: (shad_theme.color_border_focus)
             border_color_disabled: (shad_theme.color_disabled_border)
         }
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.color_down: (shad_theme.color_primary)
-        draw_text.color_focus: (shad_theme.color_primary)
+        draw_text.color: (shad_theme.color_text)
+        draw_text.color_hover: (shad_theme.color_text)
+        draw_text.color_down: (shad_theme.color_text)
+        draw_text.color_focus: (shad_theme.color_text)
         draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
     }
 
-    mod.widgets.ShadButtonSecondary = mod.widgets.ButtonFlat{
-        height: 36
-        enable_long_press: true
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
+    mod.widgets.ShadButtonSecondary = mod.widgets.ShadButtonBase{
         draw_bg +: {
             color: (shad_theme.color_secondary)
             color_hover: (shad_theme.color_secondary_hover)
@@ -326,7 +321,6 @@ script_mod! {
             color_focus: (shad_theme.color_secondary_hover)
             color_disabled: (shad_theme.color_disabled)
             border_size: 0.0
-            border_radius: (shad_theme.radius)
             border_color: #0000
         }
         draw_text.color: (shad_theme.color_secondary_foreground)
@@ -334,13 +328,9 @@ script_mod! {
         draw_text.color_down: (shad_theme.color_secondary_foreground)
         draw_text.color_focus: (shad_theme.color_secondary_foreground)
         draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
     }
 
-    mod.widgets.ShadButtonGhost = mod.widgets.ButtonFlat{
-        height: 36
-        enable_long_press: true
-        padding: Inset{left: 16, right: 16, top: 0, bottom: 0}
+    mod.widgets.ShadButtonGhost = mod.widgets.ShadButtonBase{
         draw_bg +: {
             color: #0000
             color_hover: (shad_theme.color_ghost_hover)
@@ -348,15 +338,13 @@ script_mod! {
             color_focus: (shad_theme.color_ghost_hover)
             color_disabled: (shad_theme.color_disabled)
             border_size: 0.0
-            border_radius: (shad_theme.radius)
             border_color: #0000
         }
-        draw_text.color: (shad_theme.color_primary)
-        draw_text.color_hover: (shad_theme.color_primary)
-        draw_text.color_down: (shad_theme.color_primary)
-        draw_text.color_focus: (shad_theme.color_primary)
+        draw_text.color: (shad_theme.color_text)
+        draw_text.color_hover: (shad_theme.color_text)
+        draw_text.color_down: (shad_theme.color_text)
+        draw_text.color_focus: (shad_theme.color_text)
         draw_text.color_disabled: (shad_theme.color_disabled_foreground)
-        draw_text.text_style.font_size: 11
     }
 
     mod.widgets.ShadPreviewTab = mod.widgets.ShadTabsTrigger{
@@ -394,20 +382,30 @@ script_mod! {
     }
 
     mod.widgets.ShadButtonSm = mod.widgets.ShadButton{
-        height: 28
-        padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 10
+        height: (shad_theme.control_height_sm)
+        padding: Inset{
+            left: (shad_theme.control_padding_x_sm),
+            right: (shad_theme.control_padding_x_sm),
+            top: 0,
+            bottom: 0
+        }
+        draw_text.text_style.font_size: (shad_theme.control_font_size_sm)
     }
 
     mod.widgets.ShadButtonLg = mod.widgets.ShadButton{
-        height: 44
-        padding: Inset{left: 32, right: 32, top: 0, bottom: 0}
-        draw_text.text_style.font_size: 13
+        height: (shad_theme.control_height_lg)
+        padding: Inset{
+            left: (shad_theme.control_padding_x_lg),
+            right: (shad_theme.control_padding_x_lg),
+            top: 0,
+            bottom: 0
+        }
+        draw_text.text_style.font_size: (shad_theme.control_font_size_lg)
     }
 
     mod.widgets.ShadButtonIcon = mod.widgets.ShadButton{
-        width: 36
-        height: 36
+        width: (shad_theme.control_height_md)
+        height: (shad_theme.control_height_md)
         spacing: 0.0
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
     }
@@ -629,6 +627,9 @@ impl Widget for ShadNavButton {
     }
 
     fn set_text(&mut self, cx: &mut Cx, v: &str) {
+        if self.text.as_ref() == v {
+            return;
+        }
         self.text.as_mut_empty().push_str(v);
         self.area.redraw(cx);
     }

@@ -168,6 +168,13 @@ fn sync_vec_if_changed<T: PartialEq + Clone>(dst: &mut Vec<T>, src: &[T]) -> boo
     true
 }
 
+fn changed_selection_rows(previous: Option<usize>, next: Option<usize>) -> [Option<usize>; 2] {
+    if previous == next {
+        return [None, None];
+    }
+    [previous, next]
+}
+
 /// Ensures the table width buffer tracks the current column count while reusing allocations.
 ///
 /// The common case for virtualized updates is a stable column count, so this returns early and
@@ -777,6 +784,8 @@ impl ShadTable {
     }
 
     fn draw_rows(&mut self, cx: &mut Cx2d, list: &mut PortalList) {
+        let mut empty_scope = Scope::empty();
+
         if self.has_custom_rows() {
             self.draw_custom_rows(cx, list);
             return;
@@ -824,7 +833,7 @@ impl ShadTable {
                     item_id & 1 == 1,
                 );
             }
-            item.draw_all(cx, &mut Scope::empty());
+            item.draw_all(cx, &mut empty_scope);
         }
     }
 
@@ -835,6 +844,8 @@ impl ShadTable {
         widths: &Arc<[f64]>,
         total_width: f64,
     ) {
+        let mut empty_scope = Scope::empty();
+
         if self.has_custom_rows() {
             self.draw_custom_rows(cx, list);
             return;
@@ -881,11 +892,13 @@ impl ShadTable {
                     item_id & 1 == 1,
                 );
             }
-            item.draw_all(cx, &mut Scope::empty());
+            item.draw_all(cx, &mut empty_scope);
         }
     }
 
     fn draw_custom_rows(&mut self, cx: &mut Cx2d, list: &mut PortalList) {
+        let mut empty_scope = Scope::empty();
+
         let row_count = self.data_row_count();
         if row_count == 0 {
             let rows = Self::empty_fill_rows(list, cx, 0).max(1);
@@ -913,7 +926,7 @@ impl ShadTable {
                 continue;
             };
             list.item(cx, item_id, template)
-                .draw_all(cx, &mut Scope::empty());
+                .draw_all(cx, &mut empty_scope);
         }
     }
 
@@ -1038,10 +1051,42 @@ impl ShadTable {
         if cleared_custom_rows || self.resolved_widths.len() != column_count {
             self.sync_layout(cx);
         }
+        let list = self
+            .view
+            .portal_list(cx, ids!(table_view.scroll.content.list));
+        list.set_first_id(clamped_start);
         self.view
-            .portal_list(cx, ids!(table_view.scroll.content.list))
-            .set_first_id(clamped_start);
-        self.view.redraw(cx);
+            .widget(cx, ids!(table_view.scroll.content.list))
+            .redraw(cx);
+    }
+
+    fn redraw_selection_rows(&self, cx: &mut Cx, rows: [Option<usize>; 2]) {
+        if rows.iter().all(Option::is_none) {
+            return;
+        }
+        self.view
+            .widget(cx, ids!(table_view.scroll.content.list))
+            .redraw(cx);
+    }
+
+    pub fn set_selected_row(&mut self, cx: &mut Cx, selected_row: Option<usize>) {
+        let changed_rows = changed_selection_rows(self.selected_row, selected_row);
+        if changed_rows.iter().all(Option::is_none) {
+            return;
+        }
+        self.selected_row = selected_row;
+        if let Some(row) = selected_row {
+            cx.widget_action_with_data(
+                &self.action_data,
+                self.widget_uid(),
+                ShadTableAction::SelectionChanged(row),
+            );
+        }
+        self.redraw_selection_rows(cx, changed_rows);
+    }
+
+    pub fn selected_row(&self) -> Option<usize> {
+        self.selected_row
     }
 
     pub fn set_custom_row_templates(&mut self, cx: &mut Cx, templates: Arc<[LiveId]>) {
@@ -1056,25 +1101,6 @@ impl ShadTable {
             self.sync_layout(cx);
             self.view.redraw(cx);
         }
-    }
-
-    pub fn set_selected_row(&mut self, cx: &mut Cx, selected_row: Option<usize>) {
-        if self.selected_row == selected_row {
-            return;
-        }
-        self.selected_row = selected_row;
-        if let Some(row) = selected_row {
-            cx.widget_action_with_data(
-                &self.action_data,
-                self.widget_uid(),
-                ShadTableAction::SelectionChanged(row),
-            );
-        }
-        self.view.redraw(cx);
-    }
-
-    pub fn selected_row(&self) -> Option<usize> {
-        self.selected_row
     }
 
     pub fn row_clicked(&self, actions: &Actions) -> Option<usize> {
@@ -1349,7 +1375,7 @@ fn draw_border(cx: &mut Cx2d, draw: &mut DrawColor, rect: Rect, color: Vec4) {
 #[cfg(test)]
 mod tests {
     use super::{
-        invalidate_content_width_cache, invalidate_content_widths_cache,
+        changed_selection_rows, invalidate_content_width_cache, invalidate_content_widths_cache,
         replace_arc_slice_if_changed, should_apply_content_width, should_refresh_content_widths,
         sync_default_widths, sync_text_x_offsets, CELL_FONT_SIZE,
     };
@@ -1524,6 +1550,14 @@ mod tests {
         let mut dirty = false;
         invalidate_content_widths_cache(&mut dirty);
         assert!(dirty);
+    }
+
+    #[test]
+    fn selection_change_only_marks_changed_rows() {
+        assert_eq!(changed_selection_rows(Some(2), Some(5)), [Some(2), Some(5)]);
+        assert_eq!(changed_selection_rows(Some(2), Some(2)), [None, None]);
+        assert_eq!(changed_selection_rows(None, Some(4)), [None, Some(4)]);
+        assert_eq!(changed_selection_rows(Some(3), None), [Some(3), None]);
     }
 
     #[test]

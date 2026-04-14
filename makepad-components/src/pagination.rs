@@ -3,45 +3,11 @@ use crate::models::pagination::{
     clamped_current_page, clamped_max_visible_pages, compute_window, normalized_page_count,
     PaginationWindow,
 };
-use makepad_widgets::makepad_script::NoTrap;
 use makepad_widgets::widget::WidgetActionData;
 use makepad_widgets::*;
 use std::fmt::Write;
 
 const MAX_PAGE_BUTTONS: usize = 7;
-
-#[derive(Clone, Copy, Debug)]
-struct PaginationThemeStyle {
-    active_bg: Vec4f,
-    active_bg_hover: Vec4f,
-    active_bg_down: Vec4f,
-    active_text: Vec4f,
-    inactive_bg_hover: Vec4f,
-    inactive_bg_down: Vec4f,
-    inactive_text: Vec4f,
-    border: Vec4f,
-    border_hover: Vec4f,
-    border_down: Vec4f,
-    radius: f64,
-}
-
-impl Default for PaginationThemeStyle {
-    fn default() -> Self {
-        Self {
-            active_bg: Vec4f::from_u32(0x18181bff),
-            active_bg_hover: Vec4f::from_u32(0x27272aff),
-            active_bg_down: Vec4f::from_u32(0x3f3f46ff),
-            active_text: Vec4f::from_u32(0xfafafaff),
-            inactive_bg_hover: Vec4f::from_u32(0x27272aff),
-            inactive_bg_down: Vec4f::from_u32(0x3f3f46ff),
-            inactive_text: Vec4f::from_u32(0xfafafaff),
-            border: Vec4f::from_u32(0x3f3f46ff),
-            border_hover: Vec4f::from_u32(0x52525bff),
-            border_down: Vec4f::from_u32(0x71717aff),
-            radius: 6.0,
-        }
-    }
-}
 
 script_mod! {
     use mod.prelude.widgets.*
@@ -52,10 +18,48 @@ script_mod! {
         padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
     }
 
-    mod.widgets.ShadPaginationPageButton = mod.widgets.ShadButtonGhost{
+    mod.widgets.ShadPaginationPageButtonActiveInner = mod.widgets.ShadButtonGhost{
+        width: Fill
+        height: Fill
+        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+
+        draw_bg +: {
+            color: (shad_theme.color_secondary)
+            color_hover: (shad_theme.color_secondary_hover)
+            color_down: (shad_theme.color_secondary_down)
+            color_focus: (shad_theme.color_secondary_hover)
+            border_size: 1.0
+            border_radius: (shad_theme.radius)
+            border_color: (shad_theme.color_border)
+            border_color_hover: (shad_theme.color_border_hover)
+            border_color_down: (shad_theme.color_border_down)
+            border_color_focus: (shad_theme.color_border_hover)
+        }
+
+        draw_text +: {
+            color: (shad_theme.color_secondary_foreground)
+            color_hover: (shad_theme.color_secondary_foreground)
+            color_down: (shad_theme.color_secondary_foreground)
+            color_focus: (shad_theme.color_secondary_foreground)
+        }
+    }
+
+    mod.widgets.ShadPaginationPageButtonInactiveInner = mod.widgets.ShadButtonGhost{
+        width: Fill
+        height: Fill
+        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+    }
+
+    mod.widgets.ShadPaginationPageButtonBase = #(ShadPaginationPageButton::register_widget(vm))
+
+    mod.widgets.ShadPaginationPageButton = set_type_default() do mod.widgets.ShadPaginationPageButtonBase{
         width: 36
         height: 36
-        padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
+        active: false
+        flow: Overlay
+
+        inactive_btn := mod.widgets.ShadPaginationPageButtonInactiveInner{text: "1"}
+        active_btn := mod.widgets.ShadPaginationPageButtonActiveInner{text: "1" visible: false}
     }
 
     mod.widgets.ShadPaginationEllipsis = Label{
@@ -91,6 +95,113 @@ script_mod! {
         ellipsis_right := mod.widgets.ShadPaginationEllipsis{}
         page_6 := mod.widgets.ShadPaginationPageButton{text: "7"}
         next_btn := mod.widgets.ShadPaginationNavButton{text: "Next"}
+    }
+}
+
+#[derive(Script, Widget)]
+pub struct ShadPaginationPageButton {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+
+    #[live]
+    text: ArcStringMut,
+    #[live(false)]
+    active: bool,
+    #[rust]
+    synced_active: bool,
+    #[rust]
+    synced_text: String,
+}
+
+impl ScriptHook for ShadPaginationPageButton {
+    fn on_after_apply(
+        &mut self,
+        vm: &mut ScriptVm,
+        _apply: &Apply,
+        _scope: &mut Scope,
+        _value: ScriptValue,
+    ) {
+        vm.with_cx_mut(|cx| {
+            self.sync_label(cx);
+            self.sync_active(cx);
+        });
+    }
+}
+
+impl ShadPaginationPageButton {
+    fn reset_inner_button_states(&self, cx: &mut Cx) {
+        for path in [ids!(active_btn), ids!(inactive_btn)] {
+            let button_ref = self.view.button(cx, path);
+            let borrowed = button_ref.borrow_mut();
+            if let Some(mut button) = borrowed {
+                button.animator_cut(cx, ids!(hover.off));
+                button.animator_cut(cx, ids!(focus.off));
+            }
+        }
+    }
+
+    fn sync_label(&mut self, cx: &mut Cx) {
+        if self.synced_text == self.text.as_ref() {
+            return;
+        }
+        self.view
+            .button(cx, ids!(active_btn))
+            .set_text(cx, self.text.as_ref());
+        self.view
+            .button(cx, ids!(inactive_btn))
+            .set_text(cx, self.text.as_ref());
+        self.synced_text.clear();
+        self.synced_text.push_str(self.text.as_ref());
+        self.reset_inner_button_states(cx);
+    }
+
+    fn sync_active(&mut self, cx: &mut Cx) {
+        if self.synced_active == self.active {
+            return;
+        }
+        self.view
+            .button(cx, ids!(active_btn))
+            .set_visible(cx, self.active);
+        self.view
+            .button(cx, ids!(inactive_btn))
+            .set_visible(cx, !self.active);
+        self.synced_active = self.active;
+    }
+
+    pub fn set_active(&mut self, cx: &mut Cx, active: bool) {
+        if self.active == active {
+            return;
+        }
+        self.active = active;
+        self.sync_active(cx);
+        if !active {
+            self.reset_inner_button_states(cx);
+        }
+    }
+
+    pub fn set_label(&mut self, cx: &mut Cx, text: &str) {
+        if self.text.as_ref() == text {
+            return;
+        }
+        self.text.as_mut_empty().push_str(text);
+        self.sync_label(cx);
+    }
+
+    pub fn clicked(&self, cx: &Cx, actions: &Actions) -> bool {
+        self.view.button(cx, ids!(active_btn)).clicked(actions)
+            || self.view.button(cx, ids!(inactive_btn)).clicked(actions)
+    }
+}
+
+impl Widget for ShadPaginationPageButton {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
     }
 }
 
@@ -133,8 +244,6 @@ pub struct ShadPagination {
     slot_text_cache: [String; MAX_PAGE_BUTTONS],
     #[rust]
     view_synced: bool,
-    #[rust]
-    theme_style: PaginationThemeStyle,
 
     #[action_data]
     #[rust]
@@ -149,7 +258,6 @@ impl ScriptHook for ShadPagination {
         _scope: &mut Scope,
         _value: ScriptValue,
     ) {
-        self.theme_style = Self::resolve_theme_style(vm);
         self.view_synced = false;
         vm.with_cx_mut(|cx| {
             self.normalize_state();
@@ -159,131 +267,20 @@ impl ScriptHook for ShadPagination {
 }
 
 impl ShadPagination {
-    fn sync_page_button_text(
-        &mut self,
-        cx: &mut Cx,
-        button: &mut ButtonRef,
-        index: usize,
-        page: usize,
-    ) {
-        let text = &mut self.slot_text_cache[index];
-        text.clear();
-        let _ = write!(text, "{page}");
-        button.set_text(cx, text);
-    }
-
-    fn resolve_theme_style(vm: &mut ScriptVm) -> PaginationThemeStyle {
-        fn theme_value(vm: &mut ScriptVm, key: LiveId) -> ScriptValue {
-            let mod_obj = vm.module(id!(mod));
-            let widgets = vm.bx.heap.value(mod_obj, id!(widgets).into(), NoTrap);
-            let Some(widgets_obj) = widgets.as_object() else {
-                return NIL;
-            };
-            let theme = vm
-                .bx
-                .heap
-                .value(widgets_obj, id!(shad_theme).into(), NoTrap);
-            let Some(theme_obj) = theme.as_object() else {
-                return NIL;
-            };
-            vm.bx.heap.value(theme_obj, key.into(), NoTrap)
-        }
-
-        fn theme_color(
-            vm: &mut ScriptVm,
-            primary: LiveId,
-            secondary: LiveId,
-            fallback: u32,
-        ) -> Vec4f {
-            theme_value(vm, primary)
-                .as_color()
-                .map(Vec4f::from_u32)
-                .or_else(|| theme_value(vm, secondary).as_color().map(Vec4f::from_u32))
-                .unwrap_or_else(|| Vec4f::from_u32(fallback))
-        }
-
-        let defaults = PaginationThemeStyle::default();
-        PaginationThemeStyle {
-            active_bg: theme_color(
-                vm,
-                id!(color_pagination_active),
-                id!(color_secondary),
-                defaults.active_bg.to_u32(),
-            ),
-            active_bg_hover: theme_color(
-                vm,
-                id!(color_pagination_active_hover),
-                id!(color_secondary_hover),
-                defaults.active_bg_hover.to_u32(),
-            ),
-            active_bg_down: theme_color(
-                vm,
-                id!(color_pagination_active_down),
-                id!(color_secondary_down),
-                defaults.active_bg_down.to_u32(),
-            ),
-            active_text: theme_color(
-                vm,
-                id!(color_pagination_active_foreground),
-                id!(color_secondary_foreground),
-                defaults.active_text.to_u32(),
-            ),
-            inactive_bg_hover: theme_color(
-                vm,
-                id!(color_pagination_inactive_hover),
-                id!(color_ghost_hover),
-                defaults.inactive_bg_hover.to_u32(),
-            ),
-            inactive_bg_down: theme_color(
-                vm,
-                id!(color_pagination_inactive_down),
-                id!(color_ghost_down),
-                defaults.inactive_bg_down.to_u32(),
-            ),
-            inactive_text: theme_color(
-                vm,
-                id!(color_pagination_inactive_foreground),
-                id!(color_primary),
-                defaults.inactive_text.to_u32(),
-            ),
-            border: theme_color(
-                vm,
-                id!(color_pagination_border),
-                id!(color_outline_border),
-                defaults.border.to_u32(),
-            ),
-            border_hover: theme_color(
-                vm,
-                id!(color_pagination_border_hover),
-                id!(color_outline_border_hover),
-                defaults.border_hover.to_u32(),
-            ),
-            border_down: theme_color(
-                vm,
-                id!(color_pagination_border_down),
-                id!(color_outline_border_down),
-                defaults.border_down.to_u32(),
-            ),
-            radius: theme_value(vm, id!(radius))
-                .as_number()
-                .unwrap_or(defaults.radius),
-        }
-    }
-
     fn normalize_state(&mut self) {
         self.current_page =
             clamped_current_page(self.current_page, normalized_page_count(self.page_count)) as u32;
     }
 
-    fn page_button_ref(&self, cx: &Cx, index: usize) -> ButtonRef {
+    fn page_button_ref(&self, cx: &Cx, index: usize) -> WidgetRef {
         match index {
-            0 => self.view.button(cx, ids!(page_0)),
-            1 => self.view.button(cx, ids!(page_1)),
-            2 => self.view.button(cx, ids!(page_2)),
-            3 => self.view.button(cx, ids!(page_3)),
-            4 => self.view.button(cx, ids!(page_4)),
-            5 => self.view.button(cx, ids!(page_5)),
-            _ => self.view.button(cx, ids!(page_6)),
+            0 => self.view.widget(cx, ids!(page_0)),
+            1 => self.view.widget(cx, ids!(page_1)),
+            2 => self.view.widget(cx, ids!(page_2)),
+            3 => self.view.widget(cx, ids!(page_3)),
+            4 => self.view.widget(cx, ids!(page_4)),
+            5 => self.view.widget(cx, ids!(page_5)),
+            _ => self.view.widget(cx, ids!(page_6)),
         }
     }
 
@@ -303,50 +300,24 @@ impl ShadPagination {
         )
     }
 
-    fn apply_page_button_style(&self, cx: &mut Cx, button: &mut ButtonRef, is_active: bool) {
-        let style = self.theme_style;
-        if is_active {
-            script_apply_eval!(cx, button, {
-                draw_bg +: {
-                    color: #(style.active_bg)
-                    color_hover: #(style.active_bg_hover)
-                    color_down: #(style.active_bg_down)
-                    color_focus: #(style.active_bg_hover)
-                    border_size: 1.0
-                    border_radius: #(style.radius)
-                    border_color: #(style.border)
-                    border_color_hover: #(style.border_hover)
-                    border_color_down: #(style.border_down)
-                    border_color_focus: #(style.border_hover)
-                }
-                draw_text +: {
-                    color: #(style.active_text)
-                    color_hover: #(style.active_text)
-                    color_down: #(style.active_text)
-                    color_focus: #(style.active_text)
-                }
-            });
-        } else {
-            script_apply_eval!(cx, button, {
-                draw_bg +: {
-                    color: #0000
-                    color_hover: #(style.inactive_bg_hover)
-                    color_down: #(style.inactive_bg_down)
-                    color_focus: #(style.inactive_bg_hover)
-                    border_size: 0.0
-                    border_radius: #(style.radius)
-                    border_color: #0000
-                    border_color_hover: #0000
-                    border_color_down: #0000
-                    border_color_focus: #0000
-                }
-                draw_text +: {
-                    color: #(style.inactive_text)
-                    color_hover: #(style.inactive_text)
-                    color_down: #(style.inactive_text)
-                    color_focus: #(style.inactive_text)
-                }
-            });
+    fn sync_page_button(
+        &mut self,
+        cx: &mut Cx,
+        button_ref: &WidgetRef,
+        index: usize,
+        page: usize,
+        is_active: bool,
+    ) {
+        if let Some(mut button) = button_ref.borrow_mut::<ShadPaginationPageButton>() {
+            if self.slot_pages[index] != page {
+                let text = &mut self.slot_text_cache[index];
+                text.clear();
+                let _ = write!(text, "{page}");
+                button.set_label(cx, text);
+            }
+            if self.slot_active[index] != is_active {
+                button.set_active(cx, is_active);
+            }
         }
     }
 
@@ -383,26 +354,26 @@ impl ShadPagination {
         }
 
         for index in 0..MAX_PAGE_BUTTONS {
-            let mut button = self.page_button_ref(cx, index);
+            let button_ref = self.page_button_ref(cx, index);
             let page = window.pages.get(index).copied().unwrap_or(0);
             let is_visible = page > 0;
 
             if force || self.slot_visible[index] != is_visible {
-                button.set_visible(cx, is_visible);
+                button_ref.set_visible(cx, is_visible);
                 self.slot_visible[index] = is_visible;
             }
 
             if is_visible {
-                if force || self.slot_pages[index] != page {
-                    self.sync_page_button_text(cx, &mut button, index, page);
+                let is_active = page == current_page;
+                if force || self.slot_pages[index] != page || self.slot_active[index] != is_active {
+                    self.sync_page_button(cx, &button_ref, index, page, is_active);
                 }
                 self.slot_pages[index] = page;
-                let is_active = page == current_page;
-                if force || self.slot_active[index] != is_active {
-                    self.apply_page_button_style(cx, &mut button, is_active);
-                    self.slot_active[index] = is_active;
-                }
+                self.slot_active[index] = is_active;
             } else {
+                if let Some(mut button) = button_ref.borrow_mut::<ShadPaginationPageButton>() {
+                    button.set_active(cx, false);
+                }
                 self.slot_pages[index] = 0;
                 self.slot_active[index] = false;
             }
@@ -514,7 +485,11 @@ impl Widget for ShadPagination {
             }
 
             for index in 0..MAX_PAGE_BUTTONS {
-                if self.page_button_ref(cx, index).clicked(actions) {
+                let button_ref = self.page_button_ref(cx, index);
+                if button_ref
+                    .borrow::<ShadPaginationPageButton>()
+                    .is_some_and(|button| button.clicked(cx, actions))
+                {
                     let page = self.slot_pages[index];
                     if page > 0 {
                         self.set_page(cx, page);

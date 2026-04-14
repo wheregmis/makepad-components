@@ -14,6 +14,7 @@ script_mod! {
     mod.widgets.ShadNavigationMenuList = View{
         width: Fit
         height: Fit
+        new_batch: true
         flow: Right
         align: Align{y: 0.5}
         spacing: 6.0

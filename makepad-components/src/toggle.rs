@@ -116,6 +116,7 @@ script_mod! {
     mod.widgets.ShadToggle = mod.widgets.ShadToggleWidgetBase{
         width: Fit
         height: 36
+        grab_key_focus: true
         padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
         align: Align{x: 0.5, y: 0.5}
         label_walk: Walk{
@@ -139,7 +140,7 @@ script_mod! {
             border_color: (shad_theme.color_outline_border)
             border_color_hover: (shad_theme.color_outline_border_hover)
             border_color_down: (shad_theme.color_outline_border_down)
-            border_color_focus: (shad_theme.color_outline_border_hover)
+            border_color_focus: (shad_theme.color_primary)
             border_color_active: (shad_theme.color_primary)
             border_color_disabled: (shad_theme.color_outline_border)
 
@@ -182,7 +183,7 @@ script_mod! {
 
                 if self.focus > 0.0 {
                     sdf.box(0.0, 0.0, self.rect_size.x, self.rect_size.y, radius + 1.0)
-                    sdf.stroke(self.border_color_focus, 2.0)
+                    sdf.stroke(mix(vec4(0.0, 0.0, 0.0, 0.0), self.border_color_focus, self.focus), 2.0)
                 }
                 return sdf.result
             }

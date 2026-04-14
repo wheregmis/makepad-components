@@ -1,5 +1,5 @@
 #[test]
-fn select_page_keeps_full_width_select_examples_and_limit_note() {
+fn select_page_keeps_full_width_select_examples_and_status_wiring() {
     let source = include_str!("../src/ui/select_page.rs");
 
     assert!(
@@ -11,16 +11,16 @@ fn select_page_keeps_full_width_select_examples_and_limit_note() {
         "select page should keep the full-width city select example"
     );
     assert!(
-        source.contains("Known limitation: popup-style selects can still be unreliable inside the current gallery PageFlip shell."),
-        "select page should keep the current popup/PageFlip limitation note until the hotspot is resolved"
-    );
-    assert!(
         source.contains("select_status := ShadFieldDescription"),
         "select page should expose a live status label for the controlled select demo"
     );
     assert!(
         source.contains("select_reset_btn := ShadButtonGhost"),
         "select page should keep an external reset button for the controlled select demo"
+    );
+    assert!(
+        source.contains("view.shad_select(cx, ids!(status_select))"),
+        "select page should use the select widget ref API instead of the raw dropdown ref"
     );
 }
 
