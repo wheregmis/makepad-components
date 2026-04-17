@@ -2,22 +2,24 @@ use crate::ui::registry::gallery_page_entries;
 use makepad_components::makepad_widgets::*;
 
 macro_rules! define_gallery_sidebar {
-    (
-        $(
-            {
-                title: $title:literal,
-                route: $route:literal,
-                page: $page:ident,
-                widget: $widget:ident,
-                sidebar_id: $sidebar_id:ident,
-                sidebar_label: $sidebar_label:literal,
-                section: $section:literal,
-                shortcut: $shortcut:literal,
-                snippet: $snippet:ident,
-                $(transition: $transition:ident,)?
-            }
-        )*
-    ) => {
+    ($(
+        $section_name:literal => {
+            $(
+                {
+                    title: $title:literal,
+                    route: $route:literal,
+                    page: $page:ident,
+                    widget: $widget:ident,
+                    sidebar_id: $sidebar_id:ident,
+                    sidebar_label: $sidebar_label:literal,
+                    section: $section:literal,
+                    shortcut: $shortcut:literal,
+                    snippet: $snippet:ident,
+                    $(transition: $transition:ident,)?
+                }
+            )*
+        }
+    )*) => {
         script_mod! {
             use mod.prelude.widgets.*
             use mod.widgets.*
@@ -58,7 +60,13 @@ macro_rules! define_gallery_sidebar {
                 flow: Down
 
                 $(
-                    $sidebar_id := ShadSidebarItem{text: $sidebar_label}
+                    ShadSidebarSectionLabel{
+                        text: $section_name
+                        margin: Inset{top: 16.0, bottom: 4.0, left: 0.0, right: 0.0}
+                    }
+                    $(
+                        $sidebar_id := ShadSidebarItem{text: $sidebar_label}
+                    )*
                 )*
             }
 
@@ -69,8 +77,6 @@ macro_rules! define_gallery_sidebar {
                     text: "Makepad Component\nGallery"
                     draw_text.text_style.font_size: 13
                 }
-
-                ShadSidebarSectionLabel{text: "Catalog"}
 
                 mod.widgets.GallerySidebarList{}
             }
@@ -114,8 +120,6 @@ macro_rules! define_gallery_sidebar {
                     height: 40
                     text: "Search components"
                 }
-
-                ShadSidebarSectionLabel{text: "Catalog"}
 
                 mod.widgets.GallerySidebarList{}
             }

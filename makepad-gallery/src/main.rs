@@ -191,6 +191,7 @@ impl App {
 
     fn sync_page_metadata(&self, cx: &mut Cx) {
         if let Some(entry) = catalog::entry_for_page(self.current_page) {
+            let breadcrumb_text = format!("Gallery / {} / {}", entry.section, entry.title);
             if self.is_mobile_layout(cx) {
                 self.ui
                     .label(
@@ -201,7 +202,7 @@ impl App {
                             live_id!(mobile_page_label),
                         ],
                     )
-                    .set_text(cx, entry.title);
+                    .set_text(cx, breadcrumb_text.as_str());
             } else {
                 self.ui
                     .label(
@@ -212,7 +213,7 @@ impl App {
                             live_id!(desktop_page_label),
                         ],
                     )
-                    .set_text(cx, entry.title);
+                    .set_text(cx, breadcrumb_text.as_str());
             }
         }
         // Optimization: prevent redundant script evaluations on page navigation

@@ -2,25 +2,27 @@ use crate::ui::registry::gallery_page_entries;
 use makepad_components::makepad_widgets::*;
 
 macro_rules! define_gallery_root {
-    (
-        $(
-            {
-                title: $title:literal,
-                route: $route:literal,
-                page: $page:ident,
-                widget: $widget:ident,
-                sidebar_id: $sidebar_id:ident,
-                sidebar_label: $sidebar_label:literal,
-                section: $section:literal,
-                shortcut: $shortcut:literal,
-                snippet: $snippet:ident,
-                $(transition: $transition:ident,)?
-            }
-        )*
-    ) => {
+    ($(
+        $section_name:literal => {
+            $(
+                {
+                    title: $title:literal,
+                    route: $route:literal,
+                    page: $page:ident,
+                    widget: $widget:ident,
+                    sidebar_id: $sidebar_id:ident,
+                    sidebar_label: $sidebar_label:literal,
+                    section: $section:literal,
+                    shortcut: $shortcut:literal,
+                    snippet: $snippet:ident,
+                    $(transition: $transition:ident,)?
+                }
+            )*
+        }
+    )*) => {
         #[cfg(test)]
         pub const ROUTER_BINDINGS: &[(LiveId, &str)] = &[
-            $((live_id!($page), $route),)*
+            $($( (live_id!($page), $route), )*)*
         ];
 
         script_mod! {
@@ -89,18 +91,18 @@ macro_rules! define_gallery_root {
             mod.widgets.GalleryContentFlip = RouterWidget{
                 width: Fill
                 height: Fill
-                default_route: @accordion_page
-                not_found_route: @accordion_page
+                default_route: @overview_page
+                not_found_route: @overview_page
                 sync_browser_url: true
                 browser_base_path: "/makepad-components"
 
-                $(
+                $($(
                     $page := RouterRoute{
                         route_pattern: $route
                         $(route_transition: @$transition)?
                         mod.widgets.$widget{}
                     }
-                )*
+                )*)*
             }
 
             mod.widgets.GalleryDesktopHeader = View{
@@ -120,16 +122,13 @@ macro_rules! define_gallery_root {
                     desktop_header_meta := View{
                         width: Fill
                         height: Fit
-                        flow: Down
+                        flow: Right
                         spacing: 4.0
 
-                        desktop_header_caption := ShadSectionHeader{
-                            text: "Makepad Components Gallery"
-                        }
-
                         desktop_page_label := ShadLabel{
-                            text: "Components"
-                            draw_text.text_style.font_size: 13
+                            text: "Gallery / Overview"
+                            draw_text.text_style.font_size: 13.0
+                            draw_text.color: (shad_theme.color_primary)
                         }
                     }
 
@@ -175,16 +174,13 @@ macro_rules! define_gallery_root {
                         mobile_header_meta := View{
                             width: Fit
                             height: Fit
-                            flow: Down
+                            flow: Right
                             spacing: 2.0
 
-                            mobile_header_caption := ShadSectionHeader{
-                                text: "Gallery"
-                            }
-
                             mobile_page_label := ShadLabel{
-                                text: "Components"
-                                draw_text.text_style.font_size: 12
+                                text: "Gallery / Overview"
+                                draw_text.text_style.font_size: 12.0
+                                draw_text.color: (shad_theme.color_primary)
                             }
                         }
 

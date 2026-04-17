@@ -3,6 +3,7 @@ use makepad_components::makepad_widgets::*;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GallerySnippetKey {
+    Overview,
     Accordion,
     Alert,
     AspectRatio,
@@ -64,24 +65,26 @@ pub struct GalleryCatalogEntry {
 }
 
 macro_rules! build_gallery_catalog {
-    (
-        $(
-            {
-                title: $title:literal,
-                route: $route:literal,
-                page: $page:ident,
-                widget: $widget:ident,
-                sidebar_id: $sidebar_id:ident,
-                sidebar_label: $sidebar_label:literal,
-                section: $section:literal,
-                shortcut: $shortcut:literal,
-                snippet: $snippet:ident,
-                $(transition: $transition:ident,)?
-            }
-        )*
-    ) => {
-        pub const GALLERY_CATALOG: &[GalleryCatalogEntry] = &[
+    ($(
+        $section_name:literal => {
             $(
+                {
+                    title: $title:literal,
+                    route: $route:literal,
+                    page: $page:ident,
+                    widget: $widget:ident,
+                    sidebar_id: $sidebar_id:ident,
+                    sidebar_label: $sidebar_label:literal,
+                    section: $section:literal,
+                    shortcut: $shortcut:literal,
+                    snippet: $snippet:ident,
+                    $(transition: $transition:ident,)?
+                }
+            )*
+        }
+    )*) => {
+        pub const GALLERY_CATALOG: &[GalleryCatalogEntry] = &[
+            $($(
                 GalleryCatalogEntry {
                     title: $title,
                     route: $route,
@@ -92,7 +95,7 @@ macro_rules! build_gallery_catalog {
                     shortcut: $shortcut,
                     snippet: GallerySnippetKey::$snippet,
                 },
-            )*
+            )*)*
         ];
     };
 }
