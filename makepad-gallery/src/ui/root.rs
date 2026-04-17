@@ -68,22 +68,20 @@ macro_rules! define_gallery_root {
                 spacing: 8.0
 
                 desktop_command_palette_trigger := ShadButtonGhost{
-                    text: "Search components"
+                    text: "Search components..."
+                    padding: Inset{left: 12, right: 12}
+                    height: 32
+                    draw_text.text_style.font_size: 10.0
+                    draw_text.color: (shad_theme.color_muted_foreground)
                 }
 
                 desktop_command_palette_shortcut := View{
                     width: Fit
                     height: Fit
-                    flow: Right{wrap: true}
+                    flow: Right
                     align: Align{y: 0.5}
-                    spacing: 6.0
+                    spacing: 4.0
 
-                    ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
-                    ShadKbdSeparator{}
-                    ShadKbd{ label := ShadKbdLabel{text: "K"} }
-
-                    ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
-                    ShadKbdSeparator{}
                     ShadKbd{ label := ShadKbdLabel{text: "K"} }
                 }
             }
@@ -115,7 +113,7 @@ macro_rules! define_gallery_root {
                     height: Fit
                     flow: Right
                     align: Align{y: 0.5}
-                    padding: Inset{left: 24, right: 24, top: 16, bottom: 14}
+                    padding: Inset{left: 32, right: 32, top: 16, bottom: 16}
                     spacing: 16.0
                     draw_bg.color: (shad_theme.color_background)
 
@@ -127,8 +125,8 @@ macro_rules! define_gallery_root {
 
                         desktop_page_label := ShadLabel{
                             text: "Gallery / Overview"
-                            draw_text.text_style.font_size: 13.0
-                            draw_text.color: (shad_theme.color_primary)
+                            draw_text.text_style.font_size: 11.0
+                            draw_text.color: (shad_theme.color_muted_foreground)
                         }
                     }
 
@@ -206,6 +204,7 @@ macro_rules! define_gallery_root {
                 width: Fill
                 height: Fill
                 flow: Down
+                draw_bg.color: (shad_theme.color_background)
 
                 responsive_header := AdaptiveView{
                     width: Fill
@@ -227,7 +226,7 @@ macro_rules! define_gallery_root {
                     flow: Overlay
 
                     sidebar_shell := View{
-                        width: 280
+                        width: 260
                         height: Fill
                         flow: Overlay
                         clip_x: true
@@ -250,6 +249,12 @@ macro_rules! define_gallery_root {
                 spacing: 0.0
 
                 responsive_sidebar := mod.widgets.GalleryResponsiveSidebar{}
+
+                vertical_divider := View {
+                    width: 1
+                    height: Fill
+                    draw_bg +: { color: (shad_theme.color_border) }
+                }
 
                 main_content := mod.widgets.GalleryMainContent{
                     width: Fill

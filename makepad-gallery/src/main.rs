@@ -318,7 +318,7 @@ impl App {
                 Vec4f::from_u32(0xfafafaff),
                 Vec4f::from_u32(0x27272aff),
                 Vec4f::from_u32(0x3f3f46ff),
-                Vec4f::from_u32(0xfafafaff),
+                Vec4f::from_u32(0xa1a1aaff),
                 Vec4f::from_u32(0x27272aff),
                 Vec4f::from_u32(0xfafafaff),
             )

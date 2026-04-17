@@ -47,38 +47,40 @@ macro_rules! gallery_static_page {
                     height: Fit
 
                     preview_panel +: {
-                        preview_flip +: {
-                            root_view +: {
-                                preview_content +: {
-                                    width: Fill
-                                    height: Fit
-                                    flow: Down
-                                    spacing: $preview_spacing
+                        preview_content_wrapper +: {
+                            preview_flip +: {
+                                root_view +: {
+                                    preview_content +: {
+                                        width: Fill
+                                        height: Fit
+                                        flow: Down
+                                        spacing: $preview_spacing
 
-                                    $($preview)*
-                                }
+                                        $($preview)*
+                                    }
 
-                                $(
-                                    action_flow +: {
-                                        visible: true
-                                        mod.widgets.GalleryActionFlow{
-                                            body +: {
-                                                $($action_flow)*
+                                    $(
+                                        action_flow +: {
+                                            visible: true
+                                            mod.widgets.GalleryActionFlow{
+                                                body +: {
+                                                    $($action_flow)*
+                                                }
                                             }
                                         }
-                                    }
-                                )?
-                            }
+                                    )?
+                                }
 
-                            code_page +: {
-                                body +: {
-                                    width: Fill
-                                    height: Fit
-                                    flow: Down
-                                    spacing: 12.0
+                                code_page +: {
+                                    body +: {
+                                        width: Fill
+                                        height: Fit
+                                        flow: Down
+                                        spacing: 12.0
 
-                                    code_snippet +: {
-                                        code: #(crate::ui::snippets::snippet_code_for_page(live_id!($page)))
+                                        code_snippet +: {
+                                            code: #(crate::ui::snippets::snippet_code_for_page(live_id!($page)))
+                                        }
                                     }
                                 }
                             }
@@ -92,7 +94,7 @@ macro_rules! gallery_static_page {
     (
         $($rest:tt)*
     ) => {
-        gallery_static_page!(@impl ShadScrollYView, $($rest)*);
+        gallery_static_page!(@impl GalleryPageRoot, $($rest)*);
     };
 }
 
@@ -185,38 +187,40 @@ macro_rules! gallery_stateful_page_shell {
                         height: Fit
 
                         preview_panel +: {
-                            preview_flip +: {
-                                root_view +: {
-                                    preview_content +: {
-                                        width: Fill
-                                        height: Fit
-                                        flow: Down
-                                        spacing: $preview_spacing
+                            preview_content_wrapper +: {
+                                preview_flip +: {
+                                    root_view +: {
+                                        preview_content +: {
+                                            width: Fill
+                                            height: Fit
+                                            flow: Down
+                                            spacing: $preview_spacing
 
-                                        $($preview)*
-                                    }
+                                            $($preview)*
+                                        }
 
-                                    $(
-                                        action_flow +: {
-                                            visible: true
-                                            mod.widgets.GalleryActionFlow{
-                                                body +: {
-                                                    $($action_flow)*
+                                        $(
+                                            action_flow +: {
+                                                visible: true
+                                                mod.widgets.GalleryActionFlow{
+                                                    body +: {
+                                                        $($action_flow)*
+                                                    }
                                                 }
                                             }
-                                        }
-                                    )?
-                                }
+                                        )?
+                                    }
 
-                                code_page +: {
-                                    body +: {
-                                        width: Fill
-                                        height: Fit
-                                        flow: Down
-                                        spacing: 12.0
+                                    code_page +: {
+                                        body +: {
+                                            width: Fill
+                                            height: Fit
+                                            flow: Down
+                                            spacing: 12.0
 
-                                        code_snippet +: {
-                                            code: #(crate::ui::snippets::snippet_code_for_page(live_id!($page)))
+                                            code_snippet +: {
+                                                code: #(crate::ui::snippets::snippet_code_for_page(live_id!($page)))
+                                            }
                                         }
                                     }
                                 }
@@ -233,7 +237,7 @@ macro_rules! gallery_stateful_page_shell {
     (
         $($rest:tt)*
     ) => {
-        gallery_stateful_page_shell!(@impl ShadScrollYView, {}, {}, $($rest)*);
+        gallery_stateful_page_shell!(@impl GalleryPageRoot, {}, {}, $($rest)*);
     };
 }
 
