@@ -85,3 +85,10 @@
 ## 2026-04-18 - Route actions reordering eliminates RouterAction cloning
 **Learning:** In `makepad-router-widgets/src/widget/api.rs`, navigating queues a `RouterAction` and syncs the browser URL. The previous flow called `queue_route_actions` (consuming an owned clone) before `sync_browser_with_action` (which takes a reference). Because `RouterAction` wraps `Route` (which allocates strings and hash maps for parameters), this extra clone caused unnecessary heap allocations on every route change.
 **Action:** Reorder synchronous side-effects where possible to let a consuming function run last. By borrowing the `RouterAction` for browser sync first, we can directly move the un-cloned owned value into the queue.
+## 2026-04-17 - Eliminate RouterAction Clone in Path Navigation
+**Learning:** In Makepad routing, when dispatching a route action,  consumes the action (moving it into a ). However,  only requires a reference (). If they are called in the wrong order (queue then sync), it necessitates an expensive clone of , which intern clones the  object and its heap-allocated parameters/queries.
+**Action:** Always perform side-effects that take references before side-effects that take ownership. Swap the execution order of  and  to eliminate unnecessary deep cloning in hot paths.
+
+## 2025-02-14 - Eliminate RouterAction Clone in Path Navigation
+**Learning:** In Makepad routing, when dispatching a route action, `queue_route_actions` consumes the action (moving it into a `Vec`). However, `sync_browser_with_action` only requires a reference (`&RouterAction`). If they are called in the wrong order (queue then sync), it necessitates an expensive clone of `RouterAction`, which intern clones the `Route` object and its heap-allocated parameters/queries.
+**Action:** Always perform side-effects that take references before side-effects that take ownership. Swap the execution order of `sync_browser_with_action` and `queue_route_actions` to eliminate unnecessary deep cloning in hot paths.
