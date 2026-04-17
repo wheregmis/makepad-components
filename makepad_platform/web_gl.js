@@ -15,6 +15,9 @@ this.xr=undefined;
 this._missing_shader_ids=new Set();
 this._gl_error_reports=new Set();
 this.video_players={};
+this.parallel_compile_ext=null;
+this.pending_startup_shader_compiles=0;
+this.pending_startup_shader_frame_id=0;
 this.init_webgl_context();
 this.load_deps();
 }
@@ -234,18 +237,99 @@ return;
 this._missing_shader_ids.add(shader_id);
 console.error("Missing shader in "+where,shader_id,vao_id);
 }
-FromWasmCompileWebGLShader(args){
+should_keep_startup_loader(){
+return this.pending_startup_shader_compiles>0;
+}
+schedule_startup_shader_warmup(){
+if(
+this.loader_removed||
+this.wasm==null||
+this.pending_startup_shader_frame_id||
+this.pending_startup_shader_compiles===0
+){
+return;
+}
+this.pending_startup_shader_frame_id=window.requestAnimationFrame(()=>{
+this.pending_startup_shader_frame_id=0;
+if(
+this.loader_removed||
+this.wasm==null||
+this.pending_startup_shader_compiles===0
+){
+return;
+}
+for(let shader_id=0;shader_id<this.draw_shaders.length;shader_id++){
+let shader=this.draw_shaders[shader_id];
+if(shader&&shader._pending&&shader._startup_pending){
+this._try_finalize_shader(shader_id,false);
+}
+}
+this.to_wasm.ToWasmRedrawAll();
+this.schedule_wasm_pump();
+if(this.pending_startup_shader_compiles>0){
+this.schedule_startup_shader_warmup();
+}
+});
+}
+mark_startup_shader_complete(pending){
+if(!pending||!pending._startup_pending){
+return;
+}
+pending._startup_pending=false;
+this.pending_startup_shader_compiles=Math.max(
+0,
+this.pending_startup_shader_compiles-1,
+);
+}
+_try_finalize_shader(shader_id,wait=false){
+var gl=this.gl;
+var pending=this.draw_shaders[shader_id];
+if(!pending||!pending._pending)return true;
+var ext=this.parallel_compile_ext;
+if(ext&&pending._parallel_compile&&!wait){
+if(!gl.getProgramParameter(pending.program,ext.COMPLETION_STATUS_KHR)){
+if(pending._startup_pending){
+this.schedule_startup_shader_warmup();
+}
+return false;
+}
+}
+var{program,vsh,fsh,args}=pending;
+if(!gl.getShaderParameter(vsh,gl.COMPILE_STATUS)){
+let message="webgl.compile_fail.vertex "+shader_id+" "+gl.getShaderInfoLog(vsh);
+console.error(message);
+gl.deleteShader(vsh);gl.deleteShader(fsh);gl.deleteProgram(program);
+this.mark_startup_shader_complete(pending);
+this.draw_shaders[shader_id]={compile_failed:true};
+return true;
+}
+if(!gl.getShaderParameter(fsh,gl.COMPILE_STATUS)){
+let message="webgl.compile_fail.fragment "+shader_id+" "+gl.getShaderInfoLog(fsh);
+console.error(message);
+gl.deleteShader(vsh);gl.deleteShader(fsh);gl.deleteProgram(program);
+this.mark_startup_shader_complete(pending);
+this.draw_shaders[shader_id]={compile_failed:true};
+return true;
+}
+if(!gl.getProgramParameter(program,gl.LINK_STATUS)){
+let message="webgl.compile_fail.link "+shader_id+" "+gl.getProgramInfoLog(program);
+console.error(message);
+gl.deleteShader(vsh);gl.deleteShader(fsh);gl.deleteProgram(program);
+this.mark_startup_shader_complete(pending);
+this.draw_shaders[shader_id]={compile_failed:true};
+return true;
+}
+gl.deleteShader(vsh);
+gl.deleteShader(fsh);
 function get_attrib_locations(gl,program,base,slots){
 let attrib_locs=[];
 let attribs=slots>>2;
-let stride=slots*4;
 if((slots&3)!=0)attribs++;
 for(let i=0;i<attribs;i++){
 let size=slots-i*4;
 if(size>4)size=4;
-let name=base+i;
 attrib_locs.push({
-loc:gl.getAttribLocation(program,name),
+loc:gl.getAttribLocation(program,base+i),
 offset:i*16,
 size:size,
 stride:slots*4,
@@ -255,56 +339,6 @@ gl_type:gl.FLOAT,
 }
 return attrib_locs;
 }
-var gl=this.gl;
-var vsh=gl.createShader(gl.VERTEX_SHADER);
-gl.shaderSource(vsh,args.vertex);
-gl.compileShader(vsh);
-if(!gl.getShaderParameter(vsh,gl.COMPILE_STATUS)){
-let message=
-"webgl.compile_fail.vertex "+
-args.shader_id+
-" "+
-gl.getShaderInfoLog(vsh);
-console.error(message);
-gl.deleteShader(vsh);
-this.draw_shaders[args.shader_id]={compile_failed:true};
-return;
-}
-var fsh=gl.createShader(gl.FRAGMENT_SHADER);
-gl.shaderSource(fsh,args.pixel);
-gl.compileShader(fsh);
-if(!gl.getShaderParameter(fsh,gl.COMPILE_STATUS)){
-let message=
-"webgl.compile_fail.fragment "+
-args.shader_id+
-" "+
-gl.getShaderInfoLog(fsh);
-console.error(message);
-gl.deleteShader(vsh);
-gl.deleteShader(fsh);
-this.draw_shaders[args.shader_id]={compile_failed:true};
-return;
-}
-var program=gl.createProgram();
-gl.attachShader(program,vsh);
-gl.attachShader(program,fsh);
-gl.linkProgram(program);
-if(!gl.getProgramParameter(program,gl.LINK_STATUS)){
-let message=
-"webgl.compile_fail.link "+
-args.shader_id+
-" "+
-gl.getProgramInfoLog(program);
-console.error(message);
-gl.deleteShader(vsh);
-gl.deleteShader(fsh);
-gl.deleteProgram(program);
-this.draw_shaders[args.shader_id]={compile_failed:true};
-return;
-}
-gl.deleteShader(vsh);
-gl.deleteShader(fsh);
-this.assert_no_gl_error(gl,"compile_shader");
 let texture_locs=[];
 for(let i=0;i<args.textures.length;i++){
 let tex_name=args.textures[i].name;
@@ -312,52 +346,19 @@ let loc=gl.getUniformLocation(program,"tex_"+tex_name);
 if(loc===null){
 loc=gl.getUniformLocation(program,"ds_"+tex_name);
 }
-texture_locs.push({
-name:tex_name,
-ty:args.textures[i].ty,
-loc:loc,
-});
+texture_locs.push({name:tex_name,ty:args.textures[i].ty,loc:loc});
 }
-let pass_uniforms_binding=this.get_uniform_block_binding(
-program,
-"passUniforms",
-);
-let draw_list_uniforms_binding=this.get_uniform_block_binding(
-program,
-"draw_listUniforms",
-);
-let draw_call_uniforms_binding=this.get_uniform_block_binding(
-program,
-"draw_callUniforms",
-);
-let user_uniforms_binding=this.get_uniform_block_binding(
-program,
-"userUniforms",
-);
-let live_uniforms_binding=this.get_uniform_block_binding(
-program,
-"liveUniforms",
-);
-this.draw_shaders[args.shader_id]={
+this.mark_startup_shader_complete(pending);
+this.draw_shaders[shader_id]={
 vertex:args.vertex,
 pixel:args.pixel,
-geom_attribs:get_attrib_locations(
-gl,
-program,
-"packed_geometry_",
-args.geometry_slots,
-),
-inst_attribs:get_attrib_locations(
-gl,
-program,
-"packed_instance_",
-args.instance_slots,
-),
-pass_uniforms_binding:pass_uniforms_binding,
-draw_list_uniforms_binding:draw_list_uniforms_binding,
-draw_call_uniforms_binding:draw_call_uniforms_binding,
-user_uniforms_binding:user_uniforms_binding,
-live_uniforms_binding:live_uniforms_binding,
+geom_attribs:get_attrib_locations(gl,program,"packed_geometry_",args.geometry_slots),
+inst_attribs:get_attrib_locations(gl,program,"packed_instance_",args.instance_slots),
+pass_uniforms_binding:this.get_uniform_block_binding(program,"passUniforms"),
+draw_list_uniforms_binding:this.get_uniform_block_binding(program,"draw_listUniforms"),
+draw_call_uniforms_binding:this.get_uniform_block_binding(program,"draw_callUniforms"),
+user_uniforms_binding:this.get_uniform_block_binding(program,"userUniforms"),
+live_uniforms_binding:this.get_uniform_block_binding(program,"liveUniforms"),
 pass_uniform_buf:gl.createBuffer(),
 draw_list_uniform_buf:gl.createBuffer(),
 draw_call_uniform_buf:gl.createBuffer(),
@@ -368,7 +369,37 @@ geometry_slots:args.geometry_slots,
 instance_slots:args.instance_slots,
 program:program,
 };
-this.assert_no_gl_error(gl,"compile_shader_end");
+return true;
+}
+FromWasmCompileWebGLShader(args){
+var gl=this.gl;
+var vsh=gl.createShader(gl.VERTEX_SHADER);
+gl.shaderSource(vsh,args.vertex);
+gl.compileShader(vsh);
+var fsh=gl.createShader(gl.FRAGMENT_SHADER);
+gl.shaderSource(fsh,args.pixel);
+gl.compileShader(fsh);
+var program=gl.createProgram();
+gl.attachShader(program,vsh);
+gl.attachShader(program,fsh);
+gl.linkProgram(program);
+const use_parallel_compile=!!this.parallel_compile_ext&&!this.loader_removed;
+this.draw_shaders[args.shader_id]={
+_pending:true,
+program:program,
+vsh:vsh,
+fsh:fsh,
+args:args,
+_parallel_compile:use_parallel_compile,
+_startup_pending:use_parallel_compile,
+};
+if(use_parallel_compile){
+this.pending_startup_shader_compiles+=1;
+this.schedule_startup_shader_warmup();
+}
+if(!use_parallel_compile){
+this._try_finalize_shader(args.shader_id,true);
+}
 }
 FromWasmAllocIndexBuffer(args){
 var gl=this.gl;
@@ -421,6 +452,12 @@ inst_vb_id:args.inst_vb_id,
 });
 gl.bindVertexArray(vao.gl_vao);
 gl.bindBuffer(gl.ARRAY_BUFFER,this.array_buffers[args.geom_vb_id].gl_buf);
+const wait_for_shader=this.loader_removed;
+if(!this._try_finalize_shader(args.shader_id,wait_for_shader)){
+gl.bindVertexArray(null);
+this.vaos[args.vao_id]._needs_setup=true;
+return;
+}
 let shader=this.draw_shaders[args.shader_id];
 if(!shader||shader.compile_failed){
 this.report_missing_shader_once(
@@ -491,6 +528,9 @@ gl.bindVertexArray(null);
 }
 FromWasmDrawCall(args){
 var gl=this.gl;
+if(!this._try_finalize_shader(args.shader_id,this.loader_removed)){
+return;
+}
 let shader=this.draw_shaders[args.shader_id];
 if(!shader||shader.compile_failed){
 this.report_missing_shader_once(
@@ -499,6 +539,17 @@ args.shader_id,
 args.vao_id,
 );
 return;
+}
+let vao_entry=this.vaos[args.vao_id];
+if(vao_entry&&vao_entry._needs_setup){
+delete vao_entry._needs_setup;
+this.FromWasmAllocVao({
+vao_id:args.vao_id,
+shader_id:args.shader_id,
+geom_ib_id:vao_entry.geom_ib_id,
+geom_vb_id:vao_entry.geom_vb_id,
+inst_vb_id:vao_entry.inst_vb_id,
+});
 }
 gl.useProgram(shader.program);
 gl.depthMask(!!args.depth_write);
@@ -861,6 +912,9 @@ texture_id:args.texture_id,
 video_id_lo:args.video_id_lo,
 video_id_hi:args.video_id_hi,
 playing:false,
+use_video_frame_callback:
+typeof video.requestVideoFrameCallback==="function",
+video_frame_callback_id:0,
 texture_initialized:false,
 };
 this.video_players[key]=player;
@@ -878,6 +932,7 @@ this.do_wasm_pump();
 });
 video.addEventListener("ended",()=>{
 player.playing=false;
+this.cancel_video_frame_callback(player);
 this.to_wasm.ToWasmVideoPlaybackCompleted({
 video_id_lo:args.video_id_lo,
 video_id_hi:args.video_id_hi,
@@ -886,10 +941,11 @@ this.do_wasm_pump();
 });
 video.addEventListener("play",()=>{
 player.playing=true;
-this.ensure_video_animation_frame();
+this.schedule_video_texture_updates(player);
 });
 video.addEventListener("pause",()=>{
 player.playing=false;
+this.cancel_video_frame_callback(player);
 });
 video.src=args.source_url;
 if(args.autoplay){
@@ -949,10 +1005,11 @@ FromWasmCleanupVideoPlaybackResources(args){
 let key=args.video_id_lo+"_"+args.video_id_hi;
 let player=this.video_players[key];
 if(player){
+player.playing=false;
+this.cancel_video_frame_callback(player);
 player.video.pause();
 player.video.removeAttribute("src");
 player.video.load();
-player.playing=false;
 delete this.video_players[key];
 this.to_wasm.ToWasmVideoPlaybackResourcesReleased({
 video_id_lo:args.video_id_lo,
@@ -970,17 +1027,51 @@ this.video_anim_frame_id=0;
 this.update_video_textures();
 });
 }
-update_video_textures(){
+schedule_video_texture_updates(player){
+if(!player||!player.playing){
+return;
+}
+if(player.use_video_frame_callback){
+if(player.video_frame_callback_id){
+return;
+}
+let key=player.video_id_lo+"_"+player.video_id_hi;
+player.video_frame_callback_id=player.video.requestVideoFrameCallback(
+()=>{
+player.video_frame_callback_id=0;
+if(!player.playing||this.video_players[key]!==player){
+return;
+}
+if(this.update_video_texture(player)){
+this.do_wasm_pump();
+}
+if(player.playing&&this.video_players[key]===player){
+this.schedule_video_texture_updates(player);
+}
+},
+);
+return;
+}
+this.ensure_video_animation_frame();
+}
+cancel_video_frame_callback(player){
+if(!player||!player.video_frame_callback_id){
+return;
+}
+if(
+player.use_video_frame_callback&&
+typeof player.video.cancelVideoFrameCallback==="function"
+){
+player.video.cancelVideoFrameCallback(player.video_frame_callback_id);
+}
+player.video_frame_callback_id=0;
+}
+update_video_texture(player){
 let gl=this.gl;
-let any_playing=false;
-let any_updated=false;
-for(let key in this.video_players){
-let player=this.video_players[key];
-if(!player.playing)continue;
-any_playing=true;
 let video=player.video;
-if(video.readyState<2)continue;
-any_updated=true;
+if(video.readyState<2){
+return false;
+}
 let gl_tex=this.textures[player.texture_id];
 if(!gl_tex){
 gl_tex=gl.createTexture();
@@ -1009,11 +1100,26 @@ video_id_hi:player.video_id_hi,
 current_position_lo:current_ms&0xFFFFFFFF,
 current_position_hi:Math.floor(current_ms/0x100000000),
 });
+return true;
+}
+update_video_textures(){
+let any_fallback_playing=false;
+let any_updated=false;
+for(let key in this.video_players){
+let player=this.video_players[key];
+if(!player.playing)continue;
+if(player.use_video_frame_callback){
+continue;
+}
+any_fallback_playing=true;
+if(this.update_video_texture(player)){
+any_updated=true;
+}
 }
 if(any_updated){
 this.do_wasm_pump();
 }
-if(any_playing){
+if(any_fallback_playing){
 this.ensure_video_animation_frame();
 }
 }
@@ -1068,6 +1174,7 @@ this.gpu_info.renderer=gl.getParameter(
 debug_info.UNMASKED_RENDERER_WEBGL,
 );
 }
+this.parallel_compile_ext=gl.getExtension("KHR_parallel_shader_compile");
 }
 }
 function add_line_numbers_to_string(code){

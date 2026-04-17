@@ -156,7 +156,9 @@ headers,
 body,
 signal:controller.signal,
 }).then(async response=>{
+if(globalThis.makepad_log_http===true){
 console.log("[makepad][http][req]",method,url);
+}
 let response_headers="";
 response.headers.forEach((value,key)=>{
 response_headers+=`${key}: ${value}\r\n`;
@@ -164,7 +166,9 @@ response_headers+=`${key}: ${value}\r\n`;
 let response_body=new Uint8Array(await response.arrayBuffer());
 let headers_u8=string_to_u8(response_headers);
 let body_u8=array_to_u8(response_body);
+if(globalThis.makepad_log_http===true){
 console.log("[makepad][http][res]",response.status,url,response_body.length);
+}
 wasm.exports.wasm_network_http_response(
 request_id_lo,
 request_id_hi,
@@ -305,9 +309,13 @@ wasm.exports.__wasm_init_tls(thread_info.tls_ptr);
 wasm.exports.__wbindgen_start();
 }
 if(thread_info.timer>0){
-this.setInterval(()=>{
+const timer_tick=()=>{
+this.setTimeout(()=>{
 wasm.exports.wasm_thread_timer_entrypoint(thread_info.context_ptr);
+timer_tick();
 },thread_info.timer);
+};
+timer_tick();
 }
 else{
 wasm.exports.wasm_thread_entrypoint(thread_info.context_ptr);

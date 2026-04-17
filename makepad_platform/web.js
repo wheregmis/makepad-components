@@ -25,6 +25,10 @@ this.signal_timeout=null;
 this.workers=[];
 this.thread_stack_size=2*1024*1024;
 this.buffer_upload_serial=0;
+this.pending_wasm_pump_id=0;
+this.signal_poll_timer=0;
+this.text_input_style=null;
+this.audio_resume_hook=null;
 this.loader_removed=false;
 this.loader_seen_animation_frame=false;
 this.loader_quiet_animation_frames=0;
@@ -96,6 +100,10 @@ remove_canvas_loader(){
 if(this.loader_removed){
 return;
 }
+if(this.should_keep_startup_loader()){
+this.schedule_loader_fallback();
+return;
+}
 this.loader_removed=true;
 if(this.loader_after_presented_frame_id){
 window.cancelAnimationFrame(this.loader_after_presented_frame_id);
@@ -121,6 +129,11 @@ if(this.loader_removed||this.loader_fallback_timer){
 return;
 }
 this.loader_fallback_timer=window.setTimeout(()=>{
+this.loader_fallback_timer=null;
+if(this.should_keep_startup_loader()){
+this.schedule_loader_fallback();
+return;
+}
 this.remove_canvas_loader();
 },1500);
 }
@@ -151,6 +164,11 @@ if(this.loader_removed){
 return;
 }
 this.schedule_loader_fallback();
+if(this.should_keep_startup_loader()){
+this.loader_quiet_animation_frames=0;
+this.cancel_loader_after_presented_frame();
+return;
+}
 if(!this.in_animation_frame){
 if(this.loader_seen_animation_frame){
 this.loader_quiet_animation_frames=0;
@@ -173,6 +191,9 @@ this.schedule_loader_after_presented_frame();
 else{
 this.cancel_loader_after_presented_frame();
 }
+}
+should_keep_startup_loader(){
+return false;
 }
 FromWasmOpenUrl(args){
 if(args.in_place){
@@ -218,25 +239,46 @@ console.error("Timer ID collision!")
 return
 }
 }
-var timer={timer_id,repeats:args.repeats};
-if(args.repeats===true){
-timer.sys_id=window.setInterval(e=>{
-this.to_wasm.ToWasmTimerFired({timer_id});
-this.do_wasm_pump();
-},args.interval*1000.0);
-}
-else{
-timer.sys_id=window.setTimeout(e=>{
+var timer={timer_id,repeats:args.repeats,active:true,sys_id:0};
+let interval_ms=args.interval*1000.0;
+let remove_timer=()=>{
 for(let i=0;i<this.timers.length;i++){
-let timer=this.timers[i];
-if(timer.timer_id==timer_id){
+if(this.timers[i].timer_id==timer_id){
 this.timers.splice(i,1);
 break;
 }
 }
+};
+if(args.repeats===true){
+let fire=()=>{
+if(!timer.active||this.wasm==null){
+timer.active=false;
+remove_timer();
+return;
+}
 this.to_wasm.ToWasmTimerFired({timer_id});
-this.do_wasm_pump();
-},args.interval*1000.0);
+this.schedule_wasm_pump();
+if(!timer.active||this.wasm==null){
+timer.active=false;
+remove_timer();
+return;
+}
+timer.sys_id=window.setTimeout(fire,interval_ms);
+};
+timer.sys_id=window.setTimeout(fire,interval_ms);
+}
+else{
+timer.sys_id=window.setTimeout(e=>{
+if(!timer.active||this.wasm==null){
+timer.active=false;
+remove_timer();
+return;
+}
+timer.active=false;
+remove_timer();
+this.to_wasm.ToWasmTimerFired({timer_id});
+this.schedule_wasm_pump();
+},interval_ms);
 }
 this.timers.push(timer)
 }
@@ -244,12 +286,8 @@ FromWasmStopTimer(args){
 for(let i=0;i<this.timers.length;i++){
 let timer=this.timers[i];
 if(timer.timer_id==args.timer_id){
-if(timer.repeats){
-window.clearInterval(timer.sys_id);
-}
-else{
+timer.active=false;
 window.clearTimeout(timer.sys_id);
-}
 this.timers.splice(i,1);
 return
 }
@@ -288,10 +326,10 @@ if(this.xr!==undefined||this.req_anim_frame_id){
 return;
 }
 this.req_anim_frame_id=window.requestAnimationFrame(time=>{
+this.req_anim_frame_id=0;
 if(this.wasm==null){
 return
 }
-this.req_anim_frame_id=0;
 if(this.xr!==undefined){
 return
 }
@@ -300,6 +338,18 @@ this.in_animation_frame=true;
 this.do_wasm_pump();
 this.in_animation_frame=false;
 })
+}
+schedule_wasm_pump(){
+if(this.wasm==null||this.req_anim_frame_id||this.pending_wasm_pump_id){
+return;
+}
+this.pending_wasm_pump_id=window.requestAnimationFrame(()=>{
+this.pending_wasm_pump_id=0;
+if(this.wasm==null){
+return;
+}
+this.do_wasm_pump();
+});
 }
 FromWasmSetDocumentTitle(args){
 document.title=args.title
@@ -374,18 +424,20 @@ console.error(err);
 audio_worklet.connect(this.audio_context.destination);
 return audio_worklet;
 };
-let user_interact_hook=(arg)=>{
-if(this.audio_context.state==="suspended"){
+if(!this.audio_resume_hook){
+this.audio_resume_hook=()=>{
+if(this.audio_context&&this.audio_context.state==="suspended"){
 this.audio_context.resume();
 }
+};
+window.addEventListener('mousedown',this.audio_resume_hook,{passive:true});
+window.addEventListener('touchstart',this.audio_resume_hook,{passive:true});
 }
 this.audio_context=new AudioContext({
 latencyHint:"interactive",
 sampleRate:48000
 });
 start_worklet().catch(err=>console.error(err));
-window.addEventListener('mousedown',user_interact_hook)
-window.addEventListener('touchstart',user_interact_hook)
 }
 FromWasmQueryAudioDevices(args){
 navigator.mediaDevices?.enumerateDevices().then((devices_enum)=>{
@@ -546,13 +598,24 @@ this.workers.push(worker);
 })().catch(err=>console.error(err));
 }
 start_signal_poll(){
-this.poll_timer=window.setInterval(e=>{
+if(this.signal_poll_timer){
+return;
+}
+let poll=()=>{
+this.signal_poll_timer=0;
+if(this.wasm==null){
+return;
+}
 let flags=this.exports.wasm_check_signal();
 if(flags!=0){
 this.to_wasm.ToWasmSignal({flags});
-this.do_wasm_pump();
+this.schedule_wasm_pump();
 }
-},0.016*1000.0);
+if(this.wasm!=null){
+this.signal_poll_timer=window.setTimeout(poll,0.016*1000.0);
+}
+};
+this.signal_poll_timer=window.setTimeout(poll,0.016*1000.0);
 }
 parse_and_set_headers(request,headers_string){
 let lines=headers_string.split("\r\n");
@@ -626,7 +689,9 @@ headers.append(key,value);
 catch(_error){
 }
 }
+if(window.makepad_log_http===true){
 console.log("[makepad][http][req]",method,url);
+}
 fetch(url,{
 method,
 headers,
@@ -640,7 +705,9 @@ response_headers+=`${key}: ${value}\r\n`;
 let response_body=new Uint8Array(await response.arrayBuffer());
 let headers_u8=this.string_to_u8(response_headers);
 let body_u8=this.array_to_u8(response_body);
+if(window.makepad_log_http===true){
 console.log("[makepad][http][res]",response.status,url,response_body.length);
+}
 this.exports.wasm_network_http_response(
 request_id_lo,
 request_id_hi,
@@ -743,8 +810,7 @@ const req=new XMLHttpRequest();
 req.open(args.method,args.url);
 req.responseType="arraybuffer";
 this.parse_and_set_headers(req,args.headers);
-const decoder=new TextDecoder('UTF-8',{fatal:true});
-let body=decoder.decode(this.clone_data_u8(args.body));
+let body=args.body.len>0?this.clone_data_u8(args.body):undefined;
 req.addEventListener("load",event=>{
 let responseEvent=event.target;
 if(responseEvent.status<200||responseEvent.status>=300){
@@ -814,7 +880,7 @@ request_id_hi:args.request_id_hi,
 loaded:event.loaded,
 total:event.total,
 });
-this.do_wasm_pump();
+this.schedule_wasm_pump();
 }
 });
 req.upload.addEventListener("progress",(event)=>{
@@ -825,7 +891,7 @@ request_id_hi:args.request_id_hi,
 loaded:event.loaded,
 total:event.total,
 });
-this.do_wasm_pump();
+this.schedule_wasm_pump();
 }
 });
 req.send(body);
@@ -954,6 +1020,10 @@ from_wasm.dispatch_on_app();
 from_wasm.free();
 }
 do_wasm_pump(){
+if(this.pending_wasm_pump_id){
+window.cancelAnimationFrame(this.pending_wasm_pump_id);
+this.pending_wasm_pump_id=0;
+}
 let started=performance.now();
 this.buffer_upload_serial+=1;
 let to_wasm=this.to_wasm;
@@ -1067,8 +1137,6 @@ this.to_wasm.ToWasmMouseUp({mouse:mouse_to_wasm_wmouse(e)});
 this.do_wasm_pump();
 }
 this.handlers.on_mouse_move=e=>{
-document.body.scrollTop=0;
-document.body.scrollLeft=0;
 this.to_wasm.ToWasmMouseMove({was_out:false,mouse:mouse_to_wasm_wmouse(e)});
 this.do_wasm_pump();
 }
@@ -1186,14 +1254,19 @@ bind_keyboard(){
 if(this.detect.is_mobile_safari||this.detect.is_android){
 return
 }
+if(this.text_area&&this.text_area.parentNode){
+this.text_area.parentNode.removeChild(this.text_area);
+}
+this.text_area=null;
 var ta=this.text_area=document.createElement('textarea')
 ta.className="cx_webgl_textinput"
 ta.setAttribute('autocomplete','off')
 ta.setAttribute('autocorrect','off')
 ta.setAttribute('autocapitalize','off')
 ta.setAttribute('spellcheck','false')
-var style=document.createElement('style')
-style.innerHTML="\n"
+if(!this.text_input_style){
+this.text_input_style=document.createElement('style')
+this.text_input_style.innerHTML="\n"
 +"textarea.cx_webgl_textinput {\n"
 +"z-index: 1000;\n"
 +"position: absolute;\n"
@@ -1222,7 +1295,8 @@ style.innerHTML="\n"
 +"outline: 0px !important;\n"
 +"-webkit-appearance: none;\n"
 +"}"
-document.body.appendChild(style)
+document.body.appendChild(this.text_input_style)
+}
 ta.style.left=-100+'px'
 ta.style.top=-100+'px'
 ta.style.height=1+'px'
@@ -1362,7 +1436,6 @@ if(code==91){e.preventDefault();}
 var ta=this.text_area;
 if(ugly_ime_hack){
 ugly_ime_hack=false;
-document.body.removeChild(ta);
 this.bind_keyboard();
 this.update_text_area_pos();
 }
