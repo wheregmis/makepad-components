@@ -134,12 +134,15 @@ impl RouterWidget {
         } else {
             RouterAction::Navigate(route.clone())
         };
+        // Optimization: avoid unnecessary allocation by borrowing RouterAction before consuming it
+        // Previously: queued actions first using `primary_action.clone()`, then synced browser
+        // Now: sync browser first (borrows), then queue (consumes), eliminating a full `Route` clone
+        self.sync_browser_with_action(cx, &primary_action);
         self.queue_route_actions(
-            Some(primary_action.clone()),
+            Some(primary_action),
             old_route.as_ref().map(|r| r.id),
             &route,
         );
-        self.sync_browser_with_action(cx, &primary_action);
 
         match &intent.kind {
             ResolvedPathKind::NestedPrefix { tail } => {
