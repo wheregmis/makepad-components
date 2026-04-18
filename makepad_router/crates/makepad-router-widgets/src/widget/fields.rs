@@ -11,7 +11,7 @@ use crate::guards::{
 };
 use crate::route::Route;
 
-type RouteChangeCallback = Box<dyn Fn(&mut Cx, Option<Route>, Route) + Send + Sync>;
+type RouteChangeCallback = Box<dyn Fn(&mut Cx, Option<&Route>, &Route) + Send + Sync>;
 
 #[derive(Default)]
 pub(crate) struct RouterCallbacks {

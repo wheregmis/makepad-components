@@ -92,3 +92,6 @@
 ## 2025-02-14 - Eliminate RouterAction Clone in Path Navigation
 **Learning:** In Makepad routing, when dispatching a route action, `queue_route_actions` consumes the action (moving it into a `Vec`). However, `sync_browser_with_action` only requires a reference (`&RouterAction`). If they are called in the wrong order (queue then sync), it necessitates an expensive clone of `RouterAction`, which intern clones the `Route` object and its heap-allocated parameters/queries.
 **Action:** Always perform side-effects that take references before side-effects that take ownership. Swap the execution order of `sync_browser_with_action` and `queue_route_actions` to eliminate unnecessary deep cloning in hot paths.
+## 2024-04-18 – Eliminate Route clones in makepad-router
+**Learning:** In event-heavy UI architectures, routing callback loops (`for callback in &callbacks`) that pass complex values (like `Route`, which contains `HashMap` allocations for queries and params) can cause significant, unnecessary heap churn on every layout or interaction frame.
+**Action:** When designing observer or callback APIs (e.g., `on_route_change`), prefer passing arguments by reference (`&T` or `Option<&T>`) instead of consuming `T` or enforcing `.clone()` at the dispatch site, especially for structs holding heap-allocated collections.
