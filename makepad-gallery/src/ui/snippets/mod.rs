@@ -53,6 +53,7 @@ pub fn snippet_code(key: GallerySnippetKey) -> &'static str {
         GallerySnippetKey::Calendar => CALENDAR_PREVIEW_CODE,
         GallerySnippetKey::Card => CARD_PREVIEW_CODE,
         GallerySnippetKey::Carousel => CAROUSEL_PREVIEW_CODE,
+        GallerySnippetKey::Catalog => "",
         GallerySnippetKey::Chart => CHART_PREVIEW_CODE,
         GallerySnippetKey::Checkbox => CHECKBOX_PREVIEW_CODE,
         GallerySnippetKey::Collapsible => COLLAPSIBLE_PREVIEW_CODE,

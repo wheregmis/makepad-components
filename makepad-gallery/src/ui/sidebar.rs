@@ -30,7 +30,7 @@ macro_rules! define_gallery_sidebar {
                 flow: Right
                 align: Align {y: 0.5}
                 spacing: 10.0
-                padding: Inset {top: 8, bottom: 20}
+                padding: Inset {top: 0, bottom: 12}
 
                 logo := View {
                     width: 28
@@ -105,18 +105,19 @@ macro_rules! define_gallery_sidebar {
                 width: Fill
                 height: Fill
                 flow: Down
+                spacing: 0.0
                 padding: Inset{right: 8}
 
                 $(
                     ShadSidebarSectionLabel{
                         text: $section_name
-                        margin: Inset{top: 24.0, bottom: 8.0, left: 12.0, right: 0.0}
+                        margin: Inset{top: 16.0, bottom: 4.0, left: 12.0, right: 0.0}
                         draw_text.text_style: theme.font_bold{font_size: 9.0}
                     }
                     $(
                         $sidebar_id := ShadSidebarItem{
                             text: $sidebar_label
-                            height: 32
+                            height: 28
                             draw_text.text_style.font_size: 10.0
                         }
                     )*
@@ -124,8 +125,9 @@ macro_rules! define_gallery_sidebar {
             }
 
             mod.widgets.GallerySidebar = ShadSidebar{
-                width: 260
+                width: 240
                 padding: Inset{top: 24, right: 16, bottom: 16, left: 24}
+                spacing: 0.0
                 draw_bg.border_size: 0.0
                 draw_bg.color: (shad_theme.color_background)
 

@@ -15,6 +15,7 @@ pub enum GallerySnippetKey {
     Calendar,
     Card,
     Carousel,
+    Catalog,
     Chart,
     Checkbox,
     Collapsible,

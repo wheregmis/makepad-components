@@ -14,6 +14,17 @@ macro_rules! gallery_page_entries {
                     snippet: Overview,
                     transition: none,
                 }
+                {
+                    title: "Catalog",
+                    route: "/catalog",
+                    page: catalog_page,
+                    widget: GalleryCatalogPage,
+                    sidebar_id: sidebar_catalog,
+                    sidebar_label: "Catalog",
+                    section: "Getting Started",
+                    shortcut: "C",
+                    snippet: Catalog,
+                }
             }
             "Layout" => {
                 {

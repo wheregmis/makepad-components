@@ -85,10 +85,10 @@ where
 }
 
 script_mod! {
-    use mod.prelude.widgets.*
-    use mod.widgets.*
+use mod.prelude.widgets.*
+use mod.widgets.*
 
-    mod.widgets.GalleryCommandPaletteBase = #(GalleryCommandPalette::register_widget(vm))
+mod.widgets.GalleryCommandPaletteBase = #(GalleryCommandPalette::register_widget(vm))
 
     mod.widgets.GalleryCommandPaletteRowButton = set_type_default() do mod.widgets.ShadNavButtonBase{
         width: Fill
@@ -102,6 +102,7 @@ script_mod! {
             color_hover: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_ghost_down)
             color_focus: (shad_theme.color_ghost_hover)
+            color_disabled: #0000
             border_size: 0.0
             border_radius: 10.0
             border_color: #0000
@@ -110,191 +111,188 @@ script_mod! {
         draw_text.color_hover: (shad_theme.color_primary)
         draw_text.color_down: (shad_theme.color_primary)
         draw_text.color_focus: (shad_theme.color_primary)
+        draw_text.color_disabled: (shad_theme.color_disabled_foreground)
         draw_text.text_style.font_size: 13
     }
 
-    mod.widgets.GalleryCommandPaletteRow = View{
-        width: Fill
-        height: Fit
-        flow: Down
+mod.widgets.GalleryCommandPaletteRow = View{
+    width: Fill
+    height: Fit
+    flow: Down
 
-        header := ShadSectionHeader{
-            margin: Inset{left: 12, right: 12, top: 8, bottom: 4}
-            visible: false
-            draw_text.color: (shad_theme.color_muted_foreground)
-            draw_text.text_style.font_size: 10
-            text: "Section"
-        }
-
-        row := ShadSurface{
-            width: Fill
-            height: 44
-            flow: Right
-            align: Align{y: 0.5}
-            padding: Inset{left: 14, right: 12, top: 0, bottom: 0}
-            spacing: 12.0
-            draw_bg +: {
-                color: #0000
-                border_radius: 10.0
-                border_size: 0.0
-            }
-
-            button := mod.widgets.GalleryCommandPaletteRowButton{}
-
-            shortcut := ShadSectionHeader{
-                width: Fit
-                draw_text.color: (shad_theme.color_muted_foreground)
-                draw_text.text_style.font_size: 10
-                text: ""
-            }
-        }
+    header := ShadLabel{
+        margin: Inset{left: 14, right: 12, top: 12, bottom: 4}
+        visible: false
+        draw_text.color: (shad_theme.color_muted_foreground)
+        draw_text.text_style.font_size: 9
+        text: "Section"
     }
 
-    mod.widgets.GalleryCommandPalette = set_type_default() do mod.widgets.GalleryCommandPaletteBase{
+    row := RoundedView{
         width: Fill
-        height: Fill
-        open: false
-        active_row_color: (shad_theme.color_secondary_hover)
+        height: 40
+        flow: Right
+        align: Align{y: 0.5}
+        padding: Inset{left: 14, right: 12, top: 0, bottom: 0}
+        spacing: 12.0
+        draw_bg: {
+            color: #0000
+            border_radius: 6.0
+        }
 
-        overlay: Modal{
-            align: Align{x: 0.5, y: 0.0}
-            bg_view +: {
-                draw_bg.color: (shad_theme.color_overlay)
-            }
+        button := mod.widgets.GalleryCommandPaletteRowButton{}
 
-            content +: {
-                width: 360
-                height: Fit
-                margin: Inset{top: 72, left: 0, right: 0, bottom: 0}
+        shortcut := ShadLabel{
+            width: Fit
+            draw_text.color: (shad_theme.color_muted_foreground)
+            draw_text.text_style.font_size: 9
+            text: ""
+        }
+    }
+}
 
-                panel := ShadSurface{
+mod.widgets.GalleryCommandPalette = set_type_default() do mod.widgets.GalleryCommandPaletteBase{
+    width: Fill
+    height: Fill
+    open: false
+    active_row_color: (shad_theme.color_secondary_hover)
+
+    overlay: Modal{
+        align: Align{x: 0.5, y: 0.0}
+        bg_view +: {
+            draw_bg +: { color: (shad_theme.color_overlay) }
+        }
+
+        content +: {
+            width: 560
+            height: Fit
+            flow: Down
+            margin: Inset{top: 120, left: 0, right: 0, bottom: 0}
+
+            palette_panel := mod.widgets.ShadSurfacePopover {
+                padding: 0
+                flow: Down
+
+                search_shell := View {
+                    width: Fill
+                    height: Fit
+                    flow: Right
+                    align: Align{y: 0.5}
+                    padding: Inset{left: 14, right: 14, top: 12, bottom: 12}
+                    spacing: 10.0
+
+                    IconSearch{
+                        icon_walk: Walk{width: 18, height: 18}
+                        draw_icon.color: (shad_theme.color_muted_foreground)
+                    }
+
+                    search_input := ShadInputBorderless{
+                        empty_text: "Search components, sections, or shortcut tags..."
+                        draw_text.text_style.font_size: 14
+                        draw_text.color_empty: (shad_theme.color_muted_foreground)
+                    }
+
+                    clear_search_btn := ShadButtonGhost{
+                        text: "Close"
+                    }
+                }
+
+                mod.widgets.ShadSeparator{}
+
+                results_summary := ShadFieldDescription{
+                    margin: Inset{top: 12, bottom: 8, left: 14, right: 14}
+                    text: "Showing all gallery components. Search by title, section, or shortcut tag."
+                }
+
+                results_shell := View{
                     width: Fill
                     height: Fit
                     flow: Down
-                    padding: Inset{left: 12, right: 12, top: 12, bottom: 12}
-                    spacing: 10.0
+                    spacing: 2.0
 
-                    draw_bg +: {
-                        color: (shad_theme.color_popover)
-                        border_radius: 18.0
-                        border_size: 1.0
-                        border_color: (shad_theme.color_outline_border)
-                    }
-
-                    search_label := ShadFieldLabel{
-                        text: "Search gallery components"
-                    }
-
-                    search_shell := ShadSurface{
+                    results := PortalList{
                         width: Fill
-                        height: Fit
-                        flow: Right
-                        align: Align{y: 0.5}
-                        padding: Inset{left: 14, right: 14, top: 0, bottom: 0}
-                        spacing: 10.0
+                        height: 360.0
+                        flow: Down
+                        max_pull_down: 0.0
+                        capture_overload: false
+                        grab_key_focus: false
+                        auto_tail: false
+                        selectable: false
+                        drag_scrolling: true
 
-                        draw_bg +: {
-                            color: (shad_theme.color_secondary)
-                            border_radius: 12.0
-                            border_size: 1.0
-                            border_color: (shad_theme.color_outline_border)
-                        }
-
-                        IconSearch{
-                            icon_walk: Walk{width: 18, height: 18}
-                            draw_icon.color: (shad_theme.color_muted_foreground)
-                        }
-
-                        search_input := ShadInputBorderless{
-                            empty_text: "Search components, sections, or shortcut tags..."
-                            draw_text.text_style.font_size: 14
-                            draw_text.color_empty: (shad_theme.color_muted_foreground)
-                        }
-
-                        clear_search_btn := ShadButtonGhost{
-                            text: "Close"
-                        }
+                        Item := mod.widgets.GalleryCommandPaletteRow{}
                     }
 
-                    results_summary := ShadFieldDescription{
-                        text: "Showing all gallery components. Search by title, section, or shortcut tag."
-                    }
-
-                    results_shell := View{
+                    empty_state := View{
                         width: Fill
                         height: Fit
                         flow: Down
-                        spacing: 2.0
+                        align: Align{x: 0.5}
+                        padding: Inset{left: 12, right: 12, top: 18, bottom: 16}
+                        spacing: 6.0
+                        visible: false
 
-                        results := PortalList{
-                            width: Fill
-                            height: 320.0
-                            flow: Down
-                            max_pull_down: 0.0
-                            capture_overload: false
-                            grab_key_focus: false
-                            auto_tail: false
-                            selectable: false
-                            drag_scrolling: true
-
-                            Item := mod.widgets.GalleryCommandPaletteRow{}
+                        empty_title := ShadLabel{
+                            draw_text.color: (shad_theme.color_primary)
+                            draw_text.text_style.font_size: 13
+                            text: "No commands found"
                         }
 
-                        empty_state := View{
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            align: Align{x: 0.5}
-                            padding: Inset{left: 12, right: 12, top: 18, bottom: 16}
-                            spacing: 6.0
-                            visible: false
+                        empty_copy := ShadFieldDescription{
+                            draw_text.color: (shad_theme.color_muted_foreground)
+                            draw_text.text_style.font_size: 11
+                            text: "Try a component like button, a section like forms, or the shortcut tag shown in each row."
+                        }
+                    }
+                }
 
-                            empty_title := ShadLabel{
-                                draw_text.color: (shad_theme.color_primary)
-                                draw_text.text_style.font_size: 13
-                                text: "No commands found"
-                            }
+                footer := View{
+                    width: Fill
+                    height: Fit
+                    flow: Right
+                    align: Align{y: 0.5}
+                    spacing: 20.0
+                    padding: Inset{left: 14, right: 14, top: 10, bottom: 10}
+                    draw_bg +: {
+                        color: (shad_theme.color_muted)
+                        border_radius: vec4(0.0, 0.0, (shad_theme.radius), (shad_theme.radius))
+                    }
 
-                            empty_copy := ShadFieldDescription{
-                                draw_text.color: (shad_theme.color_muted_foreground)
-                                draw_text.text_style.font_size: 11
-                                text: "Try a component like button, a section like forms, or the shortcut tag shown in each row."
-                            }
+                    View {
+                        width: Fit, height: Fit, flow: Right, spacing: 8.0, align: Align{y: 0.5}
+                        ShadKbd{ label := ShadKbdLabel{text: "Enter"} }
+                        ShadLabel{
+                            text: "Open"
+                            draw_text.color: (shad_theme.color_muted_foreground)
+                            draw_text.text_style.font_size: 9
                         }
                     }
 
-                    footer := View{
-                        width: Fill
-                        height: Fit
-                        flow: Right{wrap: true}
-                        spacing: 8.0
-                        margin: Inset{top: 4}
-
-                        ShadKbd{ label := ShadKbdLabel{text: "Enter"} }
-                        ShadSectionHeader{
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
-                            text: "Open"
-                        }
-
+                    View {
+                        width: Fit, height: Fit, flow: Right, spacing: 8.0, align: Align{y: 0.5}
                         ShadKbd{ label := ShadKbdLabel{text: "Esc"} }
-                        ShadSectionHeader{
-                            draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
+                        ShadLabel{
                             text: "Clear / Close"
-                        }
-
-                        ShadKbd{ label := ShadKbdLabel{text: "Up/Down"} }
-                        ShadSectionHeader{
                             draw_text.color: (shad_theme.color_muted_foreground)
-                            draw_text.text_style.font_size: 10
+                            draw_text.text_style.font_size: 9
+                        }
+                    }
+
+                    View {
+                        width: Fit, height: Fit, flow: Right, spacing: 8.0, align: Align{y: 0.5}
+                        ShadKbd{ label := ShadKbdLabel{text: "Up/Down"} }
+                        ShadLabel{
                             text: "Move"
+                            draw_text.color: (shad_theme.color_muted_foreground)
+                            draw_text.text_style.font_size: 9
                         }
                     }
                 }
             }
         }
     }
+}
 }
 
 #[derive(Clone, Debug, Default)]
@@ -532,9 +530,9 @@ impl GalleryCommandPalette {
                     Vec4f::all(0.0)
                 };
                 script_apply_eval!(cx, row, {
-                    draw_bg +: {
+                    draw_bg: {
                         color: #(background)
-                        border_radius: 10.0
+                        border_radius: 6.0
                     }
                 });
             }
