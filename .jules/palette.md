@@ -59,3 +59,6 @@
 **Learning:** In this gallery, the same command palette opens from multiple shell breakpoints. When one trigger says `Search` and another says `Search components`, the desktop header becomes the ambiguous outlier even though both buttons route to the same navigation surface.
 **Action:** Keep shared launcher labels and shortcut hints consistent across shell variants so the gallery teaches one discoverable navigation pattern instead of device-specific wording.
 
+## 2026-04-19 - [Correct NavRole in ShadNavButton]
+**Learning:** In `ShadNavButton`, keyboard focus was incorrectly given `NavRole::TextInput` instead of `NavRole::Button`, causing incorrect screen reader behavior.
+**Action:** Ensure custom buttons correctly map their grab key focus to `NavRole::Button` to maintain accessibility semantics.

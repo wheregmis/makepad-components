@@ -616,7 +616,7 @@ impl Widget for ShadNavButton {
         self.area = self.draw_bg.area();
 
         if self.grab_key_focus {
-            cx.add_nav_stop(self.area, NavRole::TextInput, Inset::default());
+            cx.add_nav_stop(self.area, NavRole::Button, Inset::default());
         }
 
         DrawStep::done()
