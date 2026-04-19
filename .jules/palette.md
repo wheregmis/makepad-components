@@ -59,3 +59,6 @@
 **Learning:** In this gallery, the same command palette opens from multiple shell breakpoints. When one trigger says `Search` and another says `Search components`, the desktop header becomes the ambiguous outlier even though both buttons route to the same navigation surface.
 **Action:** Keep shared launcher labels and shortcut hints consistent across shell variants so the gallery teaches one discoverable navigation pattern instead of device-specific wording.
 
+## 2026-04-19 - [Correct NavRole in ShadNavButton]
+**Learning:** In Makepad components, explicitly setting `grab_key_focus: true` does not automatically assign proper screen reader roles, and `NavRole::Button` is not a valid enum variant in the underlying Makepad framework. Controls that act like buttons but are not actual `TextInput` fields must avoid assigning mismatched navigation roles or wait for upstream support for `NavRole::Button` to maintain correct accessibility semantics.
+**Action:** Never attempt to assign `NavRole::Button` to a component's navigation stop, as this variant does not exist and will cause compiler errors. Instead, rely on the component's internal hit testing and focus state logic until proper ARIA-like roles are introduced in the framework.
