@@ -437,17 +437,22 @@ impl GalleryCommandPalette {
         let previous_active = self.active_index;
         self.filtered_indices_scratch.clear();
 
-        for (index, command) in catalog::entries().iter().enumerate() {
-            let matches = search_terms
-                .get(index)
-                .map(|term| matches_command_query(term, &query))
-                .unwrap_or_else(|| {
-                    query.is_empty()
-                        || command.title.to_ascii_lowercase().contains(&query)
-                        || command.section.to_ascii_lowercase().contains(&query)
-                        || command.shortcut.to_ascii_lowercase().contains(&query)
-                });
-            if matches {
+        // Optimization: iterate directly over cached search terms for the hot path.
+        // Previously: used map/unwrap_or_else inside the loop, adding overhead even when cached.
+        // Now: we check cached terms directly, and only process uncached items in a fallback loop.
+        for (index, term) in search_terms.iter().enumerate() {
+            if matches_command_query(term, &query) {
+                self.filtered_indices_scratch.push(index);
+            }
+        }
+
+        // Fallback for any trailing entries not in cache
+        for (index, command) in catalog::entries().iter().enumerate().skip(search_terms.len()) {
+            if query.is_empty()
+                || command.title.to_ascii_lowercase().contains(&query)
+                || command.section.to_ascii_lowercase().contains(&query)
+                || command.shortcut.to_ascii_lowercase().contains(&query)
+            {
                 self.filtered_indices_scratch.push(index);
             }
         }
