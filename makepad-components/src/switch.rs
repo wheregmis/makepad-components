@@ -6,11 +6,13 @@ script_mod! {
 
     // Single switch/toggle component: themed Toggle (same as gallery uses)
     mod.widgets.ShadSwitch = Toggle{
+        grab_key_focus: true
         draw_text.color: (shad_theme.color_primary)
         draw_text.text_style.font_size: 10
 
         draw_bg.border_color: (shad_theme.color_outline_border)
         draw_bg.border_color_active: (shad_theme.color_outline_border)
         draw_bg.border_color_hover: (shad_theme.color_outline_border_hover)
+        draw_bg.border_color_focus: (shad_theme.color_primary)
     }
 }
