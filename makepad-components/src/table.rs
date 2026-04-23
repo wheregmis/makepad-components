@@ -733,12 +733,11 @@ impl ShadTable {
                     calculate_content_based_widths(&self.headers, &self.rows_data);
                 self.content_widths_dirty = false;
             }
-            // Optimization: Avoid creating a new Vec and causing heap churn when content widths change sizes.
-            // Previously: used a conditional `clone()` which allocated memory if lengths mismatched.
-            // Now: reuse the existing capacity using clear + extend_from_slice.
-            self.resolved_widths.clear();
-            self.resolved_widths
-                .extend_from_slice(self.cached_content_widths.as_slice());
+            // Optimization: `sync_layout` can run repeatedly while table state is otherwise stable.
+            // Previously: we recopied cached widths into `resolved_widths` on every sync.
+            // Now: skip the copy entirely when widths are unchanged, and only reuse the existing
+            // Vec allocation when the cached widths actually differ.
+            sync_vec_if_changed(&mut self.resolved_widths, &self.cached_content_widths);
         } else {
             sync_default_widths(
                 &mut self.resolved_widths,
@@ -1377,7 +1376,7 @@ mod tests {
     use super::{
         changed_selection_rows, invalidate_content_width_cache, invalidate_content_widths_cache,
         replace_arc_slice_if_changed, should_apply_content_width, should_refresh_content_widths,
-        sync_default_widths, sync_text_x_offsets, CELL_FONT_SIZE,
+        sync_default_widths, sync_text_x_offsets, sync_vec_if_changed, CELL_FONT_SIZE,
     };
     use std::hint::black_box;
     use std::sync::Arc;
@@ -1609,6 +1608,34 @@ mod tests {
 
         black_box((old_total, new_total));
         println!("text_offset_cache benchmark: old={old_elapsed:?}, new={new_elapsed:?}");
+    }
+
+    #[test]
+    fn resolved_width_sync_skips_steady_state_copies() {
+        // Performance comparison helper: stable table layout syncs should not keep copying the
+        // cached width slice into `resolved_widths` once the vectors already match.
+        const ITERATIONS: usize = 120_000;
+        let cached = vec![120.0, 160.0, 180.0, 140.0, 220.0, 100.0];
+
+        let old_start = Instant::now();
+        let mut old = cached.clone();
+        for _ in 0..ITERATIONS {
+            old.clear();
+            old.extend_from_slice(&cached);
+            black_box(&old);
+        }
+        let old_elapsed = old_start.elapsed();
+
+        let new_start = Instant::now();
+        let mut optimized = cached.clone();
+        for _ in 0..ITERATIONS {
+            sync_vec_if_changed(&mut optimized, &cached);
+            black_box(&optimized);
+        }
+        let new_elapsed = new_start.elapsed();
+
+        assert_eq!(old, optimized);
+        println!("resolved_width_sync benchmark: old={old_elapsed:?}, new={new_elapsed:?}");
     }
 
     #[test]

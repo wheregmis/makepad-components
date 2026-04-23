@@ -615,7 +615,6 @@ impl Widget for ShadNavButton {
         self.draw_bg.end(cx);
         self.area = self.draw_bg.area();
 
-
         DrawStep::done()
     }
 

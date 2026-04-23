@@ -447,7 +447,11 @@ impl GalleryCommandPalette {
         }
 
         // Fallback for any trailing entries not in cache
-        for (index, command) in catalog::entries().iter().enumerate().skip(search_terms.len()) {
+        for (index, command) in catalog::entries()
+            .iter()
+            .enumerate()
+            .skip(search_terms.len())
+        {
             if query.is_empty()
                 || command.title.to_ascii_lowercase().contains(&query)
                 || command.section.to_ascii_lowercase().contains(&query)
