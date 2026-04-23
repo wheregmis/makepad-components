@@ -29,14 +29,21 @@ macro_rules! define_gallery_root {
             use mod.widgets.*
 
             mod.widgets.GalleryThemeToggleButton = View{
-                width: 36
+                width: Fit
                 height: 36
-                flow: Overlay
-                align: Align{x: 0.5, y: 0.5}
+                flow: Right
+                align: Align{y: 0.5}
+                spacing: 8.0
 
                 button := mod.widgets.ShadButtonIconOutline{
-                    width: Fill
+                    width: 36
                     height: Fill
+                }
+
+                theme_copy := ShadSectionHeader{
+                    text: "Theme"
+                    draw_text.color: (shad_theme.color_muted_foreground)
+                    draw_text.text_style.font_size: 11
                 }
             }
 
