@@ -27,12 +27,18 @@ impl App {
         width.is_finite() && width > 0.0 && width < Self::SMALL_SCREEN_WIDTH
     }
 
-    fn adaptive_width(cx: &Cx, parent_size: &DVec2) -> f64 {
-        if parent_size.x.is_finite() && parent_size.x > 0.0 {
-            parent_size.x
+    fn breakpoint_width(window_width: f64, parent_width: f64) -> f64 {
+        if window_width.is_finite() && window_width > 0.0 {
+            window_width
+        } else if parent_width.is_finite() && parent_width > 0.0 {
+            parent_width
         } else {
-            cx.display_context.screen_size.x
+            0.0
         }
+    }
+
+    fn adaptive_width(cx: &Cx, parent_size: &DVec2) -> f64 {
+        Self::breakpoint_width(cx.display_context.screen_size.x, parent_size.x)
     }
 
     fn is_mobile_layout(&self, cx: &Cx) -> bool {
@@ -726,5 +732,20 @@ impl AppMain for App {
         }
         self.match_event(cx, event);
         self.ui.handle_event(cx, event, &mut Scope::empty());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::App;
+
+    #[test]
+    fn breakpoint_width_prefers_window_width_when_known() {
+        assert_eq!(App::breakpoint_width(1280.0, 720.0), 1280.0);
+    }
+
+    #[test]
+    fn breakpoint_width_falls_back_to_parent_width_during_startup() {
+        assert_eq!(App::breakpoint_width(0.0, 720.0), 720.0);
     }
 }
