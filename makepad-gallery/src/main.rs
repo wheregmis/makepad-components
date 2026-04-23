@@ -27,13 +27,19 @@ impl App {
         width.is_finite() && width > 0.0 && width < Self::SMALL_SCREEN_WIDTH
     }
 
+    fn adaptive_width(cx: &Cx, parent_size: &DVec2) -> f64 {
+        if parent_size.x.is_finite() && parent_size.x > 0.0 {
+            parent_size.x
+        } else {
+            cx.display_context.screen_size.x
+        }
+    }
+
     fn is_mobile_layout(&self, cx: &Cx) -> bool {
         Self::is_mobile_width(cx.display_context.screen_size.x)
     }
 
-    fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
-        crate::makepad_widgets::script_mod(vm);
-        makepad_components::theme::script_mod(vm);
+    fn apply_theme_override(vm: &mut ScriptVm, is_light_theme: bool) {
         if is_light_theme {
             script_eval!(vm, {
                 mod.widgets.shad_theme = mod.widgets.shad_themes.light
@@ -43,6 +49,12 @@ impl App {
                 mod.widgets.shad_theme = mod.widgets.shad_themes.dark
             });
         }
+    }
+
+    fn build_script_mod(vm: &mut ScriptVm) -> ScriptValue {
+        crate::makepad_widgets::script_mod(vm);
+        makepad_components::theme::script_mod(vm);
+        Self::apply_theme_override(vm, false);
         makepad_components::script_mod_without_theme(vm);
         makepad_code_editor::script_mod(vm);
         makepad_router::script_mod(vm);
@@ -59,8 +71,8 @@ impl App {
     fn configure_adaptive_views(&self, cx: &mut Cx) {
         self.ui
             .adaptive_view(cx, ids!(responsive_header))
-            .set_variant_selector(|cx, _parent_size| {
-                if Self::is_mobile_width(cx.display_context.screen_size.x) {
+            .set_variant_selector(|cx, parent_size| {
+                if Self::is_mobile_width(Self::adaptive_width(cx, parent_size)) {
                     live_id!(Mobile)
                 } else {
                     live_id!(Desktop)
@@ -68,8 +80,8 @@ impl App {
             });
         self.ui
             .adaptive_view(cx, ids!(responsive_sidebar))
-            .set_variant_selector(|cx, _parent_size| {
-                if Self::is_mobile_width(cx.display_context.screen_size.x) {
+            .set_variant_selector(|cx, parent_size| {
+                if Self::is_mobile_width(Self::adaptive_width(cx, parent_size)) {
                     live_id!(Mobile)
                 } else {
                     live_id!(Desktop)
@@ -136,6 +148,9 @@ impl App {
         self.ui
             .view(cx, ids!(mobile_sidebar_backdrop))
             .set_visible(cx, is_mobile && self.sidebar_open);
+        self.ui
+            .view(cx, ids!(vertical_divider))
+            .set_visible(cx, !is_mobile);
         self.ui.view(cx, ids!(main_content)).set_visible(cx, true);
     }
 
@@ -202,7 +217,7 @@ impl App {
                             live_id!(mobile_page_label),
                         ],
                     )
-                    .set_text(cx, breadcrumb_text.as_str());
+                    .set_text(cx, entry.title);
             } else {
                 self.ui
                     .label(
@@ -382,7 +397,8 @@ impl App {
 
     fn reload_ui_for_theme(&mut self, cx: &mut Cx) {
         cx.with_vm(|vm| {
-            let value = Self::build_script_mod(vm, self.is_light_theme);
+            Self::apply_theme_override(vm, self.is_light_theme);
+            let value: ScriptValue = self.source.clone().into();
             <Self as ScriptApply>::script_apply(
                 self,
                 vm,
@@ -409,7 +425,16 @@ impl App {
     }
 
     fn sync_safe_area_padding_for(&self, cx: &mut Cx, is_mobile: bool) {
-        let _ = (cx, is_mobile);
+        let sidebar_width = if is_mobile {
+            (cx.display_context.screen_size.x - 16.0).clamp(240.0, 320.0)
+        } else {
+            320.0
+        };
+
+        let mut mobile_sidebar_panel = self.ui.widget(cx, ids!(mobile_sidebar_panel));
+        script_apply_eval!(cx, mobile_sidebar_panel, {
+            width: #(sidebar_width)
+        });
     }
 
     fn apply_responsive_visibility(&mut self, cx: &mut Cx) {
@@ -492,6 +517,8 @@ impl App {
 
 #[derive(Script, ScriptHook)]
 pub struct App {
+    #[source]
+    source: ScriptObjectRef,
     #[live]
     ui: WidgetRef,
     #[rust]
@@ -653,7 +680,7 @@ impl MatchEvent for App {
 
 impl AppMain for App {
     fn script_mod(vm: &mut ScriptVm) -> ScriptValue {
-        Self::build_script_mod(vm, false)
+        Self::build_script_mod(vm)
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
@@ -680,6 +707,12 @@ impl AppMain for App {
                         self.set_theme(cx, is_light_theme);
                         return;
                     }
+                }
+            }
+            Event::LiveEdit => {
+                if self.is_light_theme {
+                    self.reload_ui_for_theme(cx);
+                    return;
                 }
             }
             Event::MacosMenuCommand(command) => {

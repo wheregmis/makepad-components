@@ -31,8 +31,8 @@ macro_rules! define_gallery_root {
             use mod.widgets.*
 
             mod.widgets.GalleryThemeToggleButton = View{
-                width: 36
-                height: 36
+                width: 40
+                height: 40
                 flow: Overlay
                 align: Align{x: 0.5, y: 0.5}
 
@@ -170,12 +170,13 @@ macro_rules! define_gallery_root {
                         mobile_sidebar_menu_button := mod.widgets.GalleryMobileSidebarMenuButton{}
 
                         mobile_header_meta := View{
-                            width: Fit
+                            width: Fill
                             height: Fit
                             flow: Right
                             spacing: 2.0
 
                             mobile_page_label := ShadLabel{
+                                width: Fill
                                 text: "Gallery / Overview"
                                 draw_text.text_style.font_size: 12.0
                                 draw_text.color: (shad_theme.color_primary)

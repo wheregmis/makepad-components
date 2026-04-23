@@ -61,7 +61,7 @@ script_mod! {
     mod.widgets.ShadSurfaceFooter = mod.widgets.View{
         width: Fill
         height: Fit
-        flow: Right
+        flow: Right{wrap: true}
         align: Align{x: 1.0, y: 0.5}
         spacing: 8.0
         padding: Inset{left: 20, right: 20, top: 0, bottom: 20}

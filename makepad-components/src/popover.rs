@@ -55,6 +55,23 @@ script_mod! {
     }
 }
 
+fn clamp_overlay_width(requested_width: f64, pass_width: f64, viewport_padding: f64) -> f64 {
+    requested_width.min((pass_width - viewport_padding * 2.0).max(0.0))
+}
+
+fn responsive_popup_walk(mut walk: Walk, pass_width: f64, viewport_padding: f64) -> Walk {
+    if walk.width.is_fill() {
+        walk.width = Size::Fixed((pass_width - viewport_padding * 2.0).max(0.0));
+        return walk;
+    }
+
+    if let Some(width) = walk.width.to_fixed() {
+        walk.width = Size::Fixed(clamp_overlay_width(width, pass_width, viewport_padding));
+    }
+
+    walk
+}
+
 #[derive(Clone, Debug, Default)]
 pub enum ShadPopoverAction {
     OpenChanged(bool),
@@ -140,7 +157,12 @@ impl ShadPopover {
         self.draw_bg
             .begin(cx, Walk::new(Size::fill(), Size::fill()), Layout::default());
 
-        let popup_walk = self.popup_content.walk(cx).with_abs_pos(popup_pos);
+        let popup_walk = responsive_popup_walk(
+            self.popup_content.walk(cx),
+            pass_size.x,
+            self.viewport_padding,
+        )
+        .with_abs_pos(popup_pos);
         self.popup_content.draw_walk_all(cx, scope, popup_walk);
 
         self.draw_bg.end(cx);
@@ -409,5 +431,24 @@ impl ShadPopoverRef {
     pub fn content_widget(&self) -> WidgetRef {
         self.borrow()
             .map_or_else(WidgetRef::empty, |inner| inner.content_widget().clone())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{clamp_overlay_width, responsive_popup_walk};
+    use makepad_widgets::{Size, Walk};
+
+    #[test]
+    fn fixed_overlay_width_is_clamped_to_available_viewport() {
+        assert_eq!(clamp_overlay_width(320.0, 280.0, 12.0), 256.0);
+        assert_eq!(clamp_overlay_width(280.0, 640.0, 12.0), 280.0);
+    }
+
+    #[test]
+    fn fill_overlay_width_becomes_a_fixed_viewport_width() {
+        let walk = responsive_popup_walk(Walk::new(Size::fill(), Size::fit()), 300.0, 16.0);
+
+        assert!(matches!(walk.width, Size::Fixed(width) if (width - 268.0).abs() < f64::EPSILON));
     }
 }

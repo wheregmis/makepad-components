@@ -123,6 +123,13 @@ script_mod! {
     }
 }
 
+const DEFAULT_DIALOG_WIDTH: f64 = 360.0;
+const DIALOG_VIEWPORT_MARGIN: f64 = 24.0;
+
+fn clamp_dialog_width(pass_width: f64) -> f64 {
+    DEFAULT_DIALOG_WIDTH.min((pass_width - DIALOG_VIEWPORT_MARGIN * 2.0).max(0.0))
+}
+
 #[derive(Clone, Debug, Default)]
 pub enum ShadDialogAction {
     OpenChanged(bool),
@@ -157,6 +164,19 @@ pub struct ShadDialog {
 }
 
 impl ShadDialog {
+    fn sync_content_width(&mut self, cx: &mut Cx, pass_width: f64) {
+        let content = self.overlay.widget(cx, ids!(content));
+        let Some(mut content_view) = content.borrow_mut::<View>() else {
+            return;
+        };
+
+        let width = clamp_dialog_width(pass_width);
+        if !matches!(content_view.walk.width, Size::Fixed(current) if (current - width).abs() < f64::EPSILON)
+        {
+            content_view.walk.width = Size::Fixed(width);
+        }
+    }
+
     fn sync_open_state(&mut self, cx: &mut Cx) {
         sync_modal_open_state(cx, &mut self.overlay, &mut self.is_synced_open, self.open);
     }
@@ -259,6 +279,8 @@ impl Widget for ShadDialog {
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         self.sync_open_state(cx);
+        let pass_width = cx.current_pass_size().x;
+        self.sync_content_width(cx, pass_width);
         draw_modal_overlay(cx, scope, walk, self.layout, self.open, &mut self.overlay)
     }
 }
@@ -288,5 +310,20 @@ impl ShadDialogRef {
 
     pub fn open_changed(&self, actions: &Actions) -> Option<bool> {
         self.borrow().and_then(|inner| inner.open_changed(actions))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::clamp_dialog_width;
+
+    #[test]
+    fn dialog_width_clamps_to_small_viewports() {
+        assert_eq!(clamp_dialog_width(320.0), 272.0);
+    }
+
+    #[test]
+    fn dialog_width_preserves_desktop_default_when_space_allows() {
+        assert_eq!(clamp_dialog_width(960.0), 360.0);
     }
 }

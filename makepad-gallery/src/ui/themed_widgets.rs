@@ -5,7 +5,7 @@ script_mod! {
     use mod.widgets.*
 
     mod.widgets.GalleryPageRoot = mod.widgets.ShadScrollYView {
-        padding: Inset{top: 0, right: 64, bottom: 80, left: 64}
+        padding: Inset{top: 0, right: 16, bottom: 80, left: 16}
         draw_bg.border_size: 0.0
         draw_bg.color: (shad_theme.color_background)
     }
@@ -153,7 +153,7 @@ script_mod! {
             preview_content_wrapper := View {
                 width: Fill
                 height: Fit
-                padding: Inset{top: 48, right: 48, bottom: 48, left: 48}
+                padding: Inset{top: 16, right: 16, bottom: 16, left: 16}
 
                 preview_flip := mod.widgets.GalleryPreviewStackNavigation{
                     width: Fill

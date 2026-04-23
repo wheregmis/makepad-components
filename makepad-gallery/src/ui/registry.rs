@@ -22,7 +22,7 @@ macro_rules! gallery_page_entries {
                     sidebar_id: sidebar_catalog,
                     sidebar_label: "Catalog",
                     section: "Getting Started",
-                    shortcut: "C",
+                    shortcut: "CAT",
                     snippet: Catalog,
                 }
             }
