@@ -23,18 +23,26 @@ macro_rules! define_gallery_sidebar {
             use mod.widgets.*
 
             mod.widgets.GalleryMobileSidebarIconButton = View{
-                width: 36
+                width: Fit
                 height: 36
-                flow: Overlay
-                align: Align{x: 0.5, y: 0.5}
+                flow: Right
+                align: Align{y: 0.5}
+                spacing: 8.0
 
                 button := ShadButtonIconOutline{
-                    width: Fill
+                    width: 36
                     height: Fill
+                }
+
+                label := ShadLabel{
+                    text: "Action"
+                    draw_text.text_style.font_size: 12
+                    draw_text.color: (shad_theme.color_muted_foreground)
                 }
             }
 
             mod.widgets.GalleryMobileSidebarMenuButton = mod.widgets.GalleryMobileSidebarIconButton{
+                label = ShadLabel{text: "Menu"}
                 icon := IconMenu{
                     width: 18
                     height: 18
@@ -44,6 +52,7 @@ macro_rules! define_gallery_sidebar {
             }
 
             mod.widgets.GalleryMobileSidebarCloseButton = mod.widgets.GalleryMobileSidebarIconButton{
+                label = ShadLabel{text: "Close"}
                 icon := IconX{
                     width: 16
                     height: 16
