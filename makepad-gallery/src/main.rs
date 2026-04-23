@@ -39,7 +39,9 @@ impl App {
         Self::is_mobile_width(cx.display_context.screen_size.x)
     }
 
-    fn apply_theme_override(vm: &mut ScriptVm, is_light_theme: bool) {
+    fn build_script_mod(vm: &mut ScriptVm, is_light_theme: bool) -> ScriptValue {
+        crate::makepad_widgets::script_mod(vm);
+        makepad_components::theme::script_mod(vm);
         if is_light_theme {
             script_eval!(vm, {
                 mod.widgets.shad_theme = mod.widgets.shad_themes.light
@@ -49,12 +51,6 @@ impl App {
                 mod.widgets.shad_theme = mod.widgets.shad_themes.dark
             });
         }
-    }
-
-    fn build_script_mod(vm: &mut ScriptVm) -> ScriptValue {
-        crate::makepad_widgets::script_mod(vm);
-        makepad_components::theme::script_mod(vm);
-        Self::apply_theme_override(vm, false);
         makepad_components::script_mod_without_theme(vm);
         makepad_code_editor::script_mod(vm);
         makepad_router::script_mod(vm);
@@ -397,8 +393,7 @@ impl App {
 
     fn reload_ui_for_theme(&mut self, cx: &mut Cx) {
         cx.with_vm(|vm| {
-            Self::apply_theme_override(vm, self.is_light_theme);
-            let value: ScriptValue = self.source.clone().into();
+            let value = Self::build_script_mod(vm, self.is_light_theme);
             <Self as ScriptApply>::script_apply(
                 self,
                 vm,
@@ -517,8 +512,6 @@ impl App {
 
 #[derive(Script, ScriptHook)]
 pub struct App {
-    #[source]
-    source: ScriptObjectRef,
     #[live]
     ui: WidgetRef,
     #[rust]
@@ -680,7 +673,7 @@ impl MatchEvent for App {
 
 impl AppMain for App {
     fn script_mod(vm: &mut ScriptVm) -> ScriptValue {
-        Self::build_script_mod(vm)
+        Self::build_script_mod(vm, false)
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
@@ -707,12 +700,6 @@ impl AppMain for App {
                         self.set_theme(cx, is_light_theme);
                         return;
                     }
-                }
-            }
-            Event::LiveEdit => {
-                if self.is_light_theme {
-                    self.reload_ui_for_theme(cx);
-                    return;
                 }
             }
             Event::MacosMenuCommand(command) => {

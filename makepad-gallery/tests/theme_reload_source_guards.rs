@@ -1,27 +1,23 @@
 #[test]
-fn theme_switch_reapplies_existing_app_source() {
+fn theme_switch_rebuilds_script_modules() {
     let source = include_str!("../src/main.rs");
 
     assert!(
-        source.contains("#[source]\n    source: ScriptObjectRef"),
-        "app should keep a rooted source object so theme changes can reapply the existing tree"
+        source.contains("let value = Self::build_script_mod(vm, self.is_light_theme);"),
+        "theme reload should rebuild the script modules in this pinned Makepad checkout"
     );
     assert!(
-        source.contains("let value: ScriptValue = self.source.clone().into();"),
-        "theme reload should reapply the existing app source instead of rebuilding script modules"
-    );
-    assert!(
-        !source.contains("let value = Self::build_script_mod(vm, self.is_light_theme);"),
-        "theme reload should no longer rebuild the full script module graph on each toggle"
+        !source.contains("let value: ScriptValue = self.source.clone().into();"),
+        "in-place source reapply is not reliable here until desktop script reapply support lands upstream"
     );
 }
 
 #[test]
-fn light_theme_survives_live_edit_reload() {
+fn startup_uses_dark_theme_script_root() {
     let source = include_str!("../src/main.rs");
 
     assert!(
-        source.contains("Event::LiveEdit => {\n                if self.is_light_theme {\n                    self.reload_ui_for_theme(cx);"),
-        "live edit should reapply the active light theme after the framework reload path resets module defaults"
+        source.contains("fn script_mod(vm: &mut ScriptVm) -> ScriptValue {\n        Self::build_script_mod(vm, false)"),
+        "app startup should continue to build the dark theme root before any user toggle"
     );
 }
