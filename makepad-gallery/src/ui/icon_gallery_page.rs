@@ -1,147 +1,269 @@
-use crate::ui::page_macros::gallery_stateful_page_shell;
 use makepad_components::makepad_widgets::*;
-use makepad_components::table::ShadTableWidgetExt;
-use std::sync::Arc;
 
 #[derive(Clone, Copy)]
 struct IconGalleryEntry {
-    template_id: &'static str,
     icon_name: &'static str,
     widget_name: &'static str,
+    svg_markup: &'static str,
 }
 
-macro_rules! icon_gallery_page_generated {
-    ($($icon_rows:tt)*) => {
-        gallery_stateful_page_shell! {
-            widget: GalleryIconGalleryPage,
-            page: icon_gallery_page,
-            title: "Icons",
-            subtitle: "Generated Lucide icon components from makepad-icon/resources/icons. Search by Lucide asset name or generated Rust widget name.",
-            divider: { ShadHr{} },
-            preview_spacing: 12.0,
-            preview: {
-                search_controls := ShadField{
-                    width: Fill
+script_mod! {
+    use mod.prelude.widgets.*
+    use mod.widgets.*
 
-                    search_label := ShadFieldLabel{
-                        text: "Search icons or widget names"
-                    }
+    mod.widgets.GalleryIconGalleryRowBase = #(GalleryIconGalleryRow::register_widget(vm))
+    mod.widgets.GalleryIconGalleryRow = set_type_default() do mod.widgets.GalleryIconGalleryRowBase{
+        width: Fill
+        height: 72
+        flow: Right
+        spacing: 12.0
+        align: Align{x: 0.0 y: 0.5}
+        padding: Inset{left: 12, right: 12, top: 0, bottom: 0}
+        draw_bg +: {
+            color: (shad_theme.color_secondary)
+            border_size: 1.0
+            border_radius: (shad_theme.radius)
+            border_color: (shad_theme.color_outline_border)
+        }
 
-                    search_toolbar := View{
-                        width: Fill
-                        height: Fit
-                        flow: Right
-                        spacing: 8.0
+        preview := RoundedView{
+            width: 40
+            height: 40
+            align: Align{x: 0.5 y: 0.5}
+            draw_bg +: {
+                color: (shad_theme.color_muted)
+                border_radius: 10.0
+            }
 
-                        search_field := ShadInputWithIcon{
-                            width: Fill
-                            input +: {
-                                empty_text: "Search icons or widget names..."
-                            }
-                        }
-
-                        clear_search_btn := ShadButtonOutline{
-                            text: "Clear"
-                        }
-
-                        icon_search_btn := ShadButtonSm{text: "Focus search"}
-                    }
+            preview_icon := Svg{
+                width: 18
+                height: 18
+                animating: false
+                draw_svg +: {
+                    color: (shad_theme.color_primary)
                 }
+            }
+        }
 
-                search_hint := ShadFieldDescription{
-                    text: "Results update as you type. Press Esc or Clear to reset the search."
-                }
+        copy := View{
+            width: Fill
+            height: Fit
+            flow: Down
+            spacing: 4.0
 
-                icon_results_summary := ShadFieldDescription{
-                    text: "Showing all generated icons."
-                }
+            icon_name_label := ShadLabel{
+                text: ""
+                draw_text.text_style.font_size: 12.0
+            }
 
-                usage_card := ShadSurfaceMuted{
-                    width: Fill
-                    height: Fit
-                    flow: Down
-                    spacing: 8.0
-                    padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
-                    draw_bg +: {
-                        border_size: 1.0
-                        border_color: (shad_theme.color_outline_border)
-                    }
+            widget_name_label := ShadFieldDescription{
+                width: Fill
+                text: ""
+                draw_text.text_style.font_size: 11.0
+            }
+        }
+    }
 
-                    icon_usage_title := ShadSectionHeader{
-                        text: "Using IconSearch"
-                    }
+    mod.widgets.GalleryIconGalleryPage = set_type_default() do #(GalleryIconGalleryPage::register_widget(vm)){
+        width: Fill
+        height: Fill
 
-                    icon_usage_description := ShadFieldDescription{
-                        text: "Use the generated widget name directly in script_mod!. The snippet updates to the first visible search match."
-                    }
+        page_root := GalleryPageRoot{
+            width: Fill
+            height: Fill
 
-                    icon_usage_snippet := mod.widgets.GalleryCodeSnippet{
-                        code: "IconSearch{\n    icon_walk: Walk{width: 18, height: 18}\n    draw_icon.color: (shad_theme.color_primary)\n}\n"
-                    }
-                }
+            ShadPageTitle{
+                text: "Icons"
+            }
 
-                icon_table := ShadTable{
-                    headers: []
-                    rows: []
-                    selectable: false
-                    empty_message: "No icons matched the current search."
-                    table_view := View{
-                        width: Fill
-                        height: Fit
-                        flow: Down
-                        spacing: 8.0
+            ShadPageSubtitle{
+                text: "Generated Lucide icon components from makepad-icon/resources/icons. Search by Lucide asset name or generated Rust widget name."
+            }
 
-                        caption_label := ShadFieldDescription{
-                            visible: false
-                            text: ""
-                        }
+            ShadHr{}
 
-                        scroll := ScrollXView{
-                            width: Fill
-                            height: Fit
-                            flow: Down
-                            padding: Inset{left: 0.0, right: 0.0, top: 0.0, bottom: 0.0}
-                            spacing: 0.0
+            preview_section := mod.widgets.GalleryPreviewSection{
+                width: Fill
+                height: Fit
 
-                            content := View{
-                                width: Fit
-                                height: Fit
-                                flow: Down
-                                spacing: 8.0
-
-                                header := mod.widgets.ShadTableHeaderView{}
-                                list := PortalList{
+                preview_panel +: {
+                    preview_content_wrapper +: {
+                        preview_flip +: {
+                            root_view +: {
+                                preview_content +: {
                                     width: Fill
-                                    height: 420.0
+                                    height: Fit
                                     flow: Down
-                                    max_pull_down: 0.0
-                                    capture_overload: true
-                                    grab_key_focus: false
-                                    auto_tail: false
-                                    selectable: false
-                                    drag_scrolling: true
+                                    spacing: 12.0
 
-                                    Empty := mod.widgets.ShadTableEmptyRow{}
+                                    search_controls := ShadField{
+                                        width: Fill
 
-                                    $($icon_rows)*
+                                        search_label := ShadFieldLabel{
+                                            text: "Search icons or widget names"
+                                        }
+
+                                        search_toolbar := View{
+                                            width: Fill
+                                            height: Fit
+                                            flow: Right
+                                            spacing: 8.0
+
+                                            search_field := ShadInputWithIcon{
+                                                width: Fill
+                                                input +: {
+                                                    empty_text: "Search icons or widget names..."
+                                                }
+                                            }
+
+                                            clear_search_btn := ShadButtonOutline{
+                                                text: "Clear"
+                                            }
+
+                                            icon_search_btn := ShadButtonSm{text: "Focus search"}
+                                        }
+                                    }
+
+                                    search_hint := ShadFieldDescription{
+                                        text: "Results update as you type. Press Esc or Clear to reset the search."
+                                    }
+
+                                    icon_results_summary := ShadFieldDescription{
+                                        text: "Showing all generated icons."
+                                    }
+
+                                    usage_card := ShadSurfaceMuted{
+                                        width: Fill
+                                        height: Fit
+                                        flow: Down
+                                        spacing: 8.0
+                                        padding: Inset{left: 14, right: 14, top: 14, bottom: 14}
+                                        draw_bg +: {
+                                            border_size: 1.0
+                                            border_color: (shad_theme.color_outline_border)
+                                        }
+
+                                        icon_usage_title := ShadSectionHeader{
+                                            text: "Using IconSearch"
+                                        }
+
+                                        icon_usage_description := ShadFieldDescription{
+                                            text: "Use the generated widget name directly in script_mod!. The snippet updates to the first visible search match."
+                                        }
+
+                                        icon_usage_snippet := mod.widgets.GalleryCodeSnippet{
+                                            code: "IconSearch{\n    icon_walk: Walk{width: 18, height: 18}\n    draw_icon.color: (shad_theme.color_primary)\n}\n"
+                                        }
+                                    }
+
+                                    icon_results_panel := ShadSurfaceMuted{
+                                        width: Fill
+                                        height: Fit
+                                        flow: Down
+                                        spacing: 8.0
+                                        padding: Inset{left: 12, right: 12, top: 12, bottom: 12}
+                                        draw_bg +: {
+                                            border_size: 1.0
+                                            border_color: (shad_theme.color_outline_border)
+                                        }
+
+                                        icon_results_list := PortalList{
+                                            width: Fill
+                                            height: 420.0
+                                            flow: Down
+                                            max_pull_down: 0.0
+                                            capture_overload: true
+                                            grab_key_focus: false
+                                            auto_tail: false
+                                            selectable: false
+                                            drag_scrolling: true
+
+                                            Item := mod.widgets.GalleryIconGalleryRow{}
+                                            Empty := mod.widgets.ShadTableEmptyRow{}
+                                        }
+                                    }
+                                }
+
+                                action_flow +: {
+                                    visible: true
+                                    mod.widgets.GalleryActionFlow{
+                                        body +: {
+                                            mod.widgets.GalleryActionFlowStep{text: "1. Run `python3 makepad-icon/scripts/download_lucide_icons.py --clean` to refresh SVG assets from Lucide."}
+                                            mod.widgets.GalleryActionFlowStep{text: "2. Build `makepad-icon` or `makepad-gallery`; build.rs scans icons and regenerates the icon metadata automatically."}
+                                            mod.widgets.GalleryActionFlowStep{text: "3. Search by Lucide asset name like `search` or by Rust widget name like `IconSearch` to narrow the virtualized list quickly."}
+                                            mod.widgets.GalleryActionFlowStep{text: "4. Use the widget name shown on each row directly in script_mod!, and start from the usage snippet panel when you need sizing or color overrides."}
+                                        }
+                                    }
+                                }
+                            }
+
+                            code_page +: {
+                                body +: {
+                                    width: Fill
+                                    height: Fit
+                                    flow: Down
+                                    spacing: 12.0
+
+                                    code_snippet +: {
+                                        code: #(crate::ui::snippets::snippet_code_for_page(live_id!(icon_gallery_page)))
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            },
-            action_flow: {
-                mod.widgets.GalleryActionFlowStep{text: "1. Run `python3 makepad-icon/scripts/download_lucide_icons.py --clean` to refresh SVG assets from Lucide."}
-                mod.widgets.GalleryActionFlowStep{text: "2. Build `makepad-icon` or `makepad-gallery`; build.rs scans icons and regenerates the virtualized list rows plus the search metadata automatically."}
-                mod.widgets.GalleryActionFlowStep{text: "3. Search by Lucide asset name like `search` or by Rust widget name like `IconSearch` to narrow the virtualized list quickly."}
-                mod.widgets.GalleryActionFlowStep{text: "4. Use the widget name shown on each tile directly in script_mod!, and start from the usage snippet panel when you need sizing or color overrides."}
-            },
+            }
         }
-    };
+    }
 }
 
 // Generated by makepad-gallery/build.rs. Do not edit manually.
-include!(concat!(env!("OUT_DIR"), "/icon_preview_rows.rs"));
+include!(concat!(env!("OUT_DIR"), "/icon_gallery_data.rs"));
+
+#[derive(Script, ScriptHook, Widget)]
+pub struct GalleryIconGalleryRow {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+    #[rust]
+    entry_index: Option<usize>,
+}
+
+impl GalleryIconGalleryRow {
+    fn set_entry(&mut self, cx: &mut Cx, entry_index: usize) {
+        if self.entry_index == Some(entry_index) {
+            return;
+        }
+
+        self.entry_index = Some(entry_index);
+        let entry = &ICON_GALLERY_ENTRIES[entry_index];
+        self.view
+            .label(cx, ids!(copy.icon_name_label))
+            .set_text(cx, entry.icon_name);
+        self.view
+            .label(cx, ids!(copy.widget_name_label))
+            .set_text(cx, entry.widget_name);
+
+        if let Some(mut icon) = self
+            .view
+            .widget(cx, ids!(preview.preview_icon))
+            .borrow_mut::<Svg>()
+        {
+            icon.draw_svg.load_from_str(entry.svg_markup);
+        }
+    }
+}
+
+impl Widget for GalleryIconGalleryRow {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
+    }
+}
 
 #[derive(Script, Widget)]
 pub struct GalleryIconGalleryPage {
@@ -152,13 +274,11 @@ pub struct GalleryIconGalleryPage {
     #[rust]
     query: String,
     #[rust]
-    template_live_ids: Vec<LiveId>,
-    #[rust]
     widget_name_lower: Vec<String>,
     #[rust]
-    filtered_template_ids: Arc<[LiveId]>,
+    filtered_indices: Vec<usize>,
     #[rust]
-    filtered_template_ids_scratch: Vec<LiveId>,
+    filtered_indices_scratch: Vec<usize>,
     #[rust]
     summary_cache: String,
     #[rust]
@@ -176,9 +296,7 @@ impl GalleryIconGalleryPage {
         } else if matches_count == 0 {
             format!("No icons matched \"{query}\". Press Esc to clear the search.")
         } else {
-            format!(
-                "Showing {matches_count} of {ICON_GALLERY_TOTAL} icons for \"{query}\"."
-            )
+            format!("Showing {matches_count} of {ICON_GALLERY_TOTAL} icons for \"{query}\".")
         }
     }
 
@@ -186,6 +304,21 @@ impl GalleryIconGalleryPage {
         format!(
             "{widget_name}{{\n    icon_walk: Walk{{width: 18, height: 18}}\n    draw_icon.color: (shad_theme.color_primary)\n}}\n"
         )
+    }
+
+    fn ensure_filter_cache(&mut self) {
+        if self.widget_name_lower.len() == ICON_GALLERY_ENTRIES.len() {
+            return;
+        }
+
+        self.widget_name_lower = ICON_GALLERY_ENTRIES
+            .iter()
+            .map(|entry| entry.widget_name.to_ascii_lowercase())
+            .collect();
+        self.filtered_indices.clear();
+        self.filtered_indices_scratch.clear();
+        self.filtered_indices_scratch
+            .reserve(ICON_GALLERY_ENTRIES.len());
     }
 
     fn sync_empty_usage_preview(&self, cx: &mut Cx, query: &str) {
@@ -226,40 +359,27 @@ impl GalleryIconGalleryPage {
             .set_text(cx, &Self::usage_code(entry.widget_name));
     }
 
-    fn ensure_filter_cache(&mut self) {
-        if self.template_live_ids.len() == ICON_GALLERY_ENTRIES.len()
-            && self.widget_name_lower.len() == ICON_GALLERY_ENTRIES.len()
-        {
-            return;
-        }
-
-        self.template_live_ids = ICON_GALLERY_ENTRIES
-            .iter()
-            .map(|entry| LiveId::from_str(entry.template_id))
-            .collect();
-        self.widget_name_lower = ICON_GALLERY_ENTRIES
-            .iter()
-            .map(|entry| entry.widget_name.to_ascii_lowercase())
-            .collect();
-        self.filtered_template_ids = Arc::default();
-        self.filtered_template_ids_scratch = Vec::with_capacity(ICON_GALLERY_ENTRIES.len());
+    fn reset_results_position(&self, cx: &mut Cx) {
+        self.view
+            .portal_list(cx, ids!(icon_results_list))
+            .set_first_id(0);
     }
 
     fn apply_filter(&mut self, cx: &mut Cx) {
         self.ensure_filter_cache();
+
         let query = Self::normalize_query(&self.query);
         let mut matches_count = 0;
         let mut first_match_index = None;
         let mut changed = false;
-        self.filtered_template_ids_scratch.clear();
+        self.filtered_indices_scratch.clear();
 
         for (index, entry) in ICON_GALLERY_ENTRIES.iter().enumerate() {
             let matches = query.is_empty()
                 || entry.icon_name.contains(&query)
                 || self.widget_name_lower[index].contains(&query);
             if matches {
-                self.filtered_template_ids_scratch
-                    .push(self.template_live_ids[index]);
+                self.filtered_indices_scratch.push(index);
                 matches_count += 1;
                 if first_match_index.is_none() {
                     first_match_index = Some(index);
@@ -267,12 +387,11 @@ impl GalleryIconGalleryPage {
             }
         }
 
-        if self.filtered_template_ids.as_ref() != self.filtered_template_ids_scratch.as_slice() {
-            self.filtered_template_ids =
-                Arc::from(self.filtered_template_ids_scratch.as_slice());
-            self.view
-                .shad_table(cx, ids!(icon_table))
-                .set_custom_row_templates(cx, Arc::clone(&self.filtered_template_ids));
+        if self.filtered_indices != self.filtered_indices_scratch {
+            self.filtered_indices.clear();
+            self.filtered_indices
+                .extend_from_slice(self.filtered_indices_scratch.as_slice());
+            self.reset_results_position(cx);
             changed = true;
         }
 
@@ -308,6 +427,34 @@ impl GalleryIconGalleryPage {
 
         if changed {
             self.view.redraw(cx);
+        }
+    }
+
+    fn draw_results(&mut self, cx: &mut Cx2d, list: &mut PortalList) {
+        let mut empty_scope = Scope::empty();
+
+        if self.filtered_indices.is_empty() {
+            list.set_item_range(cx, 0, 1);
+            if let Some(item_id) = list.next_visible_item(cx) {
+                let item = list.item(cx, item_id, id!(Empty)).as_view();
+                item.label(cx, ids!(empty_label))
+                    .set_text(cx, "No icons matched the current search.");
+                item.draw_all(cx, &mut empty_scope);
+            }
+            return;
+        }
+
+        list.set_item_range(cx, 0, self.filtered_indices.len());
+        while let Some(item_id) = list.next_visible_item(cx) {
+            let Some(entry_index) = self.filtered_indices.get(item_id).copied() else {
+                continue;
+            };
+
+            let item = list.item(cx, item_id, id!(Item));
+            if let Some(mut row) = item.borrow_mut::<GalleryIconGalleryRow>() {
+                row.set_entry(cx, entry_index);
+            }
+            item.draw_all(cx, &mut empty_scope);
         }
     }
 }
@@ -348,7 +495,11 @@ impl Widget for GalleryIconGalleryPage {
             if self.view.button(cx, ids!(icon_search_btn)).clicked(actions) {
                 search_input.set_key_focus(cx);
             }
-            if self.view.button(cx, ids!(clear_search_btn)).clicked(actions) {
+            if self
+                .view
+                .button(cx, ids!(clear_search_btn))
+                .clicked(actions)
+            {
                 search_input.set_text(cx, "");
                 search_input.set_key_focus(cx);
                 next_query = Some(String::new());
@@ -362,6 +513,11 @@ impl Widget for GalleryIconGalleryPage {
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
-        self.view.draw_walk(cx, scope, walk)
+        while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
+            if let Some(mut list) = step.as_portal_list().borrow_mut() {
+                self.draw_results(cx, &mut *list);
+            }
+        }
+        DrawStep::done()
     }
 }

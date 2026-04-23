@@ -123,11 +123,41 @@ script_mod! {
     }
 }
 
-const DEFAULT_DIALOG_WIDTH: f64 = 360.0;
 const DIALOG_VIEWPORT_MARGIN: f64 = 24.0;
 
-fn clamp_dialog_width(pass_width: f64) -> f64 {
-    DEFAULT_DIALOG_WIDTH.min((pass_width - DIALOG_VIEWPORT_MARGIN * 2.0).max(0.0))
+fn clamp_dialog_width(requested_width: f64, pass_width: f64) -> f64 {
+    requested_width.min((pass_width - DIALOG_VIEWPORT_MARGIN * 2.0).max(0.0))
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum DialogRequestedWidth {
+    Fill,
+    Fixed(f64),
+}
+
+fn resolve_dialog_content_width(requested_width: DialogRequestedWidth, pass_width: f64) -> f64 {
+    match requested_width {
+        DialogRequestedWidth::Fill => (pass_width - DIALOG_VIEWPORT_MARGIN * 2.0).max(0.0),
+        DialogRequestedWidth::Fixed(width) => clamp_dialog_width(width, pass_width),
+    }
+}
+
+fn track_requested_dialog_width(
+    current_width: Size,
+    requested_width: Option<DialogRequestedWidth>,
+    synced_width: Option<f64>,
+) -> Option<DialogRequestedWidth> {
+    match current_width {
+        Size::Fill { .. } => Some(DialogRequestedWidth::Fill),
+        Size::Fixed(width) => {
+            if synced_width.is_some_and(|synced| (synced - width).abs() < f64::EPSILON) {
+                requested_width.or(Some(DialogRequestedWidth::Fixed(width)))
+            } else {
+                Some(DialogRequestedWidth::Fixed(width))
+            }
+        }
+        _ => None,
+    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -153,6 +183,10 @@ pub struct ShadDialog {
     open: bool,
     #[rust]
     is_synced_open: bool,
+    #[rust]
+    requested_content_width: Option<DialogRequestedWidth>,
+    #[rust]
+    synced_content_width: Option<f64>,
     #[action_data]
     #[rust]
     action_data: WidgetActionData,
@@ -170,11 +204,23 @@ impl ShadDialog {
             return;
         };
 
-        let width = clamp_dialog_width(pass_width);
+        self.requested_content_width = track_requested_dialog_width(
+            content_view.walk.width,
+            self.requested_content_width,
+            self.synced_content_width,
+        );
+
+        let Some(requested_width) = self.requested_content_width else {
+            self.synced_content_width = None;
+            return;
+        };
+
+        let width = resolve_dialog_content_width(requested_width, pass_width);
         if !matches!(content_view.walk.width, Size::Fixed(current) if (current - width).abs() < f64::EPSILON)
         {
             content_view.walk.width = Size::Fixed(width);
         }
+        self.synced_content_width = Some(width);
     }
 
     fn sync_open_state(&mut self, cx: &mut Cx) {
@@ -315,15 +361,42 @@ impl ShadDialogRef {
 
 #[cfg(test)]
 mod tests {
-    use super::clamp_dialog_width;
+    use super::{
+        clamp_dialog_width, resolve_dialog_content_width, track_requested_dialog_width,
+        DialogRequestedWidth,
+    };
+    use makepad_widgets::Size;
 
     #[test]
     fn dialog_width_clamps_to_small_viewports() {
-        assert_eq!(clamp_dialog_width(320.0), 272.0);
+        assert_eq!(clamp_dialog_width(360.0, 320.0), 272.0);
     }
 
     #[test]
     fn dialog_width_preserves_desktop_default_when_space_allows() {
-        assert_eq!(clamp_dialog_width(960.0), 360.0);
+        assert_eq!(clamp_dialog_width(360.0, 960.0), 360.0);
+    }
+
+    #[test]
+    fn dialog_width_preserves_custom_requested_width() {
+        assert_eq!(
+            resolve_dialog_content_width(DialogRequestedWidth::Fixed(240.0), 960.0),
+            240.0
+        );
+    }
+
+    #[test]
+    fn dialog_width_restores_requested_width_after_viewport_grows() {
+        let requested_width = track_requested_dialog_width(
+            Size::Fixed(272.0),
+            Some(DialogRequestedWidth::Fixed(480.0)),
+            Some(272.0),
+        );
+
+        assert_eq!(requested_width, Some(DialogRequestedWidth::Fixed(480.0)));
+        assert_eq!(
+            resolve_dialog_content_width(requested_width.unwrap(), 960.0),
+            480.0
+        );
     }
 }
