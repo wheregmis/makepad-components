@@ -28,40 +28,69 @@ macro_rules! define_gallery_root {
             use mod.draw.KeyCode
             use mod.widgets.*
 
-            mod.widgets.GalleryThemeToggleButton = View{
+            mod.widgets.GalleryThemeToggleSun = View{
                 width: Fit
                 height: 36
-                flow: Right
-                align: Align{y: 0.5}
-                spacing: 8.0
+                flow: Overlay
+                align: Center
 
                 button := mod.widgets.ShadButtonIconOutline{
-                    width: 36
+                    width: Fill
                     height: Fill
                 }
 
-                theme_copy := ShadSectionHeader{
-                    text: "Theme"
-                    draw_text.color: (shad_theme.color_muted_foreground)
-                    draw_text.text_style.font_size: 11
+                content := View{
+                    width: Fit
+                    height: Fit
+                    flow: Right
+                    align: Align{y: 0.5}
+                    spacing: 8.0
+
+                    icon := IconSun{
+                        width: 16
+                        height: 16
+                        icon_walk: Walk{width: 16, height: 16}
+                        draw_icon.color: (shad_theme.color_primary)
+                    }
+
+                    theme_copy := ShadSectionHeader{
+                        text: "Theme"
+                        draw_text.color: (shad_theme.color_muted_foreground)
+                        draw_text.text_style.font_size: 11
+                    }
                 }
             }
 
-            mod.widgets.GalleryThemeToggleSun = mod.widgets.GalleryThemeToggleButton{
-                icon := IconSun{
-                    width: 16
-                    height: 16
-                    icon_walk: Walk{width: 16, height: 16}
-                    draw_icon.color: (shad_theme.color_primary)
-                }
-            }
+            mod.widgets.GalleryThemeToggleMoon = View{
+                width: Fit
+                height: 36
+                flow: Overlay
+                align: Center
 
-            mod.widgets.GalleryThemeToggleMoon = mod.widgets.GalleryThemeToggleButton{
-                icon := IconMoon{
-                    width: 16
-                    height: 16
-                    icon_walk: Walk{width: 16, height: 16}
-                    draw_icon.color: (shad_theme.color_primary)
+                button := mod.widgets.ShadButtonIconOutline{
+                    width: Fill
+                    height: Fill
+                }
+
+                content := View{
+                    width: Fit
+                    height: Fit
+                    flow: Right
+                    align: Align{y: 0.5}
+                    spacing: 8.0
+
+                    icon := IconMoon{
+                        width: 16
+                        height: 16
+                        icon_walk: Walk{width: 16, height: 16}
+                        draw_icon.color: (shad_theme.color_primary)
+                    }
+
+                    theme_copy := ShadSectionHeader{
+                        text: "Theme"
+                        draw_text.color: (shad_theme.color_muted_foreground)
+                        draw_text.text_style.font_size: 11
+                    }
                 }
             }
 
