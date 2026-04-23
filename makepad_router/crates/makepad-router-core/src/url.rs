@@ -192,11 +192,25 @@ pub fn append_query_string(out: &mut String, map: &HashMap<String, String>) {
         .iter()
         .map(|(key, value)| key.len() + value.len() + usize::from(!value.is_empty()) + 1)
         .sum::<usize>();
-    // Optimization: router URL assembly already owns the destination `String`.
-    // Previously: we built a temporary query `String` via `build_query_string` and then copied
-    // it into the final URL buffer. Appending directly keeps the stable/sorted output while
-    // removing one whole allocation/copy from current/preview URL generation.
-    out.reserve(estimated_len);
+
+    // Optimization: appending into an already-populated URL buffer benchmarks better when the
+    // encoded query is built contiguously and copied once at the end.
+    // Previously: we pushed every encoded byte directly into `out`, which avoided a scratch
+    // allocation but made the `append_query_string` benchmark slower than the legacy
+    // `build_query_string` + `push_str` path. Now: empty outputs still encode directly, while
+    // non-empty outputs use a small scratch buffer and a single append copy.
+    if out.is_empty() {
+        out.reserve(estimated_len);
+        append_sorted_query_entries(out, &entries);
+        return;
+    }
+
+    let mut scratch = String::with_capacity(estimated_len);
+    append_sorted_query_entries(&mut scratch, &entries);
+    out.push_str(&scratch);
+}
+
+fn append_sorted_query_entries(out: &mut String, entries: &[(&str, &str)]) {
     out.push('?');
     for (i, (key, value)) in entries.iter().enumerate() {
         if i > 0 {
