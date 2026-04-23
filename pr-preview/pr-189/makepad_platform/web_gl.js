@@ -1163,7 +1163,7 @@ var max_fragment_uniforms=gl.getParameter(
 gl.MAX_FRAGMENT_UNIFORM_VECTORS,
 );
 this.gpu_info={
-min_uniforms:Math.min(max_vertex_uniforms,max_fragment_uniforms),
+min_uniform_vectors:Math.min(max_vertex_uniforms,max_fragment_uniforms),
 vendor:"unknown",
 renderer:"unknown",
 };
