@@ -268,6 +268,18 @@ impl App {
                 ],
             )
             .key_focus(cx);
+        let close_label_has_focus = self
+            .ui
+            .button(
+                cx,
+                &[
+                    live_id!(mobile_sidebar_panel),
+                    live_id!(sidebar_mobile),
+                    live_id!(mobile_sidebar_close_button),
+                    live_id!(label_button),
+                ],
+            )
+            .key_focus(cx);
         let sidebar_item_has_focus = catalog::entries().iter().any(|entry| {
             self.ui
                 .widget(
@@ -281,7 +293,7 @@ impl App {
                 .key_focus(cx)
         });
 
-        if close_button_has_focus || sidebar_item_has_focus {
+        if close_button_has_focus || close_label_has_focus || sidebar_item_has_focus {
             cx.set_key_focus(Area::Empty);
         }
     }
@@ -537,10 +549,34 @@ impl MatchEvent for App {
                     .button(
                         cx,
                         &[
+                            live_id!(responsive_header),
+                            live_id!(Mobile),
+                            live_id!(mobile_sidebar_menu_button),
+                            live_id!(label_button),
+                        ],
+                    )
+                    .clicked(actions)
+                || self
+                    .ui
+                    .button(
+                        cx,
+                        &[
                             live_id!(mobile_sidebar_panel),
                             live_id!(sidebar_mobile),
                             live_id!(mobile_sidebar_close_button),
                             live_id!(button),
+                        ],
+                    )
+                    .clicked(actions)
+                || self
+                    .ui
+                    .button(
+                        cx,
+                        &[
+                            live_id!(mobile_sidebar_panel),
+                            live_id!(sidebar_mobile),
+                            live_id!(mobile_sidebar_close_button),
+                            live_id!(label_button),
                         ],
                     )
                     .clicked(actions)

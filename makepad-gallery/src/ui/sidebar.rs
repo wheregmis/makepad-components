@@ -34,15 +34,17 @@ macro_rules! define_gallery_sidebar {
                     height: Fill
                 }
 
-                label := ShadLabel{
+                label_button := ShadButtonLink{
                     text: "Action"
+                    height: Fill
+                    padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
                     draw_text.text_style.font_size: 12
                     draw_text.color: (shad_theme.color_muted_foreground)
                 }
             }
 
             mod.widgets.GalleryMobileSidebarMenuButton = mod.widgets.GalleryMobileSidebarIconButton{
-                label = ShadLabel{text: "Menu"}
+                label_button = ShadButtonLink{text: "Menu"}
                 icon := IconMenu{
                     width: 18
                     height: 18
@@ -52,7 +54,7 @@ macro_rules! define_gallery_sidebar {
             }
 
             mod.widgets.GalleryMobileSidebarCloseButton = mod.widgets.GalleryMobileSidebarIconButton{
-                label = ShadLabel{text: "Close"}
+                label_button = ShadButtonLink{text: "Close"}
                 icon := IconX{
                     width: 16
                     height: 16
