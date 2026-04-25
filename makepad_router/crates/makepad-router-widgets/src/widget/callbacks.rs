@@ -6,7 +6,7 @@ use super::RouterWidget;
 impl RouterWidget {
     pub fn on_route_change<F>(&mut self, callback: F)
     where
-        F: Fn(&mut Cx, Option<Route>, Route) + Send + Sync + 'static,
+        F: Fn(&mut Cx, Option<&Route>, &Route) + Send + Sync + 'static,
     {
         self.callbacks.route_change.push(Box::new(callback));
     }
@@ -20,8 +20,11 @@ impl RouterWidget {
         if self.callbacks.route_change.is_empty() {
             return;
         }
+        // Optimization: prevent unnecessary heap allocations in routing callback dispatch
+        // Previously: called `callback(cx, old_route.cloned(), new_route.clone())`, which allocated memory for queries and params
+        // Now: pass `Route` by reference to the callback, eliminating costly clones per frame
         for callback in &self.callbacks.route_change {
-            callback(cx, old_route.cloned(), new_route.clone());
+            callback(cx, old_route, new_route);
         }
     }
 }

@@ -22,6 +22,7 @@ script_mod! {
     mod.widgets.ShadRadioItem = RadioButtonFlat{
         width: Fit
         height: Fit
+        grab_key_focus: true
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
         label_walk +: {
             margin: theme.mspace_h_1{left: 18.0}
@@ -39,7 +40,7 @@ script_mod! {
             border_color: (shad_theme.color_outline_border)
             border_color_hover: (shad_theme.color_outline_border_hover)
             border_color_down: (shad_theme.color_primary)
-            border_color_focus: (shad_theme.color_outline_border_hover)
+            border_color_focus: (shad_theme.color_primary)
             border_color_active: (shad_theme.color_primary)
             border_color_disabled: (shad_theme.color_outline_border)
 
