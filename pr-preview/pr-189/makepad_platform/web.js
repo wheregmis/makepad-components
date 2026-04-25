@@ -1,4 +1,5 @@
 import{WasmBridge}from"../makepad_wasm_bridge/wasm_bridge.js"
+const TEXT_ENCODER=new TextEncoder();
 export class WasmWebBrowser extends WasmBridge{
 constructor(wasm,dispatch,canvas){
 super(wasm,dispatch);
@@ -38,6 +39,13 @@ this.loader_fallback_timer=null;
 this.init_detection();
 this.midi_inputs=[];
 this.midi_outputs=[];
+this.perf={
+last_pump_ms:0,
+draw_calls:0,
+last_frame_draw_calls:0,
+};
+this.perf_hud=null;
+this.perf_hud_timer=0;
 this.dispatch_first_msg();
 }
 emit_location_change(){
@@ -78,6 +86,7 @@ has_thread_support:this.wasm._has_thread_support,
 small_font_aliases:window.makepad_small_font_aliases===true
 },
 window_info:this.window_info,
+render_api:this.render_api||0,
 });
 this.do_wasm_pump();
 this.bind_mouse_and_touch();
@@ -654,8 +663,7 @@ out.set(input_u8);
 return{ptr,len:input_u8.length};
 }
 string_to_u8(s){
-const encoder=new TextEncoder();
-return this.alloc_u8(encoder.encode(s));
+return this.alloc_u8(TEXT_ENCODER.encode(s));
 }
 array_to_u8(u8_array){
 return this.alloc_u8(u8_array);
@@ -1034,8 +1042,12 @@ return this.new_from_wasm(ret_ptr);
 }
 dispatch_first_msg(){
 let from_wasm=this.wasm_return_first_msg();
+try{
 from_wasm.dispatch_on_app();
+}
+finally{
 from_wasm.free();
+}
 }
 do_wasm_pump(){
 if(this.pending_wasm_pump_id){
@@ -1043,13 +1055,63 @@ window.cancelAnimationFrame(this.pending_wasm_pump_id);
 this.pending_wasm_pump_id=0;
 }
 let started=performance.now();
+if(this.perf){
+this.perf.draw_calls=0;
+}
 this.buffer_upload_serial+=1;
 let to_wasm=this.to_wasm;
 this.to_wasm=this.new_to_wasm();
 let from_wasm=this.wasm_process_msg(to_wasm);
+try{
 from_wasm.dispatch_on_app();
+}
+finally{
 from_wasm.free();
-this.update_startup_loader(performance.now()-started);
+const pump_ms=performance.now()-started;
+this.update_startup_loader(pump_ms);
+if(this.perf){
+this.perf.last_pump_ms=pump_ms;
+this.perf.last_frame_draw_calls=this.perf.draw_calls;
+}
+this.update_perf_hud();
+}
+}
+ensure_perf_hud(){
+if(this.perf_hud||typeof window==="undefined"){
+return;
+}
+const hud=document.createElement("div");
+hud.style.position="fixed";
+hud.style.left="8px";
+hud.style.top="8px";
+hud.style.padding="6px 8px";
+hud.style.font="12px/1.3 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+hud.style.color="white";
+hud.style.background="rgba(0,0,0,0.55)";
+hud.style.borderRadius="6px";
+hud.style.zIndex="999999";
+hud.style.pointerEvents="none";
+hud.textContent="makepad: …";
+document.body.appendChild(hud);
+this.perf_hud=hud;
+}
+update_perf_hud(){
+if(typeof window==="undefined"||window.makepad_show_perf_hud!==true){
+return;
+}
+this.ensure_perf_hud();
+if(!this.perf_hud||!this.perf){
+return;
+}
+const now=performance.now();
+if(this.perf_hud_timer&&now-this.perf_hud_timer<125){
+return;
+}
+this.perf_hud_timer=now;
+this.perf_hud.textContent=
+"makepad web\n"+
+"pump: "+this.perf.last_pump_ms.toFixed(2)+"ms\n"+
+"draw_calls: "+this.perf.last_frame_draw_calls;
 }
 wasm_process_msg(to_wasm){
 if(this.debug_sum_ptr!==undefined){
@@ -1103,7 +1165,9 @@ h=canvas.offsetHeight;
 }
 var sw=canvas.width=w*dpi_factor;
 var sh=canvas.height=h*dpi_factor;
+if(this.gl&&typeof this.gl.viewport==="function"){
 this.gl.viewport(0,0,sw,sh);
+}
 this.window_info.dpi_factor=dpi_factor;
 this.window_info.inner_width=canvas.offsetWidth;
 this.window_info.inner_height=canvas.offsetHeight;
@@ -1159,11 +1223,11 @@ this.do_wasm_pump();
 }
 this.handlers.on_mouse_move=e=>{
 this.to_wasm.ToWasmMouseMove({was_out:false,mouse:mouse_to_wasm_wmouse(e)});
-this.do_wasm_pump();
+this.schedule_wasm_pump();
 }
 this.handlers.on_mouse_out=e=>{
 this.to_wasm.ToWasmMouseMove({was_out:true,mouse:mouse_to_wasm_wmouse(e)});
-this.do_wasm_pump();
+this.schedule_wasm_pump();
 }
 canvas.addEventListener('mousedown',e=>this.handlers.on_mouse_down(e))
 window.addEventListener('mouseup',e=>this.handlers.on_mouse_up(e))
@@ -1220,7 +1284,7 @@ time:e.timeStamp/1000.0,
 modifiers:pack_key_modifier(e),
 touches:touches_to_wasm_wtouches(e,2)
 });
-this.do_wasm_pump();
+this.schedule_wasm_pump();
 return false
 }
 this.handlers.on_touch_end_cancel_leave=e=>{
@@ -1267,7 +1331,7 @@ scroll_x:e.deltaX*fac,
 scroll_y:e.deltaY*fac,
 time:e.timeStamp/1000.0,
 });
-this.do_wasm_pump();
+this.schedule_wasm_pump();
 };
 canvas.addEventListener('wheel',e=>this.handlers.on_mouse_wheel(e))
 }
