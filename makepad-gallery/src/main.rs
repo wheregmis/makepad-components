@@ -27,6 +27,20 @@ impl App {
         width.is_finite() && width > 0.0 && width < Self::SMALL_SCREEN_WIDTH
     }
 
+    fn breakpoint_width(window_width: f64, parent_width: f64) -> f64 {
+        if window_width.is_finite() && window_width > 0.0 {
+            window_width
+        } else if parent_width.is_finite() && parent_width > 0.0 {
+            parent_width
+        } else {
+            0.0
+        }
+    }
+
+    fn adaptive_width(cx: &Cx, parent_size: &DVec2) -> f64 {
+        Self::breakpoint_width(cx.display_context.screen_size.x, parent_size.x)
+    }
+
     fn is_mobile_layout(&self, cx: &Cx) -> bool {
         Self::is_mobile_width(cx.display_context.screen_size.x)
     }
@@ -59,8 +73,8 @@ impl App {
     fn configure_adaptive_views(&self, cx: &mut Cx) {
         self.ui
             .adaptive_view(cx, ids!(responsive_header))
-            .set_variant_selector(|cx, _parent_size| {
-                if Self::is_mobile_width(cx.display_context.screen_size.x) {
+            .set_variant_selector(|cx, parent_size| {
+                if Self::is_mobile_width(Self::adaptive_width(cx, parent_size)) {
                     live_id!(Mobile)
                 } else {
                     live_id!(Desktop)
@@ -68,8 +82,8 @@ impl App {
             });
         self.ui
             .adaptive_view(cx, ids!(responsive_sidebar))
-            .set_variant_selector(|cx, _parent_size| {
-                if Self::is_mobile_width(cx.display_context.screen_size.x) {
+            .set_variant_selector(|cx, parent_size| {
+                if Self::is_mobile_width(Self::adaptive_width(cx, parent_size)) {
                     live_id!(Mobile)
                 } else {
                     live_id!(Desktop)
@@ -136,6 +150,9 @@ impl App {
         self.ui
             .view(cx, ids!(mobile_sidebar_backdrop))
             .set_visible(cx, is_mobile && self.sidebar_open);
+        self.ui
+            .view(cx, ids!(vertical_divider))
+            .set_visible(cx, !is_mobile);
         self.ui.view(cx, ids!(main_content)).set_visible(cx, true);
     }
 
@@ -191,6 +208,7 @@ impl App {
 
     fn sync_page_metadata(&self, cx: &mut Cx) {
         if let Some(entry) = catalog::entry_for_page(self.current_page) {
+            let breadcrumb_text = format!("Gallery / {} / {}", entry.section, entry.title);
             if self.is_mobile_layout(cx) {
                 self.ui
                     .label(
@@ -212,7 +230,7 @@ impl App {
                             live_id!(desktop_page_label),
                         ],
                     )
-                    .set_text(cx, entry.title);
+                    .set_text(cx, breadcrumb_text.as_str());
             }
         }
         // Optimization: prevent redundant script evaluations on page navigation
@@ -317,7 +335,7 @@ impl App {
                 Vec4f::from_u32(0xfafafaff),
                 Vec4f::from_u32(0x27272aff),
                 Vec4f::from_u32(0x3f3f46ff),
-                Vec4f::from_u32(0xfafafaff),
+                Vec4f::from_u32(0xa1a1aaff),
                 Vec4f::from_u32(0x27272aff),
                 Vec4f::from_u32(0xfafafaff),
             )
@@ -408,7 +426,16 @@ impl App {
     }
 
     fn sync_safe_area_padding_for(&self, cx: &mut Cx, is_mobile: bool) {
-        let _ = (cx, is_mobile);
+        let sidebar_width = if is_mobile {
+            (cx.display_context.screen_size.x - 16.0).clamp(240.0, 320.0)
+        } else {
+            320.0
+        };
+
+        let mut mobile_sidebar_panel = self.ui.widget(cx, ids!(mobile_sidebar_panel));
+        script_apply_eval!(cx, mobile_sidebar_panel, {
+            width: #(sidebar_width)
+        });
     }
 
     fn apply_responsive_visibility(&mut self, cx: &mut Cx) {
@@ -705,5 +732,20 @@ impl AppMain for App {
         }
         self.match_event(cx, event);
         self.ui.handle_event(cx, event, &mut Scope::empty());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::App;
+
+    #[test]
+    fn breakpoint_width_prefers_window_width_when_known() {
+        assert_eq!(App::breakpoint_width(1280.0, 720.0), 1280.0);
+    }
+
+    #[test]
+    fn breakpoint_width_falls_back_to_parent_width_during_startup() {
+        assert_eq!(App::breakpoint_width(0.0, 720.0), 720.0);
     }
 }

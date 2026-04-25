@@ -32,10 +32,10 @@ script_mod! {
         grab_key_focus: true
         draw_bg +: {
             color: #0000
-            color_hover: (shad_theme.color_secondary_hover)
+            color_hover: (shad_theme.color_ghost_hover)
             color_down: (shad_theme.color_secondary_down)
             border_radius: (shad_theme.radius)
-            color_focus: (shad_theme.color_secondary_hover)
+            color_focus: (shad_theme.color_ghost_hover)
             border_size: 1.0
             border_color: #0000
             border_color_hover: #0000
@@ -43,7 +43,7 @@ script_mod! {
             border_color_focus: (shad_theme.color_primary)
         }
         draw_text +: {
-            color: (shad_theme.color_primary)
+            color: (shad_theme.color_muted_foreground)
             color_hover: (shad_theme.color_primary)
             color_down: (shad_theme.color_primary)
             color_focus: (shad_theme.color_primary)

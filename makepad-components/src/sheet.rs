@@ -68,6 +68,10 @@ script_mod! {
     }
 }
 
+fn clamp_sheet_extent(requested_size: f64, pass_size: f64) -> f64 {
+    requested_size.min(pass_size.max(0.0))
+}
+
 fn should_sync_sheet_layout(open: bool, open_progress: f64) -> bool {
     open || open_progress > 0.0
 }
@@ -180,27 +184,29 @@ impl ShadSheet {
             let progress = self.open_progress.clamp(0.0, 1.0);
             let pass_width = self.last_pass_size.x.max(0.0);
             let pass_height = self.last_pass_size.y.max(0.0);
+            let clamped_side_size = clamp_sheet_extent(self.sheet_size, pass_width);
+            let clamped_vertical_size = clamp_sheet_extent(self.sheet_size, pass_height);
 
             let (content_width, content_height, abs_pos) = match current_side {
                 "left" => (
-                    self.sheet_size,
+                    clamped_side_size,
                     pass_height,
-                    dvec2(-self.sheet_size * (1.0 - progress), 0.0),
+                    dvec2(-clamped_side_size * (1.0 - progress), 0.0),
                 ),
                 "top" => (
                     pass_width,
-                    self.sheet_size,
-                    dvec2(0.0, -self.sheet_size * (1.0 - progress)),
+                    clamped_vertical_size,
+                    dvec2(0.0, -clamped_vertical_size * (1.0 - progress)),
                 ),
                 "bottom" => (
                     pass_width,
-                    self.sheet_size,
-                    dvec2(0.0, pass_height - self.sheet_size * progress),
+                    clamped_vertical_size,
+                    dvec2(0.0, pass_height - clamped_vertical_size * progress),
                 ),
                 _ => (
-                    self.sheet_size,
+                    clamped_side_size,
                     pass_height,
-                    dvec2(pass_width - self.sheet_size * progress, 0.0),
+                    dvec2(pass_width - clamped_side_size * progress, 0.0),
                 ),
             };
 
@@ -388,5 +394,11 @@ mod tests {
     fn animating_or_open_sheet_keeps_overlay_layout_active() {
         assert!(super::should_sync_sheet_layout(true, 0.0));
         assert!(super::should_sync_sheet_layout(false, 0.25));
+    }
+
+    #[test]
+    fn sheet_extent_clamps_to_the_current_pass_size() {
+        assert_eq!(super::clamp_sheet_extent(360.0, 320.0), 320.0);
+        assert_eq!(super::clamp_sheet_extent(280.0, 640.0), 280.0);
     }
 }

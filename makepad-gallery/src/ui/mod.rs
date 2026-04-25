@@ -13,20 +13,24 @@ use crate::ui::registry::gallery_page_entries;
 
 macro_rules! declare_gallery_page_modules {
     ($(
-        {
-            title: $title:literal,
-            route: $route:literal,
-            page: $page:ident,
-            widget: $widget:ident,
-            sidebar_id: $sidebar_id:ident,
-            sidebar_label: $sidebar_label:literal,
-            section: $section:literal,
-            shortcut: $shortcut:literal,
-            snippet: $snippet:ident,
-            $(transition: $transition:ident,)?
+        $section_name:literal => {
+            $(
+                {
+                    title: $title:literal,
+                    route: $route:literal,
+                    page: $page:ident,
+                    widget: $widget:ident,
+                    sidebar_id: $sidebar_id:ident,
+                    sidebar_label: $sidebar_label:literal,
+                    section: $section:literal,
+                    shortcut: $shortcut:literal,
+                    snippet: $snippet:ident,
+                    $(transition: $transition:ident,)?
+                }
+            )*
         }
     )*) => {
-        $(pub mod $page;)*
+        $($(pub mod $page;)*)*
     };
 }
 
@@ -38,20 +42,24 @@ pub fn script_mod(vm: &mut ScriptVm) {
     crate::ui::command_palette::script_mod(vm);
     macro_rules! register_gallery_pages {
         ($(
-            {
-                title: $title:literal,
-                route: $route:literal,
-                page: $page:ident,
-                widget: $widget:ident,
-                sidebar_id: $sidebar_id:ident,
-                sidebar_label: $sidebar_label:literal,
-                section: $section:literal,
-                shortcut: $shortcut:literal,
-                snippet: $snippet:ident,
-                $(transition: $transition:ident,)?
+            $section_name:literal => {
+                $(
+                    {
+                        title: $title:literal,
+                        route: $route:literal,
+                        page: $page:ident,
+                        widget: $widget:ident,
+                        sidebar_id: $sidebar_id:ident,
+                        sidebar_label: $sidebar_label:literal,
+                        section: $section:literal,
+                        shortcut: $shortcut:literal,
+                        snippet: $snippet:ident,
+                        $(transition: $transition:ident,)?
+                    }
+                )*
             }
         )*) => {
-            $(crate::ui::$page::script_mod(vm);)*
+            $($(crate::ui::$page::script_mod(vm);)*)*
         };
     }
 

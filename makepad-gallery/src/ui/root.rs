@@ -2,25 +2,27 @@ use crate::ui::registry::gallery_page_entries;
 use makepad_components::makepad_widgets::*;
 
 macro_rules! define_gallery_root {
-    (
-        $(
-            {
-                title: $title:literal,
-                route: $route:literal,
-                page: $page:ident,
-                widget: $widget:ident,
-                sidebar_id: $sidebar_id:ident,
-                sidebar_label: $sidebar_label:literal,
-                section: $section:literal,
-                shortcut: $shortcut:literal,
-                snippet: $snippet:ident,
-                $(transition: $transition:ident,)?
-            }
-        )*
-    ) => {
+    ($(
+        $section_name:literal => {
+            $(
+                {
+                    title: $title:literal,
+                    route: $route:literal,
+                    page: $page:ident,
+                    widget: $widget:ident,
+                    sidebar_id: $sidebar_id:ident,
+                    sidebar_label: $sidebar_label:literal,
+                    section: $section:literal,
+                    shortcut: $shortcut:literal,
+                    snippet: $snippet:ident,
+                    $(transition: $transition:ident,)?
+                }
+            )*
+        }
+    )*) => {
         #[cfg(test)]
         pub const ROUTER_BINDINGS: &[(LiveId, &str)] = &[
-            $((live_id!($page), $route),)*
+            $($( (live_id!($page), $route), )*)*
         ];
 
         script_mod! {
@@ -102,22 +104,20 @@ macro_rules! define_gallery_root {
                 spacing: 8.0
 
                 desktop_command_palette_trigger := ShadButtonGhost{
-                    text: "Search components"
+                    text: "Search components..."
+                    padding: Inset{left: 12, right: 12}
+                    height: 32
+                    draw_text.text_style.font_size: 10.0
+                    draw_text.color: (shad_theme.color_muted_foreground)
                 }
 
                 desktop_command_palette_shortcut := View{
                     width: Fit
                     height: Fit
-                    flow: Right{wrap: true}
+                    flow: Right
                     align: Align{y: 0.5}
-                    spacing: 6.0
+                    spacing: 4.0
 
-                    ShadKbd{ label := ShadKbdLabel{text: "Cmd"} }
-                    ShadKbdSeparator{}
-                    ShadKbd{ label := ShadKbdLabel{text: "K"} }
-
-                    ShadKbd{ label := ShadKbdLabel{text: "Ctrl"} }
-                    ShadKbdSeparator{}
                     ShadKbd{ label := ShadKbdLabel{text: "K"} }
                 }
             }
@@ -125,18 +125,18 @@ macro_rules! define_gallery_root {
             mod.widgets.GalleryContentFlip = RouterWidget{
                 width: Fill
                 height: Fill
-                default_route: @accordion_page
-                not_found_route: @accordion_page
+                default_route: @overview_page
+                not_found_route: @overview_page
                 sync_browser_url: true
                 browser_base_path: "/makepad-components"
 
-                $(
+                $($(
                     $page := RouterRoute{
                         route_pattern: $route
                         $(route_transition: @$transition)?
                         mod.widgets.$widget{}
                     }
-                )*
+                )*)*
             }
 
             mod.widgets.GalleryDesktopHeader = View{
@@ -149,23 +149,20 @@ macro_rules! define_gallery_root {
                     height: Fit
                     flow: Right
                     align: Align{y: 0.5}
-                    padding: Inset{left: 24, right: 24, top: 16, bottom: 14}
+                    padding: Inset{left: 32, right: 32, top: 16, bottom: 16}
                     spacing: 16.0
                     draw_bg.color: (shad_theme.color_background)
 
                     desktop_header_meta := View{
                         width: Fill
                         height: Fit
-                        flow: Down
+                        flow: Right
                         spacing: 4.0
 
-                        desktop_header_caption := ShadSectionHeader{
-                            text: "Makepad Components Gallery"
-                        }
-
                         desktop_page_label := ShadLabel{
-                            text: "Components"
-                            draw_text.text_style.font_size: 13
+                            text: "Gallery / Overview"
+                            draw_text.text_style.font_size: 11.0
+                            draw_text.color: (shad_theme.color_muted_foreground)
                         }
                     }
 
@@ -209,18 +206,16 @@ macro_rules! define_gallery_root {
                         mobile_sidebar_menu_button := mod.widgets.GalleryMobileSidebarMenuButton{}
 
                         mobile_header_meta := View{
-                            width: Fit
+                            width: Fill
                             height: Fit
-                            flow: Down
+                            flow: Right
                             spacing: 2.0
 
-                            mobile_header_caption := ShadSectionHeader{
-                                text: "Gallery"
-                            }
-
                             mobile_page_label := ShadLabel{
-                                text: "Components"
-                                draw_text.text_style.font_size: 12
+                                width: Fill
+                                text: "Gallery / Overview"
+                                draw_text.text_style.font_size: 12.0
+                                draw_text.color: (shad_theme.color_primary)
                             }
                         }
 
@@ -246,6 +241,7 @@ macro_rules! define_gallery_root {
                 width: Fill
                 height: Fill
                 flow: Down
+                draw_bg.color: (shad_theme.color_background)
 
                 responsive_header := AdaptiveView{
                     width: Fill
@@ -267,7 +263,7 @@ macro_rules! define_gallery_root {
                     flow: Overlay
 
                     sidebar_shell := View{
-                        width: 280
+                        width: 260
                         height: Fill
                         flow: Overlay
                         clip_x: true
@@ -290,6 +286,12 @@ macro_rules! define_gallery_root {
                 spacing: 0.0
 
                 responsive_sidebar := mod.widgets.GalleryResponsiveSidebar{}
+
+                vertical_divider := View {
+                    width: 1
+                    height: Fill
+                    draw_bg +: { color: (shad_theme.color_border) }
+                }
 
                 main_content := mod.widgets.GalleryMainContent{
                     width: Fill

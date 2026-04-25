@@ -5,6 +5,7 @@ pub mod components;
 pub mod data;
 pub mod feedback;
 pub mod forms;
+pub mod getting_started;
 pub mod layout;
 pub mod navigation;
 pub mod overlays;
@@ -25,6 +26,7 @@ pub use forms::{
     SELECT_PREVIEW_CODE, SLIDER_PREVIEW_CODE, SWITCH_PREVIEW_CODE, TEXTAREA_PREVIEW_CODE,
     TOGGLE_PREVIEW_CODE,
 };
+pub use getting_started::{CATALOG_PREVIEW_CODE, OVERVIEW_PREVIEW_CODE};
 pub use layout::{
     ASPECT_RATIO_PREVIEW_CODE, RESIZABLE_PREVIEW_CODE, SCROLL_AREA_PREVIEW_CODE,
     SEPARATOR_PREVIEW_CODE,
@@ -39,6 +41,7 @@ pub use overlays::{
 
 pub fn snippet_code(key: GallerySnippetKey) -> &'static str {
     match key {
+        GallerySnippetKey::Overview => OVERVIEW_PREVIEW_CODE,
         GallerySnippetKey::Accordion => ACCORDION_PREVIEW_CODE,
         GallerySnippetKey::Alert => ALERT_PREVIEW_CODE,
         GallerySnippetKey::AspectRatio => ASPECT_RATIO_PREVIEW_CODE,
@@ -50,6 +53,7 @@ pub fn snippet_code(key: GallerySnippetKey) -> &'static str {
         GallerySnippetKey::Calendar => CALENDAR_PREVIEW_CODE,
         GallerySnippetKey::Card => CARD_PREVIEW_CODE,
         GallerySnippetKey::Carousel => CAROUSEL_PREVIEW_CODE,
+        GallerySnippetKey::Catalog => CATALOG_PREVIEW_CODE,
         GallerySnippetKey::Chart => CHART_PREVIEW_CODE,
         GallerySnippetKey::Checkbox => CHECKBOX_PREVIEW_CODE,
         GallerySnippetKey::Collapsible => COLLAPSIBLE_PREVIEW_CODE,
