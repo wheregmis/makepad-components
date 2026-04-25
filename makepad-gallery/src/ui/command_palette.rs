@@ -186,24 +186,38 @@ mod.widgets.GalleryCommandPalette = set_type_default() do mod.widgets.GalleryCom
                 search_shell := View {
                     width: Fill
                     height: Fit
-                    flow: Right
-                    align: Align{y: 0.5}
+                    flow: Down
                     padding: Inset{left: 14, right: 14, top: 12, bottom: 12}
-                    spacing: 10.0
+                    spacing: 8.0
 
-                    IconSearch{
-                        icon_walk: Walk{width: 18, height: 18}
-                        draw_icon.color: (shad_theme.color_muted_foreground)
+                    search_row := View{
+                        width: Fill
+                        height: Fit
+                        flow: Right
+                        align: Align{y: 0.5}
+                        spacing: 10.0
+
+                        IconSearch{
+                            icon_walk: Walk{width: 18, height: 18}
+                            draw_icon.color: (shad_theme.color_muted_foreground)
+                        }
+
+                        search_input := ShadInputBorderless{
+                            empty_text: "Search components, sections, or shortcut tags..."
+                            draw_text.text_style.font_size: 14
+                            draw_text.color_empty: (shad_theme.color_muted_foreground)
+                        }
                     }
 
-                    search_input := ShadInputBorderless{
-                        empty_text: "Search components, sections, or shortcut tags..."
-                        draw_text.text_style.font_size: 14
-                        draw_text.color_empty: (shad_theme.color_muted_foreground)
-                    }
+                    search_actions := View{
+                        width: Fill
+                        height: Fit
+                        flow: Right
+                        align: Align{x: 1.0, y: 0.5}
 
-                    clear_search_btn := ShadButtonGhost{
-                        text: "Close"
+                        clear_search_btn := ShadButtonGhost{
+                            text: "Close"
+                        }
                     }
                 }
 

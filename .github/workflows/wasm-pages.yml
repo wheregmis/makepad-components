@@ -20,7 +20,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  MAKEPAD_GIT_BRANCH: web_groundup
+  MAKEPAD_GIT_BRANCH: webgpu
   WASM_BINDGEN_VERSION: 0.2.114
 
 jobs:
