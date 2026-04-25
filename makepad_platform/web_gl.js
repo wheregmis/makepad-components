@@ -5,6 +5,7 @@ super(wasm,dispatch,canvas);
 if(wasm===undefined){
 return;
 }
+this.render_api=0;
 this.draw_shaders=[];
 this.array_buffers=[];
 this.index_buffers=[];
@@ -18,6 +19,18 @@ this.video_players={};
 this.parallel_compile_ext=null;
 this.pending_startup_shader_compiles=0;
 this.pending_startup_shader_frame_id=0;
+this.bound_uniform_buffers=[];
+this.bound_textures=[];
+this.current_program=null;
+this.current_depth_mask=null;
+this.current_cull_face=null;
+this.current_active_texture_slot=-1;
+this.current_framebuffer=undefined;
+this.current_viewport={x:-1,y:-1,w:-1,h:-1};
+this.current_clear_color={r:NaN,g:NaN,b:NaN,a:NaN};
+this.current_clear_depth=NaN;
+this.current_vertex_array=undefined;
+this.bound_buffers={};
 this.init_webgl_context();
 this.load_deps();
 }
@@ -174,11 +187,12 @@ upload_uniform_buffer_from_ptr(gl,gl_buf,ptr_f32){
 if(!gl_buf||ptr_f32.ptr==0||ptr_f32.len==0){
 return;
 }
+let memory_byte_length=this.memory.buffer.byteLength;
 if(
 gl_buf._last_upload_serial===this.buffer_upload_serial&&
 gl_buf._last_upload_ptr===ptr_f32.ptr&&
 gl_buf._last_upload_len===ptr_f32.len&&
-gl_buf._last_upload_memory===this.memory.buffer
+gl_buf._last_upload_memory_byte_length===memory_byte_length
 ){
 return;
 }
@@ -187,15 +201,15 @@ this.upload_uniform_buffer_data(gl,gl_buf,data,gl.DYNAMIC_DRAW);
 gl_buf._last_upload_serial=this.buffer_upload_serial;
 gl_buf._last_upload_ptr=ptr_f32.ptr;
 gl_buf._last_upload_len=ptr_f32.len;
-gl_buf._last_upload_memory=this.memory.buffer;
+gl_buf._last_upload_memory_byte_length=memory_byte_length;
 }
 upload_uniform_buffer_data(gl,gl_buf,data,usage=gl.DYNAMIC_DRAW){
 if(!gl_buf||!data||data.length==0){
 return;
 }
-gl.bindBuffer(gl.UNIFORM_BUFFER,gl_buf);
+this.bind_buffer(gl,gl.UNIFORM_BUFFER,gl_buf);
 this.upload_buffer_data(gl,gl.UNIFORM_BUFFER,gl_buf,data,usage);
-gl.bindBuffer(gl.UNIFORM_BUFFER,null);
+this.bind_buffer(gl,gl.UNIFORM_BUFFER,null);
 }
 upload_buffer_data(gl,target,gl_buf,data,usage){
 const byte_length=data.byteLength||data.length*4;
@@ -210,7 +224,136 @@ bind_uniform_block(gl,binding,gl_buf){
 if(binding===null||!gl_buf){
 return;
 }
+if(this.bound_uniform_buffers[binding]===gl_buf){
+return;
+}
 gl.bindBufferBase(gl.UNIFORM_BUFFER,binding,gl_buf);
+this.bound_uniform_buffers[binding]=gl_buf;
+}
+use_program(gl,program){
+if(this.current_program===program){
+return;
+}
+gl.useProgram(program);
+this.current_program=program;
+}
+set_depth_mask(gl,enabled){
+if(this.current_depth_mask===enabled){
+return;
+}
+gl.depthMask(enabled);
+this.current_depth_mask=enabled;
+}
+set_cull_face(gl,enabled){
+if(this.current_cull_face===enabled){
+return;
+}
+if(enabled){
+gl.enable(gl.CULL_FACE);
+gl.cullFace(gl.BACK);
+}else{
+gl.disable(gl.CULL_FACE);
+}
+this.current_cull_face=enabled;
+}
+active_texture(gl,slot){
+if(this.current_active_texture_slot===slot){
+return;
+}
+gl.activeTexture(gl.TEXTURE0+slot);
+this.current_active_texture_slot=slot;
+}
+bind_texture(gl,slot,target,texture){
+let bound=this.bound_textures[slot];
+if(bound&&bound[target]===texture){
+return;
+}
+this.active_texture(gl,slot);
+gl.bindTexture(target,texture);
+if(!bound){
+bound=this.bound_textures[slot]={};
+}
+bound[target]=texture;
+}
+bind_texture_for_update(gl,target,texture){
+this.active_texture(gl,0);
+gl.bindTexture(target,texture);
+let bound=this.bound_textures[0];
+if(!bound){
+bound=this.bound_textures[0]={};
+}
+bound[target]=texture;
+}
+set_texture_uniform(gl,tex_loc,slot){
+if(tex_loc.loc===null||tex_loc.slot===slot){
+return;
+}
+gl.uniform1i(tex_loc.loc,slot);
+tex_loc.slot=slot;
+}
+bind_framebuffer(gl,framebuffer){
+if(this.current_framebuffer===framebuffer){
+return;
+}
+gl.bindFramebuffer(gl.FRAMEBUFFER,framebuffer);
+this.current_framebuffer=framebuffer;
+}
+bind_vertex_array(gl,vao){
+if(this.current_vertex_array===vao){
+return;
+}
+gl.bindVertexArray(vao);
+this.current_vertex_array=vao;
+}
+bind_buffer(gl,target,buffer){
+if(target===gl.ELEMENT_ARRAY_BUFFER){
+gl.bindBuffer(target,buffer);
+return;
+}
+if(this.bound_buffers[target]===buffer){
+return;
+}
+gl.bindBuffer(target,buffer);
+this.bound_buffers[target]=buffer;
+}
+set_viewport(gl,x,y,w,h){
+let viewport=this.current_viewport;
+if(
+viewport.x===x&&
+viewport.y===y&&
+viewport.w===w&&
+viewport.h===h
+){
+return;
+}
+gl.viewport(x,y,w,h);
+viewport.x=x;
+viewport.y=y;
+viewport.w=w;
+viewport.h=h;
+}
+set_clear_color(gl,c){
+let current=this.current_clear_color;
+if(
+current.r===c.r&&
+current.g===c.g&&
+current.b===c.b&&
+current.a===c.a
+){
+return;
+}
+gl.clearColor(c.r,c.g,c.b,c.a);
+current.r=c.r;
+current.g=c.g;
+current.b=c.b;
+current.a=c.a;
+}
+set_clear_depth(gl,depth){
+if(this.current_clear_depth===depth){
+return;
+}
+gl.clearDepth(depth);
+this.current_clear_depth=depth;
 }
 assert_no_gl_error(gl,where){
 let err=gl.getError();
@@ -258,14 +401,17 @@ this.pending_startup_shader_compiles===0
 ){
 return;
 }
+const pending_before=this.pending_startup_shader_compiles;
 for(let shader_id=0;shader_id<this.draw_shaders.length;shader_id++){
 let shader=this.draw_shaders[shader_id];
 if(shader&&shader._pending&&shader._startup_pending){
 this._try_finalize_shader(shader_id,false);
 }
 }
+if(this.pending_startup_shader_compiles<pending_before){
 this.to_wasm.ToWasmRedrawAll();
 this.schedule_wasm_pump();
+}
 if(this.pending_startup_shader_compiles>0){
 this.schedule_startup_shader_warmup();
 }
@@ -346,12 +492,10 @@ let loc=gl.getUniformLocation(program,"tex_"+tex_name);
 if(loc===null){
 loc=gl.getUniformLocation(program,"ds_"+tex_name);
 }
-texture_locs.push({name:tex_name,ty:args.textures[i].ty,loc:loc});
+texture_locs.push({ty:args.textures[i].ty,loc:loc});
 }
 this.mark_startup_shader_complete(pending);
 this.draw_shaders[shader_id]={
-vertex:args.vertex,
-pixel:args.pixel,
 geom_attribs:get_attrib_locations(gl,program,"packed_geometry_",args.geometry_slots),
 inst_attribs:get_attrib_locations(gl,program,"packed_instance_",args.instance_slots),
 pass_uniforms_binding:this.get_uniform_block_binding(program,"passUniforms"),
@@ -384,12 +528,17 @@ gl.attachShader(program,vsh);
 gl.attachShader(program,fsh);
 gl.linkProgram(program);
 const use_parallel_compile=!!this.parallel_compile_ext&&!this.loader_removed;
+const shader_info={
+textures:args.textures,
+geometry_slots:args.geometry_slots,
+instance_slots:args.instance_slots,
+};
 this.draw_shaders[args.shader_id]={
 _pending:true,
 program:program,
 vsh:vsh,
 fsh:fsh,
-args:args,
+args:shader_info,
 _parallel_compile:use_parallel_compile,
 _startup_pending:use_parallel_compile,
 };
@@ -415,9 +564,9 @@ args.data.ptr,
 args.data.len,
 );
 buf.length=array.length;
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,buf.gl_buf);
+this.bind_buffer(gl,gl.ELEMENT_ARRAY_BUFFER,buf.gl_buf);
 this.upload_buffer_data(gl,gl.ELEMENT_ARRAY_BUFFER,buf.gl_buf,array,gl.STATIC_DRAW);
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,null);
+this.bind_buffer(gl,gl.ELEMENT_ARRAY_BUFFER,null);
 }
 FromWasmAllocArrayBuffer(args){
 var gl=this.gl;
@@ -433,15 +582,14 @@ args.data.ptr,
 args.data.len,
 );
 buf.length=array.length;
-gl.bindBuffer(gl.ARRAY_BUFFER,buf.gl_buf);
+this.bind_buffer(gl,gl.ARRAY_BUFFER,buf.gl_buf);
 this.upload_buffer_data(gl,gl.ARRAY_BUFFER,buf.gl_buf,array,gl.STATIC_DRAW);
-gl.bindBuffer(gl.ARRAY_BUFFER,null);
+this.bind_buffer(gl,gl.ARRAY_BUFFER,null);
 }
 FromWasmAllocVao(args){
 let gl=this.gl;
 let old_vao=this.vaos[args.vao_id];
 if(old_vao){
-gl.deleteVertexArray(old_vao.gl_vao);
 }
 let gl_vao=gl.createVertexArray();
 let vao=(this.vaos[args.vao_id]={
@@ -450,11 +598,11 @@ geom_ib_id:args.geom_ib_id,
 geom_vb_id:args.geom_vb_id,
 inst_vb_id:args.inst_vb_id,
 });
-gl.bindVertexArray(vao.gl_vao);
-gl.bindBuffer(gl.ARRAY_BUFFER,this.array_buffers[args.geom_vb_id].gl_buf);
+this.bind_vertex_array(gl,vao.gl_vao);
+this.bind_buffer(gl,gl.ARRAY_BUFFER,this.array_buffers[args.geom_vb_id].gl_buf);
 const wait_for_shader=this.loader_removed;
 if(!this._try_finalize_shader(args.shader_id,wait_for_shader)){
-gl.bindVertexArray(null);
+this.bind_vertex_array(gl,null);
 this.vaos[args.vao_id]._needs_setup=true;
 return;
 }
@@ -493,7 +641,7 @@ attr.offset,
 gl.enableVertexAttribArray(attr.loc);
 gl.vertexAttribDivisor(attr.loc,0);
 }
-gl.bindBuffer(gl.ARRAY_BUFFER,this.array_buffers[args.inst_vb_id].gl_buf);
+this.bind_buffer(gl,gl.ARRAY_BUFFER,this.array_buffers[args.inst_vb_id].gl_buf);
 for(let i=0;i<shader.inst_attribs.length;i++){
 let attr=shader.inst_attribs[i];
 if(attr.loc<0){
@@ -520,14 +668,18 @@ attr.offset,
 gl.enableVertexAttribArray(attr.loc);
 gl.vertexAttribDivisor(attr.loc,1);
 }
-gl.bindBuffer(
+this.bind_buffer(
+gl,
 gl.ELEMENT_ARRAY_BUFFER,
 this.index_buffers[args.geom_ib_id].gl_buf,
 );
-gl.bindVertexArray(null);
+this.bind_vertex_array(gl,null);
 }
 FromWasmDrawCall(args){
 var gl=this.gl;
+if(this.perf){
+this.perf.draw_calls=(this.perf.draw_calls|0)+1;
+}
 if(!this._try_finalize_shader(args.shader_id,this.loader_removed)){
 return;
 }
@@ -551,16 +703,11 @@ geom_vb_id:vao_entry.geom_vb_id,
 inst_vb_id:vao_entry.inst_vb_id,
 });
 }
-gl.useProgram(shader.program);
-gl.depthMask(!!args.depth_write);
-if(args.backface_culling){
-gl.enable(gl.CULL_FACE);
-gl.cullFace(gl.BACK);
-}else{
-gl.disable(gl.CULL_FACE);
-}
+this.use_program(gl,shader.program);
+this.set_depth_mask(gl,!!args.depth_write);
+this.set_cull_face(gl,!!args.backface_culling);
 let vao=this.vaos[args.vao_id];
-gl.bindVertexArray(vao.gl_vao);
+this.bind_vertex_array(gl,vao.gl_vao);
 let index_buffer=this.index_buffers[vao.geom_ib_id];
 let instance_buffer=this.array_buffers[vao.inst_vb_id];
 this.upload_uniform_buffer_from_ptr(
@@ -617,25 +764,22 @@ let texture_id=args.textures[i];
 let target=
 tex_loc.ty==="samplerCube"?gl.TEXTURE_CUBE_MAP:gl.TEXTURE_2D;
 if(texture_id!==undefined){
-let tex_obj=this.textures[texture_id];
-gl.activeTexture(gl.TEXTURE0+i);
-gl.bindTexture(target,tex_obj);
-gl.uniform1i(tex_loc.loc,i);
+this.bind_texture(gl,i,target,this.textures[texture_id]);
+this.set_texture_uniform(gl,tex_loc,i);
 }else{
-gl.activeTexture(gl.TEXTURE0+i);
-gl.bindTexture(target,null);
+this.bind_texture(gl,i,target,null);
 }
 }
 let xr=this.xr;
+if(xr!==undefined&&xr.in_xr_pass){
 let pass_uniforms=new Float32Array(
 this.memory.buffer,
 args.pass_uniforms.ptr,
 args.pass_uniforms.len,
 );
-if(xr!==undefined&&xr.in_xr_pass){
 let left=xr.left_eye;
 let lvp=left.viewport;
-gl.viewport(lvp.x,lvp.y,lvp.width,lvp.height);
+this.set_viewport(gl,lvp.x,lvp.y,lvp.width,lvp.height);
 let mlp=left.projection_matrix;
 for(let i=0;i<16;i++)pass_uniforms[i]=mlp[i];
 let mlt=left.transform_matrix;
@@ -656,7 +800,7 @@ instances,
 );
 let right=xr.right_eye;
 let rvp=right.viewport;
-gl.viewport(rvp.x,rvp.y,rvp.width,rvp.height);
+this.set_viewport(gl,rvp.x,rvp.y,rvp.width,rvp.height);
 let mrp=right.projection_matrix;
 for(let i=0;i<16;i++)pass_uniforms[i]=mrp[i];
 let mrt=right.transform_matrix;
@@ -676,10 +820,10 @@ gl.UNSIGNED_INT,
 instances,
 );
 }else{
-this.upload_uniform_buffer_data(
+this.upload_uniform_buffer_from_ptr(
 gl,
 shader.pass_uniform_buf,
-pass_uniforms,
+args.pass_uniforms,
 );
 gl.drawElementsInstanced(
 gl.TRIANGLES,
@@ -689,13 +833,134 @@ gl.UNSIGNED_INT,
 instances,
 );
 }
-gl.bindVertexArray(null);
-gl.depthMask(true);
+this.bind_vertex_array(gl,null);
+this.set_depth_mask(gl,true);
+}
+FromWasmRenderCommandBuffer(args){
+const gl=this.gl;
+const CMD_DRAW=1;
+const NONE_TEX=0xffffffff;
+const words=new Uint32Array(this.memory.buffer,args.words.ptr,args.words.len);
+let at=0;
+while(at<words.length){
+const cmd=words[at++];
+if(cmd===0){
+break;
+}
+if(cmd!==CMD_DRAW){
+break;
+}
+if(this.perf){
+this.perf.draw_calls=(this.perf.draw_calls|0)+1;
+}
+const shader_id=words[at++];
+const vao_id=words[at++];
+const depth_write=words[at++]!==0;
+const backface_culling=words[at++]!==0;
+const pass_ptr=words[at++];const pass_len=words[at++];
+const draw_list_ptr=words[at++];const draw_list_len=words[at++];
+const draw_call_ptr=words[at++];const draw_call_len=words[at++];
+const user_ptr=words[at++];const user_len=words[at++];
+const live_ptr=words[at++];const live_len=words[at++];
+if(!this._try_finalize_shader(shader_id,this.loader_removed)){
+at+=16;
+continue;
+}
+const shader=this.draw_shaders[shader_id];
+if(!shader||shader.compile_failed){
+this.report_missing_shader_once("FromWasmRenderCommandBuffer",shader_id,vao_id);
+at+=16;
+continue;
+}
+const vao_entry=this.vaos[vao_id];
+if(vao_entry&&vao_entry._needs_setup){
+delete vao_entry._needs_setup;
+this.FromWasmAllocVao({
+vao_id:vao_id,
+shader_id:shader_id,
+geom_ib_id:vao_entry.geom_ib_id,
+geom_vb_id:vao_entry.geom_vb_id,
+inst_vb_id:vao_entry.inst_vb_id,
+});
+}
+this.use_program(gl,shader.program);
+this.set_depth_mask(gl,depth_write);
+this.set_cull_face(gl,backface_culling);
+const vao=this.vaos[vao_id];
+this.bind_vertex_array(gl,vao.gl_vao);
+const index_buffer=this.index_buffers[vao.geom_ib_id];
+const instance_buffer=this.array_buffers[vao.inst_vb_id];
+this.bind_buffer(gl,gl.ELEMENT_ARRAY_BUFFER,index_buffer.gl_buf);
+const draw_list_uniforms={ptr:draw_list_ptr,len:draw_list_len};
+const draw_call_uniforms={ptr:draw_call_ptr,len:draw_call_len};
+const user_uniforms={ptr:user_ptr,len:user_len};
+const live_uniforms={ptr:live_ptr,len:live_len};
+this.upload_uniform_buffer_from_ptr(gl,shader.draw_list_uniform_buf,draw_list_uniforms);
+this.upload_uniform_buffer_from_ptr(gl,shader.draw_call_uniform_buf,draw_call_uniforms);
+this.upload_uniform_buffer_from_ptr(gl,shader.user_uniform_buf,user_uniforms);
+this.upload_uniform_buffer_from_ptr(gl,shader.live_uniform_buf,live_uniforms);
+this.bind_uniform_block(gl,shader.pass_uniforms_binding,shader.pass_uniform_buf);
+this.bind_uniform_block(gl,shader.draw_list_uniforms_binding,shader.draw_list_uniform_buf);
+this.bind_uniform_block(gl,shader.draw_call_uniforms_binding,shader.draw_call_uniform_buf);
+this.bind_uniform_block(gl,shader.user_uniforms_binding,shader.user_uniform_buf);
+this.bind_uniform_block(gl,shader.live_uniforms_binding,shader.live_uniform_buf);
+const indices=index_buffer.length;
+const instances=instance_buffer.length/shader.instance_slots;
+const texture_slots=shader.texture_locs.length;
+for(let i=0;i<texture_slots;i++){
+const tex_loc=shader.texture_locs[i];
+const texture_id=words[at+i];
+const target=tex_loc.ty==="samplerCube"?gl.TEXTURE_CUBE_MAP:gl.TEXTURE_2D;
+if(texture_id!==NONE_TEX){
+this.bind_texture(gl,i,target,this.textures[texture_id]);
+this.set_texture_uniform(gl,tex_loc,i);
+}else{
+this.bind_texture(gl,i,target,null);
+}
+}
+at+=16;
+const pass_uniforms={ptr:pass_ptr,len:pass_len};
+const xr=this.xr;
+if(xr!==undefined&&xr.in_xr_pass){
+const pass_uniforms_arr=new Float32Array(
+this.memory.buffer,
+pass_uniforms.ptr,
+pass_uniforms.len,
+);
+const left=xr.left_eye;
+const lvp=left.viewport;
+this.set_viewport(gl,lvp.x,lvp.y,lvp.width,lvp.height);
+const mlp=left.projection_matrix;
+for(let i=0;i<16;i++)pass_uniforms_arr[i]=mlp[i];
+const mlt=left.transform_matrix;
+for(let i=0;i<16;i++)pass_uniforms_arr[i+16]=mlt[i];
+const mli=left.invtransform_matrix;
+for(let i=0;i<16;i++)pass_uniforms_arr[i+32]=mli[i];
+this.upload_uniform_buffer_data(gl,shader.pass_uniform_buf,pass_uniforms_arr);
+gl.drawElementsInstanced(gl.TRIANGLES,indices,gl.UNSIGNED_INT,0,instances);
+const right=xr.right_eye;
+const rvp=right.viewport;
+this.set_viewport(gl,rvp.x,rvp.y,rvp.width,rvp.height);
+const mrp=right.projection_matrix;
+for(let i=0;i<16;i++)pass_uniforms_arr[i]=mrp[i];
+const mrt=right.transform_matrix;
+for(let i=0;i<16;i++)pass_uniforms_arr[i+16]=mrt[i];
+const mri=right.invtransform_matrix;
+for(let i=0;i<16;i++)pass_uniforms_arr[i+32]=mri[i];
+this.upload_uniform_buffer_data(gl,shader.pass_uniform_buf,pass_uniforms_arr);
+gl.drawElementsInstanced(gl.TRIANGLES,indices,gl.UNSIGNED_INT,0,instances);
+}else{
+this.upload_uniform_buffer_from_ptr(gl,shader.pass_uniform_buf,pass_uniforms);
+gl.drawElementsInstanced(gl.TRIANGLES,indices,gl.UNSIGNED_INT,0,instances);
+}
+this.bind_vertex_array(gl,null);
+this.set_depth_mask(gl,true);
+}
 }
 FromWasmAllocTextureImage2D_BGRAu8_32(args){
 var gl=this.gl;
 var gl_tex=this.textures[args.texture_id]||gl.createTexture();
-gl.bindTexture(gl.TEXTURE_2D,gl_tex);
+this.bind_texture_for_update(gl,gl.TEXTURE_2D,gl_tex);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
@@ -721,7 +986,7 @@ this.textures[args.texture_id]=gl_tex;
 FromWasmAllocTextureImage2D_Ru8(args){
 var gl=this.gl;
 var gl_tex=this.textures[args.texture_id]||gl.createTexture();
-gl.bindTexture(gl.TEXTURE_2D,gl_tex);
+this.bind_texture_for_update(gl,gl.TEXTURE_2D,gl_tex);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
@@ -749,7 +1014,7 @@ this.textures[args.texture_id]=gl_tex;
 FromWasmAllocTextureImage2D_RGBAf32(args){
 let gl=this.gl;
 let gl_tex=this.textures[args.texture_id]||gl.createTexture();
-gl.bindTexture(gl.TEXTURE_2D,gl_tex);
+this.bind_texture_for_update(gl,gl.TEXTURE_2D,gl_tex);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
@@ -775,7 +1040,7 @@ this.textures[args.texture_id]=gl_tex;
 FromWasmAllocTextureCube_BGRAu8_32(args){
 var gl=this.gl;
 var gl_tex=this.textures[args.texture_id]||gl.createTexture();
-gl.bindTexture(gl.TEXTURE_CUBE_MAP,gl_tex);
+this.bind_texture_for_update(gl,gl.TEXTURE_CUBE_MAP,gl_tex);
 gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
@@ -821,7 +1086,7 @@ let gl=this.gl;
 var gl_framebuffer=
 this.framebuffers[args.pass_id]||
 (this.framebuffers[args.pass_id]=gl.createFramebuffer());
-gl.bindFramebuffer(gl.FRAMEBUFFER,gl_framebuffer);
+this.bind_framebuffer(gl,gl_framebuffer);
 let clear_flags=0;
 let clear_depth=0.0;
 let clear_color;
@@ -832,7 +1097,7 @@ this.textures[tgt.texture_id]||
 (this.textures[tgt.texture_id]=gl.createTexture());
 clear_color=tgt.clear_color;
 if(gl_tex._width!=args.width||gl_tex._height!=args.height){
-gl.bindTexture(gl.TEXTURE_2D,gl_tex);
+this.bind_texture_for_update(gl,gl.TEXTURE_2D,gl_tex);
 clear_flags|=gl.COLOR_BUFFER_BIT;
 gl_tex._width=args.width;
 gl_tex._height=args.height;
@@ -862,10 +1127,10 @@ gl_tex,
 0,
 );
 }
-gl.viewport(0,0,args.width,args.height);
+this.set_viewport(gl,0,0,args.width,args.height);
 if(clear_flags!==0){
-gl.clearColor(clear_color.r,clear_color.g,clear_color.b,clear_color.a);
-gl.clearDepth(clear_depth);
+this.set_clear_color(gl,clear_color);
+this.set_clear_depth(gl,clear_depth);
 gl.clear(clear_flags);
 }
 }
@@ -874,15 +1139,15 @@ let gl=this.gl;
 let xr=this.xr;
 if(xr!==undefined){
 xr.in_xr_pass=true;
-gl.bindFramebuffer(gl.FRAMEBUFFER,xr.layer.framebuffer);
-gl.viewport(0,0,xr.layer.framebufferWidth,xr.layer.framebufferHeight);
+this.bind_framebuffer(gl,xr.layer.framebuffer);
+this.set_viewport(gl,0,0,xr.layer.framebufferWidth,xr.layer.framebufferHeight);
 }else{
-gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-gl.viewport(0,0,this.canvas.width,this.canvas.height);
+this.bind_framebuffer(gl,null);
+this.set_viewport(gl,0,0,this.canvas.width,this.canvas.height);
 }
 let c=args.clear_color;
-gl.clearColor(c.r,c.g,c.b,c.a);
-gl.clearDepth(args.clear_depth);
+this.set_clear_color(gl,c);
+this.set_clear_depth(gl,args.clear_depth);
 gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
 }
 FromWasmSetDefaultDepthAndBlendMode(){
@@ -1077,7 +1342,7 @@ if(!gl_tex){
 gl_tex=gl.createTexture();
 this.textures[player.texture_id]=gl_tex;
 }
-gl.bindTexture(gl.TEXTURE_2D,gl_tex);
+this.bind_texture_for_update(gl,gl.TEXTURE_2D,gl_tex);
 if(!player.texture_initialized){
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
@@ -1163,7 +1428,7 @@ var max_fragment_uniforms=gl.getParameter(
 gl.MAX_FRAGMENT_UNIFORM_VECTORS,
 );
 this.gpu_info={
-min_uniforms:Math.min(max_vertex_uniforms,max_fragment_uniforms),
+min_uniform_vectors:Math.min(max_vertex_uniforms,max_fragment_uniforms),
 vendor:"unknown",
 renderer:"unknown",
 };
