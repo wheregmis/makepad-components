@@ -21,6 +21,7 @@ macro_rules! define_lucide_icons {
             // Callers apply draw_bg / draw_icon.color styling on top.
             mod.widgets.IconButtonX = mod.widgets.ButtonFlatIcon{
                 icon_walk: Walk{width: 14, height: 14}
+                aria_label: "Close"
                 draw_icon.svg: crate_resource("self://resources/icons/x.svg")
             }
 
