@@ -16,7 +16,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  MAKEPAD_GIT_BRANCH: dev
+  MAKEPAD_GIT_BRANCH: web_groundup
 
 jobs:
   cargo-check:
@@ -37,7 +37,7 @@ jobs:
 
       - name: Checkout sibling makepad workspace
         shell: bash
-        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/makepad/makepad.git "${GITHUB_WORKSPACE}/../makepad"
+        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/wheregmis/makepad.git "${GITHUB_WORKSPACE}/../makepad"
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
@@ -65,7 +65,7 @@ jobs:
 
       - name: Checkout sibling makepad workspace
         shell: bash
-        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/makepad/makepad.git "${GITHUB_WORKSPACE}/../makepad"
+        run: git clone --depth 1 --branch "${MAKEPAD_GIT_BRANCH}" https://github.com/wheregmis/makepad.git "${GITHUB_WORKSPACE}/../makepad"
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
