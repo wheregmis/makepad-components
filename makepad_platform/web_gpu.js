@@ -8,8 +8,11 @@ if(!(await WasmWebGPU.is_supported())){
 return null;
 }
 try{
-return new WasmWebGPU(wasm,dispatch,canvas);
-}catch(_e){
+const webgpu=new WasmWebGPU(wasm,dispatch,canvas);
+await webgpu._webgpu_init_promise;
+return webgpu;
+}catch(e){
+console.warn("[makepad] backend=webgpu init failed; falling back to webgl2",e);
 return null;
 }
 }
@@ -27,12 +30,6 @@ this.device=null;
 this.queue=null;
 this.context=null;
 this.format=null;
-this.buffers={
-uniforms:null,
-geometry:null,
-instances:null,
-indices:null,
-};
 this.pipeline_cache=new Map();
 this.texture_cache=new Map();
 this.vaos=[];
@@ -51,6 +48,29 @@ this.xr=undefined;
 this.video_players={};
 this.video_anim_frame_id=0;
 this._pending_until_ready=[];
+this._enable_error_scopes=false;
+this._use_dynamic_ubo_rings=true;
+this._webgpu_perf={
+passes:0,
+submits:0,
+draw_commands:0,
+skipped_draws:0,
+pipelines_created:0,
+layouts_created:0,
+bind_groups_created:0,
+bind_group_hits:0,
+uniform_write_calls:0,
+uniform_write_bytes:0,
+uniform_payload_bytes:0,
+buffer_write_calls:0,
+buffer_write_bytes:0,
+texture_write_bytes:0,
+repack_calls:0,
+repack_bytes:0,
+pipeline_sets:0,
+vertex_buffer_sets:0,
+index_buffer_sets:0,
+};
 this._default_depth_write=true;
 this._default_backface_cull=false;
 this._webgpu_init_promise=this.init_webgpu_context();
@@ -69,6 +89,138 @@ console.error(`[makepad:webgpu] queued call failed name=${q.name} err=${e && e.m
 }
 this.load_deps();
 });
+}
+reset_backend_perf(){
+const p=this._webgpu_perf;
+if(!p)return;
+for(const key of Object.keys(p)){
+p[key]=0;
+}
+}
+format_backend_perf_hud(){
+const p=this._webgpu_perf;
+if(!p)return"";
+const kb=(bytes)=>(bytes/1024).toFixed(bytes>=1024*1024?0:1);
+return"\nwebgpu"+
+"\npasses: "+p.passes+" submits: "+p.submits+
+"\ncmds: "+p.draw_commands+" skipped: "+p.skipped_draws+
+"\npipelines: "+p.pipelines_created+" layouts: "+p.layouts_created+
+"\nbindgroups: "+p.bind_groups_created+" hits: "+p.bind_group_hits+
+"\nuniform: "+p.uniform_write_calls+" / "+kb(p.uniform_payload_bytes)+"KB payload / "+kb(p.uniform_write_bytes)+"KB queued"+
+"\nbuffers: "+p.buffer_write_calls+" / "+kb(p.buffer_write_bytes)+"KB"+
+"\ntextures: "+kb(p.texture_write_bytes)+"KB"+
+"\nrepack: "+p.repack_calls+" / "+kb(p.repack_bytes)+"KB"+
+"\nstate: p"+p.pipeline_sets+" vb"+p.vertex_buffer_sets+" ib"+p.index_buffer_sets;
+}
+get_backend_perf_snapshot(){
+const p=this._webgpu_perf;
+if(!p)return null;
+return{
+name:"webgpu",
+passes:p.passes,
+submits:p.submits,
+draw_commands:p.draw_commands,
+skipped_draws:p.skipped_draws,
+pipelines_created:p.pipelines_created,
+layouts_created:p.layouts_created,
+bind_groups_created:p.bind_groups_created,
+bind_group_hits:p.bind_group_hits,
+uniform_write_calls:p.uniform_write_calls,
+uniform_write_bytes:p.uniform_write_bytes,
+uniform_payload_bytes:p.uniform_payload_bytes,
+buffer_write_calls:p.buffer_write_calls,
+buffer_write_bytes:p.buffer_write_bytes,
+texture_write_bytes:p.texture_write_bytes,
+repack_calls:p.repack_calls,
+repack_bytes:p.repack_bytes,
+pipeline_sets:p.pipeline_sets,
+vertex_buffer_sets:p.vertex_buffer_sets,
+index_buffer_sets:p.index_buffer_sets,
+};
+}
+reset_pass_state_cache(){
+this._last_pipeline=null;
+this._last_vertex_buffer0=null;
+this._last_vertex_buffer1=null;
+this._last_index_buffer=null;
+this._last_index_format="";
+}
+set_pipeline_cached(pipeline){
+if(this._last_pipeline===pipeline)return;
+this._pass.setPipeline(pipeline);
+this._last_pipeline=pipeline;
+if(this._webgpu_perf)this._webgpu_perf.pipeline_sets+=1;
+}
+set_vertex_buffer_cached(slot,buffer){
+if(slot===0){
+if(this._last_vertex_buffer0===buffer)return;
+this._last_vertex_buffer0=buffer;
+}else if(slot===1){
+if(this._last_vertex_buffer1===buffer)return;
+this._last_vertex_buffer1=buffer;
+}
+this._pass.setVertexBuffer(slot,buffer);
+if(this._webgpu_perf)this._webgpu_perf.vertex_buffer_sets+=1;
+}
+set_index_buffer_cached(buffer,format){
+if(this._last_index_buffer===buffer&&this._last_index_format===format)return;
+this._pass.setIndexBuffer(buffer,format);
+this._last_index_buffer=buffer;
+this._last_index_format=format;
+if(this._webgpu_perf)this._webgpu_perf.index_buffer_sets+=1;
+}
+record_uniform_write(byteLen,payloadBytes=byteLen){
+if(!this._webgpu_perf||byteLen<=0)return;
+this._webgpu_perf.uniform_write_calls+=1;
+this._webgpu_perf.uniform_write_bytes+=byteLen;
+this._webgpu_perf.uniform_payload_bytes+=payloadBytes;
+}
+flush_uniform_writes(buffer,writes){
+if(!writes||writes.length===0){
+return;
+}
+let minOff=writes[0].off>>>0;
+let maxEnd=(writes[0].off+writes[0].bytes.byteLength)>>>0;
+let payloadBytes=0;
+for(let i=0;i<writes.length;i++){
+const w=writes[i];
+const off=w.off>>>0;
+const end=off+w.bytes.byteLength;
+minOff=Math.min(minOff,off);
+maxEnd=Math.max(maxEnd,end);
+payloadBytes+=w.bytes.byteLength;
+}
+const span=maxEnd-minOff;
+if(span>payloadBytes+4096){
+for(let i=0;i<writes.length;i++){
+const w=writes[i];
+if(!this._scratch_uniform_u8||this._scratch_uniform_u8.length<w.bytes.byteLength){
+const nextLen=Math.max(w.bytes.byteLength,this._scratch_uniform_u8?this._scratch_uniform_u8.length*2:4096);
+this._scratch_uniform_u8=new Uint8Array(nextLen);
+}
+const staging=this._scratch_uniform_u8.subarray(0,w.bytes.byteLength);
+staging.set(w.bytes);
+this.queue.writeBuffer(buffer,w.off,staging.buffer,staging.byteOffset,staging.byteLength);
+this.record_uniform_write(w.bytes.byteLength);
+}
+return;
+}
+if(!this._scratch_uniform_u8||this._scratch_uniform_u8.length<span){
+const nextLen=Math.max(span,this._scratch_uniform_u8?this._scratch_uniform_u8.length*2:4096);
+this._scratch_uniform_u8=new Uint8Array(nextLen);
+}
+const staging=this._scratch_uniform_u8.subarray(0,span);
+for(let i=0;i<writes.length;i++){
+const w=writes[i];
+staging.set(w.bytes,(w.off>>>0)-minOff);
+}
+this.queue.writeBuffer(buffer,minOff,staging.buffer,staging.byteOffset,span);
+this.record_uniform_write(span,payloadBytes);
+}
+record_webgpu_draw(){
+if(this.perf){
+this.perf.draw_calls=(this.perf.draw_calls|0)+1;
+}
 }
 async init_webgpu_context(){
 this.adapter=await this.gpu.requestAdapter({powerPreference:"high-performance"});
@@ -93,10 +245,13 @@ this.device.addEventListener('uncapturederror',(ev)=>{
 console.error('[makepad:webgpu] uncaptured device error:',ev.error.message);
 });
 this.gpu_info=this.gpu_info||{min_uniform_vectors:0,vendor:"webgpu",renderer:"webgpu"};
-this.buffers.uniforms=new WgpuRingBuffer(this.device,4*1024*1024,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);
-this.buffers.geometry=new WgpuRingBuffer(this.device,8*1024*1024,GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST);
-this.buffers.instances=new WgpuRingBuffer(this.device,8*1024*1024,GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST);
-this.buffers.indices=new WgpuRingBuffer(this.device,4*1024*1024,GPUBufferUsage.INDEX|GPUBufferUsage.COPY_DST);
+const uniformRingBytes=16*1024*1024;
+this._uniform_rings=[
+new WgpuRingBuffer(this.device,uniformRingBytes,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST),
+new WgpuRingBuffer(this.device,uniformRingBytes,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST),
+new WgpuRingBuffer(this.device,uniformRingBytes,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST),
+];
+this._uniform_ring_index=0;
 if(!this.textures[3]){
 const tex=this.device.createTexture({
 size:[1,1,1],
@@ -112,27 +267,37 @@ const device=this.device;
 const module=device.createShaderModule({code:args.wgsl});
 const geom_vec4s=Math.ceil(args.geometry_slots/4);
 const inst_vec4s=Math.ceil(args.instance_slots/4);
+const attrFormatForChunk=(totalSlots,chunkIndex)=>{
+const slots=Math.min(4,Math.max(1,totalSlots-chunkIndex*4));
+return slots===1
+?"float32"
+:slots===2
+?"float32x2"
+:slots===3
+?"float32x3"
+:"float32x4";
+};
 const vertexBuffers=[];
 if(geom_vec4s>0){
 vertexBuffers.push({
-arrayStride:geom_vec4s*16,
+arrayStride:args.geometry_slots*4,
 stepMode:"vertex",
 attributes:new Array(geom_vec4s).fill(0).map((_,i)=>({
 shaderLocation:i,
 offset:i*16,
-format:"float32x4",
+format:attrFormatForChunk(args.geometry_slots,i),
 })),
 });
 }
 if(inst_vec4s>0){
 const baseLoc=geom_vec4s;
 vertexBuffers.push({
-arrayStride:inst_vec4s*16,
+arrayStride:args.instance_slots*4,
 stepMode:"instance",
 attributes:new Array(inst_vec4s).fill(0).map((_,i)=>({
 shaderLocation:baseLoc+i,
 offset:i*16,
-format:"float32x4",
+format:attrFormatForChunk(args.instance_slots,i),
 })),
 });
 }
@@ -219,7 +384,7 @@ binding_vars.set(binding,varName);
 layoutEntries.push({
 binding,
 visibility:GPUShaderStage.VERTEX|GPUShaderStage.FRAGMENT,
-buffer:{type:"uniform"},
+buffer:{type:"uniform",hasDynamicOffset:true},
 });
 }
 }
@@ -264,9 +429,20 @@ samplerDescs:args.samplers||[],
 samplers,
 geom_vec4s,
 inst_vec4s,
+geometry_stride_slots:args.geometry_slots,
+instance_stride_slots:args.instance_slots,
 geometry_slots:args.geometry_slots,
 instance_slots:args.instance_slots,
 };
+shader._bindings_sorted=Array.from(binding_kinds.keys()).sort((a,b)=>(a|0)-(b|0));
+shader._sampler_binding_by_binding=new Map();
+for(const sb of samplerBindings||[])shader._sampler_binding_by_binding.set(sb.binding|0,sb);
+shader._texture_binding_by_binding=new Map();
+for(const tb of textureBindings||[])shader._texture_binding_by_binding.set(tb.binding|0,tb);
+shader._scratch_texIds=new Uint32Array(16);
+shader._scratch_textureViews=new Array(shader.texture_count);
+shader._scratch_textureEntries=new Array(shader.texture_count);
+shader._scratch_dyn_offsets=null;
 for(const[binding,kind]of binding_kinds.entries()){
 if(kind!=="buffer")continue;
 shader.ubos.set(binding,makeUbo(2048));
@@ -280,6 +456,10 @@ else if(varName.includes("_mp_dyn_uniforms")){shader.ubo_user=shader.ubos.get(bi
 else if(varName.includes("_mp_scope_uniforms")){shader.ubo_live=shader.ubos.get(binding);shader.ubo_binding_live=binding;}
 }
 shader.baseBindGroup=null;
+shader._dyn_buffer_bindings_sorted=shader._bindings_sorted.filter((b)=>shader.binding_kinds.get(b)==="buffer");
+shader._dyn_binding_sizes=new Map();
+shader._dyn_bind_groups=new Map();
+shader._dyn_bind_groups_epoch=1;
 this.draw_shaders[args.shader_id]=shader;
 }
 create_sampler_from_desc(desc){
@@ -334,6 +514,12 @@ return"float";
 }
 }
 make_pipeline_variant_key(shader,textureEntries,colorFormat,depthWrite,backfaceCulling){
+const dw=depthWrite?1:0;
+const bf=backfaceCulling?1:0;
+const hd=this._pass_has_depth?1:0;
+return`${colorFormat}|${dw}|${bf}|${hd}`;
+}
+make_layout_variant_key(shader,textureEntries){
 const textureKey=shader.textureBindings
 .map(({textureIndex,declaredSampleType})=>
 this.sample_type_for_texture_entry(textureEntries[textureIndex],declaredSampleType))
@@ -341,28 +527,17 @@ this.sample_type_for_texture_entry(textureEntries[textureIndex],declaredSampleTy
 const samplerKey=shader.samplerDescs
 .map((_,samplerIndex)=>this.sampler_binding_type_for_index(shader,samplerIndex,textureEntries))
 .join("|");
-const dw=depthWrite?1:0;
-const bf=backfaceCulling?1:0;
-const hd=this._pass_has_depth?1:0;
-return`${colorFormat}|${dw}|${bf}|${hd}|${textureKey}::${samplerKey}`;
+return`${textureKey}::${samplerKey}`;
 }
-sampler_binding_type_for_index(shader,samplerIndex,textureEntries){
-const hasUnfilterableTexture=shader.textureBindings.some(({textureIndex,declaredSampleType})=>{
-return shader.texture_sampler_indices[textureIndex]===samplerIndex
-&&this.sample_type_for_texture_entry(textureEntries[textureIndex],declaredSampleType)==="unfilterable-float";
-});
-if(hasUnfilterableTexture)return"non-filtering";
-const desc=shader.samplerDescs[samplerIndex];
-return desc&&(desc.filter|0)!==0?"filtering":"non-filtering";
-}
-get_pipeline_variant(shader,textureEntries,depthWrite,backfaceCulling){
-const colorFormat=this._pass_color_format||this.format;
-const key=this.make_pipeline_variant_key(shader,textureEntries,colorFormat,depthWrite,backfaceCulling);
-let variant=shader.pipelineVariants.get(key);
-if(variant)return variant;
+get_layout_variant(shader,textureEntries){
+if(!shader.layoutVariants)shader.layoutVariants=new Map();
+const key=this.make_layout_variant_key(shader,textureEntries);
+let layout=shader.layoutVariants.get(key);
+if(layout)return layout;
 const layoutEntries=shader.baseLayoutEntries.map((entry)=>{
 if(entry.texture){
-const textureBinding=shader.textureBindings.find((item)=>item.binding===entry.binding);
+const textureBinding=shader._texture_binding_by_binding?.get(entry.binding|0)
+||shader.textureBindings.find((item)=>item.binding===entry.binding);
 if(!textureBinding)return entry;
 return{
 ...entry,
@@ -376,7 +551,8 @@ textureBinding.declaredSampleType,
 };
 }
 if(entry.sampler){
-const samplerBinding=shader.samplerBindings.find((item)=>item.binding===entry.binding);
+const samplerBinding=shader._sampler_binding_by_binding?.get(entry.binding|0)
+||shader.samplerBindings.find((item)=>item.binding===entry.binding);
 if(!samplerBinding)return entry;
 return{
 ...entry,
@@ -393,12 +569,35 @@ return entry;
 });
 const bindGroupLayout=this.device.createBindGroupLayout({entries:layoutEntries});
 const pipelineLayout=this.device.createPipelineLayout({bindGroupLayouts:[bindGroupLayout]});
+if(this._webgpu_perf){
+this._webgpu_perf.layouts_created+=1;
+}
+layout={bindGroupLayout,pipelineLayout,key};
+shader.layoutVariants.set(key,layout);
+return layout;
+}
+sampler_binding_type_for_index(shader,samplerIndex,textureEntries){
+const hasUnfilterableTexture=shader.textureBindings.some(({textureIndex,declaredSampleType})=>{
+return shader.texture_sampler_indices[textureIndex]===samplerIndex
+&&this.sample_type_for_texture_entry(textureEntries[textureIndex],declaredSampleType)==="unfilterable-float";
+});
+if(hasUnfilterableTexture)return"non-filtering";
+const desc=shader.samplerDescs[samplerIndex];
+return desc&&(desc.filter|0)!==0?"filtering":"non-filtering";
+}
+get_pipeline_variant(shader,textureEntries,depthWrite,backfaceCulling){
+const colorFormat=this._pass_color_format||this.format;
+const layout=this.get_layout_variant(shader,textureEntries);
+const pipeBase=this.make_pipeline_variant_key(shader,textureEntries,colorFormat,depthWrite,backfaceCulling);
+const key=`${pipeBase}|L:${layout.key}`;
+let variant=shader.pipelineVariants.get(key);
+if(variant)return variant;
 const cullMode=backfaceCulling?"back":"none";
 const hasDepthAttachment=!!this._pass_has_depth;
 let pipeline;
 try{
 pipeline=this.device.createRenderPipeline({
-layout:pipelineLayout,
+layout:layout.pipelineLayout,
 vertex:{module:shader.shaderModule,entryPoint:"vertex_main",buffers:shader.vertexBuffers},
 fragment:{
 module:shader.shaderModule,
@@ -423,8 +622,11 @@ depthCompare:"less-equal",
 }catch(err){
 throw err;
 }
-variant={bindGroupLayout,pipeline,key};
+variant={bindGroupLayout:layout.bindGroupLayout,pipeline,key};
 shader.pipelineVariants.set(key,variant);
+if(this._webgpu_perf){
+this._webgpu_perf.pipelines_created+=1;
+}
 return variant;
 }
 create_bind_group_for_shader(shader,textureViews,textureEntries,variant){
@@ -463,6 +665,9 @@ entries.push({binding:b,resource:view});
 const byBinding=new Map();
 for(const e of entries)byBinding.set(e.binding|0,e);
 const uniqueEntries=Array.from(byBinding.values()).sort((a,b)=>(a.binding|0)-(b.binding|0));
+if(this._webgpu_perf){
+this._webgpu_perf.bind_groups_created+=1;
+}
 return this.device.createBindGroup({layout:variant.bindGroupLayout,entries:uniqueEntries});
 }
 get_bind_group_for_shader(shader,textureViews,textureEntries,variant,texIds,pool_idx=0){
@@ -475,7 +680,10 @@ const ver=entry?(entry.version|0):0;
 key+='|'+(tid==null?'n':tid)+':'+ver;
 }
 let bg=shader.bindGroups.get(key);
-if(bg)return bg;
+if(bg){
+if(this._webgpu_perf)this._webgpu_perf.bind_group_hits+=1;
+return bg;
+}
 bg=this.create_bind_group_for_shader(shader,textureViews,textureEntries,variant);
 shader.bindGroups.set(key,bg);
 return bg;
@@ -525,16 +733,24 @@ packed:new Map(),
 version:0,
 };
 }
-const copy=f32.slice();
-this.queue.writeBuffer(entry.buf,0,copy.buffer,copy.byteOffset,requestedByteLength);
+let cpu=entry.data;
+if(!cpu||cpu.length<f32.length){
+cpu=new Float32Array(f32.length);
+entry.data=cpu;
+}
+cpu.set(f32);
+this.queue.writeBuffer(entry.buf,0,cpu.buffer,cpu.byteOffset,requestedByteLength);
+if(this._webgpu_perf){
+this._webgpu_perf.buffer_write_calls+=1;
+this._webgpu_perf.buffer_write_bytes+=requestedByteLength;
+}
 entry.length=f32.length;
-entry.data=copy;
 entry.version=(entry.version||0)+1;
 if(!entry.packed)entry.packed=new Map();
 }
-get_packed_vertex_buffer(entry,logicalSlots,packedVec4s){
+get_packed_vertex_buffer(entry,logicalSlots,strideSlots){
 if(!entry||!entry.data||logicalSlots<=0)return entry;
-const strideFloats=packedVec4s*4;
+const strideFloats=strideSlots|0;
 if(strideFloats<=logicalSlots)return entry;
 const key=`${logicalSlots}:${strideFloats}`;
 let packed=entry.packed?.get(key);
@@ -551,19 +767,30 @@ usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST,
 byteLength:newByteLength,
 length:itemCount*strideFloats,
 logicalLength:entry.length,
-data:null,
+scratch:null,
 version:0,
 };
 if(!entry.packed)entry.packed=new Map();
 entry.packed.set(key,packed);
 }
-const out=new Float32Array(itemCount*strideFloats);
+const requiredFloats=itemCount*strideFloats;
+if(!packed.scratch||packed.scratch.length<requiredFloats){
+const nextLen=Math.max(requiredFloats,packed.scratch?(packed.scratch.length*2):4096);
+packed.scratch=new Float32Array(nextLen);
+}
+const out=packed.scratch.subarray(0,requiredFloats);
 for(let i=0;i<itemCount;i++){
 const srcOffset=i*logicalSlots;
 const dstOffset=i*strideFloats;
 out.set(entry.data.subarray(srcOffset,srcOffset+logicalSlots),dstOffset);
 }
 this.queue.writeBuffer(packed.buf,0,out.buffer,out.byteOffset,out.byteLength);
+if(this._webgpu_perf){
+this._webgpu_perf.repack_calls+=1;
+this._webgpu_perf.repack_bytes+=out.byteLength;
+this._webgpu_perf.buffer_write_calls+=1;
+this._webgpu_perf.buffer_write_bytes+=out.byteLength;
+}
 packed.length=out.length;
 packed.logicalLength=entry.length;
 packed.version=entry.version;
@@ -580,10 +807,20 @@ entry=this.index_buffers[args.buffer_id]={
 buf:device.createBuffer({size:Math.max(4,newByteLength),usage:GPUBufferUsage.INDEX|GPUBufferUsage.COPY_DST}),
 byteLength:newByteLength,
 length:u32.length,
+data:null,
 };
 }
-const copy=u32.slice();
-this.queue.writeBuffer(entry.buf,0,copy.buffer,copy.byteOffset,requestedByteLength);
+let cpu=entry.data;
+if(!cpu||cpu.length<u32.length){
+cpu=new Uint32Array(u32.length);
+entry.data=cpu;
+}
+cpu.set(u32);
+this.queue.writeBuffer(entry.buf,0,cpu.buffer,cpu.byteOffset,requestedByteLength);
+if(this._webgpu_perf){
+this._webgpu_perf.buffer_write_calls+=1;
+this._webgpu_perf.buffer_write_bytes+=requestedByteLength;
+}
 entry.length=u32.length;
 }
 FromWasmAllocVao(args){
@@ -598,7 +835,14 @@ FromWasmBeginRenderCanvas(args){
 if(!this.device){
 return;
 }
+if(this._webgpu_perf){
+this._webgpu_perf.passes+=1;
+}
 this._frame_id=(this._frame_id||0)+1;
+if(this._use_dynamic_ubo_rings&&this._uniform_rings){
+this._uniform_ring_index=(this._frame_id|0)%3;
+this._uniform_rings[this._uniform_ring_index].begin_frame();
+}
 if(this.xr!==undefined){
 this.xr.in_xr_pass=true;
 }
@@ -622,9 +866,18 @@ depthView=L.depthStencilTexture.createView();
 }else{
 colorView=this.context.getCurrentTexture().createView();
 }
+const depthStencilAttachment=depthView
+?{
+view:depthView,
+depthClearValue:args.clear_depth,
+depthLoadOp:"clear",
+depthStoreOp:"store",
+}
+:undefined;
 this._pass_color_format=this.format;
 this._pass_extent={w,h};
-this._pass_has_depth=false;
+this._pass_has_depth=!!depthStencilAttachment;
+this.reset_pass_state_cache();
 this._encoder=this.device.createCommandEncoder();
 this._pass=this._encoder.beginRenderPass({
 colorAttachments:[
@@ -635,12 +888,15 @@ loadOp:"clear",
 storeOp:"store",
 },
 ],
-depthStencilAttachment:undefined,
+depthStencilAttachment,
 });
 }
 FromWasmBeginRenderTexture(args){
 if(!this.device){
 return;
+}
+if(this._webgpu_perf){
+this._webgpu_perf.passes+=1;
 }
 if(this.xr!==undefined){
 this.xr.in_xr_pass=false;
@@ -712,6 +968,7 @@ depthStoreOp:"store",
 this._pass_color_format="bgra8unorm";
 this._pass_extent={w,h};
 this._pass_has_depth=!!depthStencilAttachment;
+this.reset_pass_state_cache();
 this._encoder=this.device.createCommandEncoder();
 this._pass=this._encoder.beginRenderPass({
 colorAttachments:[
@@ -734,19 +991,24 @@ const h=Math.max(1,args.height|0);
 const rowBytes=w*4;
 const bytesPerRow=(rowBytes+255)&~255;
 const faceBytes=rowBytes*h;
-const all=new Uint8Array(this.memory.buffer,args.data.ptr,faceBytes*6).slice();
 const texture=this.device.createTexture({
 dimension:"2d",
 size:[w,h,6],
 format:"bgra8unorm",
 usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST,
 });
-const staging=new Uint8Array(bytesPerRow*h);
+const needed=bytesPerRow*h;
+if(!this._scratch_tex_u8||this._scratch_tex_u8.length<needed){
+const nextLen=Math.max(needed,this._scratch_tex_u8?(this._scratch_tex_u8.length*2):4096);
+this._scratch_tex_u8=new Uint8Array(nextLen);
+}
+const staging=this._scratch_tex_u8.subarray(0,needed);
+const srcAll=new Uint8Array(this.memory.buffer,args.data.ptr,faceBytes*6);
 for(let face=0;face<6;face++){
-const slice=all.subarray(face*faceBytes,(face+1)*faceBytes);
-staging.fill(0);
+const faceOff=face*faceBytes;
 for(let row=0;row<h;row++){
-staging.set(slice.subarray(row*rowBytes,row*rowBytes+rowBytes),row*bytesPerRow);
+const srcRowOff=faceOff+row*rowBytes;
+staging.set(srcAll.subarray(srcRowOff,srcRowOff+rowBytes),row*bytesPerRow);
 }
 this.queue.writeTexture(
 {texture,origin:{x:0,y:0,z:face}},
@@ -779,6 +1041,9 @@ while(at<words.length){
 const cmd=words[at++];
 if(cmd===0)break;
 if(cmd!==CMD_DRAW)break;
+if(this._webgpu_perf){
+this._webgpu_perf.draw_commands+=1;
+}
 const shader_id=words[at++];
 const vao_id=words[at++];
 const depth_write=words[at++]!==0;
@@ -791,17 +1056,17 @@ const live_ptr=words[at++];const live_len=words[at++];
 const shader=this.draw_shaders[shader_id];
 const vao=this.vaos[vao_id];
 if(!shader||!vao||!this._pass){
+if(this._webgpu_perf){
+this._webgpu_perf.skipped_draws+=1;
+}
 at+=16;
 continue;
 }
 const texIdsAt=at;
-const texIds=[];
-for(let i=0;i<shader.texture_count;i++){
-texIds.push(words[texIdsAt+i]);
-}
-while(texIds.length<16){
-texIds.push(NONE_TEX);
-}
+const texIds=shader._scratch_texIds;
+const tc=shader.texture_count|0;
+for(let i=0;i<tc;i++)texIds[i]=words[texIdsAt+i]>>>0;
+for(let i=tc;i<16;i++)texIds[i]=NONE_TEX;
 at+=16;
 this._emitSingleDraw(
 shader,
@@ -823,15 +1088,30 @@ this._pass=null;
 if(this._encoder){
 const cmd=this._encoder.finish();
 this._encoder=null;
-this.device.pushErrorScope('validation');
-this.device.pushErrorScope('internal');
+if(this._enable_error_scopes){
+this.device.pushErrorScope("validation");
+this.device.pushErrorScope("internal");
+}
 this.queue.submit([cmd]);
-this.device.popErrorScope().then(e=>{if(e)console.error('[makepad:webgpu] internal GPU error:',e.message);});
-this.device.popErrorScope().then(e=>{if(e)console.error('[makepad:webgpu] validation GPU error:',e.message);});
+if(this._webgpu_perf){
+this._webgpu_perf.submits+=1;
+}
+if(this._enable_error_scopes){
+this.device.popErrorScope().then((e)=>{
+if(e)console.error("[makepad:webgpu] internal GPU error:",e.message);
+});
+this.device.popErrorScope().then((e)=>{
+if(e)console.error("[makepad:webgpu] validation GPU error:",e.message);
+});
+}
 }
 }
 on_xr_animation_frame(time,frame){
 this._frame_id=(this._frame_id||0)+1;
+if(this._use_dynamic_ubo_rings&&this._uniform_rings){
+this._uniform_ring_index=(this._frame_id|0)%3;
+this._uniform_rings[this._uniform_ring_index].begin_frame();
+}
 function empty_transform(){
 return{
 orientation:{a:0,b:0,c:0,d:0},
@@ -1218,6 +1498,9 @@ this.ensure_video_animation_frame();
 _write_texture_2d_bytes(texture,w,h,bytes,bytesPerPixel){
 const rowBytes=w*bytesPerPixel;
 const bytesPerRow=(rowBytes+255)&~255;
+if(this._webgpu_perf){
+this._webgpu_perf.texture_write_bytes+=bytesPerRow*h;
+}
 if(bytesPerRow===rowBytes){
 this.queue.writeTexture(
 {texture},
@@ -1227,7 +1510,12 @@ bytes,
 );
 return;
 }
-const staging=new Uint8Array(bytesPerRow*h);
+const needed=bytesPerRow*h;
+if(!this._scratch_tex_u8||this._scratch_tex_u8.length<needed){
+const nextLen=Math.max(needed,this._scratch_tex_u8?(this._scratch_tex_u8.length*2):4096);
+this._scratch_tex_u8=new Uint8Array(nextLen);
+}
+const staging=this._scratch_tex_u8.subarray(0,needed);
 for(let row=0;row<h;row++){
 staging.set(bytes.subarray(row*rowBytes,row*rowBytes+rowBytes),row*bytesPerRow);
 }
@@ -1257,6 +1545,184 @@ this._scratch_f32=new Float32Array(4096);
 if(!this._scratch_pass_f32){
 this._scratch_pass_f32=new Float32Array(1024);
 }
+if(this._use_dynamic_ubo_rings&&this._uniform_rings){
+const ring=this._uniform_rings[this._uniform_ring_index|0];
+const bindings=shader._dyn_buffer_bindings_sorted||[];
+if(!shader._scratch_dyn_offsets||shader._scratch_dyn_offsets.length!==bindings.length){
+shader._scratch_dyn_offsets=new Uint32Array(Math.max(1,bindings.length));
+}
+const dynOffsets=shader._scratch_dyn_offsets;
+const align256=(n)=>Math.max(256,(n+255)&~255);
+const passBinding=shader.ubo_binding_pass|0;
+const listBinding=shader.ubo_binding_draw_list|0;
+const callBinding=shader.ubo_binding_draw_call|0;
+const userBinding=shader.ubo_binding_user|0;
+const liveBinding=shader.ubo_binding_live|0;
+if(!shader._dyn_uniform_cache){
+shader._dyn_uniform_cache={
+frame_id:-1,
+ring_slot:-1,
+pass:{ptr:0,len:0,off:0,byteLen:0},
+list:{ptr:0,len:0,off:0,byteLen:0},
+live:{ptr:0,len:0,off:0,byteLen:0},
+};
+}
+const cache=shader._dyn_uniform_cache;
+const ringSlot=this._uniform_ring_index|0;
+if((cache.frame_id|0)!==(this._frame_id|0)||(cache.ring_slot|0)!==ringSlot){
+cache.frame_id=this._frame_id|0;
+cache.ring_slot=ringSlot;
+cache.pass.ptr=cache.pass.len=cache.pass.off=cache.pass.byteLen=0;
+cache.list.ptr=cache.list.len=cache.list.off=cache.list.byteLen=0;
+cache.live.ptr=cache.live.len=cache.live.off=cache.live.byteLen=0;
+}
+if(pass_len>this._scratch_pass_f32.length){
+this._scratch_pass_f32=new Float32Array(Math.max(pass_len,this._scratch_pass_f32.length*2));
+}
+const pass_u=this._scratch_pass_f32.subarray(0,pass_len);
+if(pass_len>0)pass_u.set(new Float32Array(this.memory.buffer,pass_ptr,pass_len));
+const uniformBytes=(ptr,len,data)=>{
+if(len<=0)return null;
+const bytes=(len|0)*4;
+if(data){
+return new Uint8Array(data.buffer,data.byteOffset,bytes);
+}
+return new Uint8Array(this.memory.buffer,ptr,bytes);
+};
+const pendingUniformWrites=[];
+for(let i=0;i<bindings.length;i++){
+const binding=bindings[i]|0;
+let ptr=0,len=0;
+let data=null;
+if(binding===passBinding){ptr=pass_ptr;len=pass_len;data=pass_u;}
+else if(binding===listBinding){ptr=list_ptr;len=list_len;}
+else if(binding===callBinding){ptr=call_ptr;len=call_len;}
+else if(binding===userBinding){ptr=user_ptr;len=user_len;}
+else if(binding===liveBinding){ptr=live_ptr;len=live_len;}
+else{ptr=0;len=0;data=null;}
+const byteLen=align256((len|0)*4);
+const prevSize=shader._dyn_binding_sizes.get(binding)||0;
+if(byteLen>prevSize){
+shader._dyn_binding_sizes.set(binding,byteLen);
+shader._dyn_bind_groups_epoch=(shader._dyn_bind_groups_epoch|0)+1;
+shader._dyn_bind_groups.clear();
+}
+if(binding===passBinding){
+const c=cache.pass;
+if((c.ptr|0)===(ptr|0)&&(c.len|0)===(len|0)&&(c.byteLen|0)>=(byteLen|0)){
+dynOffsets[i]=c.off>>>0;
+}else{
+const off=ring.alloc(byteLen,256);
+dynOffsets[i]=off>>>0;
+if(data&&len>0){
+pendingUniformWrites.push({off,bytes:uniformBytes(ptr,len,data)});
+}
+c.ptr=ptr|0;c.len=len|0;c.off=off>>>0;c.byteLen=byteLen|0;
+}
+continue;
+}
+if(binding===listBinding){
+const c=cache.list;
+if((c.ptr|0)===(ptr|0)&&(c.len|0)===(len|0)&&(c.byteLen|0)>=(byteLen|0)){
+dynOffsets[i]=c.off>>>0;
+}else{
+const off=ring.alloc(byteLen,256);
+dynOffsets[i]=off>>>0;
+if(len>0){
+pendingUniformWrites.push({off,bytes:uniformBytes(ptr,len,data)});
+}
+c.ptr=ptr|0;c.len=len|0;c.off=off>>>0;c.byteLen=byteLen|0;
+}
+continue;
+}
+if(binding===liveBinding){
+const c=cache.live;
+if((c.ptr|0)===(ptr|0)&&(c.len|0)===(len|0)&&(c.byteLen|0)>=(byteLen|0)){
+dynOffsets[i]=c.off>>>0;
+}else{
+const off=ring.alloc(byteLen,256);
+dynOffsets[i]=off>>>0;
+if(len>0){
+pendingUniformWrites.push({off,bytes:uniformBytes(ptr,len,data)});
+}
+c.ptr=ptr|0;c.len=len|0;c.off=off>>>0;c.byteLen=byteLen|0;
+}
+continue;
+}
+const off=ring.alloc(byteLen,256);
+dynOffsets[i]=off>>>0;
+if(len>0){
+pendingUniformWrites.push({off,bytes:uniformBytes(ptr,len,data)});
+}
+}
+this.flush_uniform_writes(ring.buffer,pendingUniformWrites);
+const textureViews=shader._scratch_textureViews;
+const textureEntries=shader._scratch_textureEntries;
+for(let i=0;i<(shader.texture_count|0);i++){
+const tid=texIds[i];
+const texId=tid===undefined||tid===null?NONE_TEX:tid>>>0;
+if(texId!==NONE_TEX){
+const tex=this.textures[texId];
+textureViews[i]=tex?tex.view:null;
+textureEntries[i]=tex||null;
+}else{
+textureViews[i]=null;
+textureEntries[i]=null;
+}
+}
+const variant=this.get_pipeline_variant(shader,textureEntries,depth_write,backface_culling);
+const bindGroup=this.get_bind_group_for_shader_dyn(shader,textureViews,textureEntries,variant,texIds,ring,dynOffsets);
+this.set_pipeline_cached(variant.pipeline);
+this._pass.setBindGroup(0,bindGroup,dynOffsets);
+const geomRaw=this.array_buffers[vao.geom_vb_id];
+const instRaw=this.array_buffers[vao.inst_vb_id];
+const ib=this.index_buffers[vao.geom_ib_id];
+if(!geomRaw||!instRaw||!ib){
+if(this._webgpu_perf)this._webgpu_perf.skipped_draws+=1;
+return;
+}
+const geom=this.get_packed_vertex_buffer(geomRaw,shader.geometry_slots,shader.geometry_stride_slots);
+const inst=this.get_packed_vertex_buffer(instRaw,shader.instance_slots,shader.instance_stride_slots);
+this.set_vertex_buffer_cached(0,geom.buf);
+this.set_vertex_buffer_cached(1,inst.buf);
+this.set_index_buffer_cached(ib.buf,"uint32");
+const indexCount=ib.length|0;
+const instanceCount=shader.instance_slots>0?(((instRaw.length|0)/shader.instance_slots)|0):0;
+if(instanceCount<=0||indexCount<=0){
+if(this._webgpu_perf)this._webgpu_perf.skipped_draws+=1;
+return;
+}
+const xr=this.xr;
+if(xr!==undefined&&xr.in_xr_pass&&xr.left_eye&&xr.left_eye.viewport){
+const passBindIndex=bindings.indexOf(passBinding);
+const applyEye=(eye)=>{
+const vp=eye.viewport;
+this._pass.setViewport(vp.x|0,vp.y|0,Math.max(1,vp.width|0),Math.max(1,vp.height|0),0,1);
+this._pass.setScissorRect(vp.x|0,vp.y|0,Math.max(1,vp.width|0),Math.max(1,vp.height|0));
+const m=pass_u;
+const mp=eye.projection_matrix;
+for(let i=0;i<16;i++)m[i]=mp[i];
+const mt=eye.transform_matrix;
+for(let i=0;i<16;i++)m[i+16]=mt[i];
+const mi=eye.invtransform_matrix;
+for(let i=0;i<16;i++)m[i+32]=mi[i];
+if(passBindIndex>=0){
+const off=dynOffsets[passBindIndex]|0;
+const bytes=(pass_len|0)*4;
+this.queue.writeBuffer(ring.buffer,off,pass_u.buffer,pass_u.byteOffset,bytes);
+this.record_uniform_write(bytes);
+}
+this.record_webgpu_draw();
+this._pass.drawIndexed(indexCount,instanceCount,0,0,0);
+};
+applyEye(xr.left_eye);
+applyEye(xr.right_eye);
+}else{
+this.record_webgpu_draw();
+this._pass.drawIndexed(indexCount,instanceCount,0,0,0);
+}
+return;
+}
 if(!shader._ubo_pool){
 shader._ubo_pool=[];
 shader._ubo_pool_idx=0;
@@ -1269,6 +1735,7 @@ const poolIdx=shader._ubo_pool_idx++;
 if(!shader._ubo_pool[poolIdx]){
 shader._ubo_pool[poolIdx]={
 pass:null,list:null,call:null,user:null,live:null,
+_ver:{pass:0,list:0,call:0,user:0,live:0},
 };
 }
 const poolSlot=shader._ubo_pool[poolIdx];
@@ -1282,6 +1749,9 @@ size:needed,
 usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST,
 });
 poolSlot[slot]=buf;
+if(poolSlot._ver&&poolSlot._ver[slot]!==undefined){
+poolSlot._ver[slot]=(poolSlot._ver[slot]|0)+1;
+}
 }
 return buf;
 };
@@ -1296,6 +1766,7 @@ const src=new Float32Array(this.memory.buffer,ptr,len);
 const dst=this._scratch_f32.subarray(0,len);
 dst.set(src);
 this.queue.writeBuffer(buf,0,dst.buffer,dst.byteOffset,byteLen);
+this.record_uniform_write(byteLen);
 return buf;
 };
 if(pass_len>this._scratch_pass_f32.length){
@@ -1308,14 +1779,15 @@ pass_u.set(new Float32Array(this.memory.buffer,pass_ptr,pass_len));
 const passBuf=ensurePoolBuf("pass",pass_len*4);
 if(pass_len>0){
 this.queue.writeBuffer(passBuf,0,pass_u.buffer,pass_u.byteOffset,pass_len*4);
+this.record_uniform_write(pass_len*4);
 }
 const listBuf=writePoolUBO("list",list_ptr,list_len);
 const callBuf=writePoolUBO("call",call_ptr,call_len);
 const userBuf=writePoolUBO("user",user_ptr,user_len);
 const liveBuf=writePoolUBO("live",live_ptr,live_len);
-const textureViews=new Array(shader.texture_count);
-const textureEntries=new Array(shader.texture_count);
-for(let i=0;i<shader.texture_count;i++){
+const textureViews=shader._scratch_textureViews;
+const textureEntries=shader._scratch_textureEntries;
+for(let i=0;i<(shader.texture_count|0);i++){
 const tid=texIds[i];
 const texId=tid===undefined||tid===null?NONE_TEX:tid>>>0;
 if(texId!==NONE_TEX){
@@ -1328,28 +1800,40 @@ textureEntries[i]=null;
 }
 }
 const variant=this.get_pipeline_variant(shader,textureEntries,depth_write,backface_culling);
-const bindGroup=this._create_bind_group_with_pool_bufs(
-shader,variant,textureViews,textureEntries,
-passBuf,listBuf,callBuf,userBuf,liveBuf
+const bindGroup=this.get_bind_group_for_shader_pool(
+shader,
+textureViews,
+textureEntries,
+variant,
+texIds,
+poolIdx,
+passBuf,
+listBuf,
+callBuf,
+userBuf,
+liveBuf,
+poolSlot,
 );
-this._pass.setPipeline(variant.pipeline);
+this.set_pipeline_cached(variant.pipeline);
 this._pass.setBindGroup(0,bindGroup);
 const geomRaw=this.array_buffers[vao.geom_vb_id];
 const instRaw=this.array_buffers[vao.inst_vb_id];
 const ib=this.index_buffers[vao.geom_ib_id];
 if(!geomRaw||!instRaw||!ib){
+if(this._webgpu_perf)this._webgpu_perf.skipped_draws+=1;
 return;
 }
-const geom=this.get_packed_vertex_buffer(geomRaw,shader.geometry_slots,shader.geom_vec4s);
-const inst=this.get_packed_vertex_buffer(instRaw,shader.instance_slots,shader.inst_vec4s);
-this._pass.setVertexBuffer(0,geom.buf);
-this._pass.setVertexBuffer(1,inst.buf);
-this._pass.setIndexBuffer(ib.buf,"uint32");
+const geom=this.get_packed_vertex_buffer(geomRaw,shader.geometry_slots,shader.geometry_stride_slots);
+const inst=this.get_packed_vertex_buffer(instRaw,shader.instance_slots,shader.instance_stride_slots);
+this.set_vertex_buffer_cached(0,geom.buf);
+this.set_vertex_buffer_cached(1,inst.buf);
+this.set_index_buffer_cached(ib.buf,"uint32");
 const indexCount=ib.length|0;
 const instanceCount=shader.instance_slots>0
 ?(((instRaw.length|0)/shader.instance_slots)|0)
 :0;
 if(instanceCount<=0||indexCount<=0){
+if(this._webgpu_perf)this._webgpu_perf.skipped_draws+=1;
 return;
 }
 const xr=this.xr;
@@ -1366,57 +1850,157 @@ for(let i=0;i<16;i++)m[i+16]=mt[i];
 const mi=eye.invtransform_matrix;
 for(let i=0;i<16;i++)m[i+32]=mi[i];
 this.queue.writeBuffer(passBuf,0,pass_u.buffer,pass_u.byteOffset,pass_u.byteLength);
+this.record_uniform_write(pass_u.byteLength);
+this.record_webgpu_draw();
 this._pass.drawIndexed(indexCount,instanceCount,0,0,0);
 };
 applyEye(xr.left_eye);
 applyEye(xr.right_eye);
 }else{
+this.record_webgpu_draw();
 this._pass.drawIndexed(indexCount,instanceCount,0,0,0);
 }
 }
-_create_bind_group_with_pool_bufs(shader,variant,textureViews,textureEntries,passBuf,listBuf,callBuf,userBuf,liveBuf){
+create_bind_group_for_shader_pool(shader,variant,textureViews,textureEntries,passBuf,listBuf,callBuf,userBuf,liveBuf){
 const entries=[];
-const uboMap=new Map();
-if(shader.ubo_binding_pass>=0)uboMap.set(shader.ubo_binding_pass,passBuf);
-if(shader.ubo_binding_draw_list>=0)uboMap.set(shader.ubo_binding_draw_list,listBuf);
-if(shader.ubo_binding_draw_call>=0)uboMap.set(shader.ubo_binding_draw_call,callBuf);
-if(shader.ubo_binding_user>=0)uboMap.set(shader.ubo_binding_user,userBuf);
-if(shader.ubo_binding_live>=0)uboMap.set(shader.ubo_binding_live,liveBuf);
-for(const[binding,kind]of shader.binding_kinds.entries()){
-if(kind!=="buffer")continue;
-const buf=uboMap.get(binding)||shader.ubos.get(binding)||passBuf;
+const kindMap=shader.binding_kinds;
+const bindings=shader._bindings_sorted||[];
+const passBinding=shader.ubo_binding_pass|0;
+const listBinding=shader.ubo_binding_draw_list|0;
+const callBinding=shader.ubo_binding_draw_call|0;
+const userBinding=shader.ubo_binding_user|0;
+const liveBinding=shader.ubo_binding_live|0;
+for(let bi=0;bi<bindings.length;bi++){
+const binding=bindings[bi]|0;
+const kind=kindMap.get(binding);
+if(kind==="buffer"){
+let buf=null;
+if(binding===passBinding)buf=passBuf;
+else if(binding===listBinding)buf=listBuf;
+else if(binding===callBinding)buf=callBuf;
+else if(binding===userBinding)buf=userBuf;
+else if(binding===liveBinding)buf=liveBuf;
+else buf=shader.ubos.get(binding)||passBuf;
 entries.push({binding,resource:{buffer:buf}});
-}
-for(const sb of shader.samplerBindings||[]){
-const samplerIndex=sb.samplerIndex|0;
-const b=sb.binding|0;
-if(shader.binding_kinds?.get(b)!=="sampler")continue;
-const bindingType=this.sampler_binding_type_for_index(shader,samplerIndex,textureEntries);
-const desc=shader.samplerDescs[samplerIndex];
+}else if(kind==="sampler"){
+const sb=shader._sampler_binding_by_binding?.get(binding);
+const samplerIndex=sb?(sb.samplerIndex|0):-1;
+const bindingType=samplerIndex>=0
+?this.sampler_binding_type_for_index(shader,samplerIndex,textureEntries)
+:"non-filtering";
+const desc=samplerIndex>=0?shader.samplerDescs[samplerIndex]:null;
 const useOriginal=
 (bindingType==="filtering"&&desc&&(desc.filter|0)!==0)
 ||(bindingType==="non-filtering"&&(!desc||(desc.filter|0)===0));
-entries.push({
-binding:b,
-resource:useOriginal
+const samplerRes=samplerIndex>=0
+?(useOriginal
 ?(shader.samplers[samplerIndex]||this.get_fallback_sampler())
-:this.get_sampler_resource(desc,bindingType),
-});
-}
-for(const tb of shader.textureBindings||[]){
-const isDepth=tb.declaredSampleType==="depth";
-const entry=textureEntries[tb.textureIndex];
+:this.get_sampler_resource(desc,bindingType))
+:this.get_fallback_sampler();
+entries.push({binding,resource:samplerRes});
+}else if(kind==="texture"){
+const tb=shader._texture_binding_by_binding?.get(binding);
+const textureIndex=tb?(tb.textureIndex|0):0;
+const declaredSampleType=tb?tb.declaredSampleType:"float";
+const isDepth=declaredSampleType==="depth";
+const entry=textureEntries[textureIndex];
 const view=isDepth
 ?((entry&&entry.depthView)?entry.depthView:this.get_fallback_depth_texture_view())
-:(textureViews[tb.textureIndex]||this.get_fallback_texture_view());
-const b=tb.binding|0;
-if(shader.binding_kinds?.get(b)!=="texture")continue;
-entries.push({binding:b,resource:view});
+:(textureViews[textureIndex]||this.get_fallback_texture_view());
+entries.push({binding,resource:view});
 }
-const byBinding=new Map();
-for(const e of entries)byBinding.set(e.binding|0,e);
-const uniqueEntries=Array.from(byBinding.values()).sort((a,b)=>(a.binding|0)-(b.binding|0));
-return this.device.createBindGroup({layout:variant.bindGroupLayout,entries:uniqueEntries});
+}
+if(this._webgpu_perf){
+this._webgpu_perf.bind_groups_created+=1;
+}
+return this.device.createBindGroup({layout:variant.bindGroupLayout,entries});
+}
+get_bind_group_for_shader_pool(shader,textureViews,textureEntries,variant,texIds,pool_idx,passBuf,listBuf,callBuf,userBuf,liveBuf,poolSlot){
+if(!shader.bindGroupsPool)shader.bindGroupsPool=new Map();
+let key=variant.key+"|P"+(pool_idx|0);
+if(poolSlot&&poolSlot._ver){
+key+="|B"+
+(poolSlot._ver.pass|0)+","+
+(poolSlot._ver.list|0)+","+
+(poolSlot._ver.call|0)+","+
+(poolSlot._ver.user|0)+","+
+(poolSlot._ver.live|0);
+}
+for(let i=0;i<(shader.texture_count|0);i++){
+const tid=texIds[i];
+const entry=textureEntries[i];
+const ver=entry?(entry.version|0):0;
+key+="|"+(tid===undefined?"n":(tid>>>0))+":"+ver;
+}
+let bg=shader.bindGroupsPool.get(key);
+if(bg){
+if(this._webgpu_perf)this._webgpu_perf.bind_group_hits+=1;
+return bg;
+}
+bg=this.create_bind_group_for_shader_pool(shader,variant,textureViews,textureEntries,passBuf,listBuf,callBuf,userBuf,liveBuf);
+shader.bindGroupsPool.set(key,bg);
+return bg;
+}
+create_bind_group_for_shader_dyn(shader,variant,textureViews,textureEntries,ring){
+const entries=[];
+const kindMap=shader.binding_kinds;
+const bindings=shader._bindings_sorted||[];
+for(let bi=0;bi<bindings.length;bi++){
+const binding=bindings[bi]|0;
+const kind=kindMap.get(binding);
+if(kind==="buffer"){
+const size=shader._dyn_binding_sizes.get(binding)||256;
+entries.push({binding,resource:{buffer:ring.buffer,offset:0,size}});
+}else if(kind==="sampler"){
+const sb=shader._sampler_binding_by_binding?.get(binding);
+const samplerIndex=sb?(sb.samplerIndex|0):-1;
+const bindingType=samplerIndex>=0
+?this.sampler_binding_type_for_index(shader,samplerIndex,textureEntries)
+:"non-filtering";
+const desc=samplerIndex>=0?shader.samplerDescs[samplerIndex]:null;
+const useOriginal=
+(bindingType==="filtering"&&desc&&(desc.filter|0)!==0)
+||(bindingType==="non-filtering"&&(!desc||(desc.filter|0)===0));
+const samplerRes=samplerIndex>=0
+?(useOriginal
+?(shader.samplers[samplerIndex]||this.get_fallback_sampler())
+:this.get_sampler_resource(desc,bindingType))
+:this.get_fallback_sampler();
+entries.push({binding,resource:samplerRes});
+}else if(kind==="texture"){
+const tb=shader._texture_binding_by_binding?.get(binding);
+const textureIndex=tb?(tb.textureIndex|0):0;
+const declaredSampleType=tb?tb.declaredSampleType:"float";
+const isDepth=declaredSampleType==="depth";
+const entry=textureEntries[textureIndex];
+const view=isDepth
+?((entry&&entry.depthView)?entry.depthView:this.get_fallback_depth_texture_view())
+:(textureViews[textureIndex]||this.get_fallback_texture_view());
+entries.push({binding,resource:view});
+}
+}
+if(this._webgpu_perf){
+this._webgpu_perf.bind_groups_created+=1;
+}
+return this.device.createBindGroup({layout:variant.bindGroupLayout,entries});
+}
+get_bind_group_for_shader_dyn(shader,textureViews,textureEntries,variant,texIds,ring,dynOffsets){
+const ringSlot=this._uniform_ring_index|0;
+let key=variant.key+"|R"+ringSlot+"|E"+(shader._dyn_bind_groups_epoch|0);
+for(let i=0;i<(shader.texture_count|0);i++){
+const tid=texIds[i];
+const entry=textureEntries[i];
+const ver=entry?(entry.version|0):0;
+key+="|"+(tid===undefined?"n":(tid>>>0))+":"+ver;
+}
+let bg=shader._dyn_bind_groups.get(key);
+if(bg){
+if(this._webgpu_perf)this._webgpu_perf.bind_group_hits+=1;
+return bg;
+}
+bg=this.create_bind_group_for_shader_dyn(shader,variant,textureViews,textureEntries,ring);
+shader._dyn_bind_groups.set(key,bg);
+return bg;
 }
 FromWasmDrawCall(args){
 if(!this.device||!this._pass){
@@ -1432,13 +2016,17 @@ const list_ptr=args.draw_list_uniforms.ptr;const list_len=args.draw_list_uniform
 const call_ptr=args.draw_call_uniforms.ptr;const call_len=args.draw_call_uniforms.len;
 const user_ptr=args.user_uniforms.ptr;const user_len=args.user_uniforms.len;
 const live_ptr=args.live_uniforms.ptr;const live_len=args.live_uniforms.len;
-const texIds=[];
-for(let i=0;i<shader.texture_count;i++){
+const texIds=shader._scratch_texIds;
+const tc=shader.texture_count|0;
+for(let i=0;i<tc;i++){
 const t=args.textures[i];
-texIds.push(t==null?0xffffffff:t>>>0);
+texIds[i]=t==null?0xffffffff:t>>>0;
 }
-while(texIds.length<16){
-texIds.push(0xffffffff);
+for(let i=tc;i<16;i++){
+texIds[i]=0xffffffff;
+}
+if(this._webgpu_perf){
+this._webgpu_perf.draw_commands+=1;
 }
 this._emitSingleDraw(
 shader,
@@ -1484,7 +2072,16 @@ return;
 const tid=args.texture_id|0;
 const w=args.width|0;
 const h=args.height|0;
-const bytes=new Uint8Array(this.memory.buffer,args.data.ptr,w*h*4).slice();
+const src=new Uint8Array(this.memory.buffer,args.data.ptr,w*h*4);
+let bytes=src;
+if(typeof SharedArrayBuffer!=="undefined"&&this.memory.buffer instanceof SharedArrayBuffer){
+if(!this._scratch_upload_u8||this._scratch_upload_u8.length<src.length){
+const nextLen=Math.max(src.length,this._scratch_upload_u8?(this._scratch_upload_u8.length*2):4096);
+this._scratch_upload_u8=new Uint8Array(nextLen);
+}
+bytes=this._scratch_upload_u8.subarray(0,src.length);
+bytes.set(src);
+}
 let entry=this.textures[args.texture_id];
 if(!entry||entry.w!==w||entry.h!==h||entry.format!=="rgba8unorm"){
 const texture=this.device.createTexture({
@@ -1511,7 +2108,16 @@ return;
 const tid=args.texture_id|0;
 const w=args.width|0;
 const h=args.height|0;
-const bytes=new Uint8Array(this.memory.buffer,args.data.ptr,w*h).slice();
+const src=new Uint8Array(this.memory.buffer,args.data.ptr,w*h);
+let bytes=src;
+if(typeof SharedArrayBuffer!=="undefined"&&this.memory.buffer instanceof SharedArrayBuffer){
+if(!this._scratch_upload_u8||this._scratch_upload_u8.length<src.length){
+const nextLen=Math.max(src.length,this._scratch_upload_u8?(this._scratch_upload_u8.length*2):4096);
+this._scratch_upload_u8=new Uint8Array(nextLen);
+}
+bytes=this._scratch_upload_u8.subarray(0,src.length);
+bytes.set(src);
+}
 let entry=this.textures[args.texture_id];
 if(!entry||entry.w!==w||entry.h!==h||entry.format!=="r8unorm"){
 const texture=this.device.createTexture({
@@ -1538,7 +2144,16 @@ return;
 const tid=args.texture_id|0;
 const w=args.width|0;
 const h=args.height|0;
-const f32=new Float32Array(this.memory.buffer,args.data.ptr,w*h*4).slice();
+const srcBytes=new Uint8Array(this.memory.buffer,args.data.ptr,w*h*16);
+let bytes=srcBytes;
+if(typeof SharedArrayBuffer!=="undefined"&&this.memory.buffer instanceof SharedArrayBuffer){
+if(!this._scratch_upload_u8||this._scratch_upload_u8.length<srcBytes.length){
+const nextLen=Math.max(srcBytes.length,this._scratch_upload_u8?(this._scratch_upload_u8.length*2):4096);
+this._scratch_upload_u8=new Uint8Array(nextLen);
+}
+bytes=this._scratch_upload_u8.subarray(0,srcBytes.length);
+bytes.set(srcBytes);
+}
 let entry=this.textures[args.texture_id];
 if(!entry||entry.w!==w||entry.h!==h||entry.format!=="rgba32float"){
 const texture=this.device.createTexture({
@@ -1555,7 +2170,7 @@ format:"rgba32float",
 version:(entry?(entry.version|0)+1:1),
 };
 }
-this._write_texture_2d_bytes(entry.texture,w,h,new Uint8Array(f32.buffer),16);
+this._write_texture_2d_bytes(entry.texture,w,h,bytes,16);
 }
 }
 class WgpuRingBuffer{
