@@ -22,7 +22,6 @@ script_mod! {
     mod.widgets.ShadRadioItem = RadioButtonFlat{
         width: Fit
         height: Fit
-        grab_key_focus: true
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
         label_walk +: {
             margin: theme.mspace_h_1{left: 18.0}

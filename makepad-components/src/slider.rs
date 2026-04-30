@@ -8,7 +8,6 @@ script_mod! {
         width: Fill
         height: 16
         margin: Inset{}
-        grab_key_focus: true
         default: 0.5
         min: 0.0
         max: 1.0
