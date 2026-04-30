@@ -20,7 +20,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  MAKEPAD_GIT_BRANCH: webgpu
+  MAKEPAD_GIT_BRANCH: web_groundup
   WASM_BINDGEN_VERSION: 0.2.114
 
 jobs:
@@ -64,7 +64,7 @@ jobs:
         run: cargo makepad wasm install-toolchain
 
       - name: Build Wasm package
-        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --no-threads --bindgen
+        run: ./scripts/build_wasm.sh -p "${APP_PACKAGE}" --profile=small --bindgen --no-threads
 
       - name: Patch index.html for GitHub Pages subpath hosting
         run: |
