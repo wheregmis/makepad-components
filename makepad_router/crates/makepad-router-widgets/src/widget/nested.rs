@@ -26,8 +26,8 @@ impl RouterWidget {
             .routes
             .patterns
             .keys()
-            .cloned()
-            .chain(self.child_routers.keys().cloned())
+            .copied()
+            .chain(self.child_routers.keys().copied())
         {
             let Some(pattern_obj) = self.router.route_registry.get_pattern(route_id) else {
                 continue;
