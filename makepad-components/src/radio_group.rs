@@ -20,6 +20,7 @@ script_mod! {
     }
 
     mod.widgets.ShadRadioItem = RadioButtonFlat{
+        grab_key_focus: true
         width: Fit
         height: Fit
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}

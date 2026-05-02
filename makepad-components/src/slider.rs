@@ -5,6 +5,7 @@ script_mod! {
     use mod.widgets.*
 
     mod.widgets.ShadSlider = mod.widgets.SliderRoundFlat{
+        grab_key_focus: true
         width: Fill
         height: 16
         margin: Inset{}
