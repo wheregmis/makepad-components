@@ -9,4 +9,12 @@ script_mod! {
     }
 
     mod.widgets.ShadHr = mod.widgets.ShadSeparator{}
+
+    mod.widgets.ShadSeparatorVertical = View{
+        width: 1
+        height: Fill
+        draw_bg +: {
+            color: (shad_theme.color_outline_border)
+        }
+    }
 }
