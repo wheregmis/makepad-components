@@ -2,3 +2,4 @@
 /.cocoindex_code
 /.omx
 .omx/
+*.rlib
