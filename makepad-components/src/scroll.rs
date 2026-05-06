@@ -100,7 +100,23 @@ script_mod! {
         spacing: 12.0
     }
 
-    mod.widgets.ShadScrollYView = mod.widgets.ShadScrollArea{}
+    mod.widgets.ShadScrollYViewBase = #(ShadScrollYView::register_widget(vm))
+    mod.widgets.ShadScrollYView = set_type_default() do mod.widgets.ShadScrollYViewBase{
+        width: Fill
+        height: Fill
+        flow: Down
+        clip_x: true
+        clip_y: true
+        scroll_bars: mod.widgets.ShadScrollBarsY{}
+        draw_bg +: {
+            color: (shad_theme.color_background)
+            border_radius: (shad_theme.radius)
+            border_size: 1.0
+            border_color: (shad_theme.color_outline_border)
+        }
+        padding: Inset{top: 18, right: 18, bottom: 18, left: 18}
+        spacing: 12.0
+    }
 }
 
 fn should_capture_vertical_scroll_noise(scroll_x: f64, scroll_y: f64) -> bool {
@@ -127,6 +143,30 @@ impl Widget for ShadScrollAreaX {
                     scroll_event.scroll.y,
                 )
             {
+                scroll_event.handled_y.set(true);
+            }
+        }
+        self.view.handle_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        self.view.draw_walk(cx, scope, walk)
+    }
+}
+
+#[derive(Script, ScriptHook, Widget)]
+pub struct ShadScrollYView {
+    #[source]
+    source: ScriptObjectRef,
+    #[deref]
+    view: View,
+}
+
+impl Widget for ShadScrollYView {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        if let Event::Scroll(scroll_event) = event {
+            let area = self.view.area();
+            if area.rect(cx).contains(scroll_event.abs) {
                 scroll_event.handled_y.set(true);
             }
         }
