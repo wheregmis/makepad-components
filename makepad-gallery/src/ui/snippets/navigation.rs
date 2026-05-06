@@ -327,7 +327,7 @@ pub const SIDEBAR_PREVIEW_CODE: &str = r#"AdaptiveView{
                 draw_text.text_style.font_size: 12
             }
             ShadSidebarSectionLabel{text: "Platform"}
-            ShadSidebarItem{text: "Playground"}
+            nav_playground := ShadSidebarItem{text: "Playground"}
             ShadSidebarItem{text: "History"}
             ShadSidebarItem{text: "Settings"}
         }

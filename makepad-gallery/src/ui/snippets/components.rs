@@ -360,8 +360,8 @@ View{
     flow: Right
     spacing: 8.0
 
-    ShadButton{text: "Default"}
-    ShadButtonDestructive{text: "Destructive"}
+    save_btn := ShadButton{text: "Default"}
+    delete_btn := ShadButtonDestructive{text: "Destructive"}
     ShadButtonOutline{text: "Outline"}
     ShadButtonSecondary{text: "Secondary"}
     ShadButtonGhost{text: "Ghost"}
