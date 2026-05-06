@@ -164,13 +164,13 @@ pub struct ShadScrollYView {
 
 impl Widget for ShadScrollYView {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.view.handle_event(cx, event, scope);
         if let Event::Scroll(scroll_event) = event {
             let area = self.view.area();
             if area.rect(cx).contains(scroll_event.abs) {
                 scroll_event.handled_y.set(true);
             }
         }
-        self.view.handle_event(cx, event, scope);
     }
 
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
