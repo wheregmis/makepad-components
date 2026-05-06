@@ -3,8 +3,8 @@ fn theme_switch_rebuilds_script_modules() {
     let source = include_str!("../src/main.rs");
 
     assert!(
-        source.contains("let value = Self::build_script_mod(vm, self.is_light_theme);"),
-        "theme reload should rebuild the script modules in this pinned Makepad checkout"
+        source.contains("let value = vm.with_reload(|vm| Self::build_script_mod(vm, self.is_light_theme));"),
+        "theme reload should call build_script_mod inside vm.with_reload so existing widget instances are updated correctly"
     );
     assert!(
         !source.contains("let value: ScriptValue = self.source.clone().into();"),
