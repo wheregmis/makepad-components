@@ -38,4 +38,4 @@ pub const RESIZABLE_PREVIEW_CODE: &str = r#"horizontal_split := ShadResizable{
 //     split.set_align(cx, align);
 // }"#;
 pub const SCROLL_AREA_PREVIEW_CODE: &str = "ShadScrollArea{\n    width: Fill\n    height: 220\n    View{\n        width: Fill\n        height: Fit\n        flow: Down\n        spacing: 8.0\n        ShadLabel{text: \"Row 1\"}\n        ShadLabel{text: \"Row 2\"}\n        ShadLabel{text: \"Row 3\"}\n    }\n}";
-pub const SEPARATOR_PREVIEW_CODE: &str = "View{\n    width: Fill\n    height: Fit\n    flow: Down\n    spacing: 12.0\n    ShadLabel{text: \"Account\"}\n    ShadSeparator{}\n    ShadLabel{text: \"Billing\"}\n}";
+pub const SEPARATOR_PREVIEW_CODE: &str = "// Horizontal\nView{\n    width: Fill\n    height: Fit\n    flow: Down\n    spacing: 12.0\n    ShadLabel{text: \"Account\"}\n    ShadSeparator{}\n    ShadLabel{text: \"Billing\"}\n}\n\n// Vertical\nView{\n    width: Fit\n    height: 20\n    flow: Right\n    spacing: 16.0\n    ShadLabel{text: \"Blog\"}\n    ShadSeparatorVertical{}\n    ShadLabel{text: \"Docs\"}\n}";

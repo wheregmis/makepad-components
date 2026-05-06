@@ -166,4 +166,10 @@ gallery_static_page! {
             }
         }
     },
+    action_flow: {
+        mod.widgets.GalleryActionFlowStep{text: "1. Use ShadScrollArea for vertical overflow; give the container an explicit height and let the inner content use height: Fit."}
+        mod.widgets.GalleryActionFlowStep{text: "2. Use ShadScrollAreaX for horizontal overflow such as tag rails, chip lists, or wide table headers."}
+        mod.widgets.GalleryActionFlowStep{text: "3. Use ShadScrollAreaXY for two-dimensional overflow when both axes can exceed the visible viewport."}
+        mod.widgets.GalleryActionFlowStep{text: "4. Never give the inner scrollable content a Fill height inside a vertical scroll area; that collapses the scrollable range to zero."}
+    },
 }
