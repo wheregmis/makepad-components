@@ -51,10 +51,11 @@ impl RouterWidget {
         self.ensure_route_widget(cx, new_route.id);
 
         self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
+        let new_route_id = new_route.id;
         self.queue_route_actions(
-            Some(RouterAction::Reset(new_route.clone())),
+            Some(RouterAction::Reset(new_route)),
             old_route.as_ref().map(|r| r.id),
-            &new_route,
+            new_route_id,
         );
 
         self.redraw(cx);

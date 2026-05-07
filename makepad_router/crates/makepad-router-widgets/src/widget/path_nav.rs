@@ -129,10 +129,12 @@ impl RouterWidget {
         );
 
         self.dispatch_route_change(cx, old_route.as_ref(), &route);
+        let route_id = route.id;
+        let route_pattern = route.pattern.clone();
         let primary_action = if replace {
-            RouterAction::Replace(route.clone())
+            RouterAction::Replace(route)
         } else {
-            RouterAction::Navigate(route.clone())
+            RouterAction::Navigate(route)
         };
         // Optimization: avoid unnecessary allocation by borrowing RouterAction before consuming it
         // Previously: queued actions first using `primary_action.clone()`, then synced browser
@@ -141,20 +143,20 @@ impl RouterWidget {
         self.queue_route_actions(
             Some(primary_action),
             old_route.as_ref().map(|r| r.id),
-            &route,
+            route_id,
         );
 
         match &intent.kind {
             ResolvedPathKind::NestedPrefix { tail } => {
-                let _ = self.delegate_tail_to_child(cx, route.id, tail);
+                let _ = self.delegate_tail_to_child(cx, route_id, tail);
             }
             ResolvedPathKind::FullMatch => {
-                if self.child_routers.contains_key(&route.id) {
-                    if let Some(pattern) = &route.pattern {
+                if self.child_routers.contains_key(&route_id) {
+                    if let Some(pattern) = &route_pattern {
                         if let Some((_params, tail)) =
                             pattern.matches_prefix_with_tail(&intent.path)
                         {
-                            let _ = self.delegate_tail_to_child(cx, route.id, &tail);
+                            let _ = self.delegate_tail_to_child(cx, route_id, &tail);
                         }
                     }
                 }
