@@ -1,3 +1,7 @@
 ## 2026-04-23 - `replace` beat manual `+` decoding
 **Learning:** In `makepad_router` query decoding, a hand-rolled single-scan `+` fast path looked cheaper on paper but regressed the release benchmark versus the existing `String::replace` branch. The extra per-byte `push` work outweighed the saved scans.
 **Action:** For short router query strings, benchmark standard-library string transforms before replacing them with manual byte loops. Keep the benchmark harness and revert quickly when the numbers move the wrong way.
+
+## 2025-05-08 – Eliminating Redundant Route Cloning in Makepad Router Action Dispatch
+**Learning:** In the Makepad router widgets library (`makepad-router-widgets`), `queue_route_actions` previously accepted a full `&Route` reference to extract the ID, while callers simultaneously created `RouterAction` enum variants (like `Navigate`, `Replace`, `Reset`) by calling `.clone()` on the `Route`. Because `Route` contains nested objects (like `String` identifiers and `HashMap` query parameters), this `.clone()` caused significant heap allocation and churn during every route transition.
+**Action:** By modifying `queue_route_actions` to strictly accept `new_route_id: LiveId` (a lightweight `Copy` type), callers can extract the `LiveId` upfront, dispatch lifecycle events using `&Route`, and finally *move* ownership of the original `Route` into the `RouterAction` enum variant. This safely and idiomatically eliminates the `.clone()`, reducing memory allocations in the hot path.

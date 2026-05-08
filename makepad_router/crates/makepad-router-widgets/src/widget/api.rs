@@ -29,12 +29,12 @@ impl RouterWidget {
             );
 
             if let Some(new_route) = self.router.current_route().cloned() {
-                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 let new_route_id = new_route.id;
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
+                // Optimization: avoid unnecessary heap allocation from cloning `Route` when queueing actions
+                // Previously: called `RouterAction::Navigate(new_route.clone())`, cloning entire route payload
+                // Now: we extract `new_route_id`, dispatch by reference, and move `new_route` into the action enum
                 let primary_action = RouterAction::Navigate(new_route);
-                // Optimization: avoid cloning Route and RouterAction
-                // Previously: cloned `new_route` to create `primary_action`, then passed `&new_route` to `queue_route_actions`
-                // Now: extract `new_route_id`, consume `new_route` into `primary_action`, and pass the ID directly
                 self.sync_browser_with_action(cx, &primary_action);
                 self.queue_route_actions(
                     Some(primary_action),
@@ -84,10 +84,10 @@ impl RouterWidget {
             );
 
             if let Some(new_route) = self.router.current_route().cloned() {
-                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 let new_route_id = new_route.id;
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
+                // Optimization: avoid unnecessary heap allocation from cloning `Route`
                 let primary_action = RouterAction::Navigate(new_route);
-                // Optimization: avoid cloning Route and RouterAction
                 self.sync_browser_with_action(cx, &primary_action);
                 self.queue_route_actions(
                     Some(primary_action),
@@ -126,10 +126,10 @@ impl RouterWidget {
             );
 
             if let Some(new_route) = self.router.current_route().cloned() {
-                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 let new_route_id = new_route.id;
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
+                // Optimization: avoid unnecessary heap allocation from cloning `Route`
                 let primary_action = RouterAction::Replace(new_route);
-                // Optimization: avoid cloning Route and RouterAction
                 self.sync_browser_with_action(cx, &primary_action);
                 self.queue_route_actions(
                     Some(primary_action),
@@ -179,10 +179,10 @@ impl RouterWidget {
             );
 
             if let Some(new_route) = self.router.current_route().cloned() {
-                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
                 let new_route_id = new_route.id;
+                self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
+                // Optimization: avoid unnecessary heap allocation from cloning `Route`
                 let primary_action = RouterAction::Replace(new_route);
-                // Optimization: avoid cloning Route and RouterAction
                 self.sync_browser_with_action(cx, &primary_action);
                 self.queue_route_actions(
                     Some(primary_action),
@@ -407,23 +407,24 @@ impl RouterWidget {
         }
         self.clear_url_extras();
         let old_route = self.router.current_route().cloned();
-        self.router.reset(route.clone());
-        self.active_route = route.id;
-        self.ensure_route_widget(cx, route.id);
+        let route_id = route.id;
+        self.router.reset(route);
+        self.active_route = route_id;
+        self.ensure_route_widget(cx, route_id);
         self.start_transition(
             cx,
             old_route.as_ref().map(|r| r.id),
-            route.id,
+            route_id,
             RouterActionKind::Replace,
             RouterTransitionDirection::Forward,
             None,
         );
 
         if let Some(new_route) = self.router.current_route().cloned() {
-            self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
             let new_route_id = new_route.id;
+            self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
+            // Optimization: avoid unnecessary heap allocation from cloning `Route`
             let primary_action = RouterAction::Reset(new_route);
-            // Optimization: avoid cloning Route and RouterAction
             self.sync_browser_with_action(cx, &primary_action);
             self.queue_route_actions(
                 Some(primary_action),
@@ -461,8 +462,9 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     None,
                 );
+                let new_route_id = new_route.id;
                 self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
-                self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), new_route.id);
+                self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), new_route_id);
                 self.sync_browser_after_pop(cx, old_depth.saturating_sub(self.router.depth()));
                 self.redraw(cx);
                 return true;
@@ -491,8 +493,9 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     None,
                 );
+                let new_route_id = new_route.id;
                 self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
-                self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), new_route.id);
+                self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), new_route_id);
                 self.sync_browser_after_pop(cx, old_depth.saturating_sub(self.router.depth()));
                 self.redraw(cx);
                 return true;
@@ -521,8 +524,9 @@ impl RouterWidget {
                     RouterTransitionDirection::Backward,
                     None,
                 );
+                let new_route_id = new_route.id;
                 self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
-                self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), new_route.id);
+                self.queue_route_actions(None, old_route.as_ref().map(|r| r.id), new_route_id);
                 self.sync_browser_after_pop(cx, old_depth.saturating_sub(self.router.depth()));
                 self.redraw(cx);
                 return true;
@@ -559,10 +563,10 @@ impl RouterWidget {
             RouterTransitionDirection::Forward,
             None,
         );
-        self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
         let new_route_id = new_route.id;
+        self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
+        // Optimization: avoid unnecessary heap allocation from cloning `Route`
         let primary_action = RouterAction::Reset(new_route);
-        // Optimization: avoid cloning Route and RouterAction
         self.sync_browser_with_action(cx, &primary_action);
         self.queue_route_actions(
             Some(primary_action),

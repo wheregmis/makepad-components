@@ -399,7 +399,7 @@ impl App {
 
     fn reload_ui_for_theme(&mut self, cx: &mut Cx) {
         cx.with_vm(|vm| {
-            let value = Self::build_script_mod(vm, self.is_light_theme);
+            let value = vm.with_reload(|vm| Self::build_script_mod(vm, self.is_light_theme));
             <Self as ScriptApply>::script_apply(
                 self,
                 vm,

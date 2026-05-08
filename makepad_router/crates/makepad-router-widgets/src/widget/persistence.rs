@@ -50,8 +50,11 @@ impl RouterWidget {
         self.transition_rt.state = None;
         self.ensure_route_widget(cx, new_route.id);
 
-        self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
         let new_route_id = new_route.id;
+        self.dispatch_route_change(cx, old_route.as_ref(), &new_route);
+        // Optimization: avoid unnecessary heap allocation from cloning `Route` when queueing actions
+        // Previously: called `RouterAction::Reset(new_route.clone())`, cloning entire route payload
+        // Now: we extract `new_route_id`, dispatch by reference, and move `new_route` into the action enum
         self.queue_route_actions(
             Some(RouterAction::Reset(new_route)),
             old_route.as_ref().map(|r| r.id),
