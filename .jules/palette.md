@@ -68,3 +68,6 @@
 ## $(date +%Y-%m-%d) – Focus Ring Fallbacks for Form Controls
 **Learning:** Interactive components like Switch, RadioGroup, and Slider need `grab_key_focus: true` and an explicit `border_color_focus` (usually mapping to `color_primary`) to provide visual feedback for keyboard users. Without these properties, the components are untabbable or offer zero visual indication when focused.
 **Action:** Always verify `grab_key_focus` and explicit `focus` state styles (often using `border_color_focus` or drawing boxes mapped to `self.focus`) when building or reviewing interactive controls.
+## $(date +%Y-%m-%d) – Make tabs reachable via keyboard
+**Learning:** In the Makepad components library, interactive elements like tab triggers can be excluded from keyboard navigation if `grab_key_focus: true` is not explicitly set in their DSL definition. This renders `ShadTabsTrigger` inaccessible to keyboard-only users.
+**Action:** When building interactive layout components that inherit from base widgets like `ButtonFlat`, ensure `grab_key_focus: true` is included to maintain tab accessibility.
