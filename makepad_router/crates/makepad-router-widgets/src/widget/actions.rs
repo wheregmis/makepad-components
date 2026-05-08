@@ -1,4 +1,3 @@
-use crate::route::Route;
 use crate::router::RouterAction;
 use makepad_widgets::*;
 
@@ -9,14 +8,14 @@ impl RouterWidget {
         &mut self,
         primary_action: Option<RouterAction>,
         old_route_id: Option<LiveId>,
-        new_route: &Route,
+        new_route_id: LiveId,
     ) {
         if let Some(primary_action) = primary_action {
             self.pending_actions.push(primary_action);
         }
         self.pending_actions.push(RouterAction::RouteChanged {
             from: old_route_id,
-            to: new_route.id,
+            to: new_route_id,
         });
     }
 
