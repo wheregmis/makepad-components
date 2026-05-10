@@ -18,6 +18,7 @@ script_mod! {
     mod.widgets.ShadMenubarTrigger = ButtonFlat{
         height: 30
         enable_long_press: true
+        grab_key_focus: true
         padding: Inset{left: 10, right: 10, top: 0, bottom: 0}
 
         draw_bg +: {
