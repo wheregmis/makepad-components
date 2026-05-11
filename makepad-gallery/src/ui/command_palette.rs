@@ -38,6 +38,20 @@ fn matches_command_query(term: &CommandSearchTerm, query: &str) -> bool {
         || term.shortcut.contains(query)
 }
 
+fn contains_ignore_ascii_case(haystack: &str, needle: &str) -> bool {
+    if needle.is_empty() {
+        return true;
+    }
+    let needle_len = needle.len();
+    if haystack.len() < needle_len {
+        return false;
+    }
+    haystack
+        .as_bytes()
+        .windows(needle_len)
+        .any(|window| window.eq_ignore_ascii_case(needle.as_bytes()))
+}
+
 fn command_results_summary(query: &str, matches_count: usize) -> String {
     let query = query.trim();
     let total = catalog::entries().len();
@@ -496,15 +510,18 @@ impl GalleryCommandPalette {
         }
 
         // Fallback for any trailing entries not in cache
+        // Optimization: avoid 3 heap allocations from `.to_ascii_lowercase()` in the fallback search loop.
+        // Previously: called `.to_ascii_lowercase()` on title, section, and shortcut, which allocated three Strings per iteration.
+        // Now: we use a zero-allocation `contains_ignore_ascii_case` helper.
         for (index, command) in catalog::entries()
             .iter()
             .enumerate()
             .skip(search_terms.len())
         {
             if query.is_empty()
-                || command.title.to_ascii_lowercase().contains(&query)
-                || command.section.to_ascii_lowercase().contains(&query)
-                || command.shortcut.to_ascii_lowercase().contains(&query)
+                || contains_ignore_ascii_case(&command.title, &query)
+                || contains_ignore_ascii_case(&command.section, &query)
+                || contains_ignore_ascii_case(&command.shortcut, &query)
             {
                 self.filtered_indices_scratch.push(index);
             }
