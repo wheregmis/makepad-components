@@ -1,9 +1,10 @@
-function __wbg_get_imports(){
+function __wbg_get_imports(env){
 const import0={
 __proto__:null,
 };
 return{
 __proto__:null,
+env,
 "./bindgen_bg.js":import0,
 };
 }
@@ -12,7 +13,7 @@ function __wbg_finalize_init(instance,module){
 wasm=instance.exports;
 wasmModule=module;
 wasm.__wbindgen_start();
-return instance;
+return wasm;
 }
 async function __wbg_load(module,imports){
 if(typeof Response==='function'&&module instanceof Response){
@@ -43,7 +44,7 @@ case'basic':case'cors':case'default':return true;
 return false;
 }
 }
-function initSync(module){
+function initSync(module,env){
 if(wasm!==undefined)return wasm;
 if(module!==undefined){
 if(Object.getPrototypeOf(module)===Object.prototype){
@@ -52,14 +53,14 @@ if(Object.getPrototypeOf(module)===Object.prototype){
 console.warn('using deprecated parameters for `initSync()`; pass a single object instead')
 }
 }
-const imports=__wbg_get_imports(); imports.env=env;imports.env=env;
+const imports=__wbg_get_imports(env);
 if(!(module instanceof WebAssembly.Module)){
 module=new WebAssembly.Module(module);
 }
 const instance=new WebAssembly.Instance(module,imports);
 return __wbg_finalize_init(instance,module);
 }
-async function __wbg_init(module_or_path,env){let memory;
+async function __wbg_init(module_or_path,env){
 if(wasm!==undefined)return wasm;
 if(module_or_path!==undefined){
 if(Object.getPrototypeOf(module_or_path)===Object.prototype){
@@ -71,7 +72,7 @@ console.warn('using deprecated parameters for the initialization function; pass 
 if(module_or_path===undefined){
 module_or_path=new URL('bindgen_bg.wasm',import.meta.url);
 }
-const imports=__wbg_get_imports(); imports.env=env;imports.env=env;
+const imports=__wbg_get_imports(env);
 if(typeof module_or_path==='string'||(typeof Request==='function'&&module_or_path instanceof Request)||(typeof URL==='function'&&module_or_path instanceof URL)){
 module_or_path=fetch(module_or_path);
 }
