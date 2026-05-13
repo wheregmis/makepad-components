@@ -71,3 +71,6 @@
 ## $(date +%Y-%m-%d) – Make tabs reachable via keyboard
 **Learning:** In the Makepad components library, interactive elements like tab triggers can be excluded from keyboard navigation if `grab_key_focus: true` is not explicitly set in their DSL definition. This renders `ShadTabsTrigger` inaccessible to keyboard-only users.
 **Action:** When building interactive layout components that inherit from base widgets like `ButtonFlat`, ensure `grab_key_focus: true` is included to maintain tab accessibility.
+## 2026-05-10 – Make buttons reachable via keyboard
+**Learning:** In the Makepad components library, interactive elements inheriting from base widgets like `ButtonFlat` can be excluded from keyboard navigation if `grab_key_focus: true` is not explicitly set in their DSL definition.
+**Action:** When building interactive layout components that inherit from base widgets, ensure `grab_key_focus: true` is included to maintain accessibility.
