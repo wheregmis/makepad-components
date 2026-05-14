@@ -9,3 +9,6 @@
 ## 2025-05-11 - Zero-allocation case-insensitive substring search
 **Learning:** Calling `to_ascii_lowercase()` in a loop for case-insensitive `contains` checks (like `command.title.to_ascii_lowercase().contains(&query)`) forces heap allocations per iteration per string.
 **Action:** Use `.as_bytes().windows(needle.len()).any(|w| w.eq_ignore_ascii_case(needle.as_bytes()))` to perform a zero-allocation case-insensitive substring search.
+## 2024-05-14 - Zero-Allocation Case-Insensitive String Search
+**Learning:** In UI search filtering loops, standard `.to_ascii_lowercase()` calls on strings inside `for` loops cause rapid and excessive heap allocations (creating new Strings). A case-insensitive comparison using `String::contains()` after a `.to_ascii_lowercase()` acts as a major bottleneck in frame rendering.
+**Action:** Extract reusable zero-allocation string search helpers like `contains_ignore_ascii_case` to shared modules, leveraging byte slices (`haystack.as_bytes().windows(needle.len()).any(|w| w.eq_ignore_ascii_case(needle.as_bytes()))`) to prevent allocation. Eliminate `Vec<String>` caches meant merely for holding lowercased string data.

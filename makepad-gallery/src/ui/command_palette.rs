@@ -38,7 +38,7 @@ fn matches_command_query(term: &CommandSearchTerm, query: &str) -> bool {
         || term.shortcut.contains(query)
 }
 
-fn contains_ignore_ascii_case(haystack: &str, needle: &str) -> bool {
+pub(crate) fn contains_ignore_ascii_case(haystack: &str, needle: &str) -> bool {
     if needle.is_empty() {
         return true;
     }

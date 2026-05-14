@@ -274,8 +274,6 @@ pub struct GalleryIconGalleryPage {
     #[rust]
     query: String,
     #[rust]
-    widget_name_lower: Vec<String>,
-    #[rust]
     filtered_indices: Vec<usize>,
     #[rust]
     filtered_indices_scratch: Vec<usize>,
@@ -286,10 +284,6 @@ pub struct GalleryIconGalleryPage {
 }
 
 impl GalleryIconGalleryPage {
-    fn normalize_query(query: &str) -> String {
-        query.trim().to_ascii_lowercase()
-    }
-
     fn summary_text(query: &str, matches_count: usize) -> String {
         if query.is_empty() {
             format!("Showing all {ICON_GALLERY_TOTAL} generated icons.")
@@ -304,21 +298,6 @@ impl GalleryIconGalleryPage {
         format!(
             "{widget_name}{{\n    icon_walk: Walk{{width: 18, height: 18}}\n    draw_icon.color: (shad_theme.color_primary)\n}}\n"
         )
-    }
-
-    fn ensure_filter_cache(&mut self) {
-        if self.widget_name_lower.len() == ICON_GALLERY_ENTRIES.len() {
-            return;
-        }
-
-        self.widget_name_lower = ICON_GALLERY_ENTRIES
-            .iter()
-            .map(|entry| entry.widget_name.to_ascii_lowercase())
-            .collect();
-        self.filtered_indices.clear();
-        self.filtered_indices_scratch.clear();
-        self.filtered_indices_scratch
-            .reserve(ICON_GALLERY_ENTRIES.len());
     }
 
     fn sync_empty_usage_preview(&self, cx: &mut Cx, query: &str) {
@@ -366,18 +345,23 @@ impl GalleryIconGalleryPage {
     }
 
     fn apply_filter(&mut self, cx: &mut Cx) {
-        self.ensure_filter_cache();
-
-        let query = Self::normalize_query(&self.query);
+        let query = self.query.trim();
         let mut matches_count = 0;
         let mut first_match_index = None;
         let mut changed = false;
+
+        if self.filtered_indices_scratch.capacity() < ICON_GALLERY_ENTRIES.len() {
+            self.filtered_indices_scratch.reserve(ICON_GALLERY_ENTRIES.len());
+        }
         self.filtered_indices_scratch.clear();
 
+        // Optimization: avoid heap allocations from `.to_ascii_lowercase()` and caching in the search loop.
+        // Previously: called `.to_ascii_lowercase()` to normalize query and cached `widget_name_lower: Vec<String>`.
+        // Now: we use a zero-allocation `contains_ignore_ascii_case` helper.
         for (index, entry) in ICON_GALLERY_ENTRIES.iter().enumerate() {
             let matches = query.is_empty()
-                || entry.icon_name.contains(&query)
-                || self.widget_name_lower[index].contains(&query);
+                || crate::ui::command_palette::contains_ignore_ascii_case(entry.icon_name, query)
+                || crate::ui::command_palette::contains_ignore_ascii_case(entry.widget_name, query);
             if matches {
                 self.filtered_indices_scratch.push(index);
                 matches_count += 1;
