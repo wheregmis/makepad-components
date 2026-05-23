@@ -248,6 +248,7 @@ script_mod! {
     mod.widgets.ShadButtonBase = mod.widgets.ButtonFlat{
         height: (shad_theme.control_height_md)
         enable_long_press: true
+        grab_key_focus: true
         padding: Inset{
             left: (shad_theme.control_padding_x_md),
             right: (shad_theme.control_padding_x_md),
@@ -362,6 +363,7 @@ script_mod! {
     mod.widgets.ShadButtonLink = mod.widgets.ButtonFlat{
         height: 36
         enable_long_press: true
+        grab_key_focus: true
         padding: Inset{left: 4, right: 4, top: 0, bottom: 0}
         draw_bg +: {
             color: #0000
@@ -414,6 +416,7 @@ script_mod! {
         width: 36
         height: 36
         enable_long_press: true
+        grab_key_focus: true
         spacing: 0.0
         padding: Inset{left: 0, right: 0, top: 0, bottom: 0}
         draw_bg +: {
