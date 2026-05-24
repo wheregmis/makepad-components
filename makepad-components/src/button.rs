@@ -246,6 +246,7 @@ script_mod! {
     }
 
     mod.widgets.ShadButtonBase = mod.widgets.ButtonFlat{
+        grab_key_focus: true
         height: (shad_theme.control_height_md)
         enable_long_press: true
         padding: Inset{
@@ -411,6 +412,7 @@ script_mod! {
     }
 
     mod.widgets.ShadButtonIconOutline = mod.widgets.ButtonFlatIcon{
+        grab_key_focus: true
         width: 36
         height: 36
         enable_long_press: true
