@@ -31,13 +31,16 @@ script_mod! {
         is_open: true
         active: 1.0
         title: "Accordion Item"
+        grab_key_focus: true
 
         draw_bg +: {
             hover: instance(0.0)
+            focus: instance(0.0)
             header_height: uniform(48.0)
 
             color_hover: uniform(shad_theme.color_secondary_hover)
             color_divider: uniform(shad_theme.color_outline_border)
+            color_focus: uniform(shad_theme.color_primary)
 
             pixel: fn() {
                 let sdf = Sdf2d.viewport(self.pos * self.rect_size)
@@ -51,6 +54,11 @@ script_mod! {
                 // Bottom divider line
                 sdf.rect(0.0, self.rect_size.y - 1.0, self.rect_size.x, 1.0)
                 sdf.fill(self.color_divider)
+
+                if self.focus > 0.0 {
+                    sdf.box(0.0, 0.0, self.rect_size.x, hh, 0.0)
+                    sdf.stroke(mix(vec4(0.0, 0.0, 0.0, 0.0), self.color_focus, self.focus), 2.0)
+                }
 
                 return sdf.result
             }
@@ -112,6 +120,18 @@ script_mod! {
                         draw_bg: {hover: 1.0}
                         draw_icon: {hover: 1.0}
                     }
+                }
+            }
+
+            focus: {
+                default: @off
+                off: AnimatorState{
+                    from: {all: Forward {duration: 0.1}}
+                    apply: {draw_bg: {focus: 0.0}}
+                }
+                on: AnimatorState{
+                    from: {all: Snap}
+                    apply: {draw_bg: {focus: 1.0}}
                 }
             }
 
@@ -188,6 +208,9 @@ pub struct ShadAccordionItem {
     #[rust]
     last_progress_bucket: Option<i16>,
 
+    #[live(true)]
+    grab_key_focus: bool,
+
     #[layout]
     layout: Layout,
     #[walk]
@@ -256,7 +279,28 @@ impl Widget for ShadAccordionItem {
         }
 
         match event.hits(cx, self.header_area) {
+            Hit::KeyFocus(_) => {
+                self.animator_play(cx, ids!(focus.on));
+            }
+            Hit::KeyFocusLost(_) => {
+                self.animator_play(cx, ids!(focus.off));
+                self.area.redraw(cx);
+            }
+            Hit::KeyDown(ke) if matches!(ke.key_code, KeyCode::ReturnKey | KeyCode::Space) => {
+                let next_is_open = !self.animator_in_state(cx, ids!(active.on));
+                if self.sync_open_state(cx, next_is_open, animator::Animate::Yes) {
+                    emit_widget_action(
+                        cx,
+                        &self.action_data,
+                        uid,
+                        ShadAccordionItemAction::OpenChanged(next_is_open),
+                    );
+                }
+            }
             Hit::FingerDown(fe) if fe.is_primary_hit() => {
+                if self.grab_key_focus {
+                    cx.set_key_focus(self.header_area);
+                }
                 self.animator_play(cx, ids!(hover.on));
             }
             Hit::FingerHoverIn(_) => {
