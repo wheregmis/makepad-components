@@ -324,18 +324,26 @@ impl RouteRegistry {
             return;
         };
 
+        // Optimization: avoid redundant String allocations when building hash map indices.
+        // Previously: called `HashMap::entry(key.clone())`, which allocated a String on the heap
+        //             even if the key already existed. This was particularly wasteful for
+        //             `by_first_segment` where many routes share the same first segment.
+        // Now: we check for existence with `contains_key` using a borrowed string slice
+        //      before cloning and inserting.
         if let Some(path) = meta.exact_static_path.as_ref() {
-            self.exact_static
-                .entry(path.clone())
-                .or_insert(entry.route_id);
+            if !self.exact_static.contains_key(path) {
+                self.exact_static.insert(path.clone(), entry.route_id);
+            }
         }
 
         match meta.first_static_segment.as_ref() {
-            Some(first) => self
-                .by_first_segment
-                .entry(first.clone())
-                .or_default()
-                .push(idx),
+            Some(first) => {
+                if let Some(vec) = self.by_first_segment.get_mut(first) {
+                    vec.push(idx);
+                } else {
+                    self.by_first_segment.insert(first.clone(), vec![idx]);
+                }
+            }
             None if meta.has_wildcard => self.fallback_wildcard.push(idx),
             None => self.fallback_dynamic.push(idx),
         }
@@ -355,16 +363,18 @@ impl RouteRegistry {
                 continue;
             };
             if let Some(path) = meta.exact_static_path.as_ref() {
-                self.exact_static
-                    .entry(path.clone())
-                    .or_insert(entry.route_id);
+                if !self.exact_static.contains_key(path) {
+                    self.exact_static.insert(path.clone(), entry.route_id);
+                }
             }
             match meta.first_static_segment.as_ref() {
-                Some(first) => self
-                    .by_first_segment
-                    .entry(first.clone())
-                    .or_default()
-                    .push(idx),
+                Some(first) => {
+                    if let Some(vec) = self.by_first_segment.get_mut(first) {
+                        vec.push(idx);
+                    } else {
+                        self.by_first_segment.insert(first.clone(), vec![idx]);
+                    }
+                }
                 None if meta.has_wildcard => self.fallback_wildcard.push(idx),
                 None => self.fallback_dynamic.push(idx),
             }

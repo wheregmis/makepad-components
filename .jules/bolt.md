@@ -9,3 +9,7 @@
 ## 2025-05-11 - Zero-allocation case-insensitive substring search
 **Learning:** Calling `to_ascii_lowercase()` in a loop for case-insensitive `contains` checks (like `command.title.to_ascii_lowercase().contains(&query)`) forces heap allocations per iteration per string.
 **Action:** Use `.as_bytes().windows(needle.len()).any(|w| w.eq_ignore_ascii_case(needle.as_bytes()))` to perform a zero-allocation case-insensitive substring search.
+
+## $(date +%Y-%m-%d) - Avoiding Unnecessary Allocations during HashMap Insertions
+**Learning:** Using `HashMap::entry(key.clone()).or_insert(...)` or `.or_default()` allocates a `String` unconditionally. This creates significant heap churn on a hot path if the keys frequently already exist in the map (e.g., when indexing shared paths in `RouteRegistry`).
+**Action:** Use a check-then-insert approach, looking up with a borrowed slice (`contains_key` or `get_mut`), and only calling `clone()` to allocate the owned `String` when an insertion actually needs to happen.
